@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { ClientBuilder } from '@commercetools/sdk-client-v2';
-import { createApiBuilderFromCtpClient } from '@commercetools/platform-sdk';
+import {
+  createApiBuilderFromCtpClient,
+  ExtensionDraft,
+} from '@commercetools/platform-sdk';
 import { ByProjectKeyRequestBuilder } from '@commercetools/platform-sdk/dist/declarations/src/generated/client/by-project-key-request-builder';
 import {
   type AuthMiddlewareOptions,
@@ -8,10 +11,10 @@ import {
 } from '@commercetools/sdk-client-v2';
 import { ConfigService } from '@nestjs/config';
 
-let root: ByProjectKeyRequestBuilder;
-
 @Injectable()
 export class Commercetools {
+  private root: ByProjectKeyRequestBuilder;
+
   constructor(private configService: ConfigService) {}
 
   private getAuthMiddlewareOptions(
@@ -43,29 +46,31 @@ export class Commercetools {
    * Create a new client builder.
    * This code creates a new Client that can be used to make API calls
    */
-  createClient = () =>
+  private createClient = () =>
     new ClientBuilder()
-      .withProjectKey(process.env.CTP_PROJECT_KEY)
+      .withProjectKey(this.configService.get('commercetools.projectKey'))
       .withClientCredentialsFlow(
         this.getAuthMiddlewareOptions(this.configService),
       )
-      .withHttpMiddleware(this.getAuthMiddlewareOptions(this.configService))
+      .withHttpMiddleware(this.getHttpMiddlewareOptions(this.configService))
       .build();
 
   /**
    * Create client with apiRoot
    * apiRoot can now be used to build requests to de Composable Commerce API
    */
-  createApiRoot = (() => () => {
-    if (root) {
-      return root;
+  public getApiRoot = (() => () => {
+    if (this.root) {
+      return this.root;
     }
 
-    root = createApiBuilderFromCtpClient(this.createClient()).withProjectKey({
+    this.root = createApiBuilderFromCtpClient(
+      this.createClient(),
+    ).withProjectKey({
       projectKey: this.configService.get('commercetools.projectKey'),
     });
 
-    return root;
+    return this.root;
   })();
 
   /**
@@ -75,7 +80,19 @@ export class Commercetools {
    *
    * @returns {Promise<ClientResponse<Project>>} apiRoot
    */
-  getProject = async () => {
-    return await this.createApiRoot().get().execute();
+  public getProject = async () => {
+    return await this.getApiRoot().get().execute();
   };
+
+  public async createExtension(body: ExtensionDraft) {
+    await this.getApiRoot().extensions().post({ body }).execute();
+  }
+
+  public async deleteExtension(key: string) {
+    await this.getApiRoot()
+      .extensions()
+      .withKey({ key })
+      .delete({ queryArgs: { version: 1 } })
+      .execute();
+  }
 }

@@ -3,6 +3,9 @@ import 'dotenv/config';
 import _ = require('lodash');
 
 const validationSchema = Joi.object({
+  debug: Joi.object({
+    extensionKey: Joi.string(),
+  }),
   commercetools: Joi.object({
     projectKey: Joi.string().required(),
     region: Joi.string().required(),
@@ -13,6 +16,9 @@ const validationSchema = Joi.object({
 });
 
 const defaultConfiguration = {
+  debug: {
+    extensionKey: process.env.DEBUG_EXTENSION_KEY || 'dev-debug-extension',
+  },
   commercetools: {
     projectKey: process.env.CTP_PROJECT_KEY,
     region: process.env.CTP_REGION,
