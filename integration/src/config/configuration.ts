@@ -5,6 +5,7 @@ import _ = require('lodash');
 const validationSchema = Joi.object({
   debug: Joi.object({
     extensionKey: Joi.string(),
+    ngrokEnabled: Joi.boolean(),
   }),
   commercetools: Joi.object({
     projectKey: Joi.string().required(),
@@ -18,6 +19,7 @@ const validationSchema = Joi.object({
 const defaultConfiguration = {
   debug: {
     extensionKey: process.env.DEBUG_EXTENSION_KEY || 'dev-debug-extension',
+    ngrokEnabled: process.env.NGROK_ENABLED === 'true',
   },
   commercetools: {
     projectKey: process.env.CTP_PROJECT_KEY,

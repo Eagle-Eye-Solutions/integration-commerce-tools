@@ -28,20 +28,30 @@ export class AppModule implements OnModuleInit, OnModuleDestroy {
   ) {}
 
   async onModuleInit(): Promise<any> {
-    const ngrokUrl = await connect(parseInt(process.env.PORT, 10) || 8080);
-    console.log(`Initialized ngrok at ${ngrokUrl}.`);
-    console.log('Creating debug commercetools extension...');
-    await this.commercetoolsService.createExtension({
-      key: this.extensionKey,
-      destination: { type: 'HTTP', url: ngrokUrl },
-      triggers: [{ resourceTypeId: 'cart', actions: ['Create', 'Update'] }],
-    });
-    console.log('Debug commercetools extension created.');
+    if (
+      process.env.NODE_ENV === 'dev' &&
+      this.configService.get('debug.ngrokEnabled')
+    ) {
+      const ngrokUrl = await connect(parseInt(process.env.PORT, 10) || 8080);
+      console.log(`Initialized ngrok at ${ngrokUrl}.`);
+      console.log('Creating debug commercetools extension...');
+      await this.commercetoolsService.createExtension({
+        key: this.extensionKey,
+        destination: { type: 'HTTP', url: ngrokUrl },
+        triggers: [{ resourceTypeId: 'cart', actions: ['Create', 'Update'] }],
+      });
+      console.log('Debug commercetools extension created.');
+    }
   }
 
   async onModuleDestroy(): Promise<any> {
-    console.log(`Deleting debug commercetools extension...`);
-    await this.commercetoolsService.deleteExtension(this.extensionKey);
-    console.log(`Debug extension deleted.`);
+    if (
+      process.env.NODE_ENV === 'dev' &&
+      this.configService.get('debug.ngrokEnabled')
+    ) {
+      console.log(`Deleting debug commercetools extension...`);
+      await this.commercetoolsService.deleteExtension(this.extensionKey);
+      console.log(`Debug extension deleted.`);
+    }
   }
 }

@@ -11,10 +11,10 @@
     "build:clean": "rimraf dist && nest build",
     "gcp-build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "node dist/main.js",
-    "start:local": "nest start",
-    "start:dev": "nest start --watch",
-    "start:debug": "nest start --debug --watch",
+    "start": "node dist/main",
+    "start:local": "NODE_ENV=dev nest start",
+    "start:dev": "NODE_ENV=dev nest start --watch",
+    "start:debug": "NODE_ENV=dev nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
@@ -23,7 +23,8 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "prepare": "cd .. && husky install integration/.husky",
-    "commitlint": "cd .. && commitlint -g integration/commitlint.config.js --edit"
+    "commitlint": "cd .. && commitlint -g integration/commitlint.config.js --edit",
+    "branchlint": "node src/scripts/enforce-branch-naming.js"
   },
   "dependencies": {
     "@commercetools/platform-sdk": "^6.0.0",
