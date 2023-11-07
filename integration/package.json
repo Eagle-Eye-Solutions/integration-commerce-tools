@@ -24,7 +24,9 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "prepare": "cd .. && husky install integration/.husky",
     "commitlint": "cd .. && commitlint -g integration/commitlint.config.js --edit",
-    "branchlint": "node src/scripts/enforce-branch-naming.js"
+    "branchlint": "node src/scripts/enforce-branch-naming.js",
+    "connector:post-deploy": "node dist/scripts/post-deploy.js",
+    "connector:pre-undeploy": "node dist/scripts/pre-undeploy.js"
   },
   "dependencies": {
     "@commercetools/platform-sdk": "^6.0.0",

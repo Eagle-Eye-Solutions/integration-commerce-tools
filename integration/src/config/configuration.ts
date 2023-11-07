@@ -1,6 +1,9 @@
 import * as Joi from 'joi';
 import 'dotenv/config';
 import _ = require('lodash');
+import { Injectable, Logger } from '@nestjs/common';
+
+const logger = new Logger('ConfigService');
 
 const validationSchema = Joi.object({
   debug: Joi.object({
@@ -50,10 +53,29 @@ export const configuration = () => {
       const mergedConfig = _.merge(defaultConfiguration, configOverride);
       return mergedConfig;
     } catch (err) {
-      console.error('Failed to apply configuration override. Error: ', err);
-      console.log('Continuing only with default configuration.');
+      logger.error('Failed to apply configuration override. Error: ', err);
+      logger.log('Continuing only with default configuration.');
     }
   }
 
   return defaultConfiguration;
 };
+
+// Only intended for scripts or cases where NestJS modules are not available
+@Injectable()
+export class ScriptConfigService {
+  private config;
+  constructor() {
+    validateConfiguration();
+    this.config = configuration();
+  }
+
+  public get(propertyPath: string) {
+    const splitPath = propertyPath.split('.');
+    let resultProp = this.config;
+    splitPath.forEach((prop) => {
+      resultProp = resultProp[prop];
+    });
+    return resultProp;
+  }
+}

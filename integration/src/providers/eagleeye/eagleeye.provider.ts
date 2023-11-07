@@ -1,9 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const fetch = require('fetch-retry')(global.fetch);
 
 @Injectable()
 export class EagleEye {
+  private logger = new Logger(EagleEye.name);
+
   makeEagleEyeRequest(url) {
     try {
       fetch(url, {
@@ -17,7 +19,7 @@ export class EagleEye {
         })
         .then(function (json) {
           // Do something with the result
-          console.log(json);
+          this.logger.log(json);
         });
     } catch (err) {
       // Do something with error

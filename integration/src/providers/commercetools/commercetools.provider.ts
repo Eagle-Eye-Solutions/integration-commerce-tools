@@ -3,6 +3,8 @@ import { ClientBuilder } from '@commercetools/sdk-client-v2';
 import {
   createApiBuilderFromCtpClient,
   ExtensionDraft,
+  Extension,
+  ExtensionUpdateAction,
 } from '@commercetools/platform-sdk';
 import { ByProjectKeyRequestBuilder } from '@commercetools/platform-sdk/dist/declarations/src/generated/client/by-project-key-request-builder';
 import {
@@ -84,15 +86,34 @@ export class Commercetools {
     return await this.getApiRoot().get().execute();
   };
 
+  public async queryExtensions(methodArgs: any): Promise<Extension[]> {
+    return (await this.getApiRoot().extensions().get(methodArgs).execute()).body
+      .results;
+  }
+
   public async createExtension(body: ExtensionDraft) {
     await this.getApiRoot().extensions().post({ body }).execute();
   }
 
-  public async deleteExtension(key: string) {
+  public async updateExtension(
+    key: string,
+    body: {
+      version: number;
+      actions: ExtensionUpdateAction[];
+    },
+  ) {
     await this.getApiRoot()
       .extensions()
       .withKey({ key })
-      .delete({ queryArgs: { version: 1 } })
+      .post({ body })
+      .execute();
+  }
+
+  public async deleteExtension(key: string, version: number) {
+    await this.getApiRoot()
+      .extensions()
+      .withKey({ key })
+      .delete({ queryArgs: { version } })
       .execute();
   }
 }
