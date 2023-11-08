@@ -1,0 +1,50 @@
+name: 'Check and Undeploy Connector'
+description: 'Try to undeploy Connector if it exists before deploying a new one'
+
+inputs:
+  access_token:
+    description: 'commercetools access token'
+    required: true
+  ct_region:
+    description: 'commercetools region'
+    required: true
+  connector_key:
+    description: 'commercetools ConnectorStaged key (also used as deployment prefix)'
+    required: true
+  ct_project_key:
+    description: 'commercetools project key'
+    required: true
+  connect_env:
+    description: 'environment used for deployment'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Check existing Deployment
+      id: ct_get_connector_before_deployment
+      uses: ./.github/actions/webrequest-action
+      continue-on-error: true
+      with:
+        url: https://connect.${{ inputs.ct_region }}.commercetools.com/${{ inputs.ct_project_key }}/deployments/key=${{ inputs.connector_key }}-deployment-${{ inputs.connect_env }}
+        method: GET
+        headers: '{"Authorization": "Bearer ${{ inputs.access_token }}"}'
+    - name: Undeploy Connector
+      id: ct_delete_connector_before_deployment
+      if: steps.ct_get_connector_before_deployment.outcome == 'success'
+      uses: ./.github/actions/webrequest-action
+      with:
+        url: https://connect.${{ inputs.ct_region }}.commercetools.com/${{ inputs.ct_project_key }}/deployments/key=${{ inputs.connector_key }}-deployment-${{ inputs.connect_env }}
+        method: DELETE
+        headers: '{"Authorization": "Bearer ${{ inputs.access_token }}"}'
+    - name: Wait for Connector to be Undeployed
+      id: ct_check_connector_deployment_status
+      if: steps.ct_get_connector_before_deployment.outcome == 'success' && steps.ct_delete_connector_before_deployment.outcome == 'success'
+      uses: ./.github/actions/poll-endpoint
+      with:
+        url: https://connect.${{ inputs.ct_region }}.commercetools.com/${{ inputs.ct_project_key }}/deployments/key=${{ inputs.connector_key }}-deployment-${{ inputs.connect_env }}
+        method: GET
+        authorization: 'Bearer ${{ inputs.access_token }}'
+        expectStatus: 404
+        timeout: 900000
+        interval: 180000

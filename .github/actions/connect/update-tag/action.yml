@@ -1,0 +1,46 @@
+name: 'Update Connector Tag'
+description: 'Deploys a docker image to cloud run'
+
+inputs:
+  tag:
+    description: 'Tag to deploy'
+    required: true
+  access_token:
+    description: 'commercetools access token'
+    required: true
+  ct_region:
+    description: 'commercetools region'
+    required: true
+  connector_key:
+    description: 'commercetools ConnectorStaged key (also used as deployment prefix)'
+    required: true
+outputs:
+  output:
+    description: 'Connector with updated tag'
+    value: ${{ steps.ct_get_connector_after_tag_update.outputs.output }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Get current ConnectorStaged
+      id: ct_get_connector
+      uses: ./.github/actions/webrequest-action
+      with:
+        url: https://connect.${{ inputs.ct_region }}.commercetools.com/connectors/drafts/key=${{ inputs.connector_key }}
+        method: GET
+        headers: '{"Authorization": "Bearer ${{ inputs.access_token }}"}'
+    - name: Update ConnectorStaged Tag
+      id: ct_update_connector_tag
+      uses: ./.github/actions/webrequest-action
+      with:
+        url: https://connect.${{ inputs.ct_region }}.commercetools.com/connectors/drafts/key=${{ inputs.connector_key }}
+        method: POST
+        headers: '{"Authorization": "Bearer ${{ inputs.access_token }}"}'
+        payload: '{"version":${{ fromJSON(steps.ct_get_connector.outputs.output).data.version }},"actions":[{"action":"setRepository","url":"git@github.com:${{ github.repository }}.git","tag":"${{ inputs.tag }}"}]}'
+    - name: Get ConnectorStaged after tag update
+      id: ct_get_connector_after_tag_update
+      uses: ./.github/actions/webrequest-action
+      with:
+        url: https://connect.${{ inputs.ct_region }}.commercetools.com/connectors/drafts/key=${{ inputs.connector_key }}
+        method: GET
+        headers: '{"Authorization": "Bearer ${{ inputs.access_token }}"}'

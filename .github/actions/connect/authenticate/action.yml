@@ -1,0 +1,31 @@
+name: 'Authenticate with commercetools'
+description: 'Gets an access token from commercetools'
+
+inputs:
+  ct_region:
+    description: 'commercetools region'
+    required: true
+  ct_api_client_id:
+    description: 'commercetools API client id'
+    required: true
+  ct_api_client_secret:
+    description: 'commercetools API client secret'
+    required: true
+outputs:
+  output:
+    description: 'Authentication response'
+    value: ${{ steps.ct_auth.outputs.output }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Obtain Authorization token from commercetools
+      id: ct_auth
+      uses: ./.github/actions/webrequest-action
+      with:
+        url: https://auth.${{ inputs.ct_region }}.commercetools.com/oauth/token?grant_type=client_credentials
+        method: POST
+        username: ${{ inputs.ct_api_client_id }}
+        password: ${{ inputs.ct_api_client_secret }}

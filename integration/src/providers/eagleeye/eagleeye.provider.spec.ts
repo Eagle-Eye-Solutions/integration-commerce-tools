@@ -1,15 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { Eagleeye } from './eagleeye';
+import { EagleEye } from './eagleeye.provider';
 
 describe('Eagleeye', () => {
-  let provider: Eagleeye;
+  let provider: EagleEye;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [Eagleeye],
+      providers: [EagleEye],
     }).compile();
 
-    provider = module.get<Eagleeye>(Eagleeye);
+    provider = module.get<EagleEye>(EagleEye);
   });
 
   it('should be defined', () => {

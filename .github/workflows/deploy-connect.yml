@@ -1,0 +1,116 @@
+name: Deploy integration to CT Connect
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        description: Deploy to connect environment
+        required: true
+        options:
+          - dev
+          - prod
+      connector_key:
+        type: string
+        description: ConnectorStaged key (also used for deployment)
+        required: true
+        default: eagleeye-integration-testing
+      config_override:
+        type: string
+        description: Stringified and escaped JSON to override all integration configurations
+        required: false
+
+jobs:
+  ct-authorize:
+    name: 'Authenticate with commercetools'
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+    outputs:
+      access_token: ${{ fromJSON(steps.authenticate.outputs.output).data.access_token }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Authenticate
+        id: authenticate
+        uses: ./.github/actions/connect/authenticate
+        with:
+          ct_api_client_id: ${{ secrets.CT_CLIENT_ID }}
+          ct_api_client_secret: ${{ secrets.CT_CLIENT_SECRET }}
+          ct_region: ${{ vars.CT_REGION }}
+  ct-update-tag:
+    name: 'Update Connector Tag'
+    runs-on: ubuntu-latest
+    needs: ['ct-authorize']
+    environment: ${{ github.event.inputs.environment }}
+    outputs:
+      connector: ${{ steps.update-tag.outputs.output }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Get and update Connector
+        id: update-tag
+        uses: ./.github/actions/connect/update-tag
+        with:
+          tag: ${{ github.ref_name }}
+          access_token: ${{ needs.ct-authorize.outputs.access_token }}
+          ct_region: ${{ vars.CT_REGION }}
+          connector_key: ${{ github.event.inputs.connector_key }}
+  ct-request-previewable:
+    name: 'Request Previewable Access'
+    runs-on: ubuntu-latest
+    needs: ['ct-authorize', 'ct-update-tag']
+    environment: ${{ github.event.inputs.environment }}
+    outputs:
+      connector: ${{ steps.request-previewable.outputs.response }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Request Previewable Access
+        id: request-previewable
+        uses: ./.github/actions/connect/request-previewable
+        with:
+          version: ${{ fromJSON(needs.ct-update-tag.outputs.connector).data.version }}
+          access_token: ${{ needs.ct-authorize.outputs.access_token }}
+          ct_region: ${{ vars.CT_REGION }}
+          connector_key: ${{ github.event.inputs.connector_key }}
+  ct-undeploy:
+    name: 'Check and Undeploy Connector'
+    runs-on: ubuntu-latest
+    needs: ['ct-authorize', 'ct-request-previewable']
+    environment: ${{ github.event.inputs.environment }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Check and Undeploy Connector
+        id: undeploy
+        uses: ./.github/actions/connect/undeploy
+        with:
+          access_token: ${{ needs.ct-authorize.outputs.access_token }}
+          ct_project_key: ${{ vars.CT_PROJECT_KEY }}
+          ct_region: ${{ vars.CT_REGION }}
+          connect_env: ${{ github.event.inputs.environment }}
+          connector_key: ${{ github.event.inputs.connector_key }}
+  ct-deploy:
+    name: 'Deploy Connector'
+    runs-on: ubuntu-latest
+    needs: ['ct-authorize', 'ct-request-previewable', 'ct-undeploy']
+    environment: ${{ github.event.inputs.environment }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Deploy Connector
+        id: deploy
+        uses: ./.github/actions/connect/deploy
+        with:
+          version: ${{ fromJSON(needs.ct-request-previewable.outputs.connector).version }}
+          access_token: ${{ needs.ct-authorize.outputs.access_token }}
+          is_previewable: ${{ fromJSON(needs.ct-request-previewable.outputs.connector).isPreviewable }}
+          ct_api_client_id: ${{ secrets.CT_CLIENT_ID }}
+          ct_api_client_secret: ${{ secrets.CT_CLIENT_SECRET }}
+          ct_region: ${{ vars.CT_REGION }}
+          ct_project_key: ${{ vars.CT_PROJECT_KEY }}
+          ct_scopes: ${{ vars.CT_SCOPES }}
+          eagleeye_client_id: ${{ secrets.EE_CLIENT_ID }}
+          eagleeye_client_secret: ${{ secrets.EE_CLIENT_SECRET }}
+          connect_env: ${{ github.event.inputs.environment }}
+          connector_key: ${{ github.event.inputs.connector_key }}
+          config_override: ${{ github.event.inputs.config_override }}
