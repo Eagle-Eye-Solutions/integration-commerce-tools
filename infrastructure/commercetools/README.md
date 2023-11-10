@@ -10,7 +10,7 @@ Infrastructure code to configure commercetools product types, taxes, settings, s
 * Create a project called `eagleeye-commercetools-plugin`
 * Create two workspaces called `ee-ct-plugin-commercetools-dev`, `ee-ct-plugin-commercetools-prod`
 * Configure the variables required
-    * CPT_PROJECT_NAME
+    * CTP_PROJECT_NAME
     * CTP_CLIENT_ID
     * CTP_CLIENT_SECRET
     * CTP_PROJECT_KEY
