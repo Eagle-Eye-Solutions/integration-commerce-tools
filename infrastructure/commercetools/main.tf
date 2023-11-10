@@ -13,7 +13,7 @@ resource "commercetools_tax_category_rate" "standard-tax-category-UK" {
 }
 
 resource "commercetools_project_settings" "my-project" {
-  name                         = var.CPT_PROJECT_NAME
+  name                         = var.CTP_PROJECT_NAME
   countries                    = ["GB"]
   currencies                   = ["GBP"]
   languages                    = ["en"]

@@ -8,40 +8,40 @@ provider "commercetools" {
 }
 
 variable "CTP_API_URL" {
-  type = string
-  default = "https://api.europe-west1.gcp.commercetools.com"
+  type        = string
+  default     = "https://api.europe-west1.gcp.commercetools.com"
   description = "commercetools API URL"
 }
 
 variable "CTP_AUTH_URL" {
-  type = string
-  default = "https://auth.europe-west1.gcp.commercetools.com"
+  type        = string
+  default     = "https://auth.europe-west1.gcp.commercetools.com"
   description = "commercetools Authentication API URL"
 }
 
 variable "CTP_CLIENT_ID" {
-  type = string
+  type        = string
   description = "commercetools API Client ID"
-  sensitive = true
+  sensitive   = true
 }
 
 variable "CTP_CLIENT_SECRET" {
-  type = string
+  type        = string
   description = "commercetools API Client secret"
-  sensitive = true
+  sensitive   = true
 }
 
 variable "CTP_PROJECT_KEY" {
-  type = string
+  type        = string
   description = "commercetools API Client ID"
 }
 
 variable "CTP_SCOPES" {
-  type = string
+  type        = string
   description = "commercetools Client scopes"
 }
 
-variable "CPT_PROJECT_NAME" {
-  type = string
+variable "CTP_PROJECT_NAME" {
+  type        = string
   description = "commercetools environment project name"
 }
