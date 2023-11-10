@@ -20,8 +20,6 @@ Infrastructure code to configure commercetools product types, taxes, settings, s
   click `settings` > `Version Control`, connect to GitHub and set the field `Terraform Working Directory`
   to `infrastructure/commercetools`
 
-[//]: # (* Add the tag `commercetools` to all previously created workspaces)
-
 ### Login to terraform cloud
 
 Log in to Terraform Cloud via the CLI, run `terraform login` and follow the prompts to get an API token for
