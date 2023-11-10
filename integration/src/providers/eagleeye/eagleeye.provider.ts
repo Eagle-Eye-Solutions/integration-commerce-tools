@@ -6,23 +6,21 @@ const fetch = require('fetch-retry')(global.fetch);
 export class EagleEye {
   private logger = new Logger(EagleEye.name);
 
-  makeEagleEyeRequest(url) {
+  public async makeEagleEyeRequest(url, method, body, options) {
     try {
-      fetch(url, {
+      const response = await fetch(url, {
+        method,
+        body: JSON.stringify(body),
+        options,
         retryDelay: function (attempt) {
           return Math.pow(2, attempt) * 1000;
         },
         retryOn: [429, 503],
-      })
-        .then(function (response) {
-          return response.json();
-        })
-        .then(function (json) {
-          // Do something with the result
-          this.logger.log(json);
-        });
+      });
+      const result = await response.json();
+      this.logger.log(result);
     } catch (err) {
-      // Do something with error
+      this.logger.error(err);
     }
   }
 }

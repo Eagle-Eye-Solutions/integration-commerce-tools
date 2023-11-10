@@ -19,7 +19,7 @@ const validationSchema = Joi.object({
   }),
 });
 
-const defaultConfiguration = {
+export const defaultConfiguration = {
   debug: {
     extensionKey: process.env.DEBUG_EXTENSION_KEY || 'dev-debug-extension',
     ngrokEnabled: process.env.NGROK_ENABLED === 'true',

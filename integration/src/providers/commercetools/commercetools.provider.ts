@@ -75,24 +75,13 @@ export class Commercetools {
     return this.root;
   })();
 
-  /**
-   * Example code to get the Project details
-   * This code has the same effect as sending a GET
-   * request to the commercetools Composable Commerce API without any endpoints.
-   *
-   * @returns {Promise<ClientResponse<Project>>} apiRoot
-   */
-  public getProject = async () => {
-    return await this.getApiRoot().get().execute();
-  };
-
   public async queryExtensions(methodArgs: any): Promise<Extension[]> {
     return (await this.getApiRoot().extensions().get(methodArgs).execute()).body
       .results;
   }
 
   public async createExtension(body: ExtensionDraft) {
-    await this.getApiRoot().extensions().post({ body }).execute();
+    return await this.getApiRoot().extensions().post({ body }).execute();
   }
 
   public async updateExtension(
@@ -102,7 +91,7 @@ export class Commercetools {
       actions: ExtensionUpdateAction[];
     },
   ) {
-    await this.getApiRoot()
+    return await this.getApiRoot()
       .extensions()
       .withKey({ key })
       .post({ body })
@@ -110,7 +99,7 @@ export class Commercetools {
   }
 
   public async deleteExtension(key: string, version: number) {
-    await this.getApiRoot()
+    return await this.getApiRoot()
       .extensions()
       .withKey({ key })
       .delete({ queryArgs: { version } })

@@ -50,6 +50,38 @@
     ora "5.4.1"
     rxjs "7.8.1"
 
+"@automock/adapters.nestjs@^1.4.0":
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/@automock/adapters.nestjs/-/adapters.nestjs-1.4.0.tgz#db3d55176afe55f9361dd49645bcb5946c613037"
+  integrity sha512-1BEh9glv23P1SdCrQ3fA7+mCgoRRiDXoHgtuCG2LUFSj6HdZ7unV/U6BGzKLabi017L2C8zOCelYQnMUdCMaGg==
+  dependencies:
+    "@automock/common" "^2.2.0"
+
+"@automock/common@^2.2.0":
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/@automock/common/-/common-2.2.0.tgz#a16935f868cbd7c36cef3c6193f500963e44d428"
+  integrity sha512-aAzMrOIDrhCoWutichpFcSC2TK+tr1tZTq1qxGXZVKpGILtJs/X5/cOOVkUr1AEOsfhW4rHVC4IroIsANn9ZEA==
+
+"@automock/core@^1.4.0":
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/@automock/core/-/core-1.4.0.tgz#6d814f0920b26f38225893b305e9943ad3cc23db"
+  integrity sha512-okDvKznSAt4Ly3D3RBKCbZ0JYD1YwJ4zFaKv2SUmbIL6m/kEk/cVXvNLspOIyxd1r8WVwhTLafiL9VPvYXkZsg==
+
+"@automock/jest@^1.4.0":
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/@automock/jest/-/jest-1.4.0.tgz#994a40922e74d45927ecfe38f78422d7cdb86030"
+  integrity sha512-2+yjdWLXMzuH6vrjX4Us2FzuPOQc/ma2D25FnS2sVtcfhHgVauexNo+W3Jq90l1al93YkSE/ULzlVMkqQcGPfA==
+  dependencies:
+    "@automock/adapters.nestjs" "^1.4.0"
+    "@automock/core" "^1.4.0"
+    "@automock/types" "^1.2.0"
+    jest-mock-extended "^2.0.9"
+
+"@automock/types@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@automock/types/-/types-1.2.0.tgz#d1a25cd3c958a161399ad149c7b2ee5a3c4e2c51"
+  integrity sha512-kkGf1PvAb8aLjCXyX4OsIncQFTVAwCQUtsEpsbyH6hhpJ6ape8Lhor9Y5DgunajhuD4oE6D64+4jxSuRSwWNmQ==
+
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.12.13", "@babel/code-frame@^7.16.7", "@babel/code-frame@^7.22.13":
   version "7.22.13"
   resolved "https://registry.yarnpkg.com/@babel/code-frame/-/code-frame-7.22.13.tgz#e3c1c099402598483b7a8c46a721d1038803755e"
@@ -2342,6 +2374,13 @@ create-require@^1.1.0:
   resolved "https://registry.yarnpkg.com/create-require/-/create-require-1.1.1.tgz#c1d7e8f1e5f6cfc9ff65f9cd352d37348756c333"
   integrity sha512-dcKFX3jn0MpIaXjisoRvexIJVEKzaq7z2rZKxf+MSr9TkdmHmsU4m2lcLojrj/FHl8mk5VxMmYA+ftRkP/3oKQ==
 
+cross-fetch@^3.0.4:
+  version "3.1.8"
+  resolved "https://registry.yarnpkg.com/cross-fetch/-/cross-fetch-3.1.8.tgz#0327eba65fd68a7d119f8fb2bf9334a1a7956f82"
+  integrity sha512-cvA+JwZoU0Xq+h6WkMvAUqPEYy92Obet6UdKLfW60qn99ftItKjB5T+BkyWOFWe2pUyfQ+IJHmpOTznqk1M6Kg==
+  dependencies:
+    node-fetch "^2.6.12"
+
 cross-spawn@^7.0.0, cross-spawn@^7.0.2, cross-spawn@^7.0.3:
   version "7.0.3"
   resolved "https://registry.yarnpkg.com/cross-spawn/-/cross-spawn-7.0.3.tgz#f73a85b9d5d41d045551c177e2882d4ac85728a6"
@@ -3775,6 +3814,14 @@ jest-environment-node@^29.7.0:
     jest-mock "^29.7.0"
     jest-util "^29.7.0"
 
+jest-fetch-mock@^3.0.3:
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/jest-fetch-mock/-/jest-fetch-mock-3.0.3.tgz#31749c456ae27b8919d69824f1c2bd85fe0a1f3b"
+  integrity sha512-Ux1nWprtLrdrH4XwE7O7InRY6psIi3GOsqNESJgMJ+M5cv4A8Lh7SN9d2V2kKRZ8ebAfcd1LNyZguAOb6JiDqw==
+  dependencies:
+    cross-fetch "^3.0.4"
+    promise-polyfill "^8.1.3"
+
 jest-get-type@^29.6.3:
   version "29.6.3"
   resolved "https://registry.yarnpkg.com/jest-get-type/-/jest-get-type-29.6.3.tgz#36f499fdcea197c1045a127319c0481723908fd1"
@@ -3831,6 +3878,13 @@ jest-message-util@^29.7.0:
     pretty-format "^29.7.0"
     slash "^3.0.0"
     stack-utils "^2.0.3"
+
+jest-mock-extended@^2.0.9:
+  version "2.0.9"
+  resolved "https://registry.yarnpkg.com/jest-mock-extended/-/jest-mock-extended-2.0.9.tgz#bc0e4a269cdb6047d7cc086e1d9722f7215ca795"
+  integrity sha512-eRZq7/FgwHbxOMm3Lo4DpQX6S2zi4OvwMVFHEb3FgDLp0Xy3P1WARkF93xxO5uD4nAHiEPYHZ25qVU9mAVxoLQ==
+  dependencies:
+    ts-essentials "^7.0.3"
 
 jest-mock@^29.7.0:
   version "29.7.0"
@@ -4538,7 +4592,7 @@ node-emoji@1.11.0:
   dependencies:
     lodash "^4.17.21"
 
-node-fetch@^2.6.1, node-fetch@^2.6.7:
+node-fetch@^2.6.1, node-fetch@^2.6.12, node-fetch@^2.6.7:
   version "2.7.0"
   resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.7.0.tgz#d0f0fa6e3e2dc1d27efcd8ad99d550bda94d187d"
   integrity sha512-c4FRfUm/dbcWZ7U+1Wq0AwCyFL+3nt2bEw05wfxSz+DWpWsitgmSgYmy2dQdWyKC1694ELPqMs/YzUSNozLt8A==
@@ -4857,6 +4911,11 @@ process-nextick-args@~2.0.0:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/process-nextick-args/-/process-nextick-args-2.0.1.tgz#7820d9b16120cc55ca9ae7792680ae7dba6d7fe2"
   integrity sha512-3ouUOpQhtgrbOa17J7+uxOTpITYWaGP7/AhoR3+A+/1e9skrzelGi/dXzEYyvbxubEF6Wn2ypscTKiKJFFn1ag==
+
+promise-polyfill@^8.1.3:
+  version "8.3.0"
+  resolved "https://registry.yarnpkg.com/promise-polyfill/-/promise-polyfill-8.3.0.tgz#9284810268138d103807b11f4e23d5e945a4db63"
+  integrity sha512-H5oELycFml5yto/atYqmjyigJoAo3+OXwolYiH7OfQuYlAqhxNvTfiNMbV9hsC6Yp83yE5r2KTVmtrG6R9i6Pg==
 
 prompts@^2.0.1:
   version "2.4.2"
@@ -5631,6 +5690,11 @@ ts-api-utils@^1.0.1:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/ts-api-utils/-/ts-api-utils-1.0.3.tgz#f12c1c781d04427313dbac808f453f050e54a331"
   integrity sha512-wNMeqtMz5NtwpT/UZGY5alT+VoKdSsOOP/kqHFcUW1P/VRhH2wJ48+DN2WwUliNbQ976ETwDL0Ifd2VVvgonvg==
+
+ts-essentials@^7.0.3:
+  version "7.0.3"
+  resolved "https://registry.yarnpkg.com/ts-essentials/-/ts-essentials-7.0.3.tgz#686fd155a02133eedcc5362dc8b5056cde3e5a38"
+  integrity sha512-8+gr5+lqO3G84KdiTSMRLtuyJ+nTBVRKuCrK4lidMPdVeEp0uqC875uE5NMcaA7YYMN7XsNiFQuMvasF8HT/xQ==
 
 ts-jest@^29.1.0:
   version "29.1.1"
