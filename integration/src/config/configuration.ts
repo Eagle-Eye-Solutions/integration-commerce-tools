@@ -17,6 +17,10 @@ const validationSchema = Joi.object({
     clientSecret: Joi.string().required(),
     scope: Joi.array<string>(),
   }),
+  eagleEye: Joi.object({
+    clientId: Joi.string().required(),
+    clientSecret: Joi.string().required(),
+  }),
 });
 
 export const defaultConfiguration = {
@@ -30,6 +34,10 @@ export const defaultConfiguration = {
     clientId: process.env.CTP_CLIENT_ID,
     clientSecret: process.env.CTP_CLIENT_SECRET,
     scope: (process.env.CTP_SCOPE || '').split(' '),
+  },
+  eagleEye: {
+    clientId: process.env.EE_CLIENT_ID,
+    clientSecret: process.env.EE_CLIENT_SECRET,
   },
 };
 
