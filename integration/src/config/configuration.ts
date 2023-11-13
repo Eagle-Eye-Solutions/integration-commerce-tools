@@ -1,6 +1,6 @@
 import * as Joi from 'joi';
 import 'dotenv/config';
-import _ = require('lodash');
+import * as _ from 'lodash';
 import { Injectable, Logger } from '@nestjs/common';
 
 const logger = new Logger('ConfigService');
