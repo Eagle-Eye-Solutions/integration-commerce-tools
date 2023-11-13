@@ -1,0 +1,32 @@
+name: Build and and test integration
+on:
+  pull_request:
+    paths-ignore:
+      - 'infrastructure/**'
+  push:
+    branches:
+      - master
+    paths:
+      - '!infrastructure/**'
+jobs:
+  integration:
+    name: 'Build and test'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+          cache: yarn
+          cache-dependency-path: ./integration/yarn.lock
+      - name: Dependencies install
+        working-directory: ./integration
+        run: yarn install --frozen-lockfile
+      - name: Linting
+        working-directory: ./integration
+        run: yarn lint
+      - name: Test
+        working-directory: ./integration
+        run: yarn test

@@ -1,0 +1,20 @@
+deployAs:
+  - name: integration
+    applicationType: service
+    endpoint: /
+    scripts:
+      postDeploy: npm install && npm run build && npm run connector:post-deploy
+      preUndeploy: npm install && npm run build && npm run connector:pre-undeploy
+    configuration:
+      standardConfiguration:
+        - key: CTP_PROJECT_KEY
+          description: Project key of the commercetools Composable Commerce Project
+        - key: CTP_REGION
+          description: Region where the commercetools Composable Commerce Project is hosted
+      securedConfiguration:
+        - key: CTP_CLIENT_ID
+          description: client_id of an API Client for the commercetools Composable Commerce Project
+        - key: CTP_CLIENT_SECRET
+          description: secret of an API Client for the commercetools Composable Commerce Project
+        - key: CTP_SCOPE
+          description: scope of an API Client for the commercetools Composable Commerce Project

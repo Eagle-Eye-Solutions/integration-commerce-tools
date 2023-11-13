@@ -1,0 +1,66 @@
+name: 'Deploy Connector'
+description: 'Try to deploy Connector with new tag'
+
+inputs:
+  version:
+    description: 'ConnectorStaged version to reference'
+    required: true
+  access_token:
+    description: 'commercetools access token'
+    required: true
+  is_previewable:
+    description: 'If ConnectorStaged is using previewable access'
+    required: true
+  ct_region:
+    description: 'commercetools region'
+    required: true
+  ct_project_key:
+    description: 'commercetools project id'
+    required: true
+  ct_api_client_id:
+    description: 'commercetools API client id'
+    required: true
+  ct_api_client_secret:
+    description: 'commercetools API client secret'
+    required: true
+  ct_scopes:
+    description: 'commercetools API client scopes'
+    required: true
+  ee_client_id:
+    description: 'EagleEye API client id'
+    required: true
+  ee_client_secret:
+    description: 'EagleEye API client secret'
+    required: true
+  connect_env:
+    description: 'environment used for deployment'
+    required: true
+  connector_key:
+    description: 'commercetools ConnectorStaged key (also used as deployment prefix)'
+    required: true
+  config_override:
+    description: 'Stringified and escaped JSON to override all integration configurations'
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+    - name: Deploy Connector with new tag
+      id: ct_deploy_connector
+      uses: ./.github/actions/webrequest-action
+      with:
+        url: https://connect.${{ inputs.ct_region }}.commercetools.com/${{ inputs.ct_project_key }}/deployments 
+        method: POST
+        headers: '{"Authorization": "Bearer ${{ inputs.access_token }}"}'
+        payload: '{"key":"${{ inputs.connector_key }}-deployment-${{ inputs.connect_env }}","connector":{"key":"${{ inputs.connector_key }}","version":${{ inputs.version }},"staged":${{ inputs.is_previewable == ''true'' }}},"region":"${{ inputs.ct_region }}","configurations":[{"applicationName":"integration","standardConfiguration":[{"key":"CTP_REGION","value":"${{ inputs.ct_region }}"},{"key":"CTP_PROJECT_KEY","value":"${{ inputs.ct_project_key }}"}],"securedConfiguration":[{"key":"CTP_CLIENT_ID","value":"${{ inputs.ct_api_client_id }}"},{"key":"CTP_CLIENT_SECRET","value":"${{ inputs.ct_api_client_secret }}"},{"key":"CTP_SCOPE","value":"${{ inputs.ct_scopes }}"}]}]}'
+    - name: Check Connector deployment status
+      id: ct_check_connector_deployment_status_final
+      uses: ./.github/actions/poll-endpoint
+      with:
+        url: https://connect.${{ inputs.ct_region }}.commercetools.com/${{ inputs.ct_project_key }}/deployments/key=${{ inputs.connector_key }}-deployment-${{ inputs.connect_env }}
+        method: GET
+        authorization: 'Bearer ${{ inputs.access_token }}'
+        expectStatus: 200
+        expectBodyRegex: \"status\":\"Deployed\"
+        timeout: 1260000
+        interval: 180000
