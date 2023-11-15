@@ -7,7 +7,7 @@ export class MockLogger implements LoggerService {
     this.logs.push(message);
   }
 
-  error(message: string, trace: string) {
+  error(message: string) {
     this.logs.push(message);
   }
 

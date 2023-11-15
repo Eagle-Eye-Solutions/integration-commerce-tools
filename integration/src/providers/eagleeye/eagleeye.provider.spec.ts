@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { Logger } from '@nestjs/common';
-import { EagleEyeApiClient, Wallet, Token } from './eagleeye.provider';
+import { Token, Wallet } from './eagleeye.provider';
 import { of, throwError } from 'rxjs';
 import { AxiosResponse } from 'axios';
 import { EagleEyeApiException } from '../../common/exceptions/eagle-eye-api.exception';
@@ -10,7 +10,6 @@ import { EagleEyeApiException } from '../../common/exceptions/eagle-eye-api.exce
 describe('Wallet', () => {
   let service: Wallet;
   let httpService: HttpService;
-  let configService: ConfigService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -24,7 +23,6 @@ describe('Wallet', () => {
 
     service = module.get<Wallet>(Wallet);
     httpService = module.get<HttpService>(HttpService);
-    configService = module.get<ConfigService>(ConfigService);
   });
 
   it('should be defined', () => {
@@ -70,7 +68,6 @@ describe('Wallet', () => {
 describe('Token', () => {
   let service: Token;
   let httpService: HttpService;
-  let configService: ConfigService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -84,7 +81,6 @@ describe('Token', () => {
 
     service = module.get<Token>(Token);
     httpService = module.get<HttpService>(HttpService);
-    configService = module.get<ConfigService>(ConfigService);
   });
 
   it('should be defined', () => {
