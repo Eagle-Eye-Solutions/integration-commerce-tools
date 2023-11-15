@@ -53,6 +53,14 @@ describe('Commercetools Circuit Breaker State Service', () => {
     expect(result).toBeUndefined();
   });
 
+  it('should log error when getCustomObject fails with an error different from 404', async () => {
+    customObjectService.getCustomObject.mockRejectedValue({ code: 500 });
+
+    const result = await service.loadState();
+
+    expect(result).toBeUndefined();
+  });
+
   it('should save state', async () => {
     const mockCircuitBreakerInfo = { state: { open: true } };
     customObjectService.saveCustomObject.mockResolvedValue(undefined);
@@ -85,5 +93,16 @@ describe('Commercetools Circuit Breaker State Service', () => {
     await service.deleteState();
 
     expect(customObjectService.deleteCustomObject).toHaveBeenCalled();
+  });
+
+  it('should throw an errors when fails to save state', async () => {
+    const error = new Error('Test error');
+    jest
+      .spyOn(customObjectService, 'saveCustomObject')
+      .mockRejectedValueOnce(error);
+
+    await service.saveState(undefined);
+
+    expect(customObjectService.saveCustomObject).toHaveBeenCalled();
   });
 });

@@ -72,7 +72,7 @@ describe('AppService', () => {
     expect(response).toEqual(result);
   });
 
-  it('should handle circuit breaker API error', async () => {
+  it('should return EE_API_UNAVAILABLE error in the cart custom type when the API request to EagleEye fails', async () => {
     const body: ExtensionInput = {
       action: 'Update',
       resource: { typeId: 'cart', id: '123' },
@@ -83,7 +83,64 @@ describe('AppService', () => {
     );
     jest.spyOn(circuitBreakerService, 'fire').mockRejectedValue(error);
     const response = await service.handleExtensionRequest(body);
+    expect(response).toEqual({
+      actions: [
+        {
+          action: 'setCustomType',
+          fields: {
+            errors: [
+              '{"type":"EE_API_UNAVAILABLE","message":"The eagle eye API is unavailable, the cart promotions and loyalty points are NOT updated"}',
+            ],
+          },
+          type: {
+            key: 'eagleEye',
+            typeId: 'type',
+          },
+        },
+        {
+          action: 'setDirectDiscounts',
+          discounts: [],
+        },
+      ],
+    });
     expect(response.actions).toHaveLength(2);
+  });
+
+  class CircuitBreakerError extends Error {
+    constructor(public code: string) {
+      super();
+    }
+  }
+
+  it('should return EE_API_CIRCUIT_OPEN error in the cart custom type when the circuit breaker is open', async () => {
+    const body: ExtensionInput = {
+      action: 'Update',
+      resource: { typeId: 'cart', id: '123' },
+    };
+    const error = new CircuitBreakerError('EOPENBREAKER');
+    jest.spyOn(circuitBreakerService, 'fire').mockRejectedValue(error);
+    const response = await service.handleExtensionRequest(body);
+    expect(response.actions).toHaveLength(2);
+    expect(response).toEqual({
+      actions: [
+        {
+          action: 'setCustomType',
+          fields: {
+            errors: [
+              '{"type":"EE_API_CIRCUIT_OPEN","message":"The eagle eye API is unavailable, the cart promotions and loyalty points are NOT updated"}',
+            ],
+          },
+          type: {
+            key: 'eagleEye',
+            typeId: 'type',
+          },
+        },
+        {
+          action: 'setDirectDiscounts',
+          discounts: [],
+        },
+      ],
+    });
   });
 
   it('should  return an empty action array if the request body is for an unsupported CT resource type', async () => {
