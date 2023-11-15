@@ -41,7 +41,7 @@ runs:
           --env-var "ct_client_id=${{ inputs.ct_client_id }}" \
           --env-var "ct_client_secret=${{ inputs.ct_secret }}" \
           --env-var "auth_url=https://auth.${{ inputs.ct_region }}.commercetools.com" 
-          --env-var "host=https://api.${{/ inputs.ct_region }}.commercetools.com"
+          --env-var "host=https://api.${{ inputs.ct_region }}.commercetools.com"
           --env-var "project-key=${{ inputs.ct_project_id }}" \
           --env-var "customer-key=testcustomer"
       shell: bash
