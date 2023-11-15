@@ -32,4 +32,4 @@ jobs:
         run: yarn test
       - name: Test End To End
         working-directory: ./integration
-        run: yarn test:e2e
+        run: cp .env.example .env && yarn test:e2e
