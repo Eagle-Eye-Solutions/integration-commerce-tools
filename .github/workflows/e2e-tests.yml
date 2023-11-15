@@ -18,4 +18,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Run E2E e2e-tests
-        run: echo "Placeholder text, E2E tests are running."
+        uses: ./.github/actions/postman
+        with:
+          ct_client_id: ${{ secrets.CT_CLIENT_ID }}
+          ct_secret: ${{ secrets.CT_CLIENT_SECRET }}
+          postman_collection_json: "eagle-eye-e2e-tests.postman_collection.json"
+          ct_api_url: ${{ vars.CT_REGION }}
+          ct_auth_url: ${{ vars.CT_AUTH_URL }}
+          ct_project_id: ${{ vars.CT_PROJECT_KEY }}
