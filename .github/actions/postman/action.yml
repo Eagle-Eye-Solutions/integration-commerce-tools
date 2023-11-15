@@ -11,11 +11,8 @@ inputs:
   ct_secret:
     description: 'commercetools secret for running tests'
     required: true
-  ct_api_url:
-    description: 'commercetools api url'
-    required: true
-  ct_auth_url:
-    description: 'commercetools auth url'
+  ct_region:
+    description: 'commercetools region'
     required: true
   ct_project_id:
     description: 'commercetools project id'

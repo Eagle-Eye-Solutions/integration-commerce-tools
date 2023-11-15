@@ -23,6 +23,5 @@ jobs:
           ct_client_id: ${{ secrets.CT_CLIENT_ID }}
           ct_secret: ${{ secrets.CT_CLIENT_SECRET }}
           postman_collection_json: "eagle-eye-e2e-tests.postman_collection.json"
-          ct_api_url: ${{ vars.CT_REGION }}
-          ct_auth_url: ${{ vars.CT_AUTH_URL }}
+          ct_region: ${{ vars.CT_REGION }}
           ct_project_id: ${{ vars.CT_PROJECT_KEY }}
