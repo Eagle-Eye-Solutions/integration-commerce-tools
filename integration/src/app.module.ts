@@ -1,14 +1,19 @@
-import { Module, OnModuleDestroy, OnModuleInit, Logger } from '@nestjs/common';
+import { Logger, Module, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { Commercetools } from './providers/commercetools/commercetools.provider';
-import { EagleEye } from './providers/eagleeye/eagleeye.provider';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { configuration, validateConfiguration } from './config/configuration';
 import { connect } from 'ngrok';
-import { ConfigService } from '@nestjs/config';
 import { extensions } from './common/commercetools';
 import { Extension } from '@commercetools/platform-sdk';
+import { CircuitBreakerService } from './providers/circuit-breaker/circuit-breaker.service';
+import { CustomObjectService } from './providers/commercetools/custom-object/custom-object.service';
+import { CustomTypeService } from './providers/commercetools/custom-type/custom-type.service';
+import { EagleEyeApiCircuitBreakerProvider } from './providers/circuit-breaker/circuit-breaker.provider';
+import { CircuitBreakerSateServiceProvider } from './providers/circuit-breaker/interfaces/circuit-breaker-state.provider';
+import { OrderCustomTypeCommand } from './scripts/order-custom-type.command';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
@@ -17,9 +22,20 @@ import { Extension } from '@commercetools/platform-sdk';
       isGlobal: true,
       validate: validateConfiguration,
     }),
+    HttpModule,
   ],
   controllers: [AppController],
-  providers: [AppService, Commercetools, EagleEye, Logger],
+  providers: [
+    AppService,
+    Commercetools,
+    CircuitBreakerService,
+    EagleEyeApiCircuitBreakerProvider,
+    CircuitBreakerSateServiceProvider,
+    CustomObjectService,
+    CustomTypeService,
+    Logger,
+    OrderCustomTypeCommand,
+  ],
 })
 export class AppModule implements OnModuleInit, OnModuleDestroy {
   private extensionKey = this.configService.get('debug.extensionKey');

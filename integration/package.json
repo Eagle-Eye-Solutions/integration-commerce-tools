@@ -25,19 +25,23 @@
     "prepare": "cd .. && husky install integration/.husky",
     "commitlint": "cd .. && commitlint -g integration/commitlint.config.js --edit",
     "branchlint": "node src/scripts/enforce-branch-naming.js",
-    "connector:post-deploy": "node dist/scripts/post-deploy.js",
+    "ct-custom-types": "nest start --config nest-commander.json -- order-custom-type-create",
+    "connector:post-deploy": "node dist/scripts/post-deploy.js; npm run ct-custom-types",
     "connector:pre-undeploy": "node dist/scripts/pre-undeploy.js"
   },
   "dependencies": {
     "@commercetools/platform-sdk": "^6.0.0",
     "@commercetools/sdk-client-v2": "^2.2.0",
+    "@nestjs/axios": "^3.0.1",
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^3.1.1",
     "@nestjs/core": "^10.0.0",
     "@nestjs/platform-express": "^10.0.0",
+    "axios": "^1.6.1",
+    "axios-retry": "^3.9.0",
     "fetch-retry": "^5.0.6",
     "joi": "^17.11.0",
-    "ngrok": "^5.0.0-beta.2",
+    "opossum": "^8.1.3",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1"
   },
@@ -46,7 +50,7 @@
     "@automock/jest": "^1.4.0",
     "@commitlint/cli": "^18.2.0",
     "@commitlint/config-conventional": "^18.1.0",
-    "@nestjs/cli": "^10.0.0",
+    "@nestjs/cli": "^10.2.1",
     "@nestjs/schematics": "^10.0.0",
     "@nestjs/testing": "^10.0.0",
     "@types/express": "^4.17.17",
@@ -62,6 +66,10 @@
     "husky": "^8.0.3",
     "jest": "^29.5.0",
     "jest-fetch-mock": "^3.0.3",
+    "jest-mock-extended": "^3.0.5",
+    "nest-commander": "^3.12.2",
+    "ngrok": "^5.0.0-beta.2",
+    "nock": "^13.3.8",
     "prettier": "^3.0.0",
     "source-map-support": "^0.5.21",
     "supertest": "^6.3.3",
@@ -84,7 +92,8 @@
     },
     "collectCoverage": true,
     "collectCoverageFrom": [
-      "**/*.(t|j)s"
+      "**/*.(t|j)s",
+      "!**/*.exception.ts"
     ],
     "coverageDirectory": "../coverage",
     "coverageThreshold": {

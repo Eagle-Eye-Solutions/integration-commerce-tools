@@ -30,3 +30,6 @@ jobs:
       - name: Test
         working-directory: ./integration
         run: yarn test
+      - name: Test End To End
+        working-directory: ./integration
+        run: yarn test:e2e
