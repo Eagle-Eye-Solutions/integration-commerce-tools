@@ -18,3 +18,7 @@ deployAs:
           description: secret of an API Client for the commercetools Composable Commerce Project
         - key: CTP_SCOPE
           description: scope of an API Client for the commercetools Composable Commerce Project
+        - key: EE_CLIENT_ID
+          description: client_id of an API Client for the EagleEye API
+        - key: EE_CLIENT_SECRET
+          description: secret of an API Client for the EagleEye API

@@ -7,15 +7,15 @@
   "license": "UNLICENSED",
   "scripts": {
     "prebuild": "rimraf dist",
-    "build": "nest build",
+    "build": "yarn nest build",
     "build:clean": "rimraf dist && nest build",
-    "gcp-build": "nest build",
+    "gcp-build": "yarn nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "node dist/main",
+    "start": "node dist/src/main.js",
     "start:local": "NODE_ENV=dev nest start",
     "start:dev": "NODE_ENV=dev nest start --watch",
     "start:debug": "NODE_ENV=dev nest start --debug --watch",
-    "start:prod": "node dist/main",
+    "start:prod": "node dist/src/main.js",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "DOTENV_CONFIG_PATH=.env.example jest",
     "test:watch": "jest --watch",
@@ -26,8 +26,8 @@
     "commitlint": "cd .. && commitlint -g integration/commitlint.config.js --edit",
     "branchlint": "node src/scripts/enforce-branch-naming.js",
     "ct-custom-types": "nest start --config nest-commander.json -- order-custom-type-create",
-    "connector:post-deploy": "node dist/scripts/post-deploy.js; npm run ct-custom-types",
-    "connector:pre-undeploy": "node dist/scripts/pre-undeploy.js"
+    "connector:post-deploy": "node dist/src/scripts/post-deploy.js; npm run ct-custom-types",
+    "connector:pre-undeploy": "node dist/src/scripts/pre-undeploy.js"
   },
   "dependencies": {
     "@commercetools/platform-sdk": "^6.0.0",
