@@ -28,7 +28,7 @@ runs:
       with:
         node-version: 18.x
         cache: yarn
-        cache-dependency-path: ./plugin/yarn.lock
+        cache-dependency-path: ./integration/yarn.lock
     - name: Install newman
       run: |
         yarn global add newman newman-reporter-htmlextra
