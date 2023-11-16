@@ -1,24 +1,21 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { AppController } from './app.controller';
+import { TestBed } from '@automock/jest';
 import { AppService } from './app.service';
-import { Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 
 describe('AppController', () => {
   let appController: AppController;
+  let appService: jest.Mocked<AppService>;
 
   beforeEach(async () => {
-    const app: TestingModule = await Test.createTestingModule({
-      controllers: [AppController],
-      providers: [AppService, ConfigService, Logger],
-    }).compile();
-
-    appController = app.get<AppController>(AppController);
+    const { unit, unitRef } = TestBed.create(AppController).compile();
+    appController = unit;
+    appService = unitRef.get<AppService>(AppService);
   });
 
   describe('Extension Request Handler', () => {
     it('should process POST requests received at root level', () => {
-      expect(appController.handleExtensionRequest()).toEqual({ actions: [] });
+      appService.handleExtensionRequest.mockReturnValue({ actions: [] });
+      expect(appController.handleExtensionRequest({})).toEqual({ actions: [] });
     });
   });
 });

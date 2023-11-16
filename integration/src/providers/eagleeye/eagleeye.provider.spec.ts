@@ -1,179 +1,119 @@
+import { Test, TestingModule } from '@nestjs/testing';
+import { HttpService } from '@nestjs/axios';
+import { ConfigService } from '@nestjs/config';
 import { Logger } from '@nestjs/common';
-import {
-  EagleEye,
-  EagleEyeCredentials,
-  EagleEyeApiClient,
-  Wallet,
-  WalletServices,
-  Token,
-} from './eagleeye.provider';
-
-describe('EagleEye', () => {
-  let logger: Logger;
-  let eagleEye: EagleEye;
-
-  beforeEach(() => {
-    logger = new Logger();
-    eagleEye = new EagleEye(logger);
-  });
-
-  it('should create an instance of EagleEye', () => {
-    expect(eagleEye).toBeInstanceOf(EagleEye);
-  });
-
-  it('should create an instance of EagleEyeApiClient when calling withCredentials', () => {
-    const credentials: EagleEyeCredentials = {
-      clientId: 'testClientId',
-      clientSecret: 'testClientSecret',
-    };
-    const apiClient = eagleEye.withCredentials(credentials).getClient();
-    expect(apiClient).toBeInstanceOf(EagleEyeApiClient);
-  });
-});
-
-describe('EagleEyeApiClient', () => {
-  let logger: Logger;
-  let credentials: EagleEyeCredentials;
-  let apiClient: EagleEyeApiClient;
-
-  beforeEach(() => {
-    logger = new Logger();
-    credentials = {
-      clientId: 'testClientId',
-      clientSecret: 'testClientSecret',
-    };
-    apiClient = new EagleEyeApiClient(credentials, logger);
-  });
-
-  it('should create an instance of EagleEyeApiClient', () => {
-    expect(apiClient).toBeInstanceOf(EagleEyeApiClient);
-  });
-
-  it('should create an instance of Wallet and Token', () => {
-    expect(apiClient.wallet).toBeInstanceOf(Wallet);
-    expect(apiClient.token).toBeInstanceOf(Token);
-  });
-});
+import { Token, Wallet } from './eagleeye.provider';
+import { of, throwError } from 'rxjs';
+import { AxiosResponse } from 'axios';
+import { EagleEyeApiException } from '../../common/exceptions/eagle-eye-api.exception';
 
 describe('Wallet', () => {
-  let logger: Logger;
-  let credentials: EagleEyeCredentials;
-  let wallet: Wallet;
+  let service: Wallet;
+  let httpService: HttpService;
 
-  beforeEach(() => {
-    logger = new Logger();
-    credentials = {
-      clientId: 'testClientId',
-      clientSecret: 'testClientSecret',
-    };
-    wallet = new Wallet(credentials, logger);
-    fetchMock.resetMocks();
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        Wallet,
+        { provide: HttpService, useValue: { request: jest.fn() } },
+        { provide: ConfigService, useValue: { get: jest.fn() } },
+        Logger,
+      ],
+    }).compile();
+
+    service = module.get<Wallet>(Wallet);
+    httpService = module.get<HttpService>(HttpService);
   });
 
-  it('should call makeEagleEyeRequest with the correct parameters when calling open', async () => {
-    const body = {
-      /* test body */
+  it('should be defined', () => {
+    expect(service).toBeDefined();
+  });
+
+  it('should call the API with correct parameters', async () => {
+    const mockResponse: AxiosResponse = {
+      config: undefined,
+      data: 'test',
+      status: 200,
+      statusText: 'OK',
+      headers: {},
     };
-    const url = '/connect/wallet/open';
-    const fullUrl = `${wallet.basePath}${url}`;
-    const method = 'POST';
-
-    fetchMock.mockResponseOnce(JSON.stringify({}));
-
-    await wallet.open(body);
-
-    expect(fetchMock).toHaveBeenCalledWith(fullUrl, {
-      method,
-      body: JSON.stringify(body),
-      headers: {
-        'Content-Type': 'application/json',
-        'X-EES-AUTH-CLIENT-ID': 'testClientId',
-        'X-EES-AUTH-HASH': wallet.getAuthenticationHash(url, body),
-      },
-      options: {},
-      retryOn: [429, 503],
+    jest
+      .spyOn(httpService, 'request')
+      .mockImplementationOnce(() => of(mockResponse));
+    const result = await service.callApi({ test: 'test' });
+    expect(httpService.request).toHaveBeenCalledWith({
+      url: 'https://pos.sandbox.uk.eagleeye.com/connect/wallet/open',
+      method: 'POST',
+      data: JSON.stringify({ test: 'test' }),
+      headers: expect.any(Object),
     });
-  });
-});
-
-describe('WalletServices', () => {
-  let logger: Logger;
-  let credentials: EagleEyeCredentials;
-  let walletServices: WalletServices;
-
-  beforeEach(() => {
-    logger = new Logger();
-    credentials = {
-      clientId: 'testClientId',
-      clientSecret: 'testClientSecret',
-    };
-    walletServices = new WalletServices(credentials, logger);
-    fetchMock.resetMocks();
+    expect(result).toEqual(mockResponse.data);
   });
 
-  it('should call makeEagleEyeRequest with the correct parameters when calling createWithAccount', async () => {
-    const body = {
-      /* test body */
-    };
-    const url = '/services/wallet/accounts';
-    const fullUrl = `${walletServices.basePath}${url}`;
-    const method = 'POST';
+  it('should return a correct hash', () => {
+    const requestUrl = 'testUrl';
+    const requestBody = { key: 'value' };
+    // jest.spyOn(configService, 'get').mockImplementation((property) => {
+    //   return property;
+    // });
 
-    fetchMock.mockResponseOnce(JSON.stringify({}));
+    const result = service.getAuthenticationHash(requestUrl, requestBody);
+    const expectedHash =
+      '08d6b7cb6efd8abaa6d8a77e72b86a35ef5cda53e08632cbaf20c2ce327250ca'; // replace with the expected hash
 
-    await walletServices.createWithAccount(body);
-
-    expect(fetchMock).toHaveBeenCalledWith(fullUrl, {
-      method,
-      body: JSON.stringify(body),
-      headers: {
-        'Content-Type': 'application/json',
-        'X-EES-AUTH-CLIENT-ID': 'testClientId',
-        'X-EES-AUTH-HASH': walletServices.getAuthenticationHash(url, body),
-      },
-      options: {},
-      retryOn: [429, 503],
-    });
+    expect(result).toEqual(expectedHash);
   });
 });
 
 describe('Token', () => {
-  let logger: Logger;
-  let credentials: EagleEyeCredentials;
-  let token: Token;
+  let service: Token;
+  let httpService: HttpService;
 
-  beforeEach(() => {
-    logger = new Logger();
-    credentials = {
-      clientId: 'testClientId',
-      clientSecret: 'testClientSecret',
-    };
-    token = new Token(credentials, logger);
-    fetchMock.resetMocks();
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        Token,
+        { provide: HttpService, useValue: { request: jest.fn() } },
+        { provide: ConfigService, useValue: { get: jest.fn() } },
+        Logger,
+      ],
+    }).compile();
+
+    service = module.get<Token>(Token);
+    httpService = module.get<HttpService>(HttpService);
   });
 
-  it('should call makeEagleEyeRequest with the correct parameters when calling create', async () => {
-    const body = {
-      /* test body */
+  it('should be defined', () => {
+    expect(service).toBeDefined();
+  });
+
+  it('should call the API with correct parameters', async () => {
+    const mockResponse: AxiosResponse = {
+      config: undefined,
+      data: 'test',
+      status: 200,
+      statusText: 'OK',
+      headers: {},
     };
-    const url = '/token/create';
-    const fullUrl = `${token.basePath}${url}`;
-    const method = 'POST';
-
-    fetchMock.mockResponseOnce(JSON.stringify({}));
-
-    await token.create(body);
-
-    expect(fetchMock).toHaveBeenCalledWith(fullUrl, {
-      method,
-      body: JSON.stringify(body),
-      headers: {
-        'Content-Type': 'application/json',
-        'X-EES-AUTH-CLIENT-ID': 'testClientId',
-        'X-EES-AUTH-HASH': token.getAuthenticationHash(url, body),
-      },
-      options: {},
-      retryOn: [429, 503],
+    jest
+      .spyOn(httpService, 'request')
+      .mockImplementationOnce(() => of(mockResponse));
+    const result = await service.callApi({ test: 'test' });
+    expect(httpService.request).toHaveBeenCalledWith({
+      url: 'https://wallet.sandbox.uk.eagleeye.com/token/create',
+      method: 'POST',
+      data: JSON.stringify({ test: 'test' }),
+      headers: expect.any(Object),
     });
+    expect(result).toEqual(mockResponse.data);
+  });
+
+  it('should throw an error when the EE API request fails', async () => {
+    jest
+      .spyOn(httpService, 'request')
+      .mockReturnValue(throwError(() => new Error()));
+    await expect(service.callApi({ test: 'test' })).rejects.toThrow(
+      EagleEyeApiException,
+    );
   });
 });

@@ -1,20 +1,22 @@
-import { Injectable } from '@nestjs/common';
-import { ClientBuilder } from '@commercetools/sdk-client-v2';
+import { Injectable, Logger } from '@nestjs/common';
+import {
+  type AuthMiddlewareOptions,
+  ClientBuilder,
+  type HttpMiddlewareOptions,
+} from '@commercetools/sdk-client-v2';
 import {
   createApiBuilderFromCtpClient,
-  ExtensionDraft,
   Extension,
+  ExtensionDraft,
   ExtensionUpdateAction,
 } from '@commercetools/platform-sdk';
 import { ByProjectKeyRequestBuilder } from '@commercetools/platform-sdk/dist/declarations/src/generated/client/by-project-key-request-builder';
-import {
-  type AuthMiddlewareOptions,
-  type HttpMiddlewareOptions,
-} from '@commercetools/sdk-client-v2';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class Commercetools {
+  private readonly logger = new Logger(Commercetools.name);
+
   private root: ByProjectKeyRequestBuilder;
 
   constructor(private configService: ConfigService) {}
@@ -44,6 +46,7 @@ export class Commercetools {
       )}.commercetools.com`,
     };
   }
+
   /**
    * Create a new client builder.
    * This code creates a new Client that can be used to make API calls
@@ -65,7 +68,7 @@ export class Commercetools {
     if (this.root) {
       return this.root;
     }
-
+    this.logger.log('Creating new commercetools client');
     this.root = createApiBuilderFromCtpClient(
       this.createClient(),
     ).withProjectKey({

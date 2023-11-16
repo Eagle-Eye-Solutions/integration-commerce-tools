@@ -1,4 +1,4 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-cd integration && yarn run branchlint
+cd integration && yarn run branchlint && yarn lint && yarn test

@@ -1,6 +1,7 @@
 import * as Joi from 'joi';
 import 'dotenv/config';
 import * as _ from 'lodash';
+import { parseBool } from '../common/helper/booleanParser';
 import { Injectable, Logger } from '@nestjs/common';
 
 const logger = new Logger('ConfigService');
@@ -21,6 +22,11 @@ const validationSchema = Joi.object({
     clientId: Joi.string().required(),
     clientSecret: Joi.string().required(),
   }),
+  circuitBreaker: {
+    timeout: Joi.number(),
+    resetTimeout: Joi.number(),
+    enabled: Joi.boolean(),
+  },
 });
 
 export const defaultConfiguration = {
@@ -38,6 +44,12 @@ export const defaultConfiguration = {
   eagleEye: {
     clientId: process.env.EE_CLIENT_ID,
     clientSecret: process.env.EE_CLIENT_SECRET,
+  },
+  circuitBreaker: {
+    timeout: parseInt(process.env.CIRCUIT_BREAKER_TIMEOUT, 10) || undefined,
+    resetTimeout:
+      parseInt(process.env.CIRCUIT_BREAKER_RESET_TIMEOUT, 10) || undefined,
+    enabled: parseBool(process.env.CIRCUIT_BREAKER_ENABLED, true),
   },
 };
 
@@ -58,8 +70,7 @@ export const configuration = () => {
   if (process.env.CONFIG_OVERRIDE) {
     try {
       const configOverride = JSON.parse(process.env.CONFIG_OVERRIDE);
-      const mergedConfig = _.merge(defaultConfiguration, configOverride);
-      return mergedConfig;
+      return _.merge(defaultConfiguration, configOverride);
     } catch (err) {
       logger.error('Failed to apply configuration override. Error: ', err);
       logger.log('Continuing only with default configuration.');
@@ -73,6 +84,7 @@ export const configuration = () => {
 @Injectable()
 export class ScriptConfigService {
   private config;
+
   constructor() {
     validateConfiguration();
     this.config = configuration();
