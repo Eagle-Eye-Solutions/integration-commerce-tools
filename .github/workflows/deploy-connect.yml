@@ -109,8 +109,8 @@ jobs:
           ct_region: ${{ vars.CT_REGION }}
           ct_project_key: ${{ vars.CT_PROJECT_KEY }}
           ct_scopes: ${{ vars.CT_SCOPES }}
-          eagleeye_client_id: ${{ secrets.EE_CLIENT_ID }}
-          eagleeye_client_secret: ${{ secrets.EE_CLIENT_SECRET }}
+          ee_client_id: ${{ secrets.EE_CLIENT_ID }}
+          ee_client_secret: ${{ secrets.EE_CLIENT_SECRET }}
           connect_env: ${{ github.event.inputs.environment }}
           connector_key: ${{ github.event.inputs.connector_key }}
           config_override: ${{ github.event.inputs.config_override }}
