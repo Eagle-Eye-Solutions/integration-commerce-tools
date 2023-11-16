@@ -4,7 +4,6 @@ import { AppService } from './app.service';
 import { Commercetools } from './providers/commercetools/commercetools.provider';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { configuration, validateConfiguration } from './config/configuration';
-import { connect } from 'ngrok';
 import { extensions } from './common/commercetools';
 import { Extension } from '@commercetools/platform-sdk';
 import { CircuitBreakerService } from './providers/circuit-breaker/circuit-breaker.service';
@@ -14,6 +13,11 @@ import { EagleEyeApiCircuitBreakerProvider } from './providers/circuit-breaker/c
 import { CircuitBreakerSateServiceProvider } from './providers/circuit-breaker/interfaces/circuit-breaker-state.provider';
 import { OrderCustomTypeCommand } from './scripts/order-custom-type.command';
 import { HttpModule } from '@nestjs/axios';
+
+let ngrok;
+if (process.env.NODE_ENV === 'dev') {
+  ngrok = require('ngrok');
+}
 
 @Module({
   imports: [
@@ -51,7 +55,9 @@ export class AppModule implements OnModuleInit, OnModuleDestroy {
       process.env.NODE_ENV === 'dev' &&
       this.configService.get('debug.ngrokEnabled')
     ) {
-      const ngrokUrl = await connect(parseInt(process.env.PORT, 10) || 8080);
+      const ngrokUrl = await ngrok.connect(
+        parseInt(process.env.PORT, 10) || 8080,
+      );
       this.logger.log(`Initialized ngrok at ${ngrokUrl}.`, AppModule.name);
       this.logger.log(
         'Creating debug commercetools extension...',
