@@ -1,0 +1,51 @@
+name: 'Postman tests action'
+description: 'Runs postman tests'
+
+inputs:
+  postman_collection_json:
+    description: 'the name of the json file with the postman collection to run'
+    required: true
+  ct_client_id:
+    description: 'commercetools client id for running tests'
+    required: true
+  ct_secret:
+    description: 'commercetools secret for running tests'
+    required: true
+  ct_region:
+    description: 'commercetools region'
+    required: true
+  ct_project_id:
+    description: 'commercetools project id'
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18.x
+        cache: yarn
+        cache-dependency-path: ./integration/yarn.lock
+    - name: Install newman
+      run: |
+        yarn global add newman newman-reporter-htmlextra
+      shell: bash
+    - name: Run e2e tests
+      run: |
+        newman run ${{ inputs.postman_collection_json }} --bail \
+          -r htmlextra \
+          --reporter-htmlextra-export newman/htmlreport-${{ inputs.ct_project_id }}.html \
+          --env-var "client_id=${{ inputs.ct_client_id }}" \
+          --env-var "client_secret=${{ inputs.ct_secret }}" \
+          --env-var "auth_url=https://auth.${{ inputs.ct_region }}.commercetools.com" \
+          --env-var "host=https://api.${{ inputs.ct_region }}.commercetools.com" \
+          --env-var "project-key=${{ inputs.ct_project_id }}" \
+          --env-var "customer-key=testcustomer"
+      shell: bash
+      working-directory: ./integration/src/test/e2e/postman
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: E2E-reports
+        path: integration/src/test/e2e/postman/newman
