@@ -13,6 +13,8 @@ import { EagleEyeApiCircuitBreakerProvider } from './providers/circuit-breaker/c
 import { CircuitBreakerSateServiceProvider } from './providers/circuit-breaker/interfaces/circuit-breaker-state.provider';
 import { OrderCustomTypeCommand } from './scripts/order-custom-type.command';
 import { HttpModule } from '@nestjs/axios';
+import { PromotionsService } from './services/promotions/promotions.service';
+import { EagleEyeApiClient } from './providers/eagleeye/eagleeye.provider';
 
 let ngrok;
 if (process.env.NODE_ENV === 'dev') {
@@ -39,6 +41,8 @@ if (process.env.NODE_ENV === 'dev') {
     CustomTypeService,
     Logger,
     OrderCustomTypeCommand,
+    PromotionsService,
+    EagleEyeApiClient,
   ],
 })
 export class AppModule implements OnModuleInit, OnModuleDestroy {

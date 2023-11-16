@@ -13,9 +13,13 @@ describe('AppController', () => {
   });
 
   describe('Extension Request Handler', () => {
-    it('should process POST requests received at root level', () => {
-      appService.handleExtensionRequest.mockReturnValue({ actions: [] });
-      expect(appController.handleExtensionRequest({})).toEqual({ actions: [] });
+    it('should process POST requests received at root level', async () => {
+      appService.handleExtensionRequest.mockReturnValueOnce({
+        actions: [],
+      } as any);
+      expect(await appController.handleExtensionRequest({})).toEqual({
+        actions: [],
+      });
     });
   });
 });

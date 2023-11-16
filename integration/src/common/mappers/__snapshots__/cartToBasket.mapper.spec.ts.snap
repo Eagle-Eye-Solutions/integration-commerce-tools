@@ -1,0 +1,56 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CartToBasketMapper mapAdjustedBasketToCartDirectDiscount should return the direct discount draft 1`] = `
+{
+  "target": {
+    "type": "totalPrice",
+  },
+  "value": {
+    "money": [
+      {
+        "centAmount": 500,
+        "currencyCode": "USD",
+        "fractionDigits": 2,
+        "type": "centPrecision",
+      },
+    ],
+    "type": "absolute",
+  },
+}
+`;
+
+exports[`CartToBasketMapper mapAdjustedBasketToItemDirectDiscounts should return the direct discount drafts 1`] = `
+[
+  {
+    "target": {
+      "predicate": "sku="SKU123"",
+      "type": "lineItems",
+    },
+    "value": {
+      "money": [
+        {
+          "centAmount": 100,
+          "currencyCode": "USD",
+          "fractionDigits": 2,
+          "type": "centPrecision",
+        },
+      ],
+      "type": "absolute",
+    },
+  },
+]
+`;
+
+exports[`CartToBasketMapper mapCartLineItemsToBasketContent should return the mapped line items 1`] = `
+[
+  {
+    "description": "Product 1",
+    "itemUnitCost": 1000,
+    "itemUnitCount": 2,
+    "itemUnitMetric": "EACH",
+    "totalUnitCost": 900,
+    "totalUnitCostAfterDiscount": 900,
+    "upc": "SKU123",
+  },
+]
+`;

@@ -1,5 +1,4 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { CircuitBreakerService } from './providers/circuit-breaker/circuit-breaker.service';
 import { CartCustomTypeActionBuilder } from './providers/commercetools/actions/cart-update/CartCustomTypeActionBuilder';
 import { EagleEyeApiException } from './common/exceptions/eagle-eye-api.exception';
 import { ExtensionInput } from '@commercetools/platform-sdk/dist/declarations/src/generated/models/extension';
@@ -8,28 +7,39 @@ import {
   CTActionsBuilder,
 } from './providers/commercetools/actions/ActionsBuilder';
 import { CartDiscountActionBuilder } from './providers/commercetools/actions/cart-update/CartDiscountActionBuilder';
+import { PromotionsService } from './services/promotions/promotions.service';
 
 @Injectable()
 export class AppService {
   private readonly logger = new Logger(AppService.name);
 
-  constructor(private readonly circuitBreakerService: CircuitBreakerService) {}
+  constructor(
+    // private readonly circuitBreakerService: CircuitBreakerService,
+    private promotions: PromotionsService,
+  ) {}
 
-  handleExtensionRequest(body: ExtensionInput): {
+  async handleExtensionRequest(body: ExtensionInput): Promise<{
     actions: ActionsSupported[];
-  } {
+  }> {
     this.logger.debug('Received body: ', body);
     const actionBuilder = new CTActionsBuilder();
     //todo move logic to guard
     if (body?.resource?.typeId !== 'cart') {
       return actionBuilder.build();
     }
-    return this.circuitBreakerService
-      .fire({})
-      .then((result: any) => {
+    return this.promotions
+      .getBasketLevelDiscounts(body.resource)
+      .then(async (result: any) => {
         this.logger.log(`Circuit breaker call result: `, result);
-        actionBuilder.add(CartCustomTypeActionBuilder.addCustomType([]));
-        actionBuilder.add(CartDiscountActionBuilder.addDiscount());
+        actionBuilder.add(
+          CartCustomTypeActionBuilder.addCustomType(
+            [],
+            result.discountDescriptions,
+          ),
+        );
+        actionBuilder.add(
+          CartDiscountActionBuilder.addDiscount(result.discounts),
+        );
         return actionBuilder.build();
       })
       .catch((error: any) => {
@@ -45,7 +55,7 @@ export class AppService {
             },
           ]),
         );
-        // Discounts should be removed only if the basked was not persisted in AIR. See https://eagleeye.atlassian.net/browse/CTP-3
+        // Discounts should be removed only if the basket was not persisted in AIR. See https://eagleeye.atlassian.net/browse/CTP-3
         actionBuilder.add(CartDiscountActionBuilder.removeDiscounts());
         return actionBuilder.build();
       });

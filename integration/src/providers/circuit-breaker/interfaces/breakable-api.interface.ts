@@ -1,3 +1,3 @@
 export interface BreakableApi {
-  callApi: (...args: any[]) => Promise<any>;
+  invoke: (...args: any[]) => Promise<any>;
 }

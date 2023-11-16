@@ -40,7 +40,7 @@ describe('Wallet', () => {
     jest
       .spyOn(httpService, 'request')
       .mockImplementationOnce(() => of(mockResponse));
-    const result = await service.callApi({ test: 'test' });
+    const result = await service.invoke('open', { test: 'test' });
     expect(httpService.request).toHaveBeenCalledWith({
       url: 'https://pos.sandbox.uk.eagleeye.com/connect/wallet/open',
       method: 'POST',
@@ -53,13 +53,10 @@ describe('Wallet', () => {
   it('should return a correct hash', () => {
     const requestUrl = 'testUrl';
     const requestBody = { key: 'value' };
-    // jest.spyOn(configService, 'get').mockImplementation((property) => {
-    //   return property;
-    // });
 
     const result = service.getAuthenticationHash(requestUrl, requestBody);
     const expectedHash =
-      '08d6b7cb6efd8abaa6d8a77e72b86a35ef5cda53e08632cbaf20c2ce327250ca'; // replace with the expected hash
+      '08d6b7cb6efd8abaa6d8a77e72b86a35ef5cda53e08632cbaf20c2ce327250ca';
 
     expect(result).toEqual(expectedHash);
   });
@@ -98,7 +95,7 @@ describe('Token', () => {
     jest
       .spyOn(httpService, 'request')
       .mockImplementationOnce(() => of(mockResponse));
-    const result = await service.callApi({ test: 'test' });
+    const result = await service.invoke('create', { test: 'test' });
     expect(httpService.request).toHaveBeenCalledWith({
       url: 'https://wallet.sandbox.uk.eagleeye.com/token/create',
       method: 'POST',
@@ -112,7 +109,7 @@ describe('Token', () => {
     jest
       .spyOn(httpService, 'request')
       .mockReturnValue(throwError(() => new Error()));
-    await expect(service.callApi({ test: 'test' })).rejects.toThrow(
+    await expect(service.invoke('create', { test: 'test' })).rejects.toThrow(
       EagleEyeApiException,
     );
   });

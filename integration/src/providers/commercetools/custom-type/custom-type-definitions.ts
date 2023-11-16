@@ -22,5 +22,17 @@ export const ORDER_CUSTOM_FIELDS: TypeDraft = {
       },
       inputHint: 'SingleLine',
     },
+    {
+      name: 'appliedDiscounts',
+      label: {
+        en: 'appliedDiscounts',
+      },
+      required: false,
+      type: {
+        name: 'Set',
+        elementType: { name: 'String' },
+      },
+      inputHint: 'SingleLine',
+    },
   ],
 };

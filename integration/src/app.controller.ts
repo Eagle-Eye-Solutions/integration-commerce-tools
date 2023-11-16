@@ -1,13 +1,21 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Controller, Post, Logger, Body } from '@nestjs/common';
 import { AppService } from './app.service';
-import { ActionsSupported } from './providers/commercetools/actions/ActionsBuilder';
+import { ConfigService } from '@nestjs/config';
+import { PromotionsService } from './services/promotions/promotions.service';
+import { HttpService } from '@nestjs/axios';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(
+    private readonly appService: AppService,
+    private configService: ConfigService,
+    private logger: Logger,
+    private promotions: PromotionsService,
+    private httpService: HttpService,
+  ) {}
 
   @Post()
-  handleExtensionRequest(@Body() body: any): { actions: ActionsSupported[] } {
-    return this.appService.handleExtensionRequest(body);
+  async handleExtensionRequest(@Body() body): Promise<any> {
+    return await this.appService.handleExtensionRequest(body);
   }
 }

@@ -22,7 +22,7 @@ const NO_ERRORS = {
       type: { typeId: 'type', key: 'eagleEye' },
       fields: { errors: [] },
     },
-    CartDiscountActionBuilder.addDiscount(),
+    CartDiscountActionBuilder.addDiscount([]),
   ],
 };
 
