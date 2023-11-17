@@ -20,7 +20,7 @@ const NO_ERRORS = {
     {
       action: 'setCustomType',
       type: { typeId: 'type', key: 'eagleEye' },
-      fields: { errors: [] },
+      fields: { errors: [], appliedDiscounts: [] },
     },
     CartDiscountActionBuilder.addDiscount([]),
   ],
@@ -38,6 +38,7 @@ const ERROR = {
         errors: [
           '{"type":"EE_API_UNAVAILABLE","message":"The eagle eye API is unavailable, the cart promotions and loyalty points are NOT updated"}',
         ],
+        appliedDiscounts: [],
       },
     },
     { action: 'setDirectDiscounts', discounts: [] },
@@ -79,8 +80,18 @@ describe('Circuit breaker (e2e)', () => {
     const ctAuthNock = nockCtAuth(2);
     const getCustomObjectNock = nockGetCustomObject(404, null);
     const postCustomObjectNock = nockPostCustomObject(200);
-    const walletOpenNock = nockWalletOpen(3, 200);
-    const walletOpenErrorNock = nockWalletOpen(4, 500);
+    const walletOpenNock = nockWalletOpen(
+      3,
+      200,
+      0,
+      RECALCULATE_CART.resource.obj,
+    );
+    const walletOpenErrorNock = nockWalletOpen(
+      4,
+      500,
+      0,
+      RECALCULATE_CART.resource.obj,
+    );
 
     app = await initAppModule();
 
@@ -149,6 +160,7 @@ describe('Circuit breaker (e2e)', () => {
               errors: [
                 '{"type":"EE_API_CIRCUIT_OPEN","message":"The eagle eye API is unavailable, the cart promotions and loyalty points are NOT updated"}',
               ],
+              appliedDiscounts: [],
             },
           },
           { action: 'setDirectDiscounts', discounts: [] },

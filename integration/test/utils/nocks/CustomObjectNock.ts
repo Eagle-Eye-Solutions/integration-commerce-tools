@@ -43,7 +43,7 @@ export const nockPostCustomObject = (
           container,
           value: {
             state: {
-              name: 'bound callApi',
+              name: 'bound invoke',
               enabled: true,
               closed: false,
               open: true,
