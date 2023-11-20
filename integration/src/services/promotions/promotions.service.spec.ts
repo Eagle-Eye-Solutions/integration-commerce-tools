@@ -3,7 +3,7 @@ import { PromotionsService } from './promotions.service';
 import { Commercetools } from '../../providers/commercetools/commercetools.provider';
 import { EagleEyeApiClient } from '../../providers/eagleeye/eagleeye.provider';
 import { ConfigService } from '@nestjs/config';
-import { CartToBasketMapper } from '../../common/mappers/cartToBasket.mapper';
+import { CTCartToEEBasketMapper } from '../../common/mappers/ctCartToEeBasket.mapper';
 import { Logger } from '@nestjs/common';
 import { CircuitBreakerService } from '../../providers/circuit-breaker/circuit-breaker.service';
 
@@ -26,7 +26,7 @@ describe('PromotionsService', () => {
           },
         },
         ConfigService,
-        CartToBasketMapper,
+        CTCartToEEBasketMapper,
         { provide: CircuitBreakerService, useValue: { fire: jest.fn() } },
         Logger,
       ],
@@ -77,13 +77,13 @@ describe('PromotionsService', () => {
       expect(cbFireMock).toHaveBeenCalled();
       expect(result).toEqual({
         discounts: [
-          service.basketMapper.mapAdjustedBasketToCartDirectDiscount(
+          service.cartToBasketMapper.mapAdjustedBasketToCartDirectDiscount(
             walletOpenResponse.analyseBasketResults.basket,
             cart as any,
           ),
         ],
         discountDescriptions:
-          service.basketMapper.mapBasketDiscountsToDiscountDescriptions(
+          service.cartToBasketMapper.mapBasketDiscountsToDiscountDescriptions(
             walletOpenResponse.analyseBasketResults.discount,
           ),
       });

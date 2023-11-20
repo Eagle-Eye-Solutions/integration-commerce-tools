@@ -42,7 +42,7 @@ describe('Wallet', () => {
       .mockImplementationOnce(() => of(mockResponse));
     const result = await service.invoke('open', { test: 'test' });
     expect(httpService.request).toHaveBeenCalledWith({
-      url: 'https://pos.sandbox.uk.eagleeye.com/connect/wallet/open',
+      url: expect.any(String),
       method: 'POST',
       data: JSON.stringify({ test: 'test' }),
       headers: expect.any(Object),
@@ -97,7 +97,7 @@ describe('Token', () => {
       .mockImplementationOnce(() => of(mockResponse));
     const result = await service.invoke('create', { test: 'test' });
     expect(httpService.request).toHaveBeenCalledWith({
-      url: 'https://wallet.sandbox.uk.eagleeye.com/token/create',
+      url: expect.any(String),
       method: 'POST',
       data: JSON.stringify({ test: 'test' }),
       headers: expect.any(Object),

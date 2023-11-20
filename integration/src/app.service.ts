@@ -13,10 +13,7 @@ import { PromotionsService } from './services/promotions/promotions.service';
 export class AppService {
   private readonly logger = new Logger(AppService.name);
 
-  constructor(
-    // private readonly circuitBreakerService: CircuitBreakerService,
-    private promotions: PromotionsService,
-  ) {}
+  constructor(private promotionsService: PromotionsService) {}
 
   async handleExtensionRequest(body: ExtensionInput): Promise<{
     actions: ActionsSupported[];
@@ -27,7 +24,7 @@ export class AppService {
     if (body?.resource?.typeId !== 'cart') {
       return actionBuilder.build();
     }
-    return this.promotions
+    return this.promotionsService
       .getBasketLevelDiscounts(body.resource)
       .then(async (result: any) => {
         this.logger.log(`Circuit breaker call result: `, result);

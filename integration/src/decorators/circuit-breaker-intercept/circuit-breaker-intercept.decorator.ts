@@ -1,8 +1,9 @@
-import { Inject } from '@nestjs/common';
+import { Inject, Logger } from '@nestjs/common';
 import { CircuitBreakerService } from '../../providers/circuit-breaker/circuit-breaker.service';
 
 export function CircuitBreakerIntercept() {
   const circuitBreakerService = Inject(CircuitBreakerService);
+  const logger = new Logger('CircuitBreakerIntercept');
   return function (
     target: any,
     propertyKey: string,
@@ -18,10 +19,10 @@ export function CircuitBreakerIntercept() {
       // Modify the arguments or perform any other actions
       try {
         const result = await circuitBreaker.fire(...args);
-        this.logger.log(`Circuit breaker call result: `, result);
+        logger.log(`Circuit breaker call result: `, result);
         return result;
       } catch (error) {
-        this.logger.error('Error calling the circuit breaker API', error);
+        logger.error('Error calling the circuit breaker API', error);
         throw error;
       }
 

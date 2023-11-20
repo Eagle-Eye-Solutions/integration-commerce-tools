@@ -21,6 +21,9 @@ const validationSchema = Joi.object({
   eagleEye: Joi.object({
     clientId: Joi.string().required(),
     clientSecret: Joi.string().required(),
+    walletUrl: Joi.string(),
+    posUrl: Joi.string(),
+    resourcesUrl: Joi.string(),
   }),
   circuitBreaker: {
     timeout: Joi.number(),
@@ -44,6 +47,9 @@ export const defaultConfiguration = {
   eagleEye: {
     clientId: process.env.EE_CLIENT_ID,
     clientSecret: process.env.EE_CLIENT_SECRET,
+    walletUrl: process.env.EE_WALLET_URL,
+    posUrl: process.env.EE_POS_URL,
+    resourcesUrl: process.env.EE_RESOURCES_URL,
   },
   circuitBreaker: {
     timeout: parseInt(process.env.CIRCUIT_BREAKER_TIMEOUT, 10) || undefined,

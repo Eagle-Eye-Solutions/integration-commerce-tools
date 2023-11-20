@@ -5,7 +5,7 @@ import {
 } from '@commercetools/platform-sdk';
 import { DiscountDescription } from '../../providers/commercetools/actions/cart-update/CartCustomTypeActionBuilder';
 
-export class CartToBasketMapper {
+export class CTCartToEEBasketMapper {
   mapCartLineItemsToBasketContent(lineItems: LineItem[]) {
     let basketContents = [];
     const mappedLineItems = lineItems.map((item) => {

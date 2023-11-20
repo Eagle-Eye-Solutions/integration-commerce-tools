@@ -1,23 +1,18 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { EagleEyeApiClient } from '../../providers/eagleeye/eagleeye.provider';
 import { Reference, DirectDiscountDraft } from '@commercetools/platform-sdk';
-import { Commercetools } from '../../providers/commercetools/commercetools.provider';
-import { ConfigService } from '@nestjs/config';
-import { CartToBasketMapper } from '../../common/mappers/cartToBasket.mapper';
+import { CTCartToEEBasketMapper } from '../../common/mappers/ctCartToEeBasket.mapper';
 import { CircuitBreakerIntercept } from '../../decorators/circuit-breaker-intercept/circuit-breaker-intercept.decorator';
 import { CircuitBreakerService } from '../../providers/circuit-breaker/circuit-breaker.service';
 import { DiscountDescription } from '../../providers/commercetools/actions/cart-update/CartCustomTypeActionBuilder';
 
 @Injectable()
 export class PromotionsService {
-  public basketMapper = new CartToBasketMapper();
+  public cartToBasketMapper = new CTCartToEEBasketMapper();
 
   constructor(
-    private configService: ConfigService,
-    private commercetools: Commercetools,
     private eagleEyeClient: EagleEyeApiClient,
     readonly circuitBreakerService: CircuitBreakerService,
-    private logger: Logger,
   ) {}
 
   async getBasketLevelDiscounts(cartReference: Reference): Promise<{
@@ -73,42 +68,30 @@ export class PromotionsService {
           totalItems: cart.lineItems.length,
           totalBasketValue: cart.totalPrice.centAmount,
         },
-        contents: this.basketMapper.mapCartLineItemsToBasketContent(
+        contents: this.cartToBasketMapper.mapCartLineItemsToBasketContent(
           cart.lineItems,
         ),
       },
     });
     if (
       walletOpenResponse.analyseBasketResults?.basket?.summary
-        ?.totalDiscountAmount
+        ?.totalDiscountAmount &&
+      walletOpenResponse.analyseBasketResults?.basket.summary
+        .totalDiscountAmount.promotions
     ) {
-      if (
-        walletOpenResponse.analyseBasketResults?.basket.summary
-          .totalDiscountAmount.promotions
-      ) {
-        const cartDiscount =
-          this.basketMapper.mapAdjustedBasketToCartDirectDiscount(
-            walletOpenResponse.analyseBasketResults?.basket,
-            cart,
+      const cartDiscount =
+        this.cartToBasketMapper.mapAdjustedBasketToCartDirectDiscount(
+          walletOpenResponse.analyseBasketResults?.basket,
+          cart,
+        );
+      discountDrafts.push(cartDiscount);
+      if (walletOpenResponse.analyseBasketResults.discount?.length) {
+        const descriptions =
+          this.cartToBasketMapper.mapBasketDiscountsToDiscountDescriptions(
+            walletOpenResponse.analyseBasketResults.discount,
           );
-        discountDrafts.push(cartDiscount);
-        if (walletOpenResponse.analyseBasketResults.discount?.length) {
-          const descriptions =
-            this.basketMapper.mapBasketDiscountsToDiscountDescriptions(
-              walletOpenResponse.analyseBasketResults.discount,
-            );
-          discountDescriptions = discountDescriptions.concat(descriptions);
-        }
+        discountDescriptions = discountDescriptions.concat(descriptions);
       }
-
-      // const itemDiscounts =
-      //   this.basketMapper.mapAdjustedBasketToItemDirectDiscounts(
-      //     walletOpenResponse.analyseBasketResults?.basket,
-      //     cart,
-      //   );
-      // if (itemDiscounts.length) {
-      //   discountDrafts = discountDrafts.concat(itemDiscounts);
-      // }
     }
 
     return {

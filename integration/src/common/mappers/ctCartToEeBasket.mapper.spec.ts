@@ -1,10 +1,10 @@
-import { CartToBasketMapper } from './cartToBasket.mapper';
+import { CTCartToEEBasketMapper } from './ctCartToEeBasket.mapper';
 
-describe('CartToBasketMapper', () => {
+describe('CTCartToEEBasketMapper', () => {
   let mapper;
 
   beforeEach(() => {
-    mapper = new CartToBasketMapper();
+    mapper = new CTCartToEEBasketMapper();
   });
 
   test('mapCartLineItemsToBasketContent should return the mapped line items', () => {

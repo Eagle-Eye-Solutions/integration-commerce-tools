@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`CartToBasketMapper mapAdjustedBasketToCartDirectDiscount should return the direct discount draft 1`] = `
+exports[`CTCartToEEBasketMapper mapAdjustedBasketToCartDirectDiscount should return the direct discount draft 1`] = `
 {
   "target": {
     "type": "totalPrice",
@@ -19,7 +19,7 @@ exports[`CartToBasketMapper mapAdjustedBasketToCartDirectDiscount should return 
 }
 `;
 
-exports[`CartToBasketMapper mapAdjustedBasketToItemDirectDiscounts should return the direct discount drafts 1`] = `
+exports[`CTCartToEEBasketMapper mapAdjustedBasketToItemDirectDiscounts should return the direct discount drafts 1`] = `
 [
   {
     "target": {
@@ -41,7 +41,7 @@ exports[`CartToBasketMapper mapAdjustedBasketToItemDirectDiscounts should return
 ]
 `;
 
-exports[`CartToBasketMapper mapCartLineItemsToBasketContent should return the mapped line items 1`] = `
+exports[`CTCartToEEBasketMapper mapCartLineItemsToBasketContent should return the mapped line items 1`] = `
 [
   {
     "description": "Product 1",

@@ -32,8 +32,7 @@ export class EagleEyeApiClient {
 }
 
 export abstract class EagleEyeSdkObject implements BreakableApi {
-  // TODO: add environment variables or configurations for these URLs
-  public basePath = 'https://wallet.sandbox.uk.eagleeye.com';
+  public basePath = this.configService.get('eagleEye.walletUrl');
   private credentials: EagleEyeCredentials;
 
   protected constructor(
@@ -110,7 +109,7 @@ export class Wallet extends EagleEyeSdkObject {
     readonly httpService: HttpService,
   ) {
     super(logger, configService, httpService);
-    this.basePath = 'https://pos.sandbox.uk.eagleeye.com';
+    this.basePath = this.configService.get('eagleEye.posUrl');
     // Binds the object context to the callApi method so that the circuit breaker can access it
     this.invoke = this.invoke.bind(this);
   }
@@ -128,7 +127,7 @@ export class Token extends EagleEyeSdkObject {
     readonly httpService: HttpService,
   ) {
     super(logger, configService, httpService);
-    this.basePath = 'https://wallet.sandbox.uk.eagleeye.com';
+    this.basePath = this.configService.get('eagleEye.walletUrl');
     // Binds the object context to the callApi method so that the circuit breaker can access it
     this.invoke = this.invoke.bind(this);
   }
@@ -145,7 +144,7 @@ export class Campaigns extends EagleEyeSdkObject {
     readonly httpService: HttpService,
   ) {
     super(logger, configService, httpService);
-    this.basePath = 'https://resources.sandbox.uk.eagleeye.com';
+    this.basePath = this.configService.get('eagleEye.resourcesUrl');
     // Binds the object context to the callApi method so that the circuit breaker can access it
     this.invoke = this.invoke.bind(this);
   }
@@ -162,7 +161,7 @@ export class Schemes extends EagleEyeSdkObject {
     readonly httpService: HttpService,
   ) {
     super(logger, configService, httpService);
-    this.basePath = 'https://resources.sandbox.uk.eagleeye.com';
+    this.basePath = this.configService.get('eagleEye.resourcesUrl');
     // Binds the object context to the callApi method so that the circuit breaker can access it
     this.invoke = this.invoke.bind(this);
   }
