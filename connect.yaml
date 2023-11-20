@@ -15,15 +15,15 @@ deployAs:
           required: true
         - key: EE_WALLET_URL
           description: URL for the EagleEye API Wallet endpoints
-          required: true
+          required: false
           default: 'https://wallet.sandbox.uk.eagleeye.com'
         - key: EE_POS_URL
           description: URL for the EagleEye API POS endpoints
-          required: true
+          required: false
           default: 'https://pos.sandbox.uk.eagleeye.com'
         - key: EE_RESOURCES_URL
           description: URL for the EagleEye API Wallet endpoints
-          required: true
+          required: false
           default: 'https://resources.sandbox.uk.eagleeye.com'
       securedConfiguration:
         - key: CTP_CLIENT_ID
