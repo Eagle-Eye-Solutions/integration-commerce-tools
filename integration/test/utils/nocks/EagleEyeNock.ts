@@ -1,5 +1,5 @@
 import * as nock from 'nock';
-import { CartToBasketMapper } from '../../../src/common/mappers/cartToBasket.mapper';
+import { CTCartToEEBasketMapper } from '../../../src/common/mappers/ctCartToEeBasket.mapper';
 
 export const nockWalletOpen = (
   times = 1,
@@ -7,7 +7,7 @@ export const nockWalletOpen = (
   delayConnection = 0,
   cart,
 ) => {
-  const basketMapper = new CartToBasketMapper();
+  const basketMapper = new CTCartToEEBasketMapper();
   return nock('https://pos.sandbox.uk.eagleeye.com:443', {
     encodedQueryParams: true,
   })
