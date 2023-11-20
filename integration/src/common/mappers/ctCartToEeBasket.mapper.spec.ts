@@ -2,6 +2,38 @@ import { CTCartToEEBasketMapper } from './ctCartToEeBasket.mapper';
 
 describe('CTCartToEEBasketMapper', () => {
   let mapper;
+  const cart = {
+    lineItems: [
+      {
+        name: {
+          en: 'Example Product',
+        },
+        variant: {
+          sku: 'SKU123',
+        },
+        price: {
+          value: {
+            centAmount: 300,
+            currencyCode: 'USD',
+            type: 'centPrecision',
+            fractionDigits: 2,
+          },
+        },
+        totalPrice: {
+          centAmount: 300,
+          currencyCode: 'USD',
+          type: 'centPrecision',
+          fractionDigits: 2,
+        },
+      },
+    ],
+    totalPrice: {
+      centAmount: 300,
+      currencyCode: 'USD',
+      type: 'centPrecision',
+      fractionDigits: 2,
+    },
+  };
 
   beforeEach(() => {
     mapper = new CTCartToEEBasketMapper();
@@ -43,14 +75,6 @@ describe('CTCartToEEBasketMapper', () => {
       },
     };
 
-    const cart = {
-      totalPrice: {
-        currencyCode: 'USD',
-        type: 'centPrecision',
-        fractionDigits: 2,
-      },
-    };
-
     const directDiscount = mapper.mapAdjustedBasketToCartDirectDiscount(
       basket,
       cart,
@@ -78,26 +102,17 @@ describe('CTCartToEEBasketMapper', () => {
       },
     };
 
-    const cart = {
-      lineItems: [
-        {
-          variant: {
-            sku: 'SKU123',
-          },
-          totalPrice: {
-            currencyCode: 'USD',
-            type: 'centPrecision',
-            fractionDigits: 2,
-          },
-        },
-      ],
-    };
-
     const directDiscounts = mapper.mapAdjustedBasketToItemDirectDiscounts(
       basket,
       cart,
     );
 
     expect(directDiscounts).toMatchSnapshot();
+  });
+
+  test('mapCartToWalletOpenPayload should return the payload for /wallet/open', () => {
+    const payload = mapper.mapCartToWalletOpenPayload(cart);
+
+    expect(payload).toMatchSnapshot();
   });
 });

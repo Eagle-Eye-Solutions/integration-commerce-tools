@@ -24,55 +24,10 @@ export class PromotionsService {
 
     const cart = (cartReference as any).obj;
 
-    // Get a default identity to open the wallet
-    // TODO: make configurable on a per-merchant basis
-    const identities = [];
-    if (cart.customerEmail) {
-      identities.push({
-        type: 'CUSTOMER_ID',
-        value: cart.customerEmail,
-      });
-    }
-
-    const walletOpenResponse = await this.walletInvoke('open', {
-      reference: cart.id,
-      identity: identities[0]
-        ? {
-            identityValue: identities[0].value,
-          }
-        : undefined,
-      lock: false,
-      location: {
-        incomingIdentifier: 'outlet1',
-        parentIncomingIdentifier: 'banner1',
-      },
-      options: {
-        adjustBasket: {
-          includeOpenOffers: true,
-          enabled: true,
-        },
-        analyseBasket: {
-          includeOpenOffers: true,
-          enabled: true,
-        },
-      },
-      basket: {
-        type: 'STANDARD',
-        summary: {
-          redemptionChannel: 'Online',
-          totalDiscountAmount: {
-            general: null,
-            staff: null,
-            promotions: 0,
-          },
-          totalItems: cart.lineItems.length,
-          totalBasketValue: cart.totalPrice.centAmount,
-        },
-        contents: this.cartToBasketMapper.mapCartLineItemsToBasketContent(
-          cart.lineItems,
-        ),
-      },
-    });
+    const walletOpenResponse = await this.walletInvoke(
+      'open',
+      this.cartToBasketMapper.mapCartToWalletOpenPayload(cart),
+    );
     if (
       walletOpenResponse.analyseBasketResults?.basket?.summary
         ?.totalDiscountAmount &&
