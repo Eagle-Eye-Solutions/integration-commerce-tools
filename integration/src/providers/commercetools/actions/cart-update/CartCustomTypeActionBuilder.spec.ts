@@ -20,6 +20,7 @@ describe('CartCustomTypeActionBuilder', () => {
       },
       fields: {
         errors: errors.map((error) => JSON.stringify(error)),
+        appliedDiscounts: [],
       },
     });
   });

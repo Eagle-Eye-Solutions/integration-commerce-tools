@@ -3,16 +3,24 @@ import { AppService } from './app.service';
 import { CircuitBreakerService } from './providers/circuit-breaker/circuit-breaker.service';
 import { ExtensionInput } from '@commercetools/platform-sdk/dist/declarations/src/generated/models/extension';
 import { EagleEyeApiException } from './common/exceptions/eagle-eye-api.exception';
+import { PromotionsService } from './services/promotions/promotions.service';
 
 describe('AppService', () => {
   let service: AppService;
   let circuitBreakerService: CircuitBreakerService;
+  let promotionsService: PromotionsService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AppService,
         { provide: CircuitBreakerService, useValue: { fire: jest.fn() } },
+        {
+          provide: PromotionsService,
+          useValue: {
+            getBasketLevelDiscounts: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
@@ -20,6 +28,7 @@ describe('AppService', () => {
     circuitBreakerService = module.get<CircuitBreakerService>(
       CircuitBreakerService,
     );
+    promotionsService = module.get<PromotionsService>(PromotionsService);
   });
 
   it('should be defined', () => {
@@ -31,12 +40,43 @@ describe('AppService', () => {
       action: 'Create',
       resource: { typeId: 'cart', id: '123' },
     };
+    const discountDrafts = [
+      {
+        target: {
+          predicate: '1=1',
+          type: 'lineItems',
+        },
+        value: {
+          money: [
+            {
+              centAmount: 100,
+              currencyCode: 'GBP',
+              fractionDigits: 2,
+              type: 'centPrecision',
+            },
+          ],
+          type: 'absolute',
+        },
+      },
+    ];
+    const discountDescriptions = [
+      {
+        description: 'Example Discount',
+      },
+    ];
+    jest
+      .spyOn(promotionsService, 'getBasketLevelDiscounts')
+      .mockResolvedValueOnce({
+        discounts: discountDrafts,
+        discountDescriptions,
+      } as any);
     const result = {
       actions: [
         {
           action: 'setCustomType',
           fields: {
             errors: [],
+            appliedDiscounts: discountDescriptions.map((d) => d.description),
           },
           type: {
             key: 'eagleEye',
@@ -45,25 +85,7 @@ describe('AppService', () => {
         },
         {
           action: 'setDirectDiscounts',
-          discounts: [
-            {
-              target: {
-                predicate: '1=1',
-                type: 'lineItems',
-              },
-              value: {
-                money: [
-                  {
-                    centAmount: 100,
-                    currencyCode: 'GBP',
-                    fractionDigits: 2,
-                    type: 'centPrecision',
-                  },
-                ],
-                type: 'absolute',
-              },
-            },
-          ],
+          discounts: discountDrafts,
         },
       ],
     };
@@ -81,7 +103,9 @@ describe('AppService', () => {
       'EE_API_UNAVAILABLE',
       'Circuit open',
     );
-    jest.spyOn(circuitBreakerService, 'fire').mockRejectedValue(error);
+    jest
+      .spyOn(promotionsService, 'getBasketLevelDiscounts')
+      .mockRejectedValue(error);
     const response = await service.handleExtensionRequest(body);
     expect(response).toEqual({
       actions: [
@@ -91,6 +115,7 @@ describe('AppService', () => {
             errors: [
               '{"type":"EE_API_UNAVAILABLE","message":"The eagle eye API is unavailable, the cart promotions and loyalty points are NOT updated"}',
             ],
+            appliedDiscounts: [],
           },
           type: {
             key: 'eagleEye',
@@ -118,7 +143,9 @@ describe('AppService', () => {
       resource: { typeId: 'cart', id: '123' },
     };
     const error = new CircuitBreakerError('EOPENBREAKER');
-    jest.spyOn(circuitBreakerService, 'fire').mockRejectedValue(error);
+    jest
+      .spyOn(promotionsService, 'getBasketLevelDiscounts')
+      .mockRejectedValue(error);
     const response = await service.handleExtensionRequest(body);
     expect(response.actions).toHaveLength(2);
     expect(response).toEqual({
@@ -129,6 +156,7 @@ describe('AppService', () => {
             errors: [
               '{"type":"EE_API_CIRCUIT_OPEN","message":"The eagle eye API is unavailable, the cart promotions and loyalty points are NOT updated"}',
             ],
+            appliedDiscounts: [],
           },
           type: {
             key: 'eagleEye',

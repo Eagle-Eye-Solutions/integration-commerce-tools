@@ -9,16 +9,35 @@ deployAs:
       standardConfiguration:
         - key: CTP_PROJECT_KEY
           description: Project key of the commercetools Composable Commerce Project
+          required: true
         - key: CTP_REGION
           description: Region where the commercetools Composable Commerce Project is hosted
+          required: true
+        - key: EE_WALLET_URL
+          description: URL for the EagleEye API Wallet endpoints
+          required: true
+          default: 'https://wallet.sandbox.uk.eagleeye.com'
+        - key: EE_POS_URL
+          description: URL for the EagleEye API POS endpoints
+          required: true
+          default: 'https://pos.sandbox.uk.eagleeye.com'
+        - key: EE_RESOURCES_URL
+          description: URL for the EagleEye API Wallet endpoints
+          required: true
+          default: 'https://resources.sandbox.uk.eagleeye.com'
       securedConfiguration:
         - key: CTP_CLIENT_ID
           description: client_id of an API Client for the commercetools Composable Commerce Project
+          required: true
         - key: CTP_CLIENT_SECRET
           description: secret of an API Client for the commercetools Composable Commerce Project
+          required: true
         - key: CTP_SCOPE
           description: scope of an API Client for the commercetools Composable Commerce Project
+          required: false
         - key: EE_CLIENT_ID
           description: client_id of an API Client for the EagleEye API
+          required: true
         - key: EE_CLIENT_SECRET
           description: secret of an API Client for the EagleEye API
+          required: true

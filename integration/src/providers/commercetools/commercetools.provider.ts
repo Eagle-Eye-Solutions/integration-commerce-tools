@@ -83,8 +83,8 @@ export class Commercetools {
       .results;
   }
 
-  public async createExtension(body: ExtensionDraft) {
-    return await this.getApiRoot().extensions().post({ body }).execute();
+  public async createExtension(body: ExtensionDraft): Promise<Extension> {
+    return (await this.getApiRoot().extensions().post({ body }).execute()).body;
   }
 
   public async updateExtension(
@@ -93,12 +93,14 @@ export class Commercetools {
       version: number;
       actions: ExtensionUpdateAction[];
     },
-  ) {
-    return await this.getApiRoot()
-      .extensions()
-      .withKey({ key })
-      .post({ body })
-      .execute();
+  ): Promise<Extension> {
+    return (
+      await this.getApiRoot()
+        .extensions()
+        .withKey({ key })
+        .post({ body })
+        .execute()
+    ).body;
   }
 
   public async deleteExtension(key: string, version: number) {

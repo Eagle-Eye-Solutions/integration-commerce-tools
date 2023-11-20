@@ -35,7 +35,7 @@ describe('CircuitBreakerService', () => {
         {
           provide: BREAKABLE_API,
           useValue: {
-            callApi: jest.fn(),
+            invoke: jest.fn(),
           },
         },
         {
@@ -79,7 +79,7 @@ describe('CircuitBreakerService', () => {
 
     expect(jest.spyOn(circuitBreakerState, 'loadState')).toBeCalledTimes(1);
     expect(CircuitBreaker).toHaveBeenCalledWith(
-      breakableApi.callApi,
+      breakableApi.invoke,
       expect.objectContaining(initialState),
     );
   });

@@ -1,28 +1,15 @@
-import { CartSetDirectDiscountsAction } from '@commercetools/platform-sdk/dist/declarations/src/generated/models/cart';
+import {
+  CartSetDirectDiscountsAction,
+  DirectDiscountDraft,
+} from '@commercetools/platform-sdk';
 
 export class CartDiscountActionBuilder {
-  static addDiscount(): CartSetDirectDiscountsAction {
+  static addDiscount(
+    discounts: DirectDiscountDraft[],
+  ): CartSetDirectDiscountsAction {
     return {
       action: 'setDirectDiscounts',
-      discounts: [
-        {
-          value: {
-            type: 'absolute',
-            money: [
-              {
-                centAmount: 100,
-                currencyCode: 'GBP',
-                type: 'centPrecision',
-                fractionDigits: 2,
-              },
-            ],
-          },
-          target: {
-            type: 'lineItems',
-            predicate: '1=1',
-          },
-        },
-      ],
+      discounts,
     };
   }
 

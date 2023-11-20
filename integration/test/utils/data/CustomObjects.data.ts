@@ -13,7 +13,7 @@ export const CIRCUIT_BREAKER_OPEN = () => ({
   key: 'ee-api-circuit-state',
   value: {
     state: {
-      name: 'bound callApi',
+      name: 'bound invoke',
       enabled: true,
       closed: false,
       open: true,

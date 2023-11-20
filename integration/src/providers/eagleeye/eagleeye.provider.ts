@@ -12,9 +12,12 @@ export type EagleEyeCredentials = {
   clientSecret: string;
 };
 
+@Injectable()
 export class EagleEyeApiClient {
   public wallet: Wallet;
   public token: Token;
+  public campaigns: Campaigns;
+  public schemes: Schemes;
 
   constructor(
     readonly logger: Logger,
@@ -23,12 +26,13 @@ export class EagleEyeApiClient {
   ) {
     this.wallet = new Wallet(logger, configService, httpService);
     this.token = new Token(logger, configService, httpService);
+    this.campaigns = new Campaigns(logger, configService, httpService);
+    this.schemes = new Schemes(logger, configService, httpService);
   }
 }
 
 export abstract class EagleEyeSdkObject implements BreakableApi {
-  // TODO: add environment variables or configurations for these URLs
-  public basePath = 'https://wallet.sandbox.uk.eagleeye.com';
+  public basePath = this.configService.get('eagleEye.walletUrl');
   private credentials: EagleEyeCredentials;
 
   protected constructor(
@@ -42,6 +46,15 @@ export abstract class EagleEyeSdkObject implements BreakableApi {
     };
   }
 
+  public async invoke(methodName: string, ...args: any[]): Promise<any> {
+    if (typeof this[methodName] === 'function') {
+      const method = this[methodName];
+      return method.apply(this, args);
+    } else {
+      console.log(`Method '${methodName}' does not exist or is not callable.`);
+    }
+  }
+
   public getAuthenticationHash(
     requestUrl: string,
     requestBody: Record<string, any>,
@@ -53,7 +66,11 @@ export abstract class EagleEyeSdkObject implements BreakableApi {
     return createHash('sha256').update(preHashedString).digest('hex');
   }
 
-  public async callApi(url: string, method: string, body: Record<string, any>) {
+  public async makeApiRequest(
+    url: string,
+    method: string,
+    body: Record<string, any>,
+  ) {
     try {
       const response = this.httpService
         .request({
@@ -92,13 +109,13 @@ export class Wallet extends EagleEyeSdkObject {
     readonly httpService: HttpService,
   ) {
     super(logger, configService, httpService);
-    this.basePath = 'https://pos.sandbox.uk.eagleeye.com';
+    this.basePath = this.configService.get('eagleEye.posUrl');
     // Binds the object context to the callApi method so that the circuit breaker can access it
-    this.callApi = this.callApi.bind(this);
+    this.invoke = this.invoke.bind(this);
   }
 
-  public async callApi(body: any) {
-    return super.callApi(`/connect/wallet/open`, 'POST', body);
+  public async open(body: any) {
+    return super.makeApiRequest(`/connect/wallet/open`, 'POST', body);
   }
 }
 
@@ -110,10 +127,46 @@ export class Token extends EagleEyeSdkObject {
     readonly httpService: HttpService,
   ) {
     super(logger, configService, httpService);
-    this.basePath = 'https://wallet.sandbox.uk.eagleeye.com';
+    this.basePath = this.configService.get('eagleEye.walletUrl');
+    // Binds the object context to the callApi method so that the circuit breaker can access it
+    this.invoke = this.invoke.bind(this);
   }
 
-  public async callApi(body: any) {
-    return super.callApi(`/token/create`, 'POST', body);
+  public async create(body: any) {
+    return super.makeApiRequest(`/token/create`, 'POST', body);
+  }
+}
+
+export class Campaigns extends EagleEyeSdkObject {
+  constructor(
+    readonly logger: Logger,
+    readonly configService: ConfigService,
+    readonly httpService: HttpService,
+  ) {
+    super(logger, configService, httpService);
+    this.basePath = this.configService.get('eagleEye.resourcesUrl');
+    // Binds the object context to the callApi method so that the circuit breaker can access it
+    this.invoke = this.invoke.bind(this);
+  }
+
+  public async get() {
+    return super.makeApiRequest(`/campaigns`, 'GET', undefined);
+  }
+}
+
+export class Schemes extends EagleEyeSdkObject {
+  constructor(
+    readonly logger: Logger,
+    readonly configService: ConfigService,
+    readonly httpService: HttpService,
+  ) {
+    super(logger, configService, httpService);
+    this.basePath = this.configService.get('eagleEye.resourcesUrl');
+    // Binds the object context to the callApi method so that the circuit breaker can access it
+    this.invoke = this.invoke.bind(this);
+  }
+
+  public async get() {
+    return super.makeApiRequest(`/schemes/points`, 'GET', undefined);
   }
 }
