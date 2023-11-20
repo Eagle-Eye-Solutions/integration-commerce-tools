@@ -47,9 +47,12 @@ export const defaultConfiguration = {
   eagleEye: {
     clientId: process.env.EE_CLIENT_ID,
     clientSecret: process.env.EE_CLIENT_SECRET,
-    walletUrl: process.env.EE_WALLET_URL,
-    posUrl: process.env.EE_POS_URL,
-    resourcesUrl: process.env.EE_RESOURCES_URL,
+    walletUrl:
+      process.env.EE_WALLET_URL || 'https://wallet.sandbox.uk.eagleeye.com',
+    posUrl: process.env.EE_POS_URL || 'https://pos.sandbox.uk.eagleeye.com',
+    resourcesUrl:
+      process.env.EE_RESOURCES_URL ||
+      'https://resources.sandbox.uk.eagleeye.com',
   },
   circuitBreaker: {
     timeout: parseInt(process.env.CIRCUIT_BREAKER_TIMEOUT, 10) || undefined,
