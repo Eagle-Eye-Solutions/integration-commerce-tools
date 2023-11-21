@@ -28,6 +28,7 @@ const validationSchema = Joi.object({
   circuitBreaker: {
     timeout: Joi.number(),
     resetTimeout: Joi.number(),
+    errorThresholdPercentage: Joi.number(),
     enabled: Joi.boolean(),
   },
 });
@@ -55,9 +56,12 @@ export const defaultConfiguration = {
       'https://resources.sandbox.uk.eagleeye.com',
   },
   circuitBreaker: {
-    timeout: parseInt(process.env.CIRCUIT_BREAKER_TIMEOUT, 10) || undefined,
+    timeout: parseInt(process.env.CIRCUIT_BREAKER_TIMEOUT, 10) || 1800,
     resetTimeout:
       parseInt(process.env.CIRCUIT_BREAKER_RESET_TIMEOUT, 10) || undefined,
+    errorThresholdPercentage:
+      parseInt(process.env.CIRCUIT_BREAKER_ERROR_THRESHOLD_PERCENTAGE, 10) ||
+      undefined,
     enabled: parseBool(process.env.CIRCUIT_BREAKER_ENABLED, true),
   },
 };
