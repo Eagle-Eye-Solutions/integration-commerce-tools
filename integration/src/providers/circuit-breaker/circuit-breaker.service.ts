@@ -43,7 +43,6 @@ export class CircuitBreakerService implements OnModuleInit {
     };
 
     this.circuit = new CircuitBreaker(this.breakableApi.invoke, options);
-
     // Log circuit state
     !this.circuit.enabled
       ? this.logger.warn('Circuit breaker is DISABLED')
@@ -56,6 +55,7 @@ export class CircuitBreakerService implements OnModuleInit {
         );
 
     // Event listeners
+    /* istanbul ignore next */
     this.circuit.on('open', async () => {
       this.logger.warn(
         'Circuit breaker is OPENED. Subsequent calls will fail immediately.',
@@ -63,32 +63,39 @@ export class CircuitBreakerService implements OnModuleInit {
       await this.saveState();
     });
 
+    /* istanbul ignore next */
     this.circuit.on('failure', (ex: any) => {
       this.logger.error('API call failed!', ex);
     });
 
+    /* istanbul ignore next */
     this.circuit.on('fallback', () => {
       this.logger.error('API call failed! Fallback function called.');
     });
 
+    /* istanbul ignore next */
     this.circuit.on('success', () => {
       this.logger.debug('API call was successful!');
     });
 
+    /* istanbul ignore next */
     this.circuit.on('timeout', () => {
       this.logger.error('API call timed out!');
     });
 
+    /* istanbul ignore next */
     this.circuit.on('reject', () => {
       this.logger.error('API call was rejected!');
     });
 
+    /* istanbul ignore next */
     this.circuit.on('halfOpen', () => {
       this.logger.warn(
         'Circuit breaker is half open. The next call will define whether it fully opens or closes.',
       );
     });
 
+    /* istanbul ignore next */
     this.circuit.on('close', async () => {
       this.logger.log(
         'Circuit breaker is closed. Calls will proceed as normal.',

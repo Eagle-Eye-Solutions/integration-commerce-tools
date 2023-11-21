@@ -81,7 +81,10 @@ export const configuration = () => {
       const configOverride = JSON.parse(process.env.CONFIG_OVERRIDE);
       return _.merge(defaultConfiguration, configOverride);
     } catch (err) {
-      logger.error('Failed to apply configuration override. Error: ', err);
+      logger.error(
+        'Failed to apply configuration override. Error: ${err}',
+        err.stack,
+      );
       logger.log('Continuing only with default configuration.');
     }
   }

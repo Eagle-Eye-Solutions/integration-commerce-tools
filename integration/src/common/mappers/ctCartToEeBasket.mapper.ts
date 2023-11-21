@@ -24,29 +24,32 @@ export class CTCartToEEBasketMapper {
       description: lineItem.name[Object.keys(lineItem.name)[0]], // TODO: handle locales
       itemUnitMetric: 'EACH',
       itemUnitCount: lineItem.quantity,
+      salesKey: 'SALE',
     };
   }
 
-  mapAdjustedBasketToCartDirectDiscount(
+  mapAdjustedBasketToCartDirectDiscounts(
     basket,
     cart: Cart,
-  ): DirectDiscountDraft {
-    return {
-      value: {
-        type: 'absolute',
-        money: [
-          {
-            centAmount: basket.summary.totalDiscountAmount.promotions,
-            currencyCode: cart.totalPrice.currencyCode,
-            type: cart.totalPrice.type,
-            fractionDigits: cart.totalPrice.fractionDigits,
-          },
-        ],
-      },
-      target: {
-        type: 'totalPrice' as any, // Casting to skip checks, totalPrice is a BETA feature
-      },
-    };
+  ): DirectDiscountDraft[] {
+    return basket.summary.adjustmentResults.map((discount) => {
+      return {
+        value: {
+          type: 'absolute',
+          money: [
+            {
+              centAmount: discount.value,
+              currencyCode: cart.totalPrice.currencyCode,
+              type: cart.totalPrice.type,
+              fractionDigits: cart.totalPrice.fractionDigits,
+            },
+          ],
+        },
+        target: {
+          type: 'totalPrice' as any, // Casting to skip checks, totalPrice is a BETA feature
+        },
+      };
+    });
   }
 
   mapBasketDiscountsToDiscountDescriptions(discounts): DiscountDescription[] {
@@ -61,19 +64,19 @@ export class CTCartToEEBasketMapper {
     basket,
     cart: Cart,
   ): DirectDiscountDraft[] {
-    return basket.summary.adjustmentResults
+    return basket.contents
       .map((item) => {
         const cartLineItem = cart.lineItems.find(
           (lineItem) => lineItem.variant.sku === item.upc,
         );
         if (cartLineItem) {
-          return item.adjustmentResults.map((adjustment) => {
+          return item.adjustmentResults?.map((adjustment) => {
             return {
               value: {
                 type: 'absolute',
                 money: [
                   {
-                    centAmount: adjustment.discountAmount,
+                    centAmount: adjustment.totalDiscountAmount,
                     currencyCode: cartLineItem.totalPrice.currencyCode,
                     type: cartLineItem.totalPrice.type,
                     fractionDigits: cartLineItem.totalPrice.fractionDigits,
@@ -110,11 +113,14 @@ export class CTCartToEEBasketMapper {
             identityValue: identities[0].value,
           }
         : undefined,
+      // TODO: check in which cases this may need to be true and if configuration is required.
       lock: false,
+      // TODO: check if this needs to be customizable by the merchant.
       location: {
         incomingIdentifier: 'outlet1',
         parentIncomingIdentifier: 'banner1',
       },
+      // TODO: check if configuration to enable/disable open offers is needed.
       options: {
         adjustBasket: {
           includeOpenOffers: true,

@@ -8,7 +8,6 @@ import {
   nockGetCustomObject,
   nockPostCustomObject,
 } from './utils/nocks/CustomObjectNock';
-import { CartDiscountActionBuilder } from '../src/providers/commercetools/actions/cart-update/CartDiscountActionBuilder';
 import { nockWalletOpen } from './utils/nocks/EagleEyeNock';
 import { MockLogger } from './utils/mocks/MockLogger';
 import { CIRCUIT_BREAKER_OPEN } from './utils/data/CustomObjects.data';
@@ -19,10 +18,53 @@ const NO_ERRORS = {
   actions: [
     {
       action: 'setCustomType',
-      type: { typeId: 'type', key: 'eagleEye' },
-      fields: { errors: [], appliedDiscounts: [] },
+      type: {
+        typeId: 'type',
+        key: 'eagleEye',
+      },
+      fields: {
+        errors: [],
+        appliedDiscounts: ['Example Discount'],
+      },
     },
-    CartDiscountActionBuilder.addDiscount([]),
+    {
+      action: 'setDirectDiscounts',
+      discounts: [
+        {
+          value: {
+            type: 'absolute',
+            money: [
+              {
+                centAmount: 200,
+                currencyCode: 'GBP',
+                type: 'centPrecision',
+                fractionDigits: 2,
+              },
+            ],
+          },
+          target: {
+            type: 'totalPrice',
+          },
+        },
+        {
+          value: {
+            type: 'absolute',
+            money: [
+              {
+                centAmount: 100,
+                currencyCode: 'GBP',
+                type: 'centPrecision',
+                fractionDigits: 2,
+              },
+            ],
+          },
+          target: {
+            type: 'lineItems',
+            predicate: 'sku="245865"',
+          },
+        },
+      ],
+    },
   ],
 };
 

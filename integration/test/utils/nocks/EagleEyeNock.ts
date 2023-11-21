@@ -54,7 +54,37 @@ export const nockWalletOpen = (
         additionalEntities: null,
         walletTransactions: [],
         accountTransactions: [],
-        analyseBasketResults: null,
+        analyseBasketResults: {
+          basket: {
+            type: 'STANDARD',
+            summary: {
+              redemptionChannel: 'Online',
+              totalDiscountAmount: {
+                general: null,
+                staff: null,
+                promotions: 300,
+              },
+              totalItems: cart.lineItems.length,
+              totalBasketValue: cart.totalPrice.centAmount,
+              adjustmentResults: [{ value: 200 }],
+            },
+            contents: [
+              {
+                upc: '245865',
+                adjustmentResults: [
+                  {
+                    totalDiscountAmount: 100,
+                  },
+                ],
+              },
+            ],
+          },
+          discount: [
+            {
+              campaignName: 'Example Discount',
+            },
+          ],
+        },
         basketAdjudicationResult: null,
         spendAdjudicationResults: null,
       },

@@ -1,13 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { EagleEyeApiClient } from '../../providers/eagleeye/eagleeye.provider';
-import { Reference, DirectDiscountDraft } from '@commercetools/platform-sdk';
+import {
+  Cart,
+  CartReference,
+  DirectDiscountDraft,
+} from '@commercetools/platform-sdk';
 import { CTCartToEEBasketMapper } from '../../common/mappers/ctCartToEeBasket.mapper';
 import { CircuitBreakerIntercept } from '../../decorators/circuit-breaker-intercept/circuit-breaker-intercept.decorator';
 import { CircuitBreakerService } from '../../providers/circuit-breaker/circuit-breaker.service';
 import { DiscountDescription } from '../../providers/commercetools/actions/cart-update/CartCustomTypeActionBuilder';
 
 @Injectable()
-export class PromotionsService {
+export class PromotionService {
   public cartToBasketMapper = new CTCartToEEBasketMapper();
 
   constructor(
@@ -15,44 +19,103 @@ export class PromotionsService {
     readonly circuitBreakerService: CircuitBreakerService,
   ) {}
 
-  async getBasketLevelDiscounts(cartReference: Reference): Promise<{
+  async getDiscounts(cartReference: CartReference): Promise<{
     discounts: DirectDiscountDraft[];
     discountDescriptions: DiscountDescription[];
   }> {
-    const discountDrafts: DirectDiscountDraft[] = [];
+    let discounts: DirectDiscountDraft[] = [];
     let discountDescriptions: DiscountDescription[] = [];
-
-    const cart = (cartReference as any).obj;
 
     const walletOpenResponse = await this.walletInvoke(
       'open',
-      this.cartToBasketMapper.mapCartToWalletOpenPayload(cart),
+      this.cartToBasketMapper.mapCartToWalletOpenPayload(cartReference.obj),
     );
-    if (
-      walletOpenResponse.analyseBasketResults?.basket?.summary
-        ?.totalDiscountAmount &&
-      walletOpenResponse.analyseBasketResults?.basket.summary
-        .totalDiscountAmount.promotions
-    ) {
-      const cartDiscount =
-        this.cartToBasketMapper.mapAdjustedBasketToCartDirectDiscount(
-          walletOpenResponse.analyseBasketResults?.basket,
-          cart,
+
+    if (walletOpenResponse?.analyseBasketResults?.basket) {
+      const basketLevelDiscounts = await this.getBasketLevelDiscounts(
+        walletOpenResponse.analyseBasketResults.basket,
+        cartReference.obj,
+      );
+      discounts = discounts.concat(basketLevelDiscounts);
+      const itemLevelDiscounts = await this.getItemLevelDiscounts(
+        walletOpenResponse.analyseBasketResults.basket,
+        cartReference.obj,
+      );
+      discounts = discounts.concat(itemLevelDiscounts);
+    }
+
+    if (walletOpenResponse?.analyseBasketResults?.discount?.length) {
+      const descriptions =
+        this.cartToBasketMapper.mapBasketDiscountsToDiscountDescriptions(
+          walletOpenResponse?.analyseBasketResults?.discount,
         );
-      discountDrafts.push(cartDiscount);
-      if (walletOpenResponse.analyseBasketResults.discount?.length) {
-        const descriptions =
-          this.cartToBasketMapper.mapBasketDiscountsToDiscountDescriptions(
-            walletOpenResponse.analyseBasketResults.discount,
-          );
-        discountDescriptions = discountDescriptions.concat(descriptions);
-      }
+      discountDescriptions = discountDescriptions.concat(descriptions);
     }
 
     return {
-      discounts: discountDrafts,
+      discounts,
       discountDescriptions,
     };
+  }
+
+  async getBasketDiscountDescriptions(
+    discounts,
+  ): Promise<DiscountDescription[]> {
+    let discountDescriptions: DiscountDescription[] = [];
+    if (discounts?.length) {
+      const descriptions =
+        this.cartToBasketMapper.mapBasketDiscountsToDiscountDescriptions(
+          discounts,
+        );
+      discountDescriptions = discountDescriptions.concat(descriptions);
+    }
+    return discountDescriptions;
+  }
+
+  async getBasketLevelDiscounts(
+    basket,
+    cart: Cart,
+  ): Promise<DirectDiscountDraft[]> {
+    let discountDrafts: DirectDiscountDraft[] = [];
+
+    if (
+      basket.summary?.totalDiscountAmount.promotions &&
+      basket.summary?.adjustmentResults?.length
+    ) {
+      const cartDiscounts =
+        this.cartToBasketMapper.mapAdjustedBasketToCartDirectDiscounts(
+          basket,
+          cart,
+        );
+      if (cartDiscounts.length) {
+        discountDrafts = discountDrafts.concat(cartDiscounts);
+      }
+    }
+
+    return discountDrafts;
+  }
+
+  async getItemLevelDiscounts(
+    basket,
+    cart: Cart,
+  ): Promise<DirectDiscountDraft[]> {
+    let discountDrafts: DirectDiscountDraft[] = [];
+
+    if (
+      basket?.summary?.totalDiscountAmount?.promotions &&
+      basket.contents?.length
+    ) {
+      const itemDiscounts =
+        this.cartToBasketMapper.mapAdjustedBasketToItemDirectDiscounts(
+          basket,
+          cart,
+        );
+      if (itemDiscounts.length) {
+        discountDrafts = discountDrafts.concat(itemDiscounts);
+      }
+    }
+
+    return discountDrafts;
   }
 
   @CircuitBreakerIntercept()

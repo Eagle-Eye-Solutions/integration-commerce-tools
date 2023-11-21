@@ -1,23 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`CTCartToEEBasketMapper mapAdjustedBasketToCartDirectDiscount should return the direct discount draft 1`] = `
-{
-  "target": {
-    "type": "totalPrice",
-  },
-  "value": {
-    "money": [
-      {
-        "centAmount": 500,
-        "currencyCode": "USD",
-        "fractionDigits": 2,
-        "type": "centPrecision",
-      },
-    ],
-    "type": "absolute",
-  },
-}
-`;
+exports[`CTCartToEEBasketMapper mapAdjustedBasketToCartDirectDiscounts should return the direct discount draft 1`] = `[]`;
 
 exports[`CTCartToEEBasketMapper mapAdjustedBasketToItemDirectDiscounts should return the direct discount drafts 1`] = `
 [
@@ -29,7 +12,7 @@ exports[`CTCartToEEBasketMapper mapAdjustedBasketToItemDirectDiscounts should re
     "value": {
       "money": [
         {
-          "centAmount": 100,
+          "centAmount": 10,
           "currencyCode": "USD",
           "fractionDigits": 2,
           "type": "centPrecision",
@@ -48,6 +31,7 @@ exports[`CTCartToEEBasketMapper mapCartLineItemsToBasketContent should return th
     "itemUnitCost": 1000,
     "itemUnitCount": 2,
     "itemUnitMetric": "EACH",
+    "salesKey": "SALE",
     "totalUnitCost": 900,
     "totalUnitCostAfterDiscount": 900,
     "upc": "SKU123",
@@ -64,6 +48,7 @@ exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should return the pay
         "itemUnitCost": 300,
         "itemUnitCount": undefined,
         "itemUnitMetric": "EACH",
+        "salesKey": "SALE",
         "totalUnitCost": 300,
         "totalUnitCostAfterDiscount": 300,
         "upc": "SKU123",
