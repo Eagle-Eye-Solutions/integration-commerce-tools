@@ -24,6 +24,7 @@ export class AppService {
     if (body?.resource?.typeId !== 'cart') {
       return actionBuilder.build();
     }
+    let extensionActions: { actions: ActionsSupported[] };
     try {
       const basketDiscounts = await this.romotionService.getDiscounts(
         body.resource,
@@ -37,7 +38,7 @@ export class AppService {
       actionBuilder.add(
         CartDiscountActionBuilder.addDiscount([...basketDiscounts.discounts]),
       );
-      return actionBuilder.build();
+      extensionActions = actionBuilder.build();
     } catch (error) {
       this.logger.error(error, error.stack);
       const type = this.getErrorTypeCode(error);
@@ -52,8 +53,13 @@ export class AppService {
       );
       // Discounts should be removed only if the basket was not persisted in AIR. See https://eagleeye.atlassian.net/browse/CTP-3
       actionBuilder.add(CartDiscountActionBuilder.removeDiscounts());
-      return actionBuilder.build();
+      extensionActions = actionBuilder.build();
     }
+    this.logger.debug(
+      `Returning ${extensionActions.actions.length} actions to commercetools`,
+      extensionActions,
+    );
+    return extensionActions;
   }
 
   private getErrorTypeCode(error: any) {
