@@ -70,7 +70,7 @@ export class CTCartToEEBasketMapper {
           (lineItem) => lineItem.variant.sku === item.upc,
         );
         if (cartLineItem) {
-          return item.adjustmentResults.map((adjustment) => {
+          return item.adjustmentResults?.map((adjustment) => {
             return {
               value: {
                 type: 'absolute',

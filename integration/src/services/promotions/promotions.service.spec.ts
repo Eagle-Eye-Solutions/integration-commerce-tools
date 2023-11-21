@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PromotionsService } from './promotions.service';
+import { PromotionService } from './promotions.service';
 import { Commercetools } from '../../providers/commercetools/commercetools.provider';
 import { EagleEyeApiClient } from '../../providers/eagleeye/eagleeye.provider';
 import { ConfigService } from '@nestjs/config';
@@ -7,8 +7,8 @@ import { CTCartToEEBasketMapper } from '../../common/mappers/ctCartToEeBasket.ma
 import { Logger } from '@nestjs/common';
 import { CircuitBreakerService } from '../../providers/circuit-breaker/circuit-breaker.service';
 
-describe('PromotionsService', () => {
-  let service: PromotionsService;
+describe('PromotionService', () => {
+  let service: PromotionService;
   let circuitBreakerService: CircuitBreakerService;
   const walletOpenMock = jest.fn();
   const cartWithoutItems = {
@@ -26,7 +26,7 @@ describe('PromotionsService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        PromotionsService,
+        PromotionService,
         Commercetools,
         {
           provide: EagleEyeApiClient,
@@ -43,7 +43,7 @@ describe('PromotionsService', () => {
       ],
     }).compile();
 
-    service = module.get<PromotionsService>(PromotionsService);
+    service = module.get<PromotionService>(PromotionService);
     circuitBreakerService = module.get<CircuitBreakerService>(
       CircuitBreakerService,
     );

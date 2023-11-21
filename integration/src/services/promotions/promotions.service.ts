@@ -11,7 +11,7 @@ import { CircuitBreakerService } from '../../providers/circuit-breaker/circuit-b
 import { DiscountDescription } from '../../providers/commercetools/actions/cart-update/CartCustomTypeActionBuilder';
 
 @Injectable()
-export class PromotionsService {
+export class PromotionService {
   public cartToBasketMapper = new CTCartToEEBasketMapper();
 
   constructor(
@@ -36,17 +36,12 @@ export class PromotionsService {
         walletOpenResponse.analyseBasketResults.basket,
         cartReference.obj,
       );
-      if (basketLevelDiscounts.length) {
-        discounts = discounts.concat(basketLevelDiscounts);
-      }
-
+      discounts = discounts.concat(basketLevelDiscounts);
       const itemLevelDiscounts = await this.getItemLevelDiscounts(
         walletOpenResponse.analyseBasketResults.basket,
         cartReference.obj,
       );
-      if (itemLevelDiscounts.length) {
-        discounts = discounts.concat(itemLevelDiscounts);
-      }
+      discounts = discounts.concat(itemLevelDiscounts);
     }
 
     if (walletOpenResponse?.analyseBasketResults?.discount?.length) {

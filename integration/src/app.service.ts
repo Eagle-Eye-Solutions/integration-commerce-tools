@@ -7,13 +7,13 @@ import {
   CTActionsBuilder,
 } from './providers/commercetools/actions/ActionsBuilder';
 import { CartDiscountActionBuilder } from './providers/commercetools/actions/cart-update/CartDiscountActionBuilder';
-import { PromotionsService } from './services/promotions/promotions.service';
+import { PromotionService } from './services/promotions/promotions.service';
 
 @Injectable()
 export class AppService {
   private readonly logger = new Logger(AppService.name);
 
-  constructor(private promotionsService: PromotionsService) {}
+  constructor(private romotionService: PromotionService) {}
 
   async handleExtensionRequest(body: ExtensionInput): Promise<{
     actions: ActionsSupported[];
@@ -25,7 +25,7 @@ export class AppService {
       return actionBuilder.build();
     }
     try {
-      const basketDiscounts = await this.promotionsService.getDiscounts(
+      const basketDiscounts = await this.romotionService.getDiscounts(
         body.resource,
       );
       actionBuilder.add(
@@ -39,7 +39,7 @@ export class AppService {
       );
       return actionBuilder.build();
     } catch (error) {
-      this.logger.error(error);
+      this.logger.error(error, error.stack);
       const type = this.getErrorTypeCode(error);
       actionBuilder.add(
         CartCustomTypeActionBuilder.addCustomType([
