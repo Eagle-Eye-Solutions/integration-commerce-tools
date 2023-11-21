@@ -12,12 +12,17 @@ import { BREAKABLE_API } from './circuit-breaker.provider';
 import { CIRCUIT_BREAKER_STATE_SERVICE_PROVIDER } from './interfaces/circuit-breaker-state.provider';
 import { Logger } from '@nestjs/common';
 
+let enabledBreakerMock = true;
+let openedBreakerMock = false;
+
 jest.mock('opossum', () => {
   return jest.fn().mockImplementation(() => {
     return {
       fire: jest.fn(),
       on: jest.fn(),
       toJSON: jest.fn(),
+      enabled: enabledBreakerMock,
+      opened: openedBreakerMock,
     };
   });
 });
@@ -60,6 +65,8 @@ describe('CircuitBreakerService', () => {
     breakableApi = module.get<BreakableApi>(BREAKABLE_API);
     circuitBreakerState = module.get(CIRCUIT_BREAKER_STATE_SERVICE_PROVIDER);
     configService = module.get(ConfigService);
+    enabledBreakerMock = true;
+    openedBreakerMock = false;
   });
 
   it('should be defined', () => {
@@ -87,6 +94,16 @@ describe('CircuitBreakerService', () => {
   it('should not load the state from commercetools if the circuit breaker is disabled in the config', async () => {
     configService.get.mockReset();
     configService.get.mockReturnValue(false);
+    enabledBreakerMock = false;
+    await service.onModuleInit();
+
+    expect(jest.spyOn(circuitBreakerState, 'loadState')).toBeCalledTimes(0);
+  });
+
+  it('should log error if the circuit breaker is open', async () => {
+    configService.get.mockReset();
+    configService.get.mockReturnValue(false);
+    openedBreakerMock = true;
     await service.onModuleInit();
 
     expect(jest.spyOn(circuitBreakerState, 'loadState')).toBeCalledTimes(0);

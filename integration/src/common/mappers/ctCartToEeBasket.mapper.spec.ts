@@ -65,7 +65,7 @@ describe('CTCartToEEBasketMapper', () => {
     expect(basketContents).toMatchSnapshot();
   });
 
-  test('mapAdjustedBasketToCartDirectDiscount should return the direct discount draft', () => {
+  test('mapAdjustedBasketToCartDirectDiscounts should return the direct discount draft', () => {
     const basket = {
       summary: {
         totalDiscountAmount: {
@@ -75,7 +75,7 @@ describe('CTCartToEEBasketMapper', () => {
       },
     };
 
-    const directDiscount = mapper.mapAdjustedBasketToCartDirectDiscount(
+    const directDiscount = mapper.mapAdjustedBasketToCartDirectDiscounts(
       basket,
       cart,
     );
@@ -87,19 +87,19 @@ describe('CTCartToEEBasketMapper', () => {
     const basket = {
       summary: {
         totalDiscountAmount: {
-          promotions: 0,
+          promotions: 10,
         },
-        adjustmentResults: [
-          {
-            upc: 'SKU123',
-            adjustmentResults: [
-              {
-                discountAmount: 100,
-              },
-            ],
-          },
-        ],
       },
+      contents: [
+        {
+          upc: 'SKU123',
+          adjustmentResults: [
+            {
+              totalDiscountAmount: 10,
+            },
+          ],
+        },
+      ],
     };
 
     const directDiscounts = mapper.mapAdjustedBasketToItemDirectDiscounts(

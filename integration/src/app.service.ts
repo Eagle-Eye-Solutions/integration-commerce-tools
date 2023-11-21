@@ -24,38 +24,36 @@ export class AppService {
     if (body?.resource?.typeId !== 'cart') {
       return actionBuilder.build();
     }
-    return this.promotionsService
-      .getBasketLevelDiscounts(body.resource)
-      .then(async (result: any) => {
-        this.logger.log(`Circuit breaker call result: `, result);
-        actionBuilder.add(
-          CartCustomTypeActionBuilder.addCustomType(
-            [],
-            result.discountDescriptions,
-          ),
-        );
-        actionBuilder.add(
-          CartDiscountActionBuilder.addDiscount(result.discounts),
-        );
-        return actionBuilder.build();
-      })
-      .catch((error: any) => {
-        this.logger.error('Error calling the circuit breaker API', error);
-
-        const type = this.getErrorTypeCode(error);
-        actionBuilder.add(
-          CartCustomTypeActionBuilder.addCustomType([
-            {
-              type,
-              message:
-                'The eagle eye API is unavailable, the cart promotions and loyalty points are NOT updated',
-            },
-          ]),
-        );
-        // Discounts should be removed only if the basket was not persisted in AIR. See https://eagleeye.atlassian.net/browse/CTP-3
-        actionBuilder.add(CartDiscountActionBuilder.removeDiscounts());
-        return actionBuilder.build();
-      });
+    try {
+      const basketDiscounts = await this.promotionsService.getDiscounts(
+        body.resource,
+      );
+      actionBuilder.add(
+        CartCustomTypeActionBuilder.addCustomType(
+          [],
+          [...basketDiscounts.discountDescriptions],
+        ),
+      );
+      actionBuilder.add(
+        CartDiscountActionBuilder.addDiscount([...basketDiscounts.discounts]),
+      );
+      return actionBuilder.build();
+    } catch (error) {
+      this.logger.error(error);
+      const type = this.getErrorTypeCode(error);
+      actionBuilder.add(
+        CartCustomTypeActionBuilder.addCustomType([
+          {
+            type,
+            message:
+              'The eagle eye API is unavailable, the cart promotions and loyalty points are NOT updated',
+          },
+        ]),
+      );
+      // Discounts should be removed only if the basket was not persisted in AIR. See https://eagleeye.atlassian.net/browse/CTP-3
+      actionBuilder.add(CartDiscountActionBuilder.removeDiscounts());
+      return actionBuilder.build();
+    }
   }
 
   private getErrorTypeCode(error: any) {

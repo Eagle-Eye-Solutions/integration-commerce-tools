@@ -19,6 +19,8 @@ describe('AppService', () => {
           provide: PromotionsService,
           useValue: {
             getBasketLevelDiscounts: jest.fn(),
+            getItemLevelDiscounts: jest.fn(),
+            getDiscounts: jest.fn(),
           },
         },
       ],
@@ -43,7 +45,23 @@ describe('AppService', () => {
     const discountDrafts = [
       {
         target: {
-          predicate: '1=1',
+          type: 'totalPrice',
+        },
+        value: {
+          money: [
+            {
+              centAmount: 100,
+              currencyCode: 'GBP',
+              fractionDigits: 2,
+              type: 'centPrecision',
+            },
+          ],
+          type: 'absolute',
+        },
+      },
+      {
+        target: {
+          predicate: 'sku="SKU123"',
           type: 'lineItems',
         },
         value: {
@@ -64,12 +82,10 @@ describe('AppService', () => {
         description: 'Example Discount',
       },
     ];
-    jest
-      .spyOn(promotionsService, 'getBasketLevelDiscounts')
-      .mockResolvedValueOnce({
-        discounts: discountDrafts,
-        discountDescriptions,
-      } as any);
+    jest.spyOn(promotionsService, 'getDiscounts').mockResolvedValueOnce({
+      discounts: discountDrafts,
+      discountDescriptions,
+    } as any);
     const result = {
       actions: [
         {
@@ -103,9 +119,7 @@ describe('AppService', () => {
       'EE_API_UNAVAILABLE',
       'Circuit open',
     );
-    jest
-      .spyOn(promotionsService, 'getBasketLevelDiscounts')
-      .mockRejectedValue(error);
+    jest.spyOn(promotionsService, 'getDiscounts').mockRejectedValue(error);
     const response = await service.handleExtensionRequest(body);
     expect(response).toEqual({
       actions: [
@@ -143,9 +157,7 @@ describe('AppService', () => {
       resource: { typeId: 'cart', id: '123' },
     };
     const error = new CircuitBreakerError('EOPENBREAKER');
-    jest
-      .spyOn(promotionsService, 'getBasketLevelDiscounts')
-      .mockRejectedValue(error);
+    jest.spyOn(promotionsService, 'getDiscounts').mockRejectedValue(error);
     const response = await service.handleExtensionRequest(body);
     expect(response.actions).toHaveLength(2);
     expect(response).toEqual({
@@ -155,6 +167,38 @@ describe('AppService', () => {
           fields: {
             errors: [
               '{"type":"EE_API_CIRCUIT_OPEN","message":"The eagle eye API is unavailable, the cart promotions and loyalty points are NOT updated"}',
+            ],
+            appliedDiscounts: [],
+          },
+          type: {
+            key: 'eagleEye',
+            typeId: 'type',
+          },
+        },
+        {
+          action: 'setDirectDiscounts',
+          discounts: [],
+        },
+      ],
+    });
+  });
+
+  it('should return EE_API_GENERIC_ERROR error in the cart custom type when any other error is thrown', async () => {
+    const body: ExtensionInput = {
+      action: 'Update',
+      resource: { typeId: 'cart', id: '123' },
+    };
+    const error = new Error('SOME_OTHER_ERROR');
+    jest.spyOn(promotionsService, 'getDiscounts').mockRejectedValue(error);
+    const response = await service.handleExtensionRequest(body);
+    expect(response.actions).toHaveLength(2);
+    expect(response).toEqual({
+      actions: [
+        {
+          action: 'setCustomType',
+          fields: {
+            errors: [
+              '{"type":"EE_API_GENERIC_ERROR","message":"The eagle eye API is unavailable, the cart promotions and loyalty points are NOT updated"}',
             ],
             appliedDiscounts: [],
           },
