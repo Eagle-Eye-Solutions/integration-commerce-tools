@@ -48,4 +48,4 @@ runs:
       if: always()
       with:
         name: E2E-reports
-        path: integration/src/test/e2e/postman/newman
+        path: integration/test/newman
