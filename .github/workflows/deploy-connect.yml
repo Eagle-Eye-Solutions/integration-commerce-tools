@@ -114,3 +114,7 @@ jobs:
           connect_env: ${{ github.event.inputs.environment }}
           connector_key: ${{ github.event.inputs.connector_key }}
           config_override: ${{ github.event.inputs.config_override }}
+          ee_wallet_url: ${{ vars.EE_WALLET_URL }}
+          ee_pos_url: ${{ vars.EE_POS_URL }}
+          ee_resources_url: ${{ vars.EE_RESOURCES_URL }}
+          shipping_method_map: ${{ vars.SHIPPING_METHOD_MAP }}
