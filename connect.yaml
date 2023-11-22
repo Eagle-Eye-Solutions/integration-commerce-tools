@@ -25,6 +25,12 @@ deployAs:
           description: URL for the EagleEye API Wallet endpoints
           required: false
           default: 'https://resources.sandbox.uk.eagleeye.com'
+        - key: SHIPPING_METHOD_MAP
+          description: Stringified JSON array for mapping shipping methods to EE UPCs
+          required: false
+        - key: CONFIG_OVERRIDE
+          description: Stringified and escaped JSON to override all integration configurations
+          required: false
       securedConfiguration:
         - key: CTP_CLIENT_ID
           description: client_id of an API Client for the commercetools Composable Commerce Project
