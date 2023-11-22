@@ -1,13 +1,21 @@
 import * as nock from 'nock';
 import { CTCartToEEBasketMapper } from '../../../src/common/mappers/ctCartToEeBasket.mapper';
 
-export const nockWalletOpen = (
+import { Commercetools } from '../../../src/providers/commercetools/commercetools.provider';
+import { ScriptConfigService } from '../../../src/config/configuration';
+
+export const nockWalletOpen = async (
   times = 1,
   responseCode = 200,
   delayConnection = 0,
   cart,
 ) => {
-  const basketMapper = new CTCartToEEBasketMapper();
+  const configService = new ScriptConfigService();
+  const commercetools = new Commercetools(configService as any);
+  const basketMapper = new CTCartToEEBasketMapper(
+    configService as any,
+    commercetools,
+  );
   return nock('https://pos.sandbox.uk.eagleeye.com:443', {
     encodedQueryParams: true,
   })
@@ -40,7 +48,12 @@ export const nockWalletOpen = (
           totalItems: cart.lineItems.length,
           totalBasketValue: cart.totalPrice.centAmount,
         },
-        contents: basketMapper.mapCartLineItemsToBasketContent(cart.lineItems),
+        contents: [
+          ...basketMapper.mapCartLineItemsToBasketContent(cart.lineItems),
+          ...(await basketMapper.mapShippingMethodSkusToBasketItems(
+            cart.shippingInfo,
+          )),
+        ],
       },
     })
     .times(times)
@@ -74,6 +87,14 @@ export const nockWalletOpen = (
                 adjustmentResults: [
                   {
                     totalDiscountAmount: 100,
+                  },
+                ],
+              },
+              {
+                upc: '245879',
+                adjustmentResults: [
+                  {
+                    totalDiscountAmount: 250,
                   },
                 ],
               },

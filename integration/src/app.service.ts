@@ -13,7 +13,7 @@ import { PromotionService } from './services/promotions/promotions.service';
 export class AppService {
   private readonly logger = new Logger(AppService.name);
 
-  constructor(private romotionService: PromotionService) {}
+  constructor(private promotionService: PromotionService) {}
 
   async handleExtensionRequest(body: ExtensionInput): Promise<{
     actions: ActionsSupported[];
@@ -26,7 +26,7 @@ export class AppService {
     }
     let extensionActions: { actions: ActionsSupported[] };
     try {
-      const basketDiscounts = await this.romotionService.getDiscounts(
+      const basketDiscounts = await this.promotionService.getDiscounts(
         body.resource,
       );
       actionBuilder.add(

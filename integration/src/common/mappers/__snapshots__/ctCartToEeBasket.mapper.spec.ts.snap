@@ -24,6 +24,27 @@ exports[`CTCartToEEBasketMapper mapAdjustedBasketToItemDirectDiscounts should re
 ]
 `;
 
+exports[`CTCartToEEBasketMapper mapAdjustedBasketToShippingDirectDiscounts should return the direct discount drafts 1`] = `
+[
+  {
+    "target": {
+      "type": "shipping",
+    },
+    "value": {
+      "money": [
+        {
+          "centAmount": 10,
+          "currencyCode": "USD",
+          "fractionDigits": 2,
+          "type": "centPrecision",
+        },
+      ],
+      "type": "absolute",
+    },
+  },
+]
+`;
+
 exports[`CTCartToEEBasketMapper mapCartLineItemsToBasketContent should return the mapped line items 1`] = `
 [
   {
@@ -84,4 +105,19 @@ exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should return the pay
   },
   "reference": undefined,
 }
+`;
+
+exports[`CTCartToEEBasketMapper mapShippingMethodSkusToBasketItems should return the mapped custom basket items 1`] = `
+[
+  {
+    "description": "Example Shipping Discount",
+    "itemUnitCost": 300,
+    "itemUnitCount": 1,
+    "itemUnitMetric": "EACH",
+    "salesKey": "SALE",
+    "totalUnitCost": 300,
+    "totalUnitCostAfterDiscount": 300,
+    "upc": "245879",
+  },
+]
 `;

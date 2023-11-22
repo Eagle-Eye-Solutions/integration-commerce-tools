@@ -21,7 +21,7 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "test:e2e": "DOTENV_CONFIG_PATH=.env.example jest --config ./test/jest-e2e.json",
     "prepare": "cd .. && husky install integration/.husky",
     "commitlint": "cd .. && commitlint -g integration/commitlint.config.js --edit",
     "branchlint": "node src/scripts/enforce-branch-naming.js",

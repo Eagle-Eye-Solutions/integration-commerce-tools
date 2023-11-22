@@ -24,6 +24,7 @@ const validationSchema = Joi.object({
     walletUrl: Joi.string(),
     posUrl: Joi.string(),
     resourcesUrl: Joi.string(),
+    shippingMethodMap: Joi.array<{ key: string; upc: string }>(),
   }),
   circuitBreaker: {
     timeout: Joi.number(),
@@ -32,6 +33,20 @@ const validationSchema = Joi.object({
     enabled: Joi.boolean(),
   },
 });
+
+const parseShippingMethodMap = (): { key: string; upc: string }[] => {
+  if (process.env.SHIPPING_METHOD_MAP) {
+    try {
+      return JSON.parse(process.env.SHIPPING_METHOD_MAP);
+    } catch (err) {
+      logger.error(
+        'Failed to parse shipping method map from environment, skipping. Error: ${err',
+        err.stack,
+      );
+    }
+  }
+  return [];
+};
 
 export const defaultConfiguration = {
   debug: {
@@ -54,6 +69,7 @@ export const defaultConfiguration = {
     resourcesUrl:
       process.env.EE_RESOURCES_URL ||
       'https://resources.sandbox.uk.eagleeye.com',
+    shippingMethodMap: parseShippingMethodMap(),
   },
   circuitBreaker: {
     timeout: parseInt(process.env.CIRCUIT_BREAKER_TIMEOUT, 10) || 1800,
