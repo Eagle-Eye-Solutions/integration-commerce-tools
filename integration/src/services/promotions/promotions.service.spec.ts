@@ -10,6 +10,8 @@ import { CircuitBreakerService } from '../../providers/circuit-breaker/circuit-b
 describe('PromotionService', () => {
   let service: PromotionService;
   let circuitBreakerService: CircuitBreakerService;
+  let configService: ConfigService;
+  let commercetools: Commercetools;
   const walletOpenMock = jest.fn();
   const cartWithoutItems = {
     id: 'cartId',
@@ -22,12 +24,18 @@ describe('PromotionService', () => {
       fractionDigits: 2,
     },
   };
+  const shippingMethodMapMock = [{ key: 'standard-key', upc: '245879' }];
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         PromotionService,
-        Commercetools,
+        {
+          provide: Commercetools,
+          useValue: {
+            getShippingMethods: jest.fn(),
+          },
+        },
         {
           provide: EagleEyeApiClient,
           useValue: {
@@ -36,7 +44,12 @@ describe('PromotionService', () => {
             },
           },
         },
-        ConfigService,
+        {
+          provide: ConfigService,
+          useValue: {
+            get: jest.fn(),
+          },
+        },
         CTCartToEEBasketMapper,
         { provide: CircuitBreakerService, useValue: { fire: jest.fn() } },
         Logger,
@@ -47,6 +60,8 @@ describe('PromotionService', () => {
     circuitBreakerService = module.get<CircuitBreakerService>(
       CircuitBreakerService,
     );
+    configService = module.get<ConfigService>(ConfigService);
+    commercetools = module.get<Commercetools>(Commercetools);
   });
 
   describe('getDiscounts', () => {
@@ -83,6 +98,17 @@ describe('PromotionService', () => {
           currencyCode: 'USD',
           type: 'centPrecision',
           fractionDigits: 2,
+        },
+        shippingInfo: {
+          shippingMethod: {
+            id: 'some-id',
+          },
+          price: {
+            centAmount: 300,
+            currencyCode: 'USD',
+            type: 'centPrecision',
+            fractionDigits: 2,
+          },
         },
       };
       const cartReference = { id: 'cartId', obj: cart };
@@ -122,6 +148,15 @@ describe('PromotionService', () => {
         .spyOn(circuitBreakerService, 'fire')
         .mockResolvedValue(walletOpenResponse);
 
+      jest
+        .spyOn(configService, 'get')
+        .mockReturnValueOnce(shippingMethodMapMock)
+        .mockReturnValueOnce(shippingMethodMapMock);
+
+      jest
+        .spyOn(commercetools, 'getShippingMethods')
+        .mockResolvedValueOnce([{ key: 'standard-key' }] as any);
+
       const result = await service.getDiscounts(cartReference as any);
 
       expect(cbFireMock).toHaveBeenCalled();
@@ -155,6 +190,10 @@ describe('PromotionService', () => {
       const cbFireMock = jest
         .spyOn(circuitBreakerService, 'fire')
         .mockResolvedValue(walletOpenResponse);
+
+      jest
+        .spyOn(configService, 'get')
+        .mockReturnValueOnce(shippingMethodMapMock);
 
       const result = await service.getDiscounts(cartReference as any);
 
@@ -325,6 +364,101 @@ describe('PromotionService', () => {
       };
 
       const result = await service.getItemLevelDiscounts(
+        walletOpenResponse.analyseBasketResults.basket,
+        cartWithoutItems as any,
+      );
+
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('getShippingDiscounts', () => {
+    it('should get shipping discounts and return discount drafts', async () => {
+      const cart = {
+        id: 'cartId',
+        customerEmail: 'test@example.com',
+        lineItems: [],
+        totalPrice: {
+          centAmount: 300,
+          currencyCode: 'USD',
+          type: 'centPrecision',
+          fractionDigits: 2,
+        },
+        shippingInfo: {
+          shippingMethod: {
+            id: 'some-id',
+          },
+          price: {
+            centAmount: 300,
+            currencyCode: 'USD',
+            type: 'centPrecision',
+            fractionDigits: 2,
+          },
+        },
+      };
+      const walletOpenResponse = {
+        analyseBasketResults: {
+          basket: {
+            summary: {
+              totalDiscountAmount: {
+                promotions: 10,
+              },
+            },
+            contents: [
+              {
+                upc: '245879',
+                adjustmentResults: [
+                  {
+                    totalDiscountAmount: 10,
+                  },
+                ],
+              },
+            ],
+          },
+          discount: [
+            {
+              campaignName: 'Example Shipping Discount',
+            },
+          ],
+        },
+      };
+
+      jest
+        .spyOn(configService, 'get')
+        .mockReturnValueOnce(shippingMethodMapMock);
+
+      const result = await service.getShippingDiscounts(
+        walletOpenResponse.analyseBasketResults.basket,
+        cart as any,
+      );
+
+      expect(result).toEqual([
+        {
+          target: { type: 'shipping' },
+          value: {
+            money: [
+              {
+                centAmount: 10,
+                currencyCode: 'USD',
+                type: 'centPrecision',
+                fractionDigits: 2,
+              },
+            ],
+            type: 'absolute',
+          },
+        },
+      ]);
+    });
+
+    it('should not apply shipping discounts when no valid promotions are found', async () => {
+      const walletOpenResponse = {
+        analyseBasketResults: {
+          basket: {},
+          discount: [],
+        },
+      };
+
+      const result = await service.getShippingDiscounts(
         walletOpenResponse.analyseBasketResults.basket,
         cartWithoutItems as any,
       );

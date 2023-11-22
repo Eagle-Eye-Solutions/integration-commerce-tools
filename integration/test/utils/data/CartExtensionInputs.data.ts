@@ -217,6 +217,19 @@ export const RECALCULATE_CART = {
       },
       shippingMode: 'Single',
       shipping: [],
+      shippingInfo: {
+        shippingMethodName: 'Shipping method',
+        shippingMethod: {
+          id: '7fbc1884-d5f2-458c-879b-ebb88431c41c',
+          typeId: 'shipping-method',
+        },
+        price: {
+          centAmount: 500,
+          currencyCode: 'USD',
+          type: 'centPrecision',
+          fractionDigits: 2,
+        },
+      },
       customLineItems: [],
       discountCodes: [],
       directDiscounts: [

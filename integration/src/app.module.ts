@@ -15,6 +15,7 @@ import { OrderCustomTypeCommand } from './scripts/order-custom-type.command';
 import { HttpModule } from '@nestjs/axios';
 import { PromotionService } from './services/promotions/promotions.service';
 import { EagleEyeApiClient } from './providers/eagleeye/eagleeye.provider';
+import { CTCartToEEBasketMapper } from './common/mappers/ctCartToEeBasket.mapper';
 
 let ngrok;
 if (process.env.NODE_ENV === 'dev') {
@@ -43,6 +44,7 @@ if (process.env.NODE_ENV === 'dev') {
     OrderCustomTypeCommand,
     PromotionService,
     EagleEyeApiClient,
+    CTCartToEEBasketMapper,
   ],
 })
 export class AppModule implements OnModuleInit, OnModuleDestroy {
