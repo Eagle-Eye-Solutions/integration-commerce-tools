@@ -13,7 +13,6 @@ import { MockLogger } from './utils/mocks/MockLogger';
 import { CIRCUIT_BREAKER_OPEN } from './utils/data/CustomObjects.data';
 import * as nock from 'nock';
 import { sleep } from '../src/common/helper/timeout';
-import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 
 const NO_ERRORS = {
   actions: [
