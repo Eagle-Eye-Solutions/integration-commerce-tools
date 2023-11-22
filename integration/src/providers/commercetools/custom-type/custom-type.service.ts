@@ -1,12 +1,14 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Commercetools } from '../commercetools.provider';
 import { Type, TypeDraft } from '@commercetools/platform-sdk';
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 
 @Injectable()
 export class CustomTypeService {
-  private readonly logger = new Logger(CustomTypeService.name);
-
-  constructor(private readonly commercetools: Commercetools) {}
+  constructor(
+    private readonly commercetools: Commercetools,
+    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
+  ) {}
 
   async create(typeDefinition: TypeDraft): Promise<Type> {
     const ctClient = this.commercetools.getApiRoot();

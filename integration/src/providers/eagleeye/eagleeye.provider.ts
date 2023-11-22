@@ -1,10 +1,11 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { createHash } from 'crypto';
 import { BreakableApi } from '../circuit-breaker/interfaces/breakable-api.interface';
 import { ConfigService } from '@nestjs/config';
 import { EagleEyeApiException } from '../../common/exceptions/eagle-eye-api.exception';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom, retry } from 'rxjs';
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 
 // TODO: move this with other types to a proper directory
 export type EagleEyeCredentials = {
@@ -20,7 +21,7 @@ export class EagleEyeApiClient {
   public schemes: Schemes;
 
   constructor(
-    readonly logger: Logger,
+    @Inject(WINSTON_MODULE_PROVIDER) readonly logger: Logger,
     readonly configService: ConfigService,
     readonly httpService: HttpService,
   ) {
@@ -36,7 +37,7 @@ export abstract class EagleEyeSdkObject implements BreakableApi {
   private credentials: EagleEyeCredentials;
 
   protected constructor(
-    readonly logger: Logger,
+    @Inject(WINSTON_MODULE_PROVIDER) readonly logger: Logger,
     readonly configService: ConfigService,
     readonly httpService: HttpService,
   ) {
@@ -106,7 +107,7 @@ export abstract class EagleEyeSdkObject implements BreakableApi {
 @Injectable()
 export class Wallet extends EagleEyeSdkObject {
   constructor(
-    readonly logger: Logger,
+    @Inject(WINSTON_MODULE_PROVIDER) readonly logger: Logger,
     readonly configService: ConfigService,
     readonly httpService: HttpService,
   ) {
@@ -124,7 +125,7 @@ export class Wallet extends EagleEyeSdkObject {
 @Injectable()
 export class Token extends EagleEyeSdkObject {
   constructor(
-    readonly logger: Logger,
+    @Inject(WINSTON_MODULE_PROVIDER) readonly logger: Logger,
     readonly configService: ConfigService,
     readonly httpService: HttpService,
   ) {
@@ -141,7 +142,7 @@ export class Token extends EagleEyeSdkObject {
 
 export class Campaigns extends EagleEyeSdkObject {
   constructor(
-    readonly logger: Logger,
+    @Inject(WINSTON_MODULE_PROVIDER) readonly logger: Logger,
     readonly configService: ConfigService,
     readonly httpService: HttpService,
   ) {
@@ -158,7 +159,7 @@ export class Campaigns extends EagleEyeSdkObject {
 
 export class Schemes extends EagleEyeSdkObject {
   constructor(
-    readonly logger: Logger,
+    @Inject(WINSTON_MODULE_PROVIDER) readonly logger: Logger,
     readonly configService: ConfigService,
     readonly httpService: HttpService,
   ) {

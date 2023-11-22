@@ -13,6 +13,7 @@ import { MockLogger } from './utils/mocks/MockLogger';
 import { CIRCUIT_BREAKER_OPEN } from './utils/data/CustomObjects.data';
 import * as nock from 'nock';
 import { sleep } from '../src/common/helper/timeout';
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 
 const NO_ERRORS = {
   actions: [
@@ -123,16 +124,16 @@ describe('Circuit breaker (e2e)', () => {
     const getCustomObjectNock = nockGetCustomObject(404, null);
     const postCustomObjectNock = nockPostCustomObject(200);
     const walletOpenNock = nockWalletOpen(
+      RECALCULATE_CART.resource.obj,
       3,
       200,
       0,
-      RECALCULATE_CART.resource.obj,
     );
     const walletOpenErrorNock = nockWalletOpen(
+      RECALCULATE_CART.resource.obj,
       4,
       500,
       0,
-      RECALCULATE_CART.resource.obj,
     );
 
     app = await initAppModule();

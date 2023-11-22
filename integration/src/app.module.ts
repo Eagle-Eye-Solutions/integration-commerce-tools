@@ -1,11 +1,9 @@
-import { Logger, Module, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { Commercetools } from './providers/commercetools/commercetools.provider';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { configuration, validateConfiguration } from './config/configuration';
-import { extensions } from './common/commercetools';
-import { Extension } from '@commercetools/platform-sdk';
 import { CircuitBreakerService } from './providers/circuit-breaker/circuit-breaker.service';
 import { CustomObjectService } from './providers/commercetools/custom-object/custom-object.service';
 import { CustomTypeService } from './providers/commercetools/custom-type/custom-type.service';
@@ -15,11 +13,9 @@ import { OrderCustomTypeCommand } from './scripts/order-custom-type.command';
 import { HttpModule } from '@nestjs/axios';
 import { PromotionService } from './services/promotions/promotions.service';
 import { EagleEyeApiClient } from './providers/eagleeye/eagleeye.provider';
-
-let ngrok;
-if (process.env.NODE_ENV === 'dev') {
-  ngrok = require('ngrok');
-}
+import { WinstonModule } from 'nest-winston';
+import { loggerConfig } from './config/logger.config';
+import { ExtensionLocalService } from './services/commercetools/extension-local.service';
 
 @Module({
   imports: [
@@ -29,6 +25,7 @@ if (process.env.NODE_ENV === 'dev') {
       validate: validateConfiguration,
     }),
     HttpModule,
+    WinstonModule.forRoot(loggerConfig),
   ],
   controllers: [AppController],
   providers: [
@@ -43,78 +40,7 @@ if (process.env.NODE_ENV === 'dev') {
     OrderCustomTypeCommand,
     PromotionService,
     EagleEyeApiClient,
+    ExtensionLocalService,
   ],
 })
-export class AppModule implements OnModuleInit, OnModuleDestroy {
-  private extensionKey = this.configService.get('debug.extensionKey');
-
-  constructor(
-    private commercetoolsService: Commercetools,
-    private configService: ConfigService,
-    private logger: Logger,
-  ) {}
-
-  async onModuleInit(): Promise<any> {
-    if (
-      process.env.NODE_ENV === 'dev' &&
-      this.configService.get('debug.ngrokEnabled')
-    ) {
-      const ngrokUrl = await ngrok.connect(
-        parseInt(process.env.PORT, 10) || 8080,
-      );
-      this.logger.log(`Initialized ngrok at ${ngrokUrl}.`, AppModule.name);
-      this.logger.log(
-        'Creating debug commercetools extension...',
-        AppModule.name,
-      );
-      const ctExtensions: Extension[] =
-        await this.commercetoolsService.queryExtensions({
-          queryArgs: {
-            where: `key = "${this.extensionKey}"`,
-          },
-        });
-      if (ctExtensions.length) {
-        await this.commercetoolsService.updateExtension(this.extensionKey, {
-          version: ctExtensions[0].version,
-          actions: [
-            {
-              action: 'changeTriggers',
-              triggers: extensions.map((ext) => ext.triggers).flat(),
-            },
-            {
-              action: 'changeDestination',
-              destination: {
-                type: 'HTTP',
-                url: ngrokUrl,
-              },
-            },
-          ],
-        });
-      } else {
-        await this.commercetoolsService.createExtension({
-          key: this.extensionKey,
-          destination: { type: 'HTTP', url: ngrokUrl },
-          triggers: extensions.map((ext) => ext.triggers).flat(),
-        });
-        this.logger.log(
-          'Debug commercetools extension created.',
-          AppModule.name,
-        );
-      }
-    }
-  }
-
-  async onModuleDestroy(): Promise<any> {
-    if (
-      process.env.NODE_ENV === 'dev' &&
-      this.configService.get('debug.ngrokEnabled')
-    ) {
-      this.logger.log(
-        `Deleting debug commercetools extension...`,
-        AppModule.name,
-      );
-      await this.commercetoolsService.deleteExtension(this.extensionKey, 1);
-      this.logger.log(`Debug extension deleted.\n`, AppModule.name);
-    }
-  }
-}
+export class AppModule {}

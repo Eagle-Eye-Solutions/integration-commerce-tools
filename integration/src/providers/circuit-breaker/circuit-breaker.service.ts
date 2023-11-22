@@ -8,14 +8,14 @@ import {
 import { BreakableApi } from './interfaces/breakable-api.interface';
 import { BREAKABLE_API } from './circuit-breaker.provider';
 import { CIRCUIT_BREAKER_STATE_SERVICE_PROVIDER } from './interfaces/circuit-breaker-state.provider';
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 
 @Injectable()
 export class CircuitBreakerService implements OnModuleInit {
-  private readonly logger = new Logger(CircuitBreakerService.name);
-
   private circuit: CircuitBreaker;
 
   constructor(
+    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
     @Inject(BREAKABLE_API) private readonly breakableApi: BreakableApi,
     @Inject(CIRCUIT_BREAKER_STATE_SERVICE_PROVIDER)
     private readonly circuitBreakerState: CircuitBreakerState,
@@ -51,6 +51,7 @@ export class CircuitBreakerService implements OnModuleInit {
           `Initialized circuit breaker. The circuit is OPEN! Requests are NOT sent to '${this.breakableApi.invoke.name}'`,
         )
       : this.logger.log(
+          'info',
           `Initialized circuit breaker. The circuit is closed all requests are sent to '${this.breakableApi.invoke.name}'`,
         );
 

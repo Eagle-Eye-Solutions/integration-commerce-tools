@@ -1,6 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { Commercetools } from './commercetools.provider';
+import { MockLogger } from '../../../test/utils/mocks/MockLogger';
+import { Logger } from '@nestjs/common';
 
 jest.mock('@commercetools/platform-sdk', () => ({
   createApiBuilderFromCtpClient: jest.fn().mockReturnValue({
@@ -39,6 +41,7 @@ describe('Commercetools', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
+        { provide: Logger, useValue: new MockLogger() },
         Commercetools,
         {
           provide: ConfigService,

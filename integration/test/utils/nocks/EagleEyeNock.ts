@@ -2,10 +2,10 @@ import * as nock from 'nock';
 import { CTCartToEEBasketMapper } from '../../../src/common/mappers/ctCartToEeBasket.mapper';
 
 export const nockWalletOpen = (
+  cart,
   times = 1,
   responseCode = 200,
   delayConnection = 0,
-  cart,
 ) => {
   const basketMapper = new CTCartToEEBasketMapper();
   return nock('https://pos.sandbox.uk.eagleeye.com:443', {
