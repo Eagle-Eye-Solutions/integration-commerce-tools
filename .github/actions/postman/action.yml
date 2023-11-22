@@ -42,7 +42,7 @@ runs:
           --env-var "project-key=${{ inputs.ct_project_id }}" \
           --env-var "customer-key=testcustomer"
       shell: bash
-      working-directory: ./integration/src/test/e2e/postman
+      working-directory: ./integration/test
     - name: Upload test results
       uses: actions/upload-artifact@v3
       if: always()
