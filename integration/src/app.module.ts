@@ -16,7 +16,7 @@ import { EagleEyeApiClient } from './providers/eagleeye/eagleeye.provider';
 import { WinstonModule } from 'nest-winston';
 import { loggerConfig } from './config/logger.config';
 import { CTCartToEEBasketMapper } from './common/mappers/ctCartToEeBasket.mapper';
-import { ExtensionLocalService } from "./services/commercetools/extension-local.service";
+import { ExtensionLocalService } from './services/commercetools/extension-local.service';
 
 @Module({
   imports: [
