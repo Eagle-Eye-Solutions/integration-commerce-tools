@@ -16,6 +16,14 @@ export const nockWalletOpen = async (
     configService as any,
     commercetools,
   );
+  const basketContents = [
+    ...basketMapper.mapCartLineItemsToBasketContent(cart.lineItems),
+  ];
+  const shippingDiscountItem =
+    await basketMapper.mapShippingMethodSkusToBasketItems(cart.shippingInfo);
+  if (shippingDiscountItem.upc) {
+    basketContents.push(shippingDiscountItem);
+  }
   return nock('https://pos.sandbox.uk.eagleeye.com:443', {
     encodedQueryParams: true,
   })
@@ -48,12 +56,7 @@ export const nockWalletOpen = async (
           totalItems: cart.lineItems.length,
           totalBasketValue: cart.totalPrice.centAmount,
         },
-        contents: [
-          ...basketMapper.mapCartLineItemsToBasketContent(cart.lineItems),
-          ...(await basketMapper.mapShippingMethodSkusToBasketItems(
-            cart.shippingInfo,
-          )),
-        ],
+        contents: basketContents,
       },
     })
     .times(times)

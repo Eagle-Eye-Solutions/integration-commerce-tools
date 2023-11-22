@@ -108,16 +108,14 @@ exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should return the pay
 `;
 
 exports[`CTCartToEEBasketMapper mapShippingMethodSkusToBasketItems should return the mapped custom basket items 1`] = `
-[
-  {
-    "description": "Example Shipping Discount",
-    "itemUnitCost": 300,
-    "itemUnitCount": 1,
-    "itemUnitMetric": "EACH",
-    "salesKey": "SALE",
-    "totalUnitCost": 300,
-    "totalUnitCostAfterDiscount": 300,
-    "upc": "245879",
-  },
-]
+{
+  "description": "Example Shipping Discount",
+  "itemUnitCost": 300,
+  "itemUnitCount": 1,
+  "itemUnitMetric": "EACH",
+  "salesKey": "SALE",
+  "totalUnitCost": 300,
+  "totalUnitCostAfterDiscount": 300,
+  "upc": "245879",
+}
 `;

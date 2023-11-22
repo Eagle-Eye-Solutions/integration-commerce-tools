@@ -145,7 +145,7 @@ export class CTCartToEEBasketMapper {
 
   async mapShippingMethodSkusToBasketItems(
     shippingInfo: ShippingInfo,
-  ): Promise<any[]> {
+  ): Promise<Record<string, any>> {
     const shippingMethodMap = this.configService.get(
       'eagleEye.shippingMethodMap',
     );
@@ -161,21 +161,19 @@ export class CTCartToEEBasketMapper {
         (method) => method.key === shippingMethod[0].key,
       );
       if (matchingMethod) {
-        return [
-          {
-            upc: matchingMethod.upc,
-            itemUnitCost: shippingInfo.price.centAmount,
-            totalUnitCostAfterDiscount: shippingInfo.price.centAmount,
-            totalUnitCost: shippingInfo.price.centAmount,
-            description: shippingInfo.shippingMethodName, // TODO: handle locales, shippingMethod.localizedName
-            itemUnitMetric: 'EACH',
-            itemUnitCount: 1,
-            salesKey: 'SALE',
-          },
-        ];
+        return {
+          upc: matchingMethod.upc,
+          itemUnitCost: shippingInfo.price.centAmount,
+          totalUnitCostAfterDiscount: shippingInfo.price.centAmount,
+          totalUnitCost: shippingInfo.price.centAmount,
+          description: shippingInfo.shippingMethodName, // TODO: handle locales, shippingMethod.localizedName
+          itemUnitMetric: 'EACH',
+          itemUnitCount: 1,
+          salesKey: 'SALE',
+        };
       }
     }
-    return [];
+    return {};
   }
 
   async mapCartToWalletOpenPayload(cart: Cart) {
@@ -187,6 +185,16 @@ export class CTCartToEEBasketMapper {
         type: 'CUSTOMER_ID',
         value: cart.customerEmail,
       });
+    }
+
+    const basketContents = [
+      ...this.mapCartLineItemsToBasketContent(cart.lineItems),
+    ];
+    const shippingDiscountItem = await this.mapShippingMethodSkusToBasketItems(
+      cart.shippingInfo,
+    );
+    if (shippingDiscountItem.upc) {
+      basketContents.push(shippingDiscountItem);
     }
 
     return {
@@ -226,10 +234,7 @@ export class CTCartToEEBasketMapper {
           totalItems: cart.lineItems.length,
           totalBasketValue: cart.totalPrice.centAmount,
         },
-        contents: [
-          ...this.mapCartLineItemsToBasketContent(cart.lineItems),
-          ...(await this.mapShippingMethodSkusToBasketItems(cart.shippingInfo)),
-        ],
+        contents: basketContents,
       },
     };
   }
