@@ -3,7 +3,10 @@ import { INestApplication, Logger } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { RECALCULATE_CART } from './utils/data/CartExtensionInputs.data';
-import { nockCtAuth } from './utils/nocks/CommercetoolsNock';
+import {
+  nockCtAuth,
+  nockCtGetShippingMethodsWithIds,
+} from './utils/nocks/CommercetoolsNock';
 import {
   nockGetCustomObject,
   nockPostCustomObject,
@@ -63,6 +66,22 @@ const NO_ERRORS = {
             predicate: 'sku="245865"',
           },
         },
+        {
+          value: {
+            type: 'absolute',
+            money: [
+              {
+                centAmount: 250,
+                currencyCode: 'GBP',
+                type: 'centPrecision',
+                fractionDigits: 2,
+              },
+            ],
+          },
+          target: {
+            type: 'shipping',
+          },
+        },
       ],
     },
   ],
@@ -119,16 +138,20 @@ describe('Circuit breaker (e2e)', () => {
     // nock.recorder.rec();
 
     //the following API calls are done onModuleInit and need to be mocked before the testing module is created
-    const ctAuthNock = nockCtAuth(2);
+    const ctAuthNock = nockCtAuth(11);
+    const nockCtGetShippingMethods = nockCtGetShippingMethodsWithIds(
+      [RECALCULATE_CART.resource.obj.shippingInfo.shippingMethod.id],
+      30,
+    );
     const getCustomObjectNock = nockGetCustomObject(404, null);
     const postCustomObjectNock = nockPostCustomObject(200);
-    const walletOpenNock = nockWalletOpen(
+    const walletOpenNock = await nockWalletOpen(
       RECALCULATE_CART.resource.obj,
       3,
       200,
       0,
     );
-    const walletOpenErrorNock = nockWalletOpen(
+    const walletOpenErrorNock = await nockWalletOpen(
       RECALCULATE_CART.resource.obj,
       4,
       500,
@@ -178,6 +201,7 @@ describe('Circuit breaker (e2e)', () => {
 
     await sleep(100); //await for
     expect(ctAuthNock.isDone()).toBeTruthy();
+    expect(nockCtGetShippingMethods.isDone()).toBeTruthy();
     expect(getCustomObjectNock.isDone()).toBeTruthy();
     expect(postCustomObjectNock.isDone()).toBeTruthy();
     expect(walletOpenNock.isDone()).toBeTruthy();
@@ -185,7 +209,11 @@ describe('Circuit breaker (e2e)', () => {
   });
 
   it('should fail straight away when the circuit breaker state is loaded with open state', async () => {
-    const ctAuthNock = nockCtAuth();
+    const ctAuthNock = nockCtAuth(2);
+    const nockCtGetShippingMethods = nockCtGetShippingMethodsWithIds(
+      [RECALCULATE_CART.resource.obj.shippingInfo.shippingMethod.id],
+      1,
+    );
     const getCustomObjectNock = nockGetCustomObject(200, CIRCUIT_BREAKER_OPEN);
     app = await initAppModule();
 
@@ -209,6 +237,7 @@ describe('Circuit breaker (e2e)', () => {
         ],
       });
     expect(ctAuthNock.isDone()).toBeTruthy();
+    expect(nockCtGetShippingMethods.isDone()).toBeTruthy();
     expect(getCustomObjectNock.isDone()).toBeTruthy();
   });
 });

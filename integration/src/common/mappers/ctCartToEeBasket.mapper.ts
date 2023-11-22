@@ -1,11 +1,21 @@
+import { Injectable } from '@nestjs/common';
 import {
   Cart,
   LineItem,
   DirectDiscountDraft,
+  ShippingInfo,
 } from '@commercetools/platform-sdk';
 import { DiscountDescription } from '../../providers/commercetools/actions/cart-update/CartCustomTypeActionBuilder';
+import { ConfigService } from '@nestjs/config';
+import { Commercetools } from '../../providers/commercetools/commercetools.provider';
 
+@Injectable()
 export class CTCartToEEBasketMapper {
+  constructor(
+    readonly configService: ConfigService,
+    readonly commercetools: Commercetools,
+  ) {}
+
   mapCartLineItemsToBasketContent(lineItems: LineItem[]) {
     let basketContents = [];
     const mappedLineItems = lineItems.map((item) => {
@@ -95,7 +105,78 @@ export class CTCartToEEBasketMapper {
       .filter((discount) => discount !== undefined);
   }
 
-  mapCartToWalletOpenPayload(cart: Cart) {
+  mapAdjustedBasketToShippingDirectDiscounts(
+    basket,
+    cart: Cart,
+  ): DirectDiscountDraft[] {
+    const shippingMethodMap = this.configService.get(
+      'eagleEye.shippingMethodMap',
+    );
+
+    return basket.contents
+      .map((item) => {
+        const matchingMethod = shippingMethodMap.find(
+          (method) => method.upc === item.upc,
+        );
+        if (matchingMethod) {
+          return item.adjustmentResults?.map((adjustment) => {
+            return {
+              value: {
+                type: 'absolute',
+                money: [
+                  {
+                    centAmount: adjustment.totalDiscountAmount,
+                    currencyCode: cart.totalPrice.currencyCode,
+                    type: cart.totalPrice.type,
+                    fractionDigits: cart.totalPrice.fractionDigits,
+                  },
+                ],
+              },
+              target: {
+                type: 'shipping',
+              },
+            };
+          });
+        }
+      })
+      .flat()
+      .filter((discount) => discount !== undefined);
+  }
+
+  async mapShippingMethodSkusToBasketItems(
+    shippingInfo: ShippingInfo,
+  ): Promise<Record<string, any>> {
+    const shippingMethodMap = this.configService.get(
+      'eagleEye.shippingMethodMap',
+    );
+    if (shippingMethodMap.length && shippingInfo?.shippingMethod) {
+      // In case multi-shipping method needs to be supported
+      const shippingIds = [shippingInfo?.shippingMethod.id];
+      const shippingMethod = await this.commercetools.getShippingMethods({
+        queryArgs: {
+          where: `id in ("${shippingIds.join('","')}")`,
+        },
+      });
+      const matchingMethod = shippingMethodMap.find(
+        (method) => method.key === shippingMethod[0].key,
+      );
+      if (matchingMethod) {
+        return {
+          upc: matchingMethod.upc,
+          itemUnitCost: shippingInfo.price.centAmount,
+          totalUnitCostAfterDiscount: shippingInfo.price.centAmount,
+          totalUnitCost: shippingInfo.price.centAmount,
+          description: shippingInfo.shippingMethodName, // TODO: handle locales, shippingMethod.localizedName
+          itemUnitMetric: 'EACH',
+          itemUnitCount: 1,
+          salesKey: 'SALE',
+        };
+      }
+    }
+    return {};
+  }
+
+  async mapCartToWalletOpenPayload(cart: Cart) {
     // Get a default identity to open the wallet
     // TODO: make configurable on a per-merchant basis
     const identities = [];
@@ -104,6 +185,16 @@ export class CTCartToEEBasketMapper {
         type: 'CUSTOMER_ID',
         value: cart.customerEmail,
       });
+    }
+
+    const basketContents = [
+      ...this.mapCartLineItemsToBasketContent(cart.lineItems),
+    ];
+    const shippingDiscountItem = await this.mapShippingMethodSkusToBasketItems(
+      cart.shippingInfo,
+    );
+    if (shippingDiscountItem.upc) {
+      basketContents.push(shippingDiscountItem);
     }
 
     return {
@@ -143,7 +234,7 @@ export class CTCartToEEBasketMapper {
           totalItems: cart.lineItems.length,
           totalBasketValue: cart.totalPrice.centAmount,
         },
-        contents: this.mapCartLineItemsToBasketContent(cart.lineItems),
+        contents: basketContents,
       },
     };
   }

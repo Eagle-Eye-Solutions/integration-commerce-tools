@@ -15,7 +15,8 @@ import { PromotionService } from './services/promotions/promotions.service';
 import { EagleEyeApiClient } from './providers/eagleeye/eagleeye.provider';
 import { WinstonModule } from 'nest-winston';
 import { loggerConfig } from './config/logger.config';
-import { ExtensionLocalService } from './services/commercetools/extension-local.service';
+import { CTCartToEEBasketMapper } from './common/mappers/ctCartToEeBasket.mapper';
+import { ExtensionLocalService } from "./services/commercetools/extension-local.service";
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { ExtensionLocalService } from './services/commercetools/extension-local.
     OrderCustomTypeCommand,
     PromotionService,
     EagleEyeApiClient,
+    CTCartToEEBasketMapper,
     ExtensionLocalService,
   ],
 })

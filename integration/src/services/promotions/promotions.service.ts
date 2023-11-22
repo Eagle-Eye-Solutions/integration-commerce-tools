@@ -12,11 +12,10 @@ import { DiscountDescription } from '../../providers/commercetools/actions/cart-
 
 @Injectable()
 export class PromotionService {
-  public cartToBasketMapper = new CTCartToEEBasketMapper();
-
   constructor(
     private eagleEyeClient: EagleEyeApiClient,
     readonly circuitBreakerService: CircuitBreakerService,
+    readonly cartToBasketMapper: CTCartToEEBasketMapper,
   ) {}
 
   async getDiscounts(cartReference: CartReference): Promise<{
@@ -28,7 +27,9 @@ export class PromotionService {
 
     const walletOpenResponse = await this.walletInvoke(
       'open',
-      this.cartToBasketMapper.mapCartToWalletOpenPayload(cartReference.obj),
+      await this.cartToBasketMapper.mapCartToWalletOpenPayload(
+        cartReference.obj,
+      ),
     );
 
     if (walletOpenResponse?.analyseBasketResults?.basket) {
@@ -36,12 +37,19 @@ export class PromotionService {
         walletOpenResponse.analyseBasketResults.basket,
         cartReference.obj,
       );
-      discounts = discounts.concat(basketLevelDiscounts);
       const itemLevelDiscounts = await this.getItemLevelDiscounts(
         walletOpenResponse.analyseBasketResults.basket,
         cartReference.obj,
       );
-      discounts = discounts.concat(itemLevelDiscounts);
+      const shippingDiscounts = await this.getShippingDiscounts(
+        walletOpenResponse.analyseBasketResults.basket,
+        cartReference.obj,
+      );
+      discounts = [
+        ...basketLevelDiscounts,
+        ...itemLevelDiscounts,
+        ...shippingDiscounts,
+      ];
     }
 
     if (walletOpenResponse?.analyseBasketResults?.discount?.length) {
@@ -76,8 +84,6 @@ export class PromotionService {
     basket,
     cart: Cart,
   ): Promise<DirectDiscountDraft[]> {
-    let discountDrafts: DirectDiscountDraft[] = [];
-
     if (
       basket.summary?.totalDiscountAmount.promotions &&
       basket.summary?.adjustmentResults?.length
@@ -87,20 +93,16 @@ export class PromotionService {
           basket,
           cart,
         );
-      if (cartDiscounts.length) {
-        discountDrafts = discountDrafts.concat(cartDiscounts);
-      }
+      return cartDiscounts;
     }
 
-    return discountDrafts;
+    return [];
   }
 
   async getItemLevelDiscounts(
     basket,
     cart: Cart,
   ): Promise<DirectDiscountDraft[]> {
-    let discountDrafts: DirectDiscountDraft[] = [];
-
     if (
       basket?.summary?.totalDiscountAmount?.promotions &&
       basket.contents?.length
@@ -110,12 +112,29 @@ export class PromotionService {
           basket,
           cart,
         );
-      if (itemDiscounts.length) {
-        discountDrafts = discountDrafts.concat(itemDiscounts);
-      }
+      return itemDiscounts;
     }
 
-    return discountDrafts;
+    return [];
+  }
+
+  async getShippingDiscounts(
+    basket,
+    cart: Cart,
+  ): Promise<DirectDiscountDraft[]> {
+    if (
+      basket?.summary?.totalDiscountAmount?.promotions &&
+      basket.contents?.length
+    ) {
+      const shippingDiscounts =
+        this.cartToBasketMapper.mapAdjustedBasketToShippingDirectDiscounts(
+          basket,
+          cart,
+        );
+      return shippingDiscounts;
+    }
+
+    return [];
   }
 
   @CircuitBreakerIntercept()

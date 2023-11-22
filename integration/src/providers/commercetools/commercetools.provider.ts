@@ -9,6 +9,7 @@ import {
   Extension,
   ExtensionDraft,
   ExtensionUpdateAction,
+  ShippingMethod,
 } from '@commercetools/platform-sdk';
 import { ByProjectKeyRequestBuilder } from '@commercetools/platform-sdk/dist/declarations/src/generated/client/by-project-key-request-builder';
 import { ConfigService } from '@nestjs/config';
@@ -109,5 +110,10 @@ export class Commercetools {
       .withKey({ key })
       .delete({ queryArgs: { version } })
       .execute();
+  }
+
+  public async getShippingMethods(methodArgs: any): Promise<ShippingMethod[]> {
+    return (await this.getApiRoot().shippingMethods().get(methodArgs).execute())
+      .body.results;
   }
 }

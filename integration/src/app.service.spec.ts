@@ -10,7 +10,7 @@ import { MockLogger } from '../test/utils/mocks/MockLogger';
 describe('AppService', () => {
   let service: AppService;
   let circuitBreakerService: CircuitBreakerService;
-  let romotionService: PromotionService;
+  let promotionService: PromotionService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -33,7 +33,7 @@ describe('AppService', () => {
     circuitBreakerService = module.get<CircuitBreakerService>(
       CircuitBreakerService,
     );
-    romotionService = module.get<PromotionService>(PromotionService);
+    promotionService = module.get<PromotionService>(PromotionService);
   });
 
   it('should be defined', () => {
@@ -79,13 +79,35 @@ describe('AppService', () => {
           type: 'absolute',
         },
       },
+      {
+        target: {
+          type: 'shipping',
+        },
+        value: {
+          money: [
+            {
+              centAmount: 10,
+              currencyCode: 'GBP',
+              fractionDigits: 2,
+              type: 'centPrecision',
+            },
+          ],
+          type: 'absolute',
+        },
+      },
     ];
     const discountDescriptions = [
       {
         description: 'Example Discount',
       },
+      {
+        description: 'Example Item Discount',
+      },
+      {
+        description: 'Example Shipping Discount',
+      },
     ];
-    jest.spyOn(romotionService, 'getDiscounts').mockResolvedValueOnce({
+    jest.spyOn(promotionService, 'getDiscounts').mockResolvedValueOnce({
       discounts: discountDrafts,
       discountDescriptions,
     } as any);
@@ -122,7 +144,7 @@ describe('AppService', () => {
       'EE_API_UNAVAILABLE',
       'Circuit open',
     );
-    jest.spyOn(romotionService, 'getDiscounts').mockRejectedValue(error);
+    jest.spyOn(promotionService, 'getDiscounts').mockRejectedValue(error);
     const response = await service.handleExtensionRequest(body);
     expect(response).toEqual({
       actions: [
@@ -160,7 +182,7 @@ describe('AppService', () => {
       resource: { typeId: 'cart', id: '123' },
     };
     const error = new CircuitBreakerError('EOPENBREAKER');
-    jest.spyOn(romotionService, 'getDiscounts').mockRejectedValue(error);
+    jest.spyOn(promotionService, 'getDiscounts').mockRejectedValue(error);
     const response = await service.handleExtensionRequest(body);
     expect(response.actions).toHaveLength(2);
     expect(response).toEqual({
@@ -192,7 +214,7 @@ describe('AppService', () => {
       resource: { typeId: 'cart', id: '123' },
     };
     const error = new Error('SOME_OTHER_ERROR');
-    jest.spyOn(romotionService, 'getDiscounts').mockRejectedValue(error);
+    jest.spyOn(promotionService, 'getDiscounts').mockRejectedValue(error);
     const response = await service.handleExtensionRequest(body);
     expect(response.actions).toHaveLength(2);
     expect(response).toEqual({

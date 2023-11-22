@@ -50,6 +50,9 @@ inputs:
   ee_resources_url:
     description: 'EagleEye API Resources URL'
     required: false
+  shipping_method_map:
+    description: 'Stringified JSON array for mapping shipping methods to EE UPCs'
+    required: false
 
 runs:
   using: "composite"
@@ -61,7 +64,7 @@ runs:
         url: https://connect.${{ inputs.ct_region }}.commercetools.com/${{ inputs.ct_project_key }}/deployments 
         method: POST
         headers: '{"Authorization": "Bearer ${{ inputs.access_token }}"}'
-        payload: '{"key":"${{ inputs.connector_key }}-deployment-${{ inputs.connect_env }}","connector":{"key":"${{ inputs.connector_key }}","version":${{ inputs.version }},"staged":${{ inputs.is_previewable == ''true'' }}},"region":"${{ inputs.ct_region }}","configurations":[{"applicationName":"integration","standardConfiguration":[{"key":"CTP_REGION","value":"${{ inputs.ct_region }}"},{"key":"CTP_PROJECT_KEY","value":"${{ inputs.ct_project_key }}"},{"key":"EE_WALLET_URL","value":"${{ inputs.ee_wallet_url }}"},{"key":"EE_POS_URL","value":"${{ inputs.ee_pos_url }}"},{"key":"EE_RESOURCES_URL","value":"${{ inputs.ee_resources_url }}"}],"securedConfiguration":[{"key":"CTP_CLIENT_ID","value":"${{ inputs.ct_api_client_id }}"},{"key":"CTP_CLIENT_SECRET","value":"${{ inputs.ct_api_client_secret }}"},{"key":"CTP_SCOPE","value":"${{ inputs.ct_scopes }}"},{"key":"EE_CLIENT_ID","value":"${{ inputs.ee_client_id }}"},{"key":"EE_CLIENT_SECRET","value":"${{ inputs.ee_client_secret }}"}]}]}'
+        payload: '{"key":"${{ inputs.connector_key }}-deployment-${{ inputs.connect_env }}","connector":{"key":"${{ inputs.connector_key }}","version":${{ inputs.version }},"staged":${{ inputs.is_previewable == ''true'' }}},"region":"${{ inputs.ct_region }}","configurations":[{"applicationName":"integration","standardConfiguration":[{"key":"CTP_REGION","value":"${{ inputs.ct_region }}"},{"key":"CTP_PROJECT_KEY","value":"${{ inputs.ct_project_key }}"},{"key":"EE_WALLET_URL","value":"${{ inputs.ee_wallet_url }}"},{"key":"EE_POS_URL","value":"${{ inputs.ee_pos_url }}"},{"key":"EE_RESOURCES_URL","value":"${{ inputs.ee_resources_url }}"},{"key":"SHIPPING_METHOD_MAP","value":"${{ inputs.shipping_method_map }}"},{"key":"CONFIG_OVERRIDE","value":"${{ inputs.config_override }}"}],"securedConfiguration":[{"key":"CTP_CLIENT_ID","value":"${{ inputs.ct_api_client_id }}"},{"key":"CTP_CLIENT_SECRET","value":"${{ inputs.ct_api_client_secret }}"},{"key":"CTP_SCOPE","value":"${{ inputs.ct_scopes }}"},{"key":"EE_CLIENT_ID","value":"${{ inputs.ee_client_id }}"},{"key":"EE_CLIENT_SECRET","value":"${{ inputs.ee_client_secret }}"}]}]}'
     - name: Check Connector deployment status
       id: ct_check_connector_deployment_status_final
       uses: ./.github/actions/poll-endpoint

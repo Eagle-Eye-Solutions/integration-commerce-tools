@@ -14,7 +14,7 @@ import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 export class AppService {
   constructor(
     @Inject(WINSTON_MODULE_PROVIDER) readonly logger: Logger,
-    private romotionService: PromotionService,
+    private promotionService: PromotionService,
   ) {}
 
   async handleExtensionRequest(body: ExtensionInput): Promise<{
@@ -30,7 +30,7 @@ export class AppService {
       actions: ActionsSupported[];
     };
     try {
-      const basketDiscounts = await this.romotionService.getDiscounts(
+      const basketDiscounts = await this.promotionService.getDiscounts(
         body.resource,
       );
       actionBuilder.add(
