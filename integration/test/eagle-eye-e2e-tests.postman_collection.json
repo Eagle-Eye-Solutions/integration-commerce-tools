@@ -109,6 +109,10 @@
 													"    pm.expect(data.discountOnTotalPrice.discountedAmount.centAmount).to.be.greaterThan(0);",
 													"});",
 													"",
+													"pm.test(\"Discount is registered under 'appliedDiscounts'\", function () {",
+													"    pm.expect(data.custom.fields.appliedDiscounts.some(discount => discount.includes('Basket'))).to.be.true;",
+													"});",
+													"",
 													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
 													"    pm.environment.set(\"cart-id\", data.results[0].id); ",
 													"    pm.environment.set(\"cart-version\", data.results[0].version);",
@@ -377,6 +381,10 @@
 													"pm.test(\"Discounted amount is defined and value is greater than 0\", function () {",
 													"    pm.expect(data.discountOnTotalPrice).to.haveOwnProperty('discountedAmount');",
 													"    pm.expect(data.discountOnTotalPrice.discountedAmount.centAmount).to.be.greaterThan(0);",
+													"});",
+													"",
+													"pm.test(\"Discount is registered under 'appliedDiscounts'\", function () {",
+													"    pm.expect(data.custom.fields.appliedDiscounts.some(discount => discount.includes('Basket'))).to.be.true;",
 													"});",
 													"",
 													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
@@ -650,6 +658,10 @@
 													"    pm.expect(data).not.to.haveOwnProperty('discountOnTotalPrice');",
 													"});",
 													"",
+													"pm.test(\"Discount is not registered under 'appliedDiscounts'\", function () {",
+													"    pm.expect(data.custom.fields.appliedDiscounts.some(discount => discount.includes('Basket'))).to.be.false;",
+													"});",
+													"",
 													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
 													"    pm.environment.set(\"cart-id\", data.results[0].id); ",
 													"    pm.environment.set(\"cart-version\", data.results[0].version);",
@@ -916,6 +928,10 @@
 													"    pm.expect(data).not.to.haveOwnProperty('discountOnTotalPrice');",
 													"});",
 													"",
+													"pm.test(\"Discount is not registered under 'appliedDiscounts'\", function () {",
+													"    pm.expect(data.custom.fields.appliedDiscounts.some(discount => discount.includes('Basket'))).to.be.false;",
+													"});",
+													"",
 													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
 													"    pm.environment.set(\"cart-id\", data.results[0].id); ",
 													"    pm.environment.set(\"cart-version\", data.results[0].version);",
@@ -1096,7 +1112,7 @@
 					"name": "Multiple discounts applied",
 					"item": [
 						{
-							"name": "Targetted Basket with Total price > 100",
+							"name": "Targeted Basket with Total price > 100",
 							"item": [
 								{
 									"name": "Obtain access token",
@@ -1171,7 +1187,7 @@
 									"response": []
 								},
 								{
-									"name": "Create Cart: Targetted, Total Price > 100",
+									"name": "Create Cart: Targeted, Total Price > 100",
 									"event": [
 										{
 											"listen": "test",
@@ -1190,6 +1206,10 @@
 													"pm.test(\"Discounted amount is defined and value is greater than 0\", function () {",
 													"    pm.expect(data.discountOnTotalPrice).to.haveOwnProperty('discountedAmount');",
 													"    pm.expect(data.discountOnTotalPrice.discountedAmount.centAmount).to.be.greaterThan(0);",
+													"});",
+													"",
+													"pm.test(\"Discount is not registered under 'appliedDiscounts'\", function () {",
+													"    pm.expect(data.custom.fields.appliedDiscounts.some(discount => discount.includes('Basket'))).to.be.true;",
 													"});",
 													"",
 													"pm.test(\"Multiple discounts are registered under 'appliedDiscounts'\", function () {",
@@ -1371,6 +1391,1636 @@
 						}
 					],
 					"description": "## Discounts information\n\n### 1 - Campaign Name: Open Discount Basket (10% off 100)\n\nTotal price of basket should be above 100 pounds.\n\n- Campaignid: 1711495.\n- Campaign type: Discount Basket.\n- Reward type: 20% Off basket.\n    \n\n### 2 - Campaign Name: Targeted Basket Discount (£1 off £10 Basket Spend)\n\n- Campaignid: 1653869.\n- Campaign type: Discount Basket.\n- Reward type: 1£ Off basket."
+				}
+			],
+			"description": "Please refer to folder-level overviews for corresponding test information."
+		},
+		{
+			"name": "TODO: Item Level Discounts",
+			"item": [
+				{
+					"name": "Single item",
+					"item": [
+						{
+							"name": "Obtain access token",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"tests[\"Status code is 200\"] = responseCode.code === 200;",
+											"var data = JSON.parse(responseBody);",
+											"if(data.access_token){",
+											"    pm.environment.set(\"ctp_access_token\", data.access_token);",
+											"}",
+											"if (data.scope) {",
+											"    parts = data.scope.split(\" \");",
+											"    parts = parts.filter(scope => scope.includes(\":\")).map(scope => scope.split(\":\"))",
+											"    if (parts.length > 0) {",
+											"        scopeParts = parts[0];",
+											"        pm.environment.set(\"project-key\", scopeParts[1]);",
+											"        parts = parts.filter(scope => scope.length >= 3)",
+											"        if (parts.length > 0) {",
+											"            scopeParts = parts[0];",
+											"            pm.environment.set(\"store-key\", scopeParts[2]);",
+											"        }",
+											"    }",
+											"}"
+										]
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "username",
+											"value": "{{client_id}}",
+											"type": "string"
+										},
+										{
+											"key": "password",
+											"value": "{{client_secret}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{auth_url}}/oauth/token?grant_type=client_credentials",
+									"host": [
+										"{{auth_url}}"
+									],
+									"path": [
+										"oauth",
+										"token"
+									],
+									"query": [
+										{
+											"key": "grant_type",
+											"value": "client_credentials"
+										}
+									]
+								},
+								"description": "Use this request to obtain an access token for your commercetools platform project via Client Credentials Flow. As a prerequisite you must have filled out environment variables in Postman for projectKey, client_id and client_secret to use this."
+							},
+							"response": []
+						},
+						{
+							"name": "Create Cart: 1 line item",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"var data = JSON.parse(responseBody);",
+											"",
+											"pm.test('Check status code', () => {",
+											"    pm.expect(pm.response.code).to.be.oneOf([200, 201])",
+											"})",
+											"",
+											"pm.test(\"Discounted Price property exists under line item\", function () {",
+											"    pm.expect(data.lineItems[0]).to.haveOwnProperty('discountedPrice');",
+											"});",
+											"",
+											"pm.test(\"Discounted price value is greater than 0\", function () {",
+											"    pm.expect(data.lineItems[0].discountedPrice.value.centAmount).to.be.greaterThan(0);",
+											"});",
+											"",
+											"pm.test(\"Discount is registered under 'appliedDiscounts'\", function () {",
+											"    pm.expect(data.custom.fields.appliedDiscounts.some(discount => discount.includes('Item Level Discount'))).to.be.true;",
+											"});",
+											"",
+											"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
+											"    pm.environment.set(\"cart-id\", data.results[0].id); ",
+											"    pm.environment.set(\"cart-version\", data.results[0].version);",
+											"}",
+											"if(data.results && data.results[0] && data.results[0].key){",
+											"    pm.environment.set(\"cart-key\", data.results[0].key); ",
+											"}",
+											"if(data.version){",
+											"    pm.environment.set(\"cart-version\", data.version);",
+											"}",
+											"if(data.id){",
+											"    pm.environment.set(\"cart-id\", data.id); ",
+											"}",
+											"if(data.key){",
+											"    pm.environment.set(\"cart-key\", data.key);",
+											"}",
+											"",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{ctp_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										},
+										{
+											"key": "tokenType",
+											"value": "Bearer",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"currency\" : \"GBP\",\n  \"lineItems\": [\n      {\n          \"sku\": \"245872\",\n          \"quantity\": 1\n      }\n  ]\n}"
+								},
+								"url": {
+									"raw": "{{host}}/{{project-key}}/carts",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"{{project-key}}",
+										"carts"
+									],
+									"query": [
+										{
+											"key": "expand",
+											"value": "",
+											"disabled": true
+										}
+									]
+								},
+								"description": "Creating a Cart fails with an [InvalidOperation](ctp:api:type:InvalidOperationError) error if the\n[ShippingMethod](ctp:api:type:ShippingMethod) referenced in the CartDraft\nhas a `predicate` that does not match the Cart.\n"
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Cart",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"tests[\"Status code \" + responseCode.code] = responseCode.code === 200 || responseCode.code === 201;",
+											"var data = JSON.parse(responseBody);",
+											"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
+											"    pm.environment.set(\"cart-id\", data.results[0].id); ",
+											"    pm.environment.set(\"cart-version\", data.results[0].version);",
+											"}",
+											"if(data.results && data.results[0] && data.results[0].key){",
+											"    pm.environment.set(\"cart-key\", data.results[0].key); ",
+											"}",
+											"if(data.version){",
+											"    pm.environment.set(\"cart-version\", data.version);",
+											"}",
+											"if(data.id){",
+											"    pm.environment.set(\"cart-id\", data.id); ",
+											"}",
+											"if(data.key){",
+											"    pm.environment.set(\"cart-key\", data.key);",
+											"}",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{ctp_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										},
+										{
+											"key": "tokenType",
+											"value": "Bearer",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{host}}/{{project-key}}/carts/{{cart-id}}?version={{cart-version}}",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"{{project-key}}",
+										"carts",
+										"{{cart-id}}"
+									],
+									"query": [
+										{
+											"key": "dataErasure",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "version",
+											"value": "{{cart-version}}"
+										},
+										{
+											"key": "expand",
+											"value": "",
+											"disabled": true
+										}
+									]
+								},
+								"description": "null"
+							},
+							"response": []
+						}
+					],
+					"description": "## Discount information\n\n- Campaignid: 1653871.\n- Campaign name: Open Item Level Discount (UPC: 245872).\n- Campaign type: Discount Products.\n- Reward type: £1 off UPC: 245872.\n    \n\n## Discount product:\n\n1. White Wine, SKU: 245872, Pricing: £63.83"
+				},
+				{
+					"name": "Multiple items",
+					"item": [
+						{
+							"name": "Obtain access token",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"tests[\"Status code is 200\"] = responseCode.code === 200;",
+											"var data = JSON.parse(responseBody);",
+											"if(data.access_token){",
+											"    pm.environment.set(\"ctp_access_token\", data.access_token);",
+											"}",
+											"if (data.scope) {",
+											"    parts = data.scope.split(\" \");",
+											"    parts = parts.filter(scope => scope.includes(\":\")).map(scope => scope.split(\":\"))",
+											"    if (parts.length > 0) {",
+											"        scopeParts = parts[0];",
+											"        pm.environment.set(\"project-key\", scopeParts[1]);",
+											"        parts = parts.filter(scope => scope.length >= 3)",
+											"        if (parts.length > 0) {",
+											"            scopeParts = parts[0];",
+											"            pm.environment.set(\"store-key\", scopeParts[2]);",
+											"        }",
+											"    }",
+											"}"
+										]
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "username",
+											"value": "{{client_id}}",
+											"type": "string"
+										},
+										{
+											"key": "password",
+											"value": "{{client_secret}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{auth_url}}/oauth/token?grant_type=client_credentials",
+									"host": [
+										"{{auth_url}}"
+									],
+									"path": [
+										"oauth",
+										"token"
+									],
+									"query": [
+										{
+											"key": "grant_type",
+											"value": "client_credentials"
+										}
+									]
+								},
+								"description": "Use this request to obtain an access token for your commercetools platform project via Client Credentials Flow. As a prerequisite you must have filled out environment variables in Postman for projectKey, client_id and client_secret to use this."
+							},
+							"response": []
+						},
+						{
+							"name": "Create Cart: 2 line items",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"var data = JSON.parse(responseBody);",
+											"",
+											"pm.test('Check status code', () => {",
+											"    pm.expect(pm.response.code).to.be.oneOf([200, 201])",
+											"})",
+											"",
+											"pm.test(\"Discounted Price property exists under line items\", function () {",
+											"    pm.expect(data.lineItems[0]).to.haveOwnProperty('discountedPrice');",
+											"    pm.expect(data.lineItems[1]).to.haveOwnProperty('discountedPrice');",
+											"});",
+											"",
+											"pm.test(\"Discounted price values are greater than 0\", function () {",
+											"    pm.expect(data.lineItems[0].discountedPrice.value.centAmount).to.be.greaterThan(0);",
+											"    pm.expect(data.lineItems[1].discountedPrice.value.centAmount).to.be.greaterThan(0);",
+											"});",
+											"",
+											"pm.test(\"Discount is registered under 'appliedDiscounts'\", function () {",
+											"    pm.expect(data.custom.fields.appliedDiscounts.some(discount => discount.includes('Item Level Discount'))).to.be.true;",
+											"});",
+											"",
+											"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
+											"    pm.environment.set(\"cart-id\", data.results[0].id); ",
+											"    pm.environment.set(\"cart-version\", data.results[0].version);",
+											"}",
+											"if(data.results && data.results[0] && data.results[0].key){",
+											"    pm.environment.set(\"cart-key\", data.results[0].key); ",
+											"}",
+											"if(data.version){",
+											"    pm.environment.set(\"cart-version\", data.version);",
+											"}",
+											"if(data.id){",
+											"    pm.environment.set(\"cart-id\", data.id); ",
+											"}",
+											"if(data.key){",
+											"    pm.environment.set(\"cart-key\", data.key);",
+											"}",
+											"",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{ctp_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										},
+										{
+											"key": "tokenType",
+											"value": "Bearer",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"currency\" : \"GBP\",\n  \"lineItems\": [\n      {\n          \"sku\": \"245872\",\n          \"quantity\": 1\n      },\n      {\n          \"sku\": \"245886\",\n          \"quantity\": 1\n      }\n  ]\n}"
+								},
+								"url": {
+									"raw": "{{host}}/{{project-key}}/carts",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"{{project-key}}",
+										"carts"
+									],
+									"query": [
+										{
+											"key": "expand",
+											"value": "",
+											"disabled": true
+										}
+									]
+								},
+								"description": "Creating a Cart fails with an [InvalidOperation](ctp:api:type:InvalidOperationError) error if the\n[ShippingMethod](ctp:api:type:ShippingMethod) referenced in the CartDraft\nhas a `predicate` that does not match the Cart.\n"
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Cart",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"tests[\"Status code \" + responseCode.code] = responseCode.code === 200 || responseCode.code === 201;",
+											"var data = JSON.parse(responseBody);",
+											"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
+											"    pm.environment.set(\"cart-id\", data.results[0].id); ",
+											"    pm.environment.set(\"cart-version\", data.results[0].version);",
+											"}",
+											"if(data.results && data.results[0] && data.results[0].key){",
+											"    pm.environment.set(\"cart-key\", data.results[0].key); ",
+											"}",
+											"if(data.version){",
+											"    pm.environment.set(\"cart-version\", data.version);",
+											"}",
+											"if(data.id){",
+											"    pm.environment.set(\"cart-id\", data.id); ",
+											"}",
+											"if(data.key){",
+											"    pm.environment.set(\"cart-key\", data.key);",
+											"}",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{ctp_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										},
+										{
+											"key": "tokenType",
+											"value": "Bearer",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{host}}/{{project-key}}/carts/{{cart-id}}?version={{cart-version}}",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"{{project-key}}",
+										"carts",
+										"{{cart-id}}"
+									],
+									"query": [
+										{
+											"key": "dataErasure",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "version",
+											"value": "{{cart-version}}"
+										},
+										{
+											"key": "expand",
+											"value": "",
+											"disabled": true
+										}
+									]
+								},
+								"description": "null"
+							},
+							"response": []
+						}
+					],
+					"description": "## Discounts information\n\n- Campaignid: 1653871.\n- Campaign name: Open Item Level Discount (UPC: 245872).\n- Campaign type: Discount Products.\n- Reward type: £1 off UPC: 245872.\n    \n\n---\n\n- Campaign name: Open Item Level Discount (UPC: 245886).\n- Campaign type: Discount Products.\n- Reward type: £1 off UPC: 245886.\n    \n\n## Discount product:\n\n1. White Wine, SKU: 245872, Pricing: £63.83\n2. Loose Carrots, SKU: 245886, Pricing: £4.05"
+				}
+			],
+			"description": "Please refer to folder-level overviews for corresponding test information."
+		},
+		{
+			"name": "Shipping Level Discounts",
+			"item": [
+				{
+					"name": "Discount applied",
+					"item": [
+						{
+							"name": "Obtain access token",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"tests[\"Status code is 200\"] = responseCode.code === 200;",
+											"var data = JSON.parse(responseBody);",
+											"if(data.access_token){",
+											"    pm.environment.set(\"ctp_access_token\", data.access_token);",
+											"}",
+											"if (data.scope) {",
+											"    parts = data.scope.split(\" \");",
+											"    parts = parts.filter(scope => scope.includes(\":\")).map(scope => scope.split(\":\"))",
+											"    if (parts.length > 0) {",
+											"        scopeParts = parts[0];",
+											"        pm.environment.set(\"project-key\", scopeParts[1]);",
+											"        parts = parts.filter(scope => scope.length >= 3)",
+											"        if (parts.length > 0) {",
+											"            scopeParts = parts[0];",
+											"            pm.environment.set(\"store-key\", scopeParts[2]);",
+											"        }",
+											"    }",
+											"}"
+										]
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "username",
+											"value": "{{client_id}}",
+											"type": "string"
+										},
+										{
+											"key": "password",
+											"value": "{{client_secret}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{auth_url}}/oauth/token?grant_type=client_credentials",
+									"host": [
+										"{{auth_url}}"
+									],
+									"path": [
+										"oauth",
+										"token"
+									],
+									"query": [
+										{
+											"key": "grant_type",
+											"value": "client_credentials"
+										}
+									]
+								},
+								"description": "Use this request to obtain an access token for your commercetools platform project via Client Credentials Flow. As a prerequisite you must have filled out environment variables in Postman for projectKey, client_id and client_secret to use this."
+							},
+							"response": []
+						},
+						{
+							"name": "Create Cart: Valid information",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"var data = JSON.parse(responseBody);",
+											"",
+											"pm.test('Check status code', () => {",
+											"    pm.expect(pm.response.code).to.be.oneOf([200, 201])",
+											"})",
+											"",
+											"pm.test(\"Discount is registered under 'appliedDiscounts'\", function () {",
+											"    pm.expect(data.custom.fields.appliedDiscounts.some(discount => discount.includes('Shipping'))).to.be.true;",
+											"});",
+											"",
+											"pm.test(\"Shipping discount is applied\", function () {",
+											"    pm.expect(data.taxedShippingPrice.totalGross.centAmount).to.equal(250)",
+											"});",
+											"",
+											"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
+											"    pm.environment.set(\"cart-id\", data.results[0].id); ",
+											"    pm.environment.set(\"cart-version\", data.results[0].version);",
+											"}",
+											"if(data.results && data.results[0] && data.results[0].key){",
+											"    pm.environment.set(\"cart-key\", data.results[0].key); ",
+											"}",
+											"if(data.version){",
+											"    pm.environment.set(\"cart-version\", data.version);",
+											"}",
+											"if(data.id){",
+											"    pm.environment.set(\"cart-id\", data.id); ",
+											"}",
+											"if(data.key){",
+											"    pm.environment.set(\"cart-key\", data.key);",
+											"}",
+											"",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{ctp_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										},
+										{
+											"key": "tokenType",
+											"value": "Bearer",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"currency\" : \"GBP\",\n  \"lineItems\": [\n      {\n          \"sku\": \"245872\",\n          \"quantity\": 1\n      }\n  ],\n  \"shippingAddress\": {\n      \"country\": \"GB\"\n  },\n  \"shippingMethod\": {\n      \"typeId\": \"shipping-method\",\n      \"key\": \"standard-key\"\n  }\n}"
+								},
+								"url": {
+									"raw": "{{host}}/{{project-key}}/carts",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"{{project-key}}",
+										"carts"
+									],
+									"query": [
+										{
+											"key": "expand",
+											"value": "",
+											"disabled": true
+										}
+									]
+								},
+								"description": "Creating a Cart fails with an [InvalidOperation](ctp:api:type:InvalidOperationError) error if the\n[ShippingMethod](ctp:api:type:ShippingMethod) referenced in the CartDraft\nhas a `predicate` that does not match the Cart.\n"
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Cart",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"tests[\"Status code \" + responseCode.code] = responseCode.code === 200 || responseCode.code === 201;",
+											"var data = JSON.parse(responseBody);",
+											"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
+											"    pm.environment.set(\"cart-id\", data.results[0].id); ",
+											"    pm.environment.set(\"cart-version\", data.results[0].version);",
+											"}",
+											"if(data.results && data.results[0] && data.results[0].key){",
+											"    pm.environment.set(\"cart-key\", data.results[0].key); ",
+											"}",
+											"if(data.version){",
+											"    pm.environment.set(\"cart-version\", data.version);",
+											"}",
+											"if(data.id){",
+											"    pm.environment.set(\"cart-id\", data.id); ",
+											"}",
+											"if(data.key){",
+											"    pm.environment.set(\"cart-key\", data.key);",
+											"}",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{ctp_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										},
+										{
+											"key": "tokenType",
+											"value": "Bearer",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{host}}/{{project-key}}/carts/{{cart-id}}?version={{cart-version}}",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"{{project-key}}",
+										"carts",
+										"{{cart-id}}"
+									],
+									"query": [
+										{
+											"key": "dataErasure",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "version",
+											"value": "{{cart-version}}"
+										},
+										{
+											"key": "expand",
+											"value": "",
+											"disabled": true
+										}
+									]
+								},
+								"description": "null"
+							},
+							"response": []
+						}
+					],
+					"description": "## Discount information\n\n- Campaignid: 1736971.\n- Campaign name: 50% Discount on Standard Shipping (UPC: 245879).\n- Campaign type: Discount Products.\n- Reward type: 50% off Standard Shipping (UPC: 245879).\n    \n\n## Applicable item\n\n- White Wine. SKU: 245872, Pricing: £63.83"
+				},
+				{
+					"name": "Discount not applied",
+					"item": [
+						{
+							"name": "Obtain access token",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"tests[\"Status code is 200\"] = responseCode.code === 200;",
+											"var data = JSON.parse(responseBody);",
+											"if(data.access_token){",
+											"    pm.environment.set(\"ctp_access_token\", data.access_token);",
+											"}",
+											"if (data.scope) {",
+											"    parts = data.scope.split(\" \");",
+											"    parts = parts.filter(scope => scope.includes(\":\")).map(scope => scope.split(\":\"))",
+											"    if (parts.length > 0) {",
+											"        scopeParts = parts[0];",
+											"        pm.environment.set(\"project-key\", scopeParts[1]);",
+											"        parts = parts.filter(scope => scope.length >= 3)",
+											"        if (parts.length > 0) {",
+											"            scopeParts = parts[0];",
+											"            pm.environment.set(\"store-key\", scopeParts[2]);",
+											"        }",
+											"    }",
+											"}"
+										]
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "username",
+											"value": "{{client_id}}",
+											"type": "string"
+										},
+										{
+											"key": "password",
+											"value": "{{client_secret}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{auth_url}}/oauth/token?grant_type=client_credentials",
+									"host": [
+										"{{auth_url}}"
+									],
+									"path": [
+										"oauth",
+										"token"
+									],
+									"query": [
+										{
+											"key": "grant_type",
+											"value": "client_credentials"
+										}
+									]
+								},
+								"description": "Use this request to obtain an access token for your commercetools platform project via Client Credentials Flow. As a prerequisite you must have filled out environment variables in Postman for projectKey, client_id and client_secret to use this."
+							},
+							"response": []
+						},
+						{
+							"name": "Create Cart: No shipping method",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"var data = JSON.parse(responseBody);",
+											"",
+											"pm.test('Check status code', () => {",
+											"    pm.expect(pm.response.code).to.be.oneOf([200, 201])",
+											"})",
+											"",
+											"pm.test(\"Shipping discount is not registered under 'appliedDiscounts'\", function () {",
+											"    pm.expect(data.custom.fields.appliedDiscounts.some(discount => discount.includes('Shipping'))).to.be.false;",
+											"});",
+											"",
+											"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
+											"    pm.environment.set(\"cart-id\", data.results[0].id); ",
+											"    pm.environment.set(\"cart-version\", data.results[0].version);",
+											"}",
+											"if(data.results && data.results[0] && data.results[0].key){",
+											"    pm.environment.set(\"cart-key\", data.results[0].key); ",
+											"}",
+											"if(data.version){",
+											"    pm.environment.set(\"cart-version\", data.version);",
+											"}",
+											"if(data.id){",
+											"    pm.environment.set(\"cart-id\", data.id); ",
+											"}",
+											"if(data.key){",
+											"    pm.environment.set(\"cart-key\", data.key);",
+											"}",
+											"",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{ctp_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										},
+										{
+											"key": "tokenType",
+											"value": "Bearer",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"currency\" : \"GBP\",\n  \"lineItems\": [\n      {\n          \"sku\": \"245872\",\n          \"quantity\": 1\n      }\n  ],\n  \"shippingAddress\": {\n      \"country\": \"GB\"\n  }\n}\n"
+								},
+								"url": {
+									"raw": "{{host}}/{{project-key}}/carts",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"{{project-key}}",
+										"carts"
+									],
+									"query": [
+										{
+											"key": "expand",
+											"value": "",
+											"disabled": true
+										}
+									]
+								},
+								"description": "Creating a Cart fails with an [InvalidOperation](ctp:api:type:InvalidOperationError) error if the\n[ShippingMethod](ctp:api:type:ShippingMethod) referenced in the CartDraft\nhas a `predicate` that does not match the Cart.\n"
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Cart",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"tests[\"Status code \" + responseCode.code] = responseCode.code === 200 || responseCode.code === 201;",
+											"var data = JSON.parse(responseBody);",
+											"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
+											"    pm.environment.set(\"cart-id\", data.results[0].id); ",
+											"    pm.environment.set(\"cart-version\", data.results[0].version);",
+											"}",
+											"if(data.results && data.results[0] && data.results[0].key){",
+											"    pm.environment.set(\"cart-key\", data.results[0].key); ",
+											"}",
+											"if(data.version){",
+											"    pm.environment.set(\"cart-version\", data.version);",
+											"}",
+											"if(data.id){",
+											"    pm.environment.set(\"cart-id\", data.id); ",
+											"}",
+											"if(data.key){",
+											"    pm.environment.set(\"cart-key\", data.key);",
+											"}",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{ctp_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										},
+										{
+											"key": "tokenType",
+											"value": "Bearer",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{host}}/{{project-key}}/carts/{{cart-id}}?version={{cart-version}}",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"{{project-key}}",
+										"carts",
+										"{{cart-id}}"
+									],
+									"query": [
+										{
+											"key": "dataErasure",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "version",
+											"value": "{{cart-version}}"
+										},
+										{
+											"key": "expand",
+											"value": "",
+											"disabled": true
+										}
+									]
+								},
+								"description": "null"
+							},
+							"response": []
+						}
+					],
+					"description": "Shipping discount should not be applied if no shippingMethod is stated."
+				}
+			],
+			"description": "Please refer to folder-level overviews for corresponding test information."
+		},
+		{
+			"name": "Multi-item Discounts (Meal Deal)",
+			"item": [
+				{
+					"name": "Discount applied",
+					"item": [
+						{
+							"name": "Obtain access token",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"tests[\"Status code is 200\"] = responseCode.code === 200;",
+											"var data = JSON.parse(responseBody);",
+											"if(data.access_token){",
+											"    pm.environment.set(\"ctp_access_token\", data.access_token);",
+											"}",
+											"if (data.scope) {",
+											"    parts = data.scope.split(\" \");",
+											"    parts = parts.filter(scope => scope.includes(\":\")).map(scope => scope.split(\":\"))",
+											"    if (parts.length > 0) {",
+											"        scopeParts = parts[0];",
+											"        pm.environment.set(\"project-key\", scopeParts[1]);",
+											"        parts = parts.filter(scope => scope.length >= 3)",
+											"        if (parts.length > 0) {",
+											"            scopeParts = parts[0];",
+											"            pm.environment.set(\"store-key\", scopeParts[2]);",
+											"        }",
+											"    }",
+											"}"
+										]
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "username",
+											"value": "{{client_id}}",
+											"type": "string"
+										},
+										{
+											"key": "password",
+											"value": "{{client_secret}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{auth_url}}/oauth/token?grant_type=client_credentials",
+									"host": [
+										"{{auth_url}}"
+									],
+									"path": [
+										"oauth",
+										"token"
+									],
+									"query": [
+										{
+											"key": "grant_type",
+											"value": "client_credentials"
+										}
+									]
+								},
+								"description": "Use this request to obtain an access token for your commercetools platform project via Client Credentials Flow. As a prerequisite you must have filled out environment variables in Postman for projectKey, client_id and client_secret to use this."
+							},
+							"response": []
+						},
+						{
+							"name": "Create Cart: All valid SKUs",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"var data = JSON.parse(responseBody);",
+											"",
+											"pm.test('Check status code', () => {",
+											"    pm.expect(pm.response.code).to.be.oneOf([200, 201])",
+											"})",
+											"",
+											"pm.test(\"Discounts are registered under 'appliedDiscounts' and include a Meal Deal\", function () {",
+											"    pm.expect(data.custom.fields.appliedDiscounts.some(discount => discount.includes('Meal Deal'))).to.be.true;",
+											"});",
+											"",
+											"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
+											"    pm.environment.set(\"cart-id\", data.results[0].id); ",
+											"    pm.environment.set(\"cart-version\", data.results[0].version);",
+											"}",
+											"if(data.results && data.results[0] && data.results[0].key){",
+											"    pm.environment.set(\"cart-key\", data.results[0].key); ",
+											"}",
+											"if(data.version){",
+											"    pm.environment.set(\"cart-version\", data.version);",
+											"}",
+											"if(data.id){",
+											"    pm.environment.set(\"cart-id\", data.id); ",
+											"}",
+											"if(data.key){",
+											"    pm.environment.set(\"cart-key\", data.key);",
+											"}",
+											"",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{ctp_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										},
+										{
+											"key": "tokenType",
+											"value": "Bearer",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"currency\" : \"GBP\",\n  \"lineItems\": [\n      {\n          \"sku\": \"245871\",\n          \"quantity\": 1\n      },\n      {\n          \"sku\": \"245872\",\n          \"quantity\": 1\n      },\n      {\n          \"sku\": \"245873\",\n          \"quantity\": 1\n      }\n  ],\n  \"customerEmail\": \"john.toe2@example.org\"\n}"
+								},
+								"url": {
+									"raw": "{{host}}/{{project-key}}/carts",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"{{project-key}}",
+										"carts"
+									],
+									"query": [
+										{
+											"key": "expand",
+											"value": "",
+											"disabled": true
+										}
+									]
+								},
+								"description": "Creating a Cart fails with an [InvalidOperation](ctp:api:type:InvalidOperationError) error if the\n[ShippingMethod](ctp:api:type:ShippingMethod) referenced in the CartDraft\nhas a `predicate` that does not match the Cart.\n"
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Cart",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"tests[\"Status code \" + responseCode.code] = responseCode.code === 200 || responseCode.code === 201;",
+											"var data = JSON.parse(responseBody);",
+											"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
+											"    pm.environment.set(\"cart-id\", data.results[0].id); ",
+											"    pm.environment.set(\"cart-version\", data.results[0].version);",
+											"}",
+											"if(data.results && data.results[0] && data.results[0].key){",
+											"    pm.environment.set(\"cart-key\", data.results[0].key); ",
+											"}",
+											"if(data.version){",
+											"    pm.environment.set(\"cart-version\", data.version);",
+											"}",
+											"if(data.id){",
+											"    pm.environment.set(\"cart-id\", data.id); ",
+											"}",
+											"if(data.key){",
+											"    pm.environment.set(\"cart-key\", data.key);",
+											"}",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{ctp_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										},
+										{
+											"key": "tokenType",
+											"value": "Bearer",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{host}}/{{project-key}}/carts/{{cart-id}}?version={{cart-version}}",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"{{project-key}}",
+										"carts",
+										"{{cart-id}}"
+									],
+									"query": [
+										{
+											"key": "dataErasure",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "version",
+											"value": "{{cart-version}}"
+										},
+										{
+											"key": "expand",
+											"value": "",
+											"disabled": true
+										}
+									]
+								},
+								"description": "null"
+							},
+							"response": []
+						}
+					],
+					"description": "## Discount information\n\n- Campaignid: 1680880.\n- Campaign name: Targeted Meal Deal (UPCs: 245871, 245872, 245873) - £1 off.\n- Campaign type: Meal Deal.\n- Reward type: £1 off the items with discount spread between items.\n    \n\n## Products added:\n\n1. Bottled Beer, SKU: 245871, Pricing: £37.97\n2. White Wine. SKU: 245872, Pricing: £63.83\n    \n3. Mojito, SKU: 245873, Pricing: £52.19"
+				},
+				{
+					"name": "Discount not applied",
+					"item": [
+						{
+							"name": "Obtain access token",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"tests[\"Status code is 200\"] = responseCode.code === 200;",
+											"var data = JSON.parse(responseBody);",
+											"if(data.access_token){",
+											"    pm.environment.set(\"ctp_access_token\", data.access_token);",
+											"}",
+											"if (data.scope) {",
+											"    parts = data.scope.split(\" \");",
+											"    parts = parts.filter(scope => scope.includes(\":\")).map(scope => scope.split(\":\"))",
+											"    if (parts.length > 0) {",
+											"        scopeParts = parts[0];",
+											"        pm.environment.set(\"project-key\", scopeParts[1]);",
+											"        parts = parts.filter(scope => scope.length >= 3)",
+											"        if (parts.length > 0) {",
+											"            scopeParts = parts[0];",
+											"            pm.environment.set(\"store-key\", scopeParts[2]);",
+											"        }",
+											"    }",
+											"}"
+										]
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "username",
+											"value": "{{client_id}}",
+											"type": "string"
+										},
+										{
+											"key": "password",
+											"value": "{{client_secret}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{auth_url}}/oauth/token?grant_type=client_credentials",
+									"host": [
+										"{{auth_url}}"
+									],
+									"path": [
+										"oauth",
+										"token"
+									],
+									"query": [
+										{
+											"key": "grant_type",
+											"value": "client_credentials"
+										}
+									]
+								},
+								"description": "Use this request to obtain an access token for your commercetools platform project via Client Credentials Flow. As a prerequisite you must have filled out environment variables in Postman for projectKey, client_id and client_secret to use this."
+							},
+							"response": []
+						},
+						{
+							"name": "Create Cart: 1 invalid SKU",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"var data = JSON.parse(responseBody);",
+											"",
+											"pm.test('Check status code', () => {",
+											"    pm.expect(pm.response.code).to.be.oneOf([200, 201])",
+											"})",
+											"",
+											"pm.test(\"Discounts registered under 'appliedDiscounts' do not include a Meal Deal\", function () {",
+											"    pm.expect(data.custom.fields.appliedDiscounts.some(discount => discount.includes('Meal Deal'))).to.be.false;",
+											"});",
+											"",
+											"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
+											"    pm.environment.set(\"cart-id\", data.results[0].id); ",
+											"    pm.environment.set(\"cart-version\", data.results[0].version);",
+											"}",
+											"if(data.results && data.results[0] && data.results[0].key){",
+											"    pm.environment.set(\"cart-key\", data.results[0].key); ",
+											"}",
+											"if(data.version){",
+											"    pm.environment.set(\"cart-version\", data.version);",
+											"}",
+											"if(data.id){",
+											"    pm.environment.set(\"cart-id\", data.id); ",
+											"}",
+											"if(data.key){",
+											"    pm.environment.set(\"cart-key\", data.key);",
+											"}",
+											"",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{ctp_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										},
+										{
+											"key": "tokenType",
+											"value": "Bearer",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"currency\" : \"GBP\",\n  \"lineItems\": [\n      {\n          \"sku\": \"245887\",\n          \"quantity\": 1\n      },\n      {\n          \"sku\": \"245872\",\n          \"quantity\": 1\n      },\n      {\n          \"sku\": \"245873\",\n          \"quantity\": 1\n      }\n  ],\n  \"customerEmail\": \"john.toe2@example.org\"\n}"
+								},
+								"url": {
+									"raw": "{{host}}/{{project-key}}/carts",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"{{project-key}}",
+										"carts"
+									],
+									"query": [
+										{
+											"key": "expand",
+											"value": "",
+											"disabled": true
+										}
+									]
+								},
+								"description": "Creating a Cart fails with an [InvalidOperation](ctp:api:type:InvalidOperationError) error if the\n[ShippingMethod](ctp:api:type:ShippingMethod) referenced in the CartDraft\nhas a `predicate` that does not match the Cart.\n"
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Cart",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"tests[\"Status code \" + responseCode.code] = responseCode.code === 200 || responseCode.code === 201;",
+											"var data = JSON.parse(responseBody);",
+											"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
+											"    pm.environment.set(\"cart-id\", data.results[0].id); ",
+											"    pm.environment.set(\"cart-version\", data.results[0].version);",
+											"}",
+											"if(data.results && data.results[0] && data.results[0].key){",
+											"    pm.environment.set(\"cart-key\", data.results[0].key); ",
+											"}",
+											"if(data.version){",
+											"    pm.environment.set(\"cart-version\", data.version);",
+											"}",
+											"if(data.id){",
+											"    pm.environment.set(\"cart-id\", data.id); ",
+											"}",
+											"if(data.key){",
+											"    pm.environment.set(\"cart-key\", data.key);",
+											"}",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "accessToken",
+											"value": "{{ctp_access_token}}",
+											"type": "string"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										},
+										{
+											"key": "tokenType",
+											"value": "Bearer",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{host}}/{{project-key}}/carts/{{cart-id}}?version={{cart-version}}",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"{{project-key}}",
+										"carts",
+										"{{cart-id}}"
+									],
+									"query": [
+										{
+											"key": "dataErasure",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "version",
+											"value": "{{cart-version}}"
+										},
+										{
+											"key": "expand",
+											"value": "",
+											"disabled": true
+										}
+									]
+								},
+								"description": "null"
+							},
+							"response": []
+						}
+					],
+					"description": "## Discount information\n\n- Campaignid: 1680880.\n- Campaign name: Targetted Meal Deal (UPCs: 245871, 245872, 245873) - £1 off.\n- Campaign type: Meal Deal.\n- Reward type: £1 off the items with discount spread between items.\n    \n\n## Products added:\n\n1. Juicing Oranges, SKU: 245887, Pricing: £35.49 --\\*_Not valid for meal deal \\*--_\n    \n2. White Wine. SKU: 245872, Pricing: £63.83\n3. Mojito, SKU: 245873, Pricing: £52.19"
 				}
 			],
 			"description": "Please refer to folder-level overviews for corresponding test information."
