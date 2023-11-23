@@ -3,9 +3,14 @@ import * as winston from 'winston';
 import { format, transports } from 'winston';
 import { APP_NAME } from '../common/constants/constants';
 import { LoggingWinston } from '@google-cloud/logging-winston';
+import { version } from '../../package.json';
 
 const loggingWinstonGCP = new LoggingWinston({
-  level: 'debug',
+  level: 'DEBUG',
+  serviceContext: {
+    service: APP_NAME,
+    version,
+  },
 });
 
 export const loggerConfig = {
