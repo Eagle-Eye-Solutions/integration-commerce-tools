@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CustomObjectService } from './custom-object.service';
 import { Commercetools } from '../commercetools.provider';
-import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { MockLogger } from '../../../../test/utils/mocks/MockLogger';
+import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 
 describe('CustomObjectService', () => {
   let service: CustomObjectService;
@@ -22,7 +22,7 @@ describe('CustomObjectService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         CustomObjectService,
-        { provide: WINSTON_MODULE_PROVIDER, useValue: new MockLogger() },
+        { provide: WINSTON_MODULE_NEST_PROVIDER, useValue: new MockLogger() },
         { provide: Commercetools, useValue: mockCommercetools },
       ],
     }).compile();

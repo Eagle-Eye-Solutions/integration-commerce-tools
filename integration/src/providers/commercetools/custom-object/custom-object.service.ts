@@ -1,11 +1,12 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, LoggerService } from '@nestjs/common';
 import { Commercetools } from '../commercetools.provider';
-import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
+import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 
 @Injectable()
 export class CustomObjectService {
   constructor(
-    @Inject(WINSTON_MODULE_PROVIDER) readonly logger: Logger,
+    @Inject(WINSTON_MODULE_NEST_PROVIDER)
+    private readonly logger: LoggerService,
     private commercetools: Commercetools,
   ) {}
 
@@ -23,7 +24,10 @@ export class CustomObjectService {
         version,
       },
     };
-    this.logger.debug('Creating custom object draft', customObjectDraft);
+    this.logger.debug({
+      message: 'Creating custom object draft',
+      customObjectDraft,
+    });
     return this.commercetools
       .getApiRoot()
       .customObjects()

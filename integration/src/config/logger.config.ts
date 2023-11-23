@@ -4,7 +4,9 @@ import { format, transports } from 'winston';
 import { APP_NAME } from '../common/constants/constants';
 import { LoggingWinston } from '@google-cloud/logging-winston';
 
-const loggingWinstonGCP = new LoggingWinston();
+const loggingWinstonGCP = new LoggingWinston({
+  level: 'debug',
+});
 
 export const loggerConfig = {
   transports: [

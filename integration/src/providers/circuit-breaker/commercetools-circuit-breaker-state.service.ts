@@ -2,20 +2,21 @@ import {
   CircuitBreakerInfo,
   CircuitBreakerState,
 } from './interfaces/circuit-breaker-state.interface';
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, LoggerService } from '@nestjs/common';
 import {
   CUSTOM_OBJECT_CIRCUIT_BREAKER_KEY,
   CUSTOM_OBJECT_CONTAINER,
 } from '../../common/constants/constants';
 import { CustomObjectService } from '../commercetools/custom-object/custom-object.service';
-import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
+import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 
 @Injectable()
 export class CommercetoolsCircuitBreakerStateService
   implements CircuitBreakerState
 {
   constructor(
-    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
+    @Inject(WINSTON_MODULE_NEST_PROVIDER)
+    private readonly logger: LoggerService,
     private readonly customObjectService: CustomObjectService,
   ) {}
 
@@ -27,13 +28,12 @@ export class CommercetoolsCircuitBreakerStateService
         CUSTOM_OBJECT_CONTAINER,
         CUSTOM_OBJECT_CIRCUIT_BREAKER_KEY,
       );
-      this.logger.log('info', 'Retrieved circuit breaker state');
-      this.logger.debug('Circuit breaker state', value);
+      this.logger.log('Retrieved circuit breaker state');
+      this.logger.debug({ message: 'Circuit breaker state', value });
       return value as any as CircuitBreakerInfo;
     } catch (e) {
       if (e.code === 404) {
         this.logger.log(
-          'info',
           `No circuit breaker state found in commercetools custom object. ${e.message})`,
         );
         return undefined;
@@ -49,7 +49,6 @@ export class CommercetoolsCircuitBreakerStateService
   async saveState(info: CircuitBreakerInfo): Promise<void> {
     try {
       this.logger.log(
-        'info',
         `Saving circuit breaker state in CT custom object. Open: ${info?.state?.open}`,
       );
       await this.customObjectService.saveCustomObject(
@@ -57,7 +56,7 @@ export class CommercetoolsCircuitBreakerStateService
         CUSTOM_OBJECT_CONTAINER,
         info,
       );
-      this.logger.log('info', 'Circuit breaker state saved');
+      this.logger.log('Circuit breaker state saved');
     } catch (e) {
       this.logger.error(
         'Error saving circuit breaker state into commercetools custom object',

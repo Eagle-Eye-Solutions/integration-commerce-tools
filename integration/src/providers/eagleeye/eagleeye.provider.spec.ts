@@ -6,7 +6,7 @@ import { EagleEyeApiClient, Token, Wallet } from './eagleeye.provider';
 import { of, throwError } from 'rxjs';
 import { AxiosResponse } from 'axios';
 import { EagleEyeApiException } from '../../common/exceptions/eagle-eye-api.exception';
-import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
+import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { MockLogger } from '../../../test/utils/mocks/MockLogger';
 
 describe('EagleEyeApiClient', () => {
@@ -15,7 +15,7 @@ describe('EagleEyeApiClient', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        { provide: WINSTON_MODULE_PROVIDER, useValue: new MockLogger() },
+        { provide: WINSTON_MODULE_NEST_PROVIDER, useValue: new MockLogger() },
         EagleEyeApiClient,
         Logger,
         ConfigService,
@@ -42,7 +42,7 @@ describe('Wallet', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        { provide: WINSTON_MODULE_PROVIDER, useValue: new MockLogger() },
+        { provide: WINSTON_MODULE_NEST_PROVIDER, useValue: new MockLogger() },
         Wallet,
         { provide: HttpService, useValue: { request: jest.fn() } },
         { provide: ConfigService, useValue: { get: jest.fn() } },
@@ -127,7 +127,7 @@ describe('Token', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        { provide: WINSTON_MODULE_PROVIDER, useValue: new MockLogger() },
+        { provide: WINSTON_MODULE_NEST_PROVIDER, useValue: new MockLogger() },
         Token,
         { provide: HttpService, useValue: { request: jest.fn() } },
         { provide: ConfigService, useValue: { get: jest.fn() } },

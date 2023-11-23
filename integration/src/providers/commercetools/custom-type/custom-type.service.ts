@@ -1,13 +1,14 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, LoggerService } from '@nestjs/common';
 import { Commercetools } from '../commercetools.provider';
 import { Type, TypeDraft } from '@commercetools/platform-sdk';
-import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
+import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 
 @Injectable()
 export class CustomTypeService {
   constructor(
     private readonly commercetools: Commercetools,
-    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
+    @Inject(WINSTON_MODULE_NEST_PROVIDER)
+    private readonly logger: LoggerService,
   ) {}
 
   async create(typeDefinition: TypeDraft): Promise<Type> {
@@ -38,10 +39,9 @@ export class CustomTypeService {
       });
       throw new Error(errorMsg);
     }
-
     this.logger.debug({
-      msg: `Type: "${typeDefinition.key}" created`,
-      type: response.body,
+      message: `Type: "${typeDefinition.key}" created`,
+      body: response.body,
     });
 
     return response.body;
