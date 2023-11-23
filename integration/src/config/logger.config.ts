@@ -6,7 +6,7 @@ import { LoggingWinston } from '@google-cloud/logging-winston';
 import { version } from '../../package.json';
 
 const loggingWinstonGCP = new LoggingWinston({
-  level: 'DEBUG',
+  // level: 'DEBUG',
   serviceContext: {
     service: APP_NAME,
     version,
