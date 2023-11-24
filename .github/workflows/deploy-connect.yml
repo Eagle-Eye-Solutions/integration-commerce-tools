@@ -118,6 +118,8 @@ jobs:
           ee_pos_url: ${{ vars.EE_POS_URL }}
           ee_resources_url: ${{ vars.EE_RESOURCES_URL }}
           shipping_method_map: ${{ vars.SHIPPING_METHOD_MAP }}
+          ee_incoming_identifier: ${{ vars.EE_INCOMING_IDENTIFIER }}
+          ee_parent_incoming_identifier: ${{ vars.EE_PARENT_INCOMING_IDENTIFIER }}
   e2e-tests:
     name: 'Running E2E tests'
     runs-on: ubuntu-latest

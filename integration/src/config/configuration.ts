@@ -27,7 +27,7 @@ const validationSchema = Joi.object({
     resourcesUrl: Joi.string(),
     shippingMethodMap: Joi.array<{ key: string; upc: string }>(),
     incomingIdentifier: Joi.string().required(),
-    parentIncomingIdentifier: Joi.string().required(),
+    parentIncomingIdentifier: Joi.string(),
   }),
   circuitBreaker: {
     timeout: Joi.number(),
@@ -73,8 +73,8 @@ export const defaultConfiguration = {
       process.env.EE_RESOURCES_URL ||
       'https://resources.sandbox.uk.eagleeye.com',
     shippingMethodMap: parseShippingMethodMap(),
-    incomingIdentifier: process.env.INCOMING_IDENTIFIER,
-    parentIncomingIdentifier: process.env.PARENT_INCOMING_IDENTIFIER,
+    incomingIdentifier: process.env.EE_INCOMING_IDENTIFIER,
+    parentIncomingIdentifier: process.env.EE_PARENT_INCOMING_IDENTIFIER,
   },
   circuitBreaker: {
     timeout: parseInt(process.env.CIRCUIT_BREAKER_TIMEOUT, 10) || 1800,

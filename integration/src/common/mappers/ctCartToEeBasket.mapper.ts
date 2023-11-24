@@ -196,6 +196,12 @@ export class CTCartToEEBasketMapper {
     if (shippingDiscountItem.upc) {
       basketContents.push(shippingDiscountItem);
     }
+    const incomingIdentifier = this.configService.get(
+      'eagleEye.incomingIdentifier',
+    );
+    const parentIncomingIdentifier = this.configService.get(
+      'eagleEye.parentIncomingIdentifier',
+    );
 
     return {
       reference: cart.id,
@@ -206,12 +212,8 @@ export class CTCartToEEBasketMapper {
         : undefined,
       lock: true,
       location: {
-        incomingIdentifier: this.configService.get(
-          'eagleEye.incomingIdentifier',
-        ),
-        parentIncomingIdentifier: this.configService.get(
-          'eagleEye.parentIncomingIdentifier',
-        ),
+        incomingIdentifier,
+        ...(parentIncomingIdentifier && { parentIncomingIdentifier }),
       },
       options: {
         adjustBasket: {

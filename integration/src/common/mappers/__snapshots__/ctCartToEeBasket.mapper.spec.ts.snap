@@ -107,6 +107,52 @@ exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should return the pay
 }
 `;
 
+exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should return the payload for /wallet/open, without the optional parentIncomingIdentifier when not set in the configuration 1`] = `
+{
+  "basket": {
+    "contents": [
+      {
+        "description": "Example Product",
+        "itemUnitCost": 300,
+        "itemUnitCount": undefined,
+        "itemUnitMetric": "EACH",
+        "salesKey": "SALE",
+        "totalUnitCost": 300,
+        "totalUnitCostAfterDiscount": 300,
+        "upc": "SKU123",
+      },
+    ],
+    "summary": {
+      "redemptionChannel": "Online",
+      "totalBasketValue": 300,
+      "totalDiscountAmount": {
+        "general": null,
+        "promotions": 0,
+        "staff": null,
+      },
+      "totalItems": 1,
+    },
+    "type": "STANDARD",
+  },
+  "identity": undefined,
+  "location": {
+    "incomingIdentifier": "outlet1",
+  },
+  "lock": true,
+  "options": {
+    "adjustBasket": {
+      "enabled": true,
+      "includeOpenOffers": true,
+    },
+    "analyseBasket": {
+      "enabled": true,
+      "includeOpenOffers": true,
+    },
+  },
+  "reference": undefined,
+}
+`;
+
 exports[`CTCartToEEBasketMapper mapShippingMethodSkusToBasketItems should return the mapped custom basket items 1`] = `
 {
   "description": "Example Shipping Discount",
