@@ -39,7 +39,7 @@ jobs:
   ct-update-tag:
     name: 'Update Connector Tag'
     runs-on: ubuntu-latest
-    needs: ['ct-authorize']
+    needs: [ 'ct-authorize' ]
     environment: ${{ github.event.inputs.environment }}
     outputs:
       connector: ${{ steps.update-tag.outputs.output }}
@@ -57,7 +57,7 @@ jobs:
   ct-request-previewable:
     name: 'Request Previewable Access'
     runs-on: ubuntu-latest
-    needs: ['ct-authorize', 'ct-update-tag']
+    needs: [ 'ct-authorize', 'ct-update-tag' ]
     environment: ${{ github.event.inputs.environment }}
     outputs:
       connector: ${{ steps.request-previewable.outputs.response }}
@@ -75,7 +75,7 @@ jobs:
   ct-undeploy:
     name: 'Check and Undeploy Connector'
     runs-on: ubuntu-latest
-    needs: ['ct-authorize', 'ct-request-previewable']
+    needs: [ 'ct-authorize', 'ct-request-previewable' ]
     environment: ${{ github.event.inputs.environment }}
     steps:
       - name: Checkout
@@ -92,7 +92,7 @@ jobs:
   ct-deploy:
     name: 'Deploy Connector'
     runs-on: ubuntu-latest
-    needs: ['ct-authorize', 'ct-request-previewable', 'ct-undeploy']
+    needs: [ 'ct-authorize', 'ct-request-previewable', 'ct-undeploy' ]
     environment: ${{ github.event.inputs.environment }}
     steps:
       - name: Checkout
@@ -118,3 +118,18 @@ jobs:
           ee_pos_url: ${{ vars.EE_POS_URL }}
           ee_resources_url: ${{ vars.EE_RESOURCES_URL }}
           shipping_method_map: ${{ vars.SHIPPING_METHOD_MAP }}
+  e2e-tests:
+    name: 'Running E2E tests'
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Run E2E e2e-tests
+        uses: ./.github/actions/postman
+        with:
+          ct_client_id: ${{ secrets.CT_CLIENT_ID }}
+          ct_secret: ${{ secrets.CT_CLIENT_SECRET }}
+          postman_collection_json: "eagle-eye-e2e-tests.postman_collection.json"
+          ct_region: ${{ vars.CT_REGION }}
+          ct_project_id: ${{ vars.CT_PROJECT_KEY }}

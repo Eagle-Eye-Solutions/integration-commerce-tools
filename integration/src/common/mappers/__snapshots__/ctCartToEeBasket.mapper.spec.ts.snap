@@ -92,7 +92,7 @@ exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should return the pay
     "incomingIdentifier": "outlet1",
     "parentIncomingIdentifier": "banner1",
   },
-  "lock": false,
+  "lock": true,
   "options": {
     "adjustBasket": {
       "enabled": true,

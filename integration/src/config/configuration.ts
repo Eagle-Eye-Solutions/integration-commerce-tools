@@ -3,6 +3,7 @@ import 'dotenv/config';
 import * as _ from 'lodash';
 import { parseBool } from '../common/helper/booleanParser';
 import { Injectable, Logger } from '@nestjs/common';
+import * as process from 'process';
 
 const logger = new Logger('ConfigService');
 
@@ -25,6 +26,8 @@ const validationSchema = Joi.object({
     posUrl: Joi.string(),
     resourcesUrl: Joi.string(),
     shippingMethodMap: Joi.array<{ key: string; upc: string }>(),
+    incomingIdentifier: Joi.string().required(),
+    parentIncomingIdentifier: Joi.string().required(),
   }),
   circuitBreaker: {
     timeout: Joi.number(),
@@ -70,6 +73,8 @@ export const defaultConfiguration = {
       process.env.EE_RESOURCES_URL ||
       'https://resources.sandbox.uk.eagleeye.com',
     shippingMethodMap: parseShippingMethodMap(),
+    incomingIdentifier: process.env.INCOMING_IDENTIFIER,
+    parentIncomingIdentifier: process.env.PARENT_INCOMING_IDENTIFIER,
   },
   circuitBreaker: {
     timeout: parseInt(process.env.CIRCUIT_BREAKER_TIMEOUT, 10) || 1800,
