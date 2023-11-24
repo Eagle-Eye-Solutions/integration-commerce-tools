@@ -1208,7 +1208,7 @@
 													"    pm.expect(data.discountOnTotalPrice.discountedAmount.centAmount).to.be.greaterThan(0);",
 													"});",
 													"",
-													"pm.test(\"Discount is not registered under 'appliedDiscounts'\", function () {",
+													"pm.test(\"Discount is registered under 'appliedDiscounts'\", function () {",
 													"    pm.expect(data.custom.fields.appliedDiscounts.some(discount => discount.includes('Basket'))).to.be.true;",
 													"});",
 													"",
@@ -1396,7 +1396,7 @@
 			"description": "Please refer to folder-level overviews for corresponding test information."
 		},
 		{
-			"name": "TODO: Item Level Discounts",
+			"name": "Open Item Level Discounts",
 			"item": [
 				{
 					"name": "Single item",
@@ -3024,6 +3024,1462 @@
 				}
 			],
 			"description": "Please refer to folder-level overviews for corresponding test information."
+		},
+		{
+			"name": "No Longer Applicable Promotions",
+			"item": [
+				{
+					"name": "Basket level discounts",
+					"item": [
+						{
+							"name": "Open basket level discount",
+							"item": [
+								{
+									"name": "Obtain access token",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"type": "text/javascript",
+												"exec": [
+													"tests[\"Status code is 200\"] = responseCode.code === 200;",
+													"var data = JSON.parse(responseBody);",
+													"if(data.access_token){",
+													"    pm.environment.set(\"ctp_access_token\", data.access_token);",
+													"}",
+													"if (data.scope) {",
+													"    parts = data.scope.split(\" \");",
+													"    parts = parts.filter(scope => scope.includes(\":\")).map(scope => scope.split(\":\"))",
+													"    if (parts.length > 0) {",
+													"        scopeParts = parts[0];",
+													"        pm.environment.set(\"project-key\", scopeParts[1]);",
+													"        parts = parts.filter(scope => scope.length >= 3)",
+													"        if (parts.length > 0) {",
+													"            scopeParts = parts[0];",
+													"            pm.environment.set(\"store-key\", scopeParts[2]);",
+													"        }",
+													"    }",
+													"}"
+												]
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "basic",
+											"basic": [
+												{
+													"key": "username",
+													"value": "{{client_id}}",
+													"type": "string"
+												},
+												{
+													"key": "password",
+													"value": "{{client_secret}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{auth_url}}/oauth/token?grant_type=client_credentials",
+											"host": [
+												"{{auth_url}}"
+											],
+											"path": [
+												"oauth",
+												"token"
+											],
+											"query": [
+												{
+													"key": "grant_type",
+													"value": "client_credentials"
+												}
+											]
+										},
+										"description": "Use this request to obtain an access token for your commercetools platform project via Client Credentials Flow. As a prerequisite you must have filled out environment variables in Postman for projectKey, client_id and client_secret to use this."
+									},
+									"response": []
+								},
+								{
+									"name": "Create Cart: Open basket level discount",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var data = JSON.parse(responseBody);",
+													"",
+													"pm.test('Check status code', () => {",
+													"    pm.expect(pm.response.code).to.be.oneOf([200, 201])",
+													"})",
+													"",
+													"pm.test(\"Discount is added to 'appliedDiscounts'\", function () {",
+													"    pm.expect(data.custom.fields.appliedDiscounts.some(discount => discount.includes('Open Discount Basket'))).to.be.true;",
+													"});",
+													"",
+													"pm.collectionVariables.set('customOpenBasketDiscountItemID', data.lineItems[0].id)",
+													"",
+													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
+													"    pm.environment.set(\"cart-id\", data.results[0].id); ",
+													"    pm.environment.set(\"cart-version\", data.results[0].version);",
+													"}",
+													"if(data.results && data.results[0] && data.results[0].key){",
+													"    pm.environment.set(\"cart-key\", data.results[0].key); ",
+													"}",
+													"if(data.version){",
+													"    pm.environment.set(\"cart-version\", data.version);",
+													"}",
+													"if(data.id){",
+													"    pm.environment.set(\"cart-id\", data.id); ",
+													"}",
+													"if(data.key){",
+													"    pm.environment.set(\"cart-key\", data.key);",
+													"}",
+													"",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "oauth2",
+											"oauth2": [
+												{
+													"key": "accessToken",
+													"value": "{{ctp_access_token}}",
+													"type": "string"
+												},
+												{
+													"key": "addTokenTo",
+													"value": "header",
+													"type": "string"
+												},
+												{
+													"key": "tokenType",
+													"value": "Bearer",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"currency\" : \"GBP\",\n  \"lineItems\": [\n      {\n          \"sku\": \"245871\",\n          \"quantity\": 1\n      },\n      {\n          \"sku\": \"245872\",\n          \"quantity\": 1\n      },\n      {\n          \"sku\": \"245873\",\n          \"quantity\": 1\n      }\n  ]\n}"
+										},
+										"url": {
+											"raw": "{{host}}/{{project-key}}/carts",
+											"host": [
+												"{{host}}"
+											],
+											"path": [
+												"{{project-key}}",
+												"carts"
+											],
+											"query": [
+												{
+													"key": "expand",
+													"value": "",
+													"disabled": true
+												}
+											]
+										},
+										"description": "Creating a Cart fails with an [InvalidOperation](ctp:api:type:InvalidOperationError) error if the\n[ShippingMethod](ctp:api:type:ShippingMethod) referenced in the CartDraft\nhas a `predicate` that does not match the Cart.\n"
+									},
+									"response": []
+								},
+								{
+									"name": "Update Cart: Remove open basket level discount",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var data = JSON.parse(responseBody);",
+													"",
+													"pm.test('Check status code', () => {",
+													"    pm.expect(pm.response.code).to.be.oneOf([200, 201])",
+													"})",
+													"",
+													"pm.test(\"Discount has been removed from 'appliedDiscounts'\", function () {",
+													"    pm.expect(data.custom.fields.appliedDiscounts.some(discount => discount.includes('Open Discount Basket'))).to.be.false;",
+													"});",
+													"",
+													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
+													"    pm.environment.set(\"cart-id\", data.results[0].id); ",
+													"    pm.environment.set(\"cart-version\", data.results[0].version);",
+													"}",
+													"if(data.results && data.results[0] && data.results[0].key){",
+													"    pm.environment.set(\"cart-key\", data.results[0].key); ",
+													"}",
+													"if(data.version){",
+													"    pm.environment.set(\"cart-version\", data.version);",
+													"}",
+													"if(data.id){",
+													"    pm.environment.set(\"cart-id\", data.id); ",
+													"}",
+													"if(data.key){",
+													"    pm.environment.set(\"cart-key\", data.key);",
+													"}",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "oauth2",
+											"oauth2": [
+												{
+													"key": "accessToken",
+													"value": "{{ctp_access_token}}",
+													"type": "string"
+												},
+												{
+													"key": "addTokenTo",
+													"value": "header",
+													"type": "string"
+												},
+												{
+													"key": "tokenType",
+													"value": "Bearer",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"version\": {{cart-version}},\n    \"actions\": [\n        {\n            \"action\" : \"changeLineItemQuantity\",\n            \"lineItemId\" : \"{{customOpenBasketDiscountItemID}}\",\n            \"quantity\" : 0\n          }\n    ]\n}"
+										},
+										"url": {
+											"raw": "{{host}}/{{project-key}}/carts/{{cart-id}}",
+											"host": [
+												"{{host}}"
+											],
+											"path": [
+												"{{project-key}}",
+												"carts",
+												"{{cart-id}}"
+											],
+											"query": [
+												{
+													"key": "expand",
+													"value": "",
+													"disabled": true
+												}
+											]
+										},
+										"description": "post Carts"
+									},
+									"response": []
+								},
+								{
+									"name": "Delete Cart",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"tests[\"Status code \" + responseCode.code] = responseCode.code === 200 || responseCode.code === 201;",
+													"var data = JSON.parse(responseBody);",
+													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
+													"    pm.environment.set(\"cart-id\", data.results[0].id); ",
+													"    pm.environment.set(\"cart-version\", data.results[0].version);",
+													"}",
+													"if(data.results && data.results[0] && data.results[0].key){",
+													"    pm.environment.set(\"cart-key\", data.results[0].key); ",
+													"}",
+													"if(data.version){",
+													"    pm.environment.set(\"cart-version\", data.version);",
+													"}",
+													"if(data.id){",
+													"    pm.environment.set(\"cart-id\", data.id); ",
+													"}",
+													"if(data.key){",
+													"    pm.environment.set(\"cart-key\", data.key);",
+													"}",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "oauth2",
+											"oauth2": [
+												{
+													"key": "accessToken",
+													"value": "{{ctp_access_token}}",
+													"type": "string"
+												},
+												{
+													"key": "addTokenTo",
+													"value": "header",
+													"type": "string"
+												},
+												{
+													"key": "tokenType",
+													"value": "Bearer",
+													"type": "string"
+												}
+											]
+										},
+										"method": "DELETE",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{host}}/{{project-key}}/carts/{{cart-id}}?version={{cart-version}}",
+											"host": [
+												"{{host}}"
+											],
+											"path": [
+												"{{project-key}}",
+												"carts",
+												"{{cart-id}}"
+											],
+											"query": [
+												{
+													"key": "dataErasure",
+													"value": "",
+													"disabled": true
+												},
+												{
+													"key": "expand",
+													"value": "",
+													"disabled": true
+												},
+												{
+													"key": "version",
+													"value": "{{cart-version}}"
+												}
+											]
+										},
+										"description": "null"
+									},
+									"response": []
+								}
+							],
+							"description": "## Discount information\n\nCondition: Total price of basket should be above 100 pounds.\n\n- Campaignid: 1711495.\n    \n- Campaign name: Open Discount Basket (10% off 100).\n    \n- Campaign type: Discount Basket.\n    \n- Reward type: 20% Off basket."
+						},
+						{
+							"name": "Targeted basket level discount",
+							"item": [
+								{
+									"name": "Obtain access token",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"type": "text/javascript",
+												"exec": [
+													"tests[\"Status code is 200\"] = responseCode.code === 200;",
+													"var data = JSON.parse(responseBody);",
+													"if(data.access_token){",
+													"    pm.environment.set(\"ctp_access_token\", data.access_token);",
+													"}",
+													"if (data.scope) {",
+													"    parts = data.scope.split(\" \");",
+													"    parts = parts.filter(scope => scope.includes(\":\")).map(scope => scope.split(\":\"))",
+													"    if (parts.length > 0) {",
+													"        scopeParts = parts[0];",
+													"        pm.environment.set(\"project-key\", scopeParts[1]);",
+													"        parts = parts.filter(scope => scope.length >= 3)",
+													"        if (parts.length > 0) {",
+													"            scopeParts = parts[0];",
+													"            pm.environment.set(\"store-key\", scopeParts[2]);",
+													"        }",
+													"    }",
+													"}"
+												]
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "basic",
+											"basic": [
+												{
+													"key": "username",
+													"value": "{{client_id}}",
+													"type": "string"
+												},
+												{
+													"key": "password",
+													"value": "{{client_secret}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{auth_url}}/oauth/token?grant_type=client_credentials",
+											"host": [
+												"{{auth_url}}"
+											],
+											"path": [
+												"oauth",
+												"token"
+											],
+											"query": [
+												{
+													"key": "grant_type",
+													"value": "client_credentials"
+												}
+											]
+										},
+										"description": "Use this request to obtain an access token for your commercetools platform project via Client Credentials Flow. As a prerequisite you must have filled out environment variables in Postman for projectKey, client_id and client_secret to use this."
+									},
+									"response": []
+								},
+								{
+									"name": "Create Cart: Targeted basket level discount",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var data = JSON.parse(responseBody);",
+													"",
+													"pm.test('Check status code', () => {",
+													"    pm.expect(pm.response.code).to.be.oneOf([200, 201])",
+													"})",
+													"",
+													"pm.test(\"Discount is added to 'appliedDiscounts'\", function () {",
+													"    pm.expect(data.custom.fields.appliedDiscounts.some(discount => discount.includes('Targeted Basket'))).to.be.true;",
+													"});",
+													"",
+													"pm.collectionVariables.set('customTargetedBasketDiscountItemID', data.lineItems[0].id)",
+													"",
+													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
+													"    pm.environment.set(\"cart-id\", data.results[0].id); ",
+													"    pm.environment.set(\"cart-version\", data.results[0].version);",
+													"}",
+													"if(data.results && data.results[0] && data.results[0].key){",
+													"    pm.environment.set(\"cart-key\", data.results[0].key); ",
+													"}",
+													"if(data.version){",
+													"    pm.environment.set(\"cart-version\", data.version);",
+													"}",
+													"if(data.id){",
+													"    pm.environment.set(\"cart-id\", data.id); ",
+													"}",
+													"if(data.key){",
+													"    pm.environment.set(\"cart-key\", data.key);",
+													"}",
+													"",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "oauth2",
+											"oauth2": [
+												{
+													"key": "accessToken",
+													"value": "{{ctp_access_token}}",
+													"type": "string"
+												},
+												{
+													"key": "addTokenTo",
+													"value": "header",
+													"type": "string"
+												},
+												{
+													"key": "tokenType",
+													"value": "Bearer",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"currency\" : \"GBP\",\n  \"lineItems\": [\n      {\n          \"sku\": \"245871\",\n          \"quantity\": 1\n      },\n      {\n          \"sku\": \"245872\",\n          \"quantity\": 1\n      },\n      {\n          \"sku\": \"245873\",\n          \"quantity\": 1\n      }\n  ],\n  \"customerEmail\": \"john.toe2@example.org\"\n}"
+										},
+										"url": {
+											"raw": "{{host}}/{{project-key}}/carts",
+											"host": [
+												"{{host}}"
+											],
+											"path": [
+												"{{project-key}}",
+												"carts"
+											],
+											"query": [
+												{
+													"key": "expand",
+													"value": "",
+													"disabled": true
+												}
+											]
+										},
+										"description": "Creating a Cart fails with an [InvalidOperation](ctp:api:type:InvalidOperationError) error if the\n[ShippingMethod](ctp:api:type:ShippingMethod) referenced in the CartDraft\nhas a `predicate` that does not match the Cart.\n"
+									},
+									"response": []
+								},
+								{
+									"name": "Update Cart: Remove targeted basket level discount",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var data = JSON.parse(responseBody);",
+													"",
+													"pm.test('Check status code', () => {",
+													"    pm.expect(pm.response.code).to.be.oneOf([200, 201])",
+													"})",
+													"",
+													"pm.test(\"Discount has been removed from 'appliedDiscounts'\", function () {",
+													"    pm.expect(data.custom.fields.appliedDiscounts.some(discount => discount.includes('Targeted Basket'))).to.be.false;",
+													"});",
+													"",
+													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
+													"    pm.environment.set(\"cart-id\", data.results[0].id); ",
+													"    pm.environment.set(\"cart-version\", data.results[0].version);",
+													"}",
+													"if(data.results && data.results[0] && data.results[0].key){",
+													"    pm.environment.set(\"cart-key\", data.results[0].key); ",
+													"}",
+													"if(data.version){",
+													"    pm.environment.set(\"cart-version\", data.version);",
+													"}",
+													"if(data.id){",
+													"    pm.environment.set(\"cart-id\", data.id); ",
+													"}",
+													"if(data.key){",
+													"    pm.environment.set(\"cart-key\", data.key);",
+													"}",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "oauth2",
+											"oauth2": [
+												{
+													"key": "accessToken",
+													"value": "{{ctp_access_token}}",
+													"type": "string"
+												},
+												{
+													"key": "addTokenTo",
+													"value": "header",
+													"type": "string"
+												},
+												{
+													"key": "tokenType",
+													"value": "Bearer",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"version\": {{cart-version}},\n    \"actions\": [\n        {\n            \"action\" : \"setCustomerEmail\",\n            \"customerEmail\": \"john.nottargeted@example.org\"\n          }\n    ]\n}"
+										},
+										"url": {
+											"raw": "{{host}}/{{project-key}}/carts/{{cart-id}}",
+											"host": [
+												"{{host}}"
+											],
+											"path": [
+												"{{project-key}}",
+												"carts",
+												"{{cart-id}}"
+											],
+											"query": [
+												{
+													"key": "expand",
+													"value": "",
+													"disabled": true
+												}
+											]
+										},
+										"description": "post Carts"
+									},
+									"response": []
+								},
+								{
+									"name": "Delete Cart",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"tests[\"Status code \" + responseCode.code] = responseCode.code === 200 || responseCode.code === 201;",
+													"var data = JSON.parse(responseBody);",
+													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
+													"    pm.environment.set(\"cart-id\", data.results[0].id); ",
+													"    pm.environment.set(\"cart-version\", data.results[0].version);",
+													"}",
+													"if(data.results && data.results[0] && data.results[0].key){",
+													"    pm.environment.set(\"cart-key\", data.results[0].key); ",
+													"}",
+													"if(data.version){",
+													"    pm.environment.set(\"cart-version\", data.version);",
+													"}",
+													"if(data.id){",
+													"    pm.environment.set(\"cart-id\", data.id); ",
+													"}",
+													"if(data.key){",
+													"    pm.environment.set(\"cart-key\", data.key);",
+													"}",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "oauth2",
+											"oauth2": [
+												{
+													"key": "accessToken",
+													"value": "{{ctp_access_token}}",
+													"type": "string"
+												},
+												{
+													"key": "addTokenTo",
+													"value": "header",
+													"type": "string"
+												},
+												{
+													"key": "tokenType",
+													"value": "Bearer",
+													"type": "string"
+												}
+											]
+										},
+										"method": "DELETE",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{host}}/{{project-key}}/carts/{{cart-id}}?version={{cart-version}}",
+											"host": [
+												"{{host}}"
+											],
+											"path": [
+												"{{project-key}}",
+												"carts",
+												"{{cart-id}}"
+											],
+											"query": [
+												{
+													"key": "dataErasure",
+													"value": "",
+													"disabled": true
+												},
+												{
+													"key": "expand",
+													"value": "",
+													"disabled": true
+												},
+												{
+													"key": "version",
+													"value": "{{cart-version}}"
+												}
+											]
+										},
+										"description": "null"
+									},
+									"response": []
+								}
+							],
+							"description": "## Targeted Customer:\n\n1. Email: [john.toe1@example.org](https://mailto:john.toe1@example.org)"
+						}
+					]
+				},
+				{
+					"name": "Item Level Discounts",
+					"item": [
+						{
+							"name": "Open item level discount",
+							"item": [
+								{
+									"name": "Obtain access token",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"type": "text/javascript",
+												"exec": [
+													"tests[\"Status code is 200\"] = responseCode.code === 200;",
+													"var data = JSON.parse(responseBody);",
+													"if(data.access_token){",
+													"    pm.environment.set(\"ctp_access_token\", data.access_token);",
+													"}",
+													"if (data.scope) {",
+													"    parts = data.scope.split(\" \");",
+													"    parts = parts.filter(scope => scope.includes(\":\")).map(scope => scope.split(\":\"))",
+													"    if (parts.length > 0) {",
+													"        scopeParts = parts[0];",
+													"        pm.environment.set(\"project-key\", scopeParts[1]);",
+													"        parts = parts.filter(scope => scope.length >= 3)",
+													"        if (parts.length > 0) {",
+													"            scopeParts = parts[0];",
+													"            pm.environment.set(\"store-key\", scopeParts[2]);",
+													"        }",
+													"    }",
+													"}"
+												]
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "basic",
+											"basic": [
+												{
+													"key": "username",
+													"value": "{{client_id}}",
+													"type": "string"
+												},
+												{
+													"key": "password",
+													"value": "{{client_secret}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{auth_url}}/oauth/token?grant_type=client_credentials",
+											"host": [
+												"{{auth_url}}"
+											],
+											"path": [
+												"oauth",
+												"token"
+											],
+											"query": [
+												{
+													"key": "grant_type",
+													"value": "client_credentials"
+												}
+											]
+										},
+										"description": "Use this request to obtain an access token for your commercetools platform project via Client Credentials Flow. As a prerequisite you must have filled out environment variables in Postman for projectKey, client_id and client_secret to use this."
+									},
+									"response": []
+								},
+								{
+									"name": "Create Cart: Open item level discount",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var data = JSON.parse(responseBody);",
+													"",
+													"pm.test('Check status code', () => {",
+													"    pm.expect(pm.response.code).to.be.oneOf([200, 201])",
+													"})",
+													"",
+													"pm.test(\"Discount is added to 'appliedDiscounts'\", function () {",
+													"    pm.expect(data.custom.fields.appliedDiscounts.some(discount => discount.includes('Item Level Discount'))).to.be.true;",
+													"});",
+													"",
+													"pm.collectionVariables.set('customOpenLevelDiscountItemID', data.lineItems[0].id)",
+													"",
+													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
+													"    pm.environment.set(\"cart-id\", data.results[0].id); ",
+													"    pm.environment.set(\"cart-version\", data.results[0].version);",
+													"}",
+													"if(data.results && data.results[0] && data.results[0].key){",
+													"    pm.environment.set(\"cart-key\", data.results[0].key); ",
+													"}",
+													"if(data.version){",
+													"    pm.environment.set(\"cart-version\", data.version);",
+													"}",
+													"if(data.id){",
+													"    pm.environment.set(\"cart-id\", data.id); ",
+													"}",
+													"if(data.key){",
+													"    pm.environment.set(\"cart-key\", data.key);",
+													"}",
+													"",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "oauth2",
+											"oauth2": [
+												{
+													"key": "accessToken",
+													"value": "{{ctp_access_token}}",
+													"type": "string"
+												},
+												{
+													"key": "addTokenTo",
+													"value": "header",
+													"type": "string"
+												},
+												{
+													"key": "tokenType",
+													"value": "Bearer",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"currency\" : \"GBP\",\n  \"lineItems\": [\n      {\n          \"sku\": \"245872\",\n          \"quantity\": 1\n      }\n  ]\n}"
+										},
+										"url": {
+											"raw": "{{host}}/{{project-key}}/carts",
+											"host": [
+												"{{host}}"
+											],
+											"path": [
+												"{{project-key}}",
+												"carts"
+											],
+											"query": [
+												{
+													"key": "expand",
+													"value": "",
+													"disabled": true
+												}
+											]
+										},
+										"description": "Creating a Cart fails with an [InvalidOperation](ctp:api:type:InvalidOperationError) error if the\n[ShippingMethod](ctp:api:type:ShippingMethod) referenced in the CartDraft\nhas a `predicate` that does not match the Cart.\n"
+									},
+									"response": []
+								},
+								{
+									"name": "Update Cart: Remove open item level discount",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var data = JSON.parse(responseBody);",
+													"",
+													"pm.test('Check status code', () => {",
+													"    pm.expect(pm.response.code).to.be.oneOf([200, 201])",
+													"})",
+													"",
+													"pm.test(\"Discount has been removed from 'appliedDiscounts'\", function () {",
+													"    pm.expect(data.custom.fields.appliedDiscounts.some(discount => discount.includes('Item Level Discount'))).to.be.false;",
+													"});",
+													"",
+													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
+													"    pm.environment.set(\"cart-id\", data.results[0].id); ",
+													"    pm.environment.set(\"cart-version\", data.results[0].version);",
+													"}",
+													"if(data.results && data.results[0] && data.results[0].key){",
+													"    pm.environment.set(\"cart-key\", data.results[0].key); ",
+													"}",
+													"if(data.version){",
+													"    pm.environment.set(\"cart-version\", data.version);",
+													"}",
+													"if(data.id){",
+													"    pm.environment.set(\"cart-id\", data.id); ",
+													"}",
+													"if(data.key){",
+													"    pm.environment.set(\"cart-key\", data.key);",
+													"}",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "oauth2",
+											"oauth2": [
+												{
+													"key": "accessToken",
+													"value": "{{ctp_access_token}}",
+													"type": "string"
+												},
+												{
+													"key": "addTokenTo",
+													"value": "header",
+													"type": "string"
+												},
+												{
+													"key": "tokenType",
+													"value": "Bearer",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"version\": {{cart-version}},\n    \"actions\": [\n        {\n            \"action\" : \"changeLineItemQuantity\",\n            \"lineItemId\" : \"{{customOpenLevelDiscountItemID}}\",\n            \"quantity\" : 0\n          }\n    ]\n}"
+										},
+										"url": {
+											"raw": "{{host}}/{{project-key}}/carts/{{cart-id}}",
+											"host": [
+												"{{host}}"
+											],
+											"path": [
+												"{{project-key}}",
+												"carts",
+												"{{cart-id}}"
+											],
+											"query": [
+												{
+													"key": "expand",
+													"value": "",
+													"disabled": true
+												}
+											]
+										},
+										"description": "post Carts"
+									},
+									"response": []
+								},
+								{
+									"name": "Delete Cart",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"tests[\"Status code \" + responseCode.code] = responseCode.code === 200 || responseCode.code === 201;",
+													"var data = JSON.parse(responseBody);",
+													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
+													"    pm.environment.set(\"cart-id\", data.results[0].id); ",
+													"    pm.environment.set(\"cart-version\", data.results[0].version);",
+													"}",
+													"if(data.results && data.results[0] && data.results[0].key){",
+													"    pm.environment.set(\"cart-key\", data.results[0].key); ",
+													"}",
+													"if(data.version){",
+													"    pm.environment.set(\"cart-version\", data.version);",
+													"}",
+													"if(data.id){",
+													"    pm.environment.set(\"cart-id\", data.id); ",
+													"}",
+													"if(data.key){",
+													"    pm.environment.set(\"cart-key\", data.key);",
+													"}",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "oauth2",
+											"oauth2": [
+												{
+													"key": "accessToken",
+													"value": "{{ctp_access_token}}",
+													"type": "string"
+												},
+												{
+													"key": "addTokenTo",
+													"value": "header",
+													"type": "string"
+												},
+												{
+													"key": "tokenType",
+													"value": "Bearer",
+													"type": "string"
+												}
+											]
+										},
+										"method": "DELETE",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{host}}/{{project-key}}/carts/{{cart-id}}?version={{cart-version}}",
+											"host": [
+												"{{host}}"
+											],
+											"path": [
+												"{{project-key}}",
+												"carts",
+												"{{cart-id}}"
+											],
+											"query": [
+												{
+													"key": "dataErasure",
+													"value": "",
+													"disabled": true
+												},
+												{
+													"key": "expand",
+													"value": "",
+													"disabled": true
+												},
+												{
+													"key": "version",
+													"value": "{{cart-version}}"
+												}
+											]
+										},
+										"description": "null"
+									},
+									"response": []
+								}
+							],
+							"description": "## Discount information\n\n- Campaignid: 1653871.\n    \n- Campaign name: Open Item Level Discount (UPC: 245872).\n    \n- Campaign type: Discount Products.\n    \n- Reward type: £1 off UPC: 245872.\n    \n\n## Discount product:\n\n1. White Wine, SKU: 245872, Pricing: £63.83"
+						},
+						{
+							"name": "Targeted item level discount",
+							"item": [
+								{
+									"name": "Obtain access token",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"type": "text/javascript",
+												"exec": [
+													"tests[\"Status code is 200\"] = responseCode.code === 200;",
+													"var data = JSON.parse(responseBody);",
+													"if(data.access_token){",
+													"    pm.environment.set(\"ctp_access_token\", data.access_token);",
+													"}",
+													"if (data.scope) {",
+													"    parts = data.scope.split(\" \");",
+													"    parts = parts.filter(scope => scope.includes(\":\")).map(scope => scope.split(\":\"))",
+													"    if (parts.length > 0) {",
+													"        scopeParts = parts[0];",
+													"        pm.environment.set(\"project-key\", scopeParts[1]);",
+													"        parts = parts.filter(scope => scope.length >= 3)",
+													"        if (parts.length > 0) {",
+													"            scopeParts = parts[0];",
+													"            pm.environment.set(\"store-key\", scopeParts[2]);",
+													"        }",
+													"    }",
+													"}"
+												]
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "basic",
+											"basic": [
+												{
+													"key": "username",
+													"value": "{{client_id}}",
+													"type": "string"
+												},
+												{
+													"key": "password",
+													"value": "{{client_secret}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{auth_url}}/oauth/token?grant_type=client_credentials",
+											"host": [
+												"{{auth_url}}"
+											],
+											"path": [
+												"oauth",
+												"token"
+											],
+											"query": [
+												{
+													"key": "grant_type",
+													"value": "client_credentials"
+												}
+											]
+										},
+										"description": "Use this request to obtain an access token for your commercetools platform project via Client Credentials Flow. As a prerequisite you must have filled out environment variables in Postman for projectKey, client_id and client_secret to use this."
+									},
+									"response": []
+								},
+								{
+									"name": "Create Cart: Targeted item level discount",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var data = JSON.parse(responseBody);",
+													"",
+													"pm.test('Check status code', () => {",
+													"    pm.expect(pm.response.code).to.be.oneOf([200, 201])",
+													"})",
+													"",
+													"pm.test(\"Discount is added to 'appliedDiscounts'\", function () {",
+													"    pm.expect(data.custom.fields.appliedDiscounts.some(discount => discount.includes('Targeted Item'))).to.be.true;",
+													"});",
+													"",
+													"pm.collectionVariables.set('customTargetedBasketDiscountItemID', data.lineItems[0].id)",
+													"",
+													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
+													"    pm.environment.set(\"cart-id\", data.results[0].id); ",
+													"    pm.environment.set(\"cart-version\", data.results[0].version);",
+													"}",
+													"if(data.results && data.results[0] && data.results[0].key){",
+													"    pm.environment.set(\"cart-key\", data.results[0].key); ",
+													"}",
+													"if(data.version){",
+													"    pm.environment.set(\"cart-version\", data.version);",
+													"}",
+													"if(data.id){",
+													"    pm.environment.set(\"cart-id\", data.id); ",
+													"}",
+													"if(data.key){",
+													"    pm.environment.set(\"cart-key\", data.key);",
+													"}",
+													"",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "oauth2",
+											"oauth2": [
+												{
+													"key": "accessToken",
+													"value": "{{ctp_access_token}}",
+													"type": "string"
+												},
+												{
+													"key": "addTokenTo",
+													"value": "header",
+													"type": "string"
+												},
+												{
+													"key": "tokenType",
+													"value": "Bearer",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"currency\" : \"GBP\",\n  \"lineItems\": [\n      {\n          \"sku\": \"245871\",\n          \"quantity\": 1\n      },\n      {\n          \"sku\": \"245872\",\n          \"quantity\": 1\n      },\n      {\n          \"sku\": \"245873\",\n          \"quantity\": 1\n      }\n  ],\n  \"customerEmail\": \"john.toe2@example.org\"\n}"
+										},
+										"url": {
+											"raw": "{{host}}/{{project-key}}/carts",
+											"host": [
+												"{{host}}"
+											],
+											"path": [
+												"{{project-key}}",
+												"carts"
+											],
+											"query": [
+												{
+													"key": "expand",
+													"value": "",
+													"disabled": true
+												}
+											]
+										},
+										"description": "Creating a Cart fails with an [InvalidOperation](ctp:api:type:InvalidOperationError) error if the\n[ShippingMethod](ctp:api:type:ShippingMethod) referenced in the CartDraft\nhas a `predicate` that does not match the Cart.\n"
+									},
+									"response": []
+								},
+								{
+									"name": "Update Cart: Remove targeted item level discount",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var data = JSON.parse(responseBody);",
+													"",
+													"pm.test('Check status code', () => {",
+													"    pm.expect(pm.response.code).to.be.oneOf([200, 201])",
+													"})",
+													"",
+													"pm.test(\"Discount has been removed from 'appliedDiscounts'\", function () {",
+													"    pm.expect(data.custom.fields.appliedDiscounts.some(discount => discount.includes('Targeted Item'))).to.be.false;",
+													"});",
+													"",
+													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
+													"    pm.environment.set(\"cart-id\", data.results[0].id); ",
+													"    pm.environment.set(\"cart-version\", data.results[0].version);",
+													"}",
+													"if(data.results && data.results[0] && data.results[0].key){",
+													"    pm.environment.set(\"cart-key\", data.results[0].key); ",
+													"}",
+													"if(data.version){",
+													"    pm.environment.set(\"cart-version\", data.version);",
+													"}",
+													"if(data.id){",
+													"    pm.environment.set(\"cart-id\", data.id); ",
+													"}",
+													"if(data.key){",
+													"    pm.environment.set(\"cart-key\", data.key);",
+													"}",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "oauth2",
+											"oauth2": [
+												{
+													"key": "accessToken",
+													"value": "{{ctp_access_token}}",
+													"type": "string"
+												},
+												{
+													"key": "addTokenTo",
+													"value": "header",
+													"type": "string"
+												},
+												{
+													"key": "tokenType",
+													"value": "Bearer",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"version\": {{cart-version}},\n    \"actions\": [\n        {\n            \"action\" : \"setCustomerEmail\",\n            \"customerEmail\": \"john.nottargeted@example.org\"\n          }\n    ]\n}"
+										},
+										"url": {
+											"raw": "{{host}}/{{project-key}}/carts/{{cart-id}}",
+											"host": [
+												"{{host}}"
+											],
+											"path": [
+												"{{project-key}}",
+												"carts",
+												"{{cart-id}}"
+											],
+											"query": [
+												{
+													"key": "expand",
+													"value": "",
+													"disabled": true
+												}
+											]
+										},
+										"description": "post Carts"
+									},
+									"response": []
+								},
+								{
+									"name": "Delete Cart",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"tests[\"Status code \" + responseCode.code] = responseCode.code === 200 || responseCode.code === 201;",
+													"var data = JSON.parse(responseBody);",
+													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
+													"    pm.environment.set(\"cart-id\", data.results[0].id); ",
+													"    pm.environment.set(\"cart-version\", data.results[0].version);",
+													"}",
+													"if(data.results && data.results[0] && data.results[0].key){",
+													"    pm.environment.set(\"cart-key\", data.results[0].key); ",
+													"}",
+													"if(data.version){",
+													"    pm.environment.set(\"cart-version\", data.version);",
+													"}",
+													"if(data.id){",
+													"    pm.environment.set(\"cart-id\", data.id); ",
+													"}",
+													"if(data.key){",
+													"    pm.environment.set(\"cart-key\", data.key);",
+													"}",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "oauth2",
+											"oauth2": [
+												{
+													"key": "accessToken",
+													"value": "{{ctp_access_token}}",
+													"type": "string"
+												},
+												{
+													"key": "addTokenTo",
+													"value": "header",
+													"type": "string"
+												},
+												{
+													"key": "tokenType",
+													"value": "Bearer",
+													"type": "string"
+												}
+											]
+										},
+										"method": "DELETE",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{host}}/{{project-key}}/carts/{{cart-id}}?version={{cart-version}}",
+											"host": [
+												"{{host}}"
+											],
+											"path": [
+												"{{project-key}}",
+												"carts",
+												"{{cart-id}}"
+											],
+											"query": [
+												{
+													"key": "dataErasure",
+													"value": "",
+													"disabled": true
+												},
+												{
+													"key": "expand",
+													"value": "",
+													"disabled": true
+												},
+												{
+													"key": "version",
+													"value": "{{cart-version}}"
+												}
+											]
+										},
+										"description": "null"
+									},
+									"response": []
+								}
+							],
+							"description": "## Targeted Customer:\n\n1. Email: [john.toe1@example.org](https://mailto:john.toe1@example.org)"
+						}
+					]
+				}
+			],
+			"description": "As a retailer, when a customer no longer meets the qualifying criteria for a basket or item level offer, that discount must be removed from their basket so that they are not getting discounts to which they are no longer entitled."
 		}
 	],
 	"auth": {
@@ -3045,5 +4501,27 @@
 				"type": "string"
 			}
 		]
-	}
+	},
+	"variable": [
+		{
+			"key": "customOpenLevelDiscountItemID",
+			"value": ""
+		},
+		{
+			"key": "customItemLevelDiscountItemID",
+			"value": ""
+		},
+		{
+			"key": "customBasketLevelDiscountItemID",
+			"value": ""
+		},
+		{
+			"key": "customTargetedBasketDiscountItemID",
+			"value": ""
+		},
+		{
+			"key": "customOpenBasketDiscountItemID",
+			"value": ""
+		}
+	]
 }
