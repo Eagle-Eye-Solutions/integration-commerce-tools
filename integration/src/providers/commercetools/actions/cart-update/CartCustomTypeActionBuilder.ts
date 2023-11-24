@@ -1,7 +1,9 @@
 import {
   OrderSetCustomTypeAction,
   OrderUpdateAction,
-} from '@commercetools/platform-sdk/dist/declarations/src/generated/models/order';
+  BaseResource,
+  TypeReference,
+} from '@commercetools/platform-sdk';
 
 export type CustomFieldError = {
   type: string;
@@ -20,17 +22,39 @@ export class CartCustomTypeActionBuilder {
     action: 'setCustomType',
     type: {
       typeId: 'type',
-      key: 'eagleEye',
+      key: 'custom-cart-type',
     },
     fields: {
-      errors: errors.map((error) => JSON.stringify(error)),
-      appliedDiscounts: extractDescriptions(appliedDiscounts),
+      'eagleeye-errors': errors.map((error) => JSON.stringify(error)),
+      'eagleeye-appliedDiscounts': extractDescriptions(appliedDiscounts),
     },
   });
+
+  static setCustomFields = (
+    errors: CustomFieldError[],
+    appliedDiscounts: DiscountDescription[] = [],
+  ): OrderUpdateAction[] => [
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-errors',
+      value: errors.map((error) => JSON.stringify(error)),
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-appliedDiscounts',
+      value: extractDescriptions(appliedDiscounts),
+    },
+  ];
 
   static removeCustomType = (): OrderSetCustomTypeAction => ({
     action: 'setCustomType',
   });
+
+  static checkResourceCustomType = (
+    resource: BaseResource,
+  ): TypeReference | undefined => {
+    return (resource as any).custom?.type;
+  };
 }
 
 function extractDescriptions(arr: DiscountDescription[]): string[] {
