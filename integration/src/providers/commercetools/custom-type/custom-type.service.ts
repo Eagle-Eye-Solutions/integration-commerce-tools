@@ -14,16 +14,28 @@ export class CustomTypeService {
   async create(typeDefinition: TypeDraft): Promise<Type> {
     const ctClient = this.commercetools.getApiRoot();
 
-    const getType = await ctClient
-      .types()
-      .withKey({ key: typeDefinition.key })
-      .get()
-      .execute();
-    if (getType?.body?.key) {
-      this.logger.log(
-        `Ignoring creation of type '${typeDefinition.key}' as already exists in commercetools`,
-      );
-      return;
+    try {
+      const getType = await ctClient
+        .types()
+        .withKey({ key: typeDefinition.key })
+        .get()
+        .execute();
+      if (getType?.body?.key) {
+        this.logger.log(
+          `Ignoring creation of type '${typeDefinition.key}' as already exists in commercetools`,
+        );
+        return;
+      }
+    } catch (e) {
+      if (e?.code === 404) {
+        this.logger.log(`Type '${typeDefinition.key}' not found creating...`);
+      } else {
+        this.logger.error({
+          message: `Error getting type with key ${typeDefinition.key}`,
+          e,
+        });
+        throw e;
+      }
     }
 
     const response = await ctClient

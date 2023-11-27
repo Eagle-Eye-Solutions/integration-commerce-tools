@@ -195,6 +195,19 @@ describe('CTCartToEEBasketMapper', () => {
   });
 
   test('mapCartToWalletOpenPayload should return the payload for /wallet/open', async () => {
+    jest
+      .spyOn(configService, 'get')
+      .mockReturnValueOnce('outlet1')
+      .mockReturnValueOnce('banner1');
+
+    const payload = await service.mapCartToWalletOpenPayload(cart);
+
+    expect(payload).toMatchSnapshot();
+  });
+
+  test('mapCartToWalletOpenPayload should return the payload for /wallet/open, without the optional parentIncomingIdentifier when not set in the configuration', async () => {
+    jest.spyOn(configService, 'get').mockReturnValueOnce('outlet1');
+
     const payload = await service.mapCartToWalletOpenPayload(cart);
 
     expect(payload).toMatchSnapshot();

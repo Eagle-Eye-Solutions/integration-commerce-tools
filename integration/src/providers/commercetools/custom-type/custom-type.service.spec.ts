@@ -65,6 +65,49 @@ describe('CustomTypeService', () => {
     expect(postExecuteMock).toHaveBeenCalled();
   });
 
+  it('should create cart type when get type throws error with 404 response code', async () => {
+    const typeDefinition: TypeDraft = {
+      resourceTypeIds: [],
+      key: 'cartType',
+      name: { en: 'Cart Type' },
+      description: { en: 'Description' },
+      fieldDefinitions: [],
+    };
+
+    getExecuteMock.mockRejectedValue({ code: 404 });
+    postExecuteMock.mockResolvedValue({
+      statusCode: 201,
+      body: typeDefinition,
+    });
+
+    const result = await service.create(typeDefinition);
+
+    expect(result).toEqual(typeDefinition);
+    expect(getExecuteMock).toHaveBeenCalled();
+    expect(postExecuteMock).toHaveBeenCalled();
+  });
+
+  it('should throw error and not create any type when get type fails with non-404 error', async () => {
+    const typeDefinition: TypeDraft = {
+      resourceTypeIds: [],
+      key: 'cartType',
+      name: { en: 'Cart Type' },
+      description: { en: 'Description' },
+      fieldDefinitions: [],
+    };
+
+    getExecuteMock.mockRejectedValue({ code: 401 });
+    postExecuteMock.mockResolvedValue({
+      statusCode: 201,
+      body: typeDefinition,
+    });
+
+    await expect(service.create(typeDefinition)).rejects.toEqual({ code: 401 });
+
+    expect(getExecuteMock).toHaveBeenCalled();
+    expect(postExecuteMock).not.toHaveBeenCalled();
+  });
+
   it('should not create cart type when already exists', async () => {
     const typeDefinition: TypeDraft = {
       resourceTypeIds: [],

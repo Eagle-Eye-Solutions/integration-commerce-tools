@@ -31,6 +31,12 @@ deployAs:
         - key: CONFIG_OVERRIDE
           description: Stringified and escaped JSON to override all integration configurations
           required: false
+        - key: EE_INCOMING_IDENTIFIER
+          description: EagleEye Outlet Incoming Identifier
+          required: true
+        - key: EE_PARENT_INCOMING_IDENTIFIER
+          description: EagleEye Outlet Parent unit Incoming Identifier
+          required: false
       securedConfiguration:
         - key: CTP_CLIENT_ID
           description: client_id of an API Client for the commercetools Composable Commerce Project
