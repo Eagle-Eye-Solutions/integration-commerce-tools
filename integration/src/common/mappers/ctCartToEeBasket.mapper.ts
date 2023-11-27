@@ -196,6 +196,12 @@ export class CTCartToEEBasketMapper {
     if (shippingDiscountItem.upc) {
       basketContents.push(shippingDiscountItem);
     }
+    const incomingIdentifier = this.configService.get(
+      'eagleEye.incomingIdentifier',
+    );
+    const parentIncomingIdentifier = this.configService.get(
+      'eagleEye.parentIncomingIdentifier',
+    );
 
     return {
       reference: cart.id,
@@ -204,14 +210,11 @@ export class CTCartToEEBasketMapper {
             identityValue: identities[0].value,
           }
         : undefined,
-      // TODO: check in which cases this may need to be true and if configuration is required.
-      lock: false,
-      // TODO: check if this needs to be customizable by the merchant.
+      lock: true,
       location: {
-        incomingIdentifier: 'outlet1',
-        parentIncomingIdentifier: 'banner1',
+        incomingIdentifier,
+        ...(parentIncomingIdentifier && { parentIncomingIdentifier }),
       },
-      // TODO: check if configuration to enable/disable open offers is needed.
       options: {
         adjustBasket: {
           includeOpenOffers: true,

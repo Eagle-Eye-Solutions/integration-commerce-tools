@@ -16,7 +16,7 @@ export class OrderCustomTypeCommand extends CommandRunner {
 
   async run(): Promise<void> {
     try {
-      console.log(
+      this.logger.log(
         `Creating/Updating order custom type with key: ${ORDER_CUSTOM_FIELDS.key}`,
       );
       await this.customTypeService.create(ORDER_CUSTOM_FIELDS);

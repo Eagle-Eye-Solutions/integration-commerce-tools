@@ -29,7 +29,7 @@ export const nockWalletOpen = async (
   })
     .post('/connect/wallet/open', {
       reference: cart.id,
-      lock: false,
+      lock: true,
       location: {
         incomingIdentifier: 'outlet1',
         parentIncomingIdentifier: 'banner1',
