@@ -114,7 +114,7 @@ export class CustomTypeService {
         throw new Error(errorMsg);
       }
 
-      this.logger.debug({
+      this.logger.log({
         msg: `Type with key "${typeUpdate.key}" updated`,
         type: response.body,
       });
