@@ -40,7 +40,11 @@ describe('AppService', () => {
   it('should handle extension request', async () => {
     const body: ExtensionInput = {
       action: 'Create',
-      resource: { typeId: 'cart', id: '123' },
+      resource: {
+        typeId: 'cart',
+        id: '123',
+        obj: {} as any,
+      },
     };
     const discountDrafts = [
       {
@@ -113,11 +117,13 @@ describe('AppService', () => {
         {
           action: 'setCustomType',
           fields: {
-            errors: [],
-            appliedDiscounts: discountDescriptions.map((d) => d.description),
+            'eagleeye-errors': [],
+            'eagleeye-appliedDiscounts': discountDescriptions.map(
+              (d) => d.description,
+            ),
           },
           type: {
-            key: 'eagleEye',
+            key: 'custom-cart-type',
             typeId: 'type',
           },
         },
@@ -135,7 +141,7 @@ describe('AppService', () => {
   it('should return EE_API_UNAVAILABLE error in the cart custom type when the API request to EagleEye fails', async () => {
     const body: ExtensionInput = {
       action: 'Update',
-      resource: { typeId: 'cart', id: '123' },
+      resource: { typeId: 'cart', id: '123', obj: {} as any },
     };
     const error = new EagleEyeApiException(
       'EE_API_UNAVAILABLE',
@@ -148,13 +154,13 @@ describe('AppService', () => {
         {
           action: 'setCustomType',
           fields: {
-            errors: [
+            'eagleeye-errors': [
               '{"type":"EE_API_UNAVAILABLE","message":"The eagle eye API is unavailable, the cart promotions and loyalty points are NOT updated"}',
             ],
-            appliedDiscounts: [],
+            'eagleeye-appliedDiscounts': [],
           },
           type: {
-            key: 'eagleEye',
+            key: 'custom-cart-type',
             typeId: 'type',
           },
         },
@@ -176,7 +182,7 @@ describe('AppService', () => {
   it('should return EE_API_CIRCUIT_OPEN error in the cart custom type when the circuit breaker is open', async () => {
     const body: ExtensionInput = {
       action: 'Update',
-      resource: { typeId: 'cart', id: '123' },
+      resource: { typeId: 'cart', id: '123', obj: {} as any },
     };
     const error = new CircuitBreakerError('EOPENBREAKER');
     jest.spyOn(promotionService, 'getDiscounts').mockRejectedValue(error);
@@ -187,13 +193,13 @@ describe('AppService', () => {
         {
           action: 'setCustomType',
           fields: {
-            errors: [
+            'eagleeye-errors': [
               '{"type":"EE_API_CIRCUIT_OPEN","message":"The eagle eye API is unavailable, the cart promotions and loyalty points are NOT updated"}',
             ],
-            appliedDiscounts: [],
+            'eagleeye-appliedDiscounts': [],
           },
           type: {
-            key: 'eagleEye',
+            key: 'custom-cart-type',
             typeId: 'type',
           },
         },
@@ -208,7 +214,7 @@ describe('AppService', () => {
   it('should return EE_API_GENERIC_ERROR error in the cart custom type when any other error is thrown', async () => {
     const body: ExtensionInput = {
       action: 'Update',
-      resource: { typeId: 'cart', id: '123' },
+      resource: { typeId: 'cart', id: '123', obj: {} as any },
     };
     const error = new Error('SOME_OTHER_ERROR');
     jest.spyOn(promotionService, 'getDiscounts').mockRejectedValue(error);
@@ -219,13 +225,13 @@ describe('AppService', () => {
         {
           action: 'setCustomType',
           fields: {
-            errors: [
+            'eagleeye-errors': [
               '{"type":"EE_API_GENERIC_ERROR","message":"The eagle eye API is unavailable, the cart promotions and loyalty points are NOT updated"}',
             ],
-            appliedDiscounts: [],
+            'eagleeye-appliedDiscounts': [],
           },
           type: {
-            key: 'eagleEye',
+            key: 'custom-cart-type',
             typeId: 'type',
           },
         },
@@ -240,7 +246,7 @@ describe('AppService', () => {
   it('should  return an empty action array if the request body is for an unsupported CT resource type', async () => {
     const body: ExtensionInput = {
       action: 'Update',
-      resource: { typeId: 'product-type', id: '123' }, //invalid product-type
+      resource: { typeId: 'product-type', id: '123', obj: {} as any }, //invalid product-type
     };
     const response = await service.handleExtensionRequest(body);
     expect(response).toEqual({ actions: [] });

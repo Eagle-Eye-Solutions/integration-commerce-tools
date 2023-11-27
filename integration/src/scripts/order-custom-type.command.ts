@@ -17,10 +17,10 @@ export class OrderCustomTypeCommand extends CommandRunner {
   async run(): Promise<void> {
     try {
       this.logger.log(
-        `Creating order custom type with key: ${ORDER_CUSTOM_FIELDS.key}`,
+        `Creating/Updating order custom type with key: ${ORDER_CUSTOM_FIELDS.key}`,
       );
       await this.customTypeService.create(ORDER_CUSTOM_FIELDS);
-      this.logger.log('Created order custom type in commercetools');
+      this.logger.log('Created/Updated order custom type in commercetools');
     } catch (e) {
       this.logger.error(
         'Error creating Order custom types in commercetools',
