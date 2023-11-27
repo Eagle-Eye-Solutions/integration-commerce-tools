@@ -194,6 +194,13 @@ describe('CTCartToEEBasketMapper', () => {
     expect(directDiscounts).toMatchSnapshot();
   });
 
+  test('mapVoucherCodesToCampaignTokens should return an array of tokens to be examined', async () => {
+    const voucherCodes = ['12345678'];
+    const payload = await service.mapVoucherCodesToCampaignTokens(voucherCodes);
+
+    expect(payload).toMatchSnapshot();
+  });
+
   test('mapCartToWalletOpenPayload should return the payload for /wallet/open', async () => {
     jest
       .spyOn(configService, 'get')
@@ -201,6 +208,30 @@ describe('CTCartToEEBasketMapper', () => {
       .mockReturnValueOnce('banner1');
 
     const payload = await service.mapCartToWalletOpenPayload(cart);
+
+    expect(payload).toMatchSnapshot();
+  });
+
+  test('mapCartToWalletOpenPayload should include voucher codes (tokens) if present in the cart', async () => {
+    jest
+      .spyOn(configService, 'get')
+      .mockReturnValueOnce('outlet1')
+      .mockReturnValueOnce('banner1');
+
+    const cartWithCodes = {
+      ...cart,
+      custom: {
+        type: {
+          typeId: 'type',
+          id: '123456',
+        },
+        fields: {
+          'eagleeye-voucherCodes': ['12345678'],
+        },
+      },
+    };
+
+    const payload = await service.mapCartToWalletOpenPayload(cartWithCodes);
 
     expect(payload).toMatchSnapshot();
   });

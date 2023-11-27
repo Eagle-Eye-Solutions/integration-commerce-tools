@@ -60,6 +60,59 @@ exports[`CTCartToEEBasketMapper mapCartLineItemsToBasketContent should return th
 ]
 `;
 
+exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should include voucher codes (tokens) if present in the cart 1`] = `
+{
+  "basket": {
+    "contents": [
+      {
+        "description": "Example Product",
+        "itemUnitCost": 300,
+        "itemUnitCount": undefined,
+        "itemUnitMetric": "EACH",
+        "salesKey": "SALE",
+        "totalUnitCost": 300,
+        "totalUnitCostAfterDiscount": 300,
+        "upc": "SKU123",
+      },
+    ],
+    "summary": {
+      "redemptionChannel": "Online",
+      "totalBasketValue": 300,
+      "totalDiscountAmount": {
+        "general": null,
+        "promotions": 0,
+        "staff": null,
+      },
+      "totalItems": 1,
+    },
+    "type": "STANDARD",
+  },
+  "examine": [
+    {
+      "type": "TOKEN",
+      "value": "12345678",
+    },
+  ],
+  "identity": undefined,
+  "location": {
+    "incomingIdentifier": "outlet1",
+    "parentIncomingIdentifier": "banner1",
+  },
+  "lock": true,
+  "options": {
+    "adjustBasket": {
+      "enabled": true,
+      "includeOpenOffers": true,
+    },
+    "analyseBasket": {
+      "enabled": true,
+      "includeOpenOffers": true,
+    },
+  },
+  "reference": undefined,
+}
+`;
+
 exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should return the payload for /wallet/open 1`] = `
 {
   "basket": {
@@ -87,6 +140,7 @@ exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should return the pay
     },
     "type": "STANDARD",
   },
+  "examine": undefined,
   "identity": undefined,
   "location": {
     "incomingIdentifier": "outlet1",
@@ -134,6 +188,7 @@ exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should return the pay
     },
     "type": "STANDARD",
   },
+  "examine": undefined,
   "identity": undefined,
   "location": {
     "incomingIdentifier": "outlet1",
@@ -164,4 +219,13 @@ exports[`CTCartToEEBasketMapper mapShippingMethodSkusToBasketItems should return
   "totalUnitCostAfterDiscount": 300,
   "upc": "245879",
 }
+`;
+
+exports[`CTCartToEEBasketMapper mapVoucherCodesToCampaignTokens should return an array of tokens to be examined 1`] = `
+[
+  {
+    "type": "TOKEN",
+    "value": "12345678",
+  },
+]
 `;

@@ -34,6 +34,12 @@ export const nockWalletOpen = async (
         incomingIdentifier: 'outlet1',
         parentIncomingIdentifier: 'banner1',
       },
+      examine: [
+        {
+          type: 'TOKEN',
+          value: '123456',
+        },
+      ],
       options: {
         adjustBasket: {
           includeOpenOffers: true,
@@ -82,7 +88,10 @@ export const nockWalletOpen = async (
               },
               totalItems: cart.lineItems.length,
               totalBasketValue: cart.totalPrice.centAmount,
-              adjustmentResults: [{ value: 200 }],
+              adjustmentResults: [
+                { value: 200 },
+                { value: 500 }, // Voucher code "123456", 5 pounds off 50 (Basket)
+              ],
             },
             contents: [
               {

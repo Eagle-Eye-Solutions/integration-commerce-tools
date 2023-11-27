@@ -1,7 +1,7 @@
 import { TypeDraft } from '@commercetools/platform-sdk';
 
 export const ORDER_CUSTOM_FIELDS: TypeDraft = {
-  key: 'eagleEye',
+  key: 'custom-cart-type',
   name: {
     en: 'Eagle Eye',
   },

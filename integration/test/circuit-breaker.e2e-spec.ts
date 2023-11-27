@@ -53,6 +53,22 @@ const NO_ERRORS = {
             type: 'absolute',
             money: [
               {
+                centAmount: 500,
+                currencyCode: 'GBP',
+                type: 'centPrecision',
+                fractionDigits: 2,
+              },
+            ],
+          },
+          target: {
+            type: 'totalPrice',
+          },
+        },
+        {
+          value: {
+            type: 'absolute',
+            money: [
+              {
                 centAmount: 100,
                 currencyCode: 'GBP',
                 type: 'centPrecision',
