@@ -21,7 +21,7 @@ export class AppService {
   async handleExtensionRequest(body: ExtensionInput): Promise<{
     actions: ActionsSupported[];
   }> {
-    this.logger.log({ message: 'Received body: ', body });
+    this.logger.log('Received body: ', body);
     const actionBuilder = new CTActionsBuilder();
     //todo move logic to guard
     if (body?.resource?.typeId !== 'cart') {

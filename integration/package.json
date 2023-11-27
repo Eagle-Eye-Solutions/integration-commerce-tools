@@ -30,9 +30,9 @@
     "connector:pre-undeploy": "node dist/src/scripts/pre-undeploy.js"
   },
   "dependencies": {
+    "@commercetools-backend/loggers": "^22.13.0",
     "@commercetools/platform-sdk": "^6.0.0",
     "@commercetools/sdk-client-v2": "^2.2.0",
-    "@google-cloud/logging-winston": "^6.0.0",
     "@nestjs/axios": "^3.0.1",
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^3.1.1",

@@ -2,18 +2,11 @@ import { utilities as nestWinstonModuleUtilities } from 'nest-winston';
 import * as winston from 'winston';
 import { format, transports } from 'winston';
 import { APP_NAME } from '../common/constants/constants';
-import { LoggingWinston } from '@google-cloud/logging-winston';
-import { version } from '../../package.json';
+import { createApplicationLogger } from '@commercetools-backend/loggers';
+import * as Transport from 'winston-transport';
+// import { version } from '../../package.json';
 
-const loggingWinstonGCP = new LoggingWinston({
-  // level: 'DEBUG',
-  serviceContext: {
-    service: APP_NAME,
-    version,
-  },
-});
-
-export const loggerConfig = {
+export const loggerConfig: { transports: Transport[] } = {
   transports: [
     ['dev', 'test'].includes(process.env.NODE_ENV)
       ? new transports.Console({
@@ -27,6 +20,6 @@ export const loggerConfig = {
             }),
           ),
         })
-      : loggingWinstonGCP,
+      : createApplicationLogger(),
   ],
 };
