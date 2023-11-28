@@ -5,10 +5,10 @@ import { Commercetools } from '../../../src/providers/commercetools/commercetool
 import { ScriptConfigService } from '../../../src/config/configuration';
 
 export const nockWalletOpen = async (
+  cart,
   times = 1,
   responseCode = 200,
   delayConnection = 0,
-  cart,
 ) => {
   const configService = new ScriptConfigService();
   const commercetools = new Commercetools(configService as any);

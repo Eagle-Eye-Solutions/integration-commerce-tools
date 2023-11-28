@@ -28,7 +28,7 @@ export class CommercetoolsCircuitBreakerStateService
         CUSTOM_OBJECT_CIRCUIT_BREAKER_KEY,
       );
       this.logger.log('Retrieved circuit breaker state');
-      this.logger.debug('Circuit breaker state', value);
+      this.logger.debug({ message: 'Circuit breaker state', value });
       return value as any as CircuitBreakerInfo;
     } catch (e) {
       if (e.code === 404) {

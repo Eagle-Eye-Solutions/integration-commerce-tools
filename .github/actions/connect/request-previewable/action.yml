@@ -40,4 +40,4 @@ runs:
         expectStatus: 200
         expectBodyRegex: \"isPreviewable\":\"true\"
         timeout: 900000
-        interval: 180000
+        interval: 15000

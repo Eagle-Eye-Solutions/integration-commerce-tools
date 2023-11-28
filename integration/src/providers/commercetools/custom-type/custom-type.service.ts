@@ -3,8 +3,8 @@ import { Commercetools } from '../commercetools.provider';
 import {
   Type,
   TypeDraft,
-  TypeUpdateAction,
   TypeUpdate,
+  TypeUpdateAction,
 } from '@commercetools/platform-sdk';
 
 @Injectable()
@@ -46,10 +46,9 @@ export class CustomTypeService {
         });
         throw new Error(errorMsg);
       }
-
       this.logger.debug({
-        msg: `Type with key "${typeDefinition.key}" created`,
-        type: response.body,
+        message: `Type with key "${typeDefinition.key}" created`,
+        body: response.body,
       });
 
       return response.body;

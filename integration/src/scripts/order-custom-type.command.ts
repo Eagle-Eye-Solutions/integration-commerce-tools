@@ -5,7 +5,7 @@ import { Command, CommandRunner } from 'nest-commander';
 
 @Command({
   name: 'order-custom-type-create',
-  description: 'Creates the required cart custom type in commercetools',
+  description: 'Creates the required order custom type in commercetools',
 })
 export class OrderCustomTypeCommand extends CommandRunner {
   private readonly logger = new Logger(OrderCustomTypeCommand.name);

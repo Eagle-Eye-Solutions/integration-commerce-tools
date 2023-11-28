@@ -1,6 +1,6 @@
-import { LoggerService } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 
-export class MockLogger implements LoggerService {
+export class MockLogger extends Logger {
   private logs: string[] = [];
 
   log(message: string) {

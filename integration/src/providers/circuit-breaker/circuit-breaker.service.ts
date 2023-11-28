@@ -11,9 +11,8 @@ import { CIRCUIT_BREAKER_STATE_SERVICE_PROVIDER } from './interfaces/circuit-bre
 
 @Injectable()
 export class CircuitBreakerService implements OnModuleInit {
-  private readonly logger = new Logger(CircuitBreakerService.name);
-
   private circuit: CircuitBreaker;
+  private readonly logger = new Logger(CircuitBreakerService.name);
 
   constructor(
     @Inject(BREAKABLE_API) private readonly breakableApi: BreakableApi,
@@ -106,8 +105,9 @@ export class CircuitBreakerService implements OnModuleInit {
 
   async saveState() {
     const circuitState = this.circuit.toJSON();
-    this.logger.debug('Saving circuit breaker state: ');
-    await this.circuitBreakerState.saveState({ state: circuitState.state }); //stats are not saved
+    const state = circuitState.state;
+    this.logger.debug({ message: 'Saving circuit breaker state', state });
+    await this.circuitBreakerState.saveState({ state }); //stats are not saved
   }
 
   async fire(...args) {

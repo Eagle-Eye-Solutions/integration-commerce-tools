@@ -81,4 +81,4 @@ runs:
         expectStatus: 200
         expectBodyRegex: \"status\":\"Deployed\"
         timeout: 1260000
-        interval: 180000
+        interval: 15000

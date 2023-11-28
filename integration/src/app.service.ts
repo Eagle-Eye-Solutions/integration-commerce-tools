@@ -18,13 +18,19 @@ export class AppService {
   async handleExtensionRequest(body: ExtensionInput): Promise<{
     actions: ActionsSupported[];
   }> {
-    this.logger.debug('Received body: ', body);
+    this.logger.log({
+      message: 'Received body: ',
+      context: AppService.name,
+      body,
+    });
     const actionBuilder = new CTActionsBuilder();
     //todo move logic to guard
     if (body?.resource?.typeId !== 'cart') {
       return actionBuilder.build();
     }
-    let extensionActions: { actions: ActionsSupported[] };
+    let extensionActions: {
+      actions: ActionsSupported[];
+    };
     try {
       const basketDiscounts = await this.promotionService.getDiscounts(
         body.resource,
@@ -80,10 +86,10 @@ export class AppService {
       actionBuilder.add(CartDiscountActionBuilder.removeDiscounts());
       extensionActions = actionBuilder.build();
     }
-    this.logger.debug(
-      `Returning ${extensionActions.actions.length} actions to commercetools`,
+    this.logger.debug({
+      message: `Returning ${extensionActions.actions.length} actions to commercetools`,
       extensionActions,
-    );
+    });
     return extensionActions;
   }
 

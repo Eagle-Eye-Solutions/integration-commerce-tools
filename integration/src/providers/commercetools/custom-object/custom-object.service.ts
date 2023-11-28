@@ -21,7 +21,10 @@ export class CustomObjectService {
         version,
       },
     };
-    this.logger.debug('Creating custom object draft', customObjectDraft);
+    this.logger.debug({
+      message: 'Creating custom object draft',
+      customObjectDraft,
+    });
     return this.commercetools
       .getApiRoot()
       .customObjects()

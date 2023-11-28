@@ -160,16 +160,16 @@ describe('Circuit breaker (e2e)', () => {
     const getCustomObjectNock = nockGetCustomObject(404, null);
     const postCustomObjectNock = nockPostCustomObject(200);
     const walletOpenNock = await nockWalletOpen(
+      RECALCULATE_CART.resource.obj,
       3,
       200,
       0,
-      RECALCULATE_CART.resource.obj,
     );
     const walletOpenErrorNock = await nockWalletOpen(
+      RECALCULATE_CART.resource.obj,
       4,
       500,
       0,
-      RECALCULATE_CART.resource.obj,
     );
 
     app = await initAppModule();

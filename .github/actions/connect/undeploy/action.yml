@@ -47,4 +47,4 @@ runs:
         authorization: 'Bearer ${{ inputs.access_token }}'
         expectStatus: 404
         timeout: 900000
-        interval: 180000
+        interval: 15000

@@ -4,9 +4,9 @@ import { ScriptConfigService } from '../config/configuration';
 import { extensions } from '../common/commercetools';
 import { Logger } from '@nestjs/common';
 
+const logger = new Logger('Pre-Undeploy');
 const configService = new ScriptConfigService();
 const commercetools = new Commercetools(configService as any);
-const logger = new Logger('Pre-Undeploy');
 
 const run = async () => {
   await deleteExtensions();

@@ -54,5 +54,3 @@ EXPOSE 8080
 WORKDIR ./dist/src
 
 CMD [ "node", "main.js" ]
-
-RUN npm install && npm run build && npm run connector:post-deploy
