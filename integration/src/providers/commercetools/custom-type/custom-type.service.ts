@@ -3,8 +3,8 @@ import { Commercetools } from '../commercetools.provider';
 import {
   Type,
   TypeDraft,
-  TypeUpdateAction,
   TypeUpdate,
+  TypeUpdateAction,
 } from '@commercetools/platform-sdk';
 
 @Injectable()
@@ -39,15 +39,15 @@ export class CustomTypeService {
         .execute();
       if (![200, 201].includes(response.statusCode)) {
         const errorMsg = `Type with key "${typeDefinition.key}" could not be created`;
-      this.logger.error({
-        msg: errorMsg,
-        statusCode: response.statusCode,
-        body: response.body,
-      });
-      throw new Error(errorMsg);
-    }
-    this.logger.debug({
-      message: `Type with key "${typeDefinition.key}" created`,
+        this.logger.error({
+          msg: errorMsg,
+          statusCode: response.statusCode,
+          body: response.body,
+        });
+        throw new Error(errorMsg);
+      }
+      this.logger.debug({
+        message: `Type with key "${typeDefinition.key}" created`,
         body: response.body,
       });
 
