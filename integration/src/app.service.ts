@@ -11,7 +11,7 @@ import { PromotionService } from './services/promotions/promotions.service';
 
 @Injectable()
 export class AppService {
-  private logger = new Logger(AppService.name);
+  private readonly logger = new Logger(AppService.name);
 
   constructor(private promotionService: PromotionService) {}
 

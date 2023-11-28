@@ -14,9 +14,9 @@ const gcpTransport = new winston.transports.Console({
 
       return JSON.stringify({
         message: `[${context}] ${message}`,
-        severity: level.toUpperCase(), // GCP uses the "severity" field for log level
+        severity: level.toUpperCase(),
         timestamp,
-        serviceContext: { service: APP_NAME, version }, // Optional: add the service context
+        serviceContext: { service: APP_NAME, version },
         context,
         ...meta,
       });
