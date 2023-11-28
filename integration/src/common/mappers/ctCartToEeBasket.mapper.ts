@@ -176,6 +176,17 @@ export class CTCartToEEBasketMapper {
     return {};
   }
 
+  mapVoucherCodesToCampaignTokens(
+    voucherCodes: string[],
+  ): { type: 'TOKEN'; value: string }[] {
+    return voucherCodes.map((code) => {
+      return {
+        type: 'TOKEN',
+        value: code,
+      };
+    });
+  }
+
   async mapCartToWalletOpenPayload(cart: Cart) {
     // Get a default identity to open the wallet
     // TODO: make configurable on a per-merchant basis
@@ -203,6 +214,8 @@ export class CTCartToEEBasketMapper {
       'eagleEye.parentIncomingIdentifier',
     );
 
+    const voucherCodes: string[] = cart.custom?.fields['eagleeye-voucherCodes'];
+
     return {
       reference: cart.id,
       identity: identities[0]
@@ -215,6 +228,9 @@ export class CTCartToEEBasketMapper {
         incomingIdentifier,
         ...(parentIncomingIdentifier && { parentIncomingIdentifier }),
       },
+      examine: voucherCodes?.length
+        ? this.mapVoucherCodesToCampaignTokens(voucherCodes)
+        : undefined,
       options: {
         adjustBasket: {
           includeOpenOffers: true,

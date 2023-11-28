@@ -258,7 +258,7 @@ export const RECALCULATE_CART = {
           id: '29d65beb-d913-4fb0-beef-d86fffa3752d',
         },
         fields: {
-          errors: [],
+          'eagleeye-voucherCodes': ['123456'],
         },
       },
       inventoryMode: 'ReserveOnOrder',
