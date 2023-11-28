@@ -11,8 +11,6 @@ import { mock } from 'jest-mock-extended';
 import { BREAKABLE_API } from './circuit-breaker.provider';
 import { CIRCUIT_BREAKER_STATE_SERVICE_PROVIDER } from './interfaces/circuit-breaker-state.provider';
 import { Logger } from '@nestjs/common';
-import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
-import { MockLogger } from '../../../test/utils/mocks/MockLogger';
 
 let enabledBreakerMock = true;
 let openedBreakerMock = false;
@@ -39,7 +37,6 @@ describe('CircuitBreakerService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         CircuitBreakerService,
-        { provide: WINSTON_MODULE_NEST_PROVIDER, useValue: new MockLogger() },
         {
           provide: BREAKABLE_API,
           useValue: {

@@ -2,8 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CustomTypeService } from './custom-type.service';
 import { Commercetools } from '../commercetools.provider';
 import { TypeDraft } from '@commercetools/platform-sdk';
-import { MockLogger } from '../../../../test/utils/mocks/MockLogger';
-import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 
 describe('CustomTypeService', () => {
   let service: CustomTypeService;
@@ -32,7 +30,6 @@ describe('CustomTypeService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         CustomTypeService,
-        { provide: WINSTON_MODULE_NEST_PROVIDER, useValue: new MockLogger() },
         { provide: Commercetools, useValue: mockCommercetools },
       ],
     }).compile();

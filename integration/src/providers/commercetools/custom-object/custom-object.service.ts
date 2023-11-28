@@ -1,14 +1,11 @@
-import { Inject, Injectable, LoggerService } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Commercetools } from '../commercetools.provider';
-import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 
 @Injectable()
 export class CustomObjectService {
-  constructor(
-    @Inject(WINSTON_MODULE_NEST_PROVIDER)
-    private readonly logger: LoggerService,
-    private commercetools: Commercetools,
-  ) {}
+  private readonly logger = new Logger(CustomObjectService.name);
+
+  constructor(private commercetools: Commercetools) {}
 
   saveCustomObject = async (
     key: string,

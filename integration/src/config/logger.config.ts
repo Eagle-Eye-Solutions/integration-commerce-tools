@@ -2,9 +2,27 @@ import { utilities as nestWinstonModuleUtilities } from 'nest-winston';
 import * as winston from 'winston';
 import { format, transports } from 'winston';
 import { APP_NAME } from '../common/constants/constants';
-import { createApplicationLogger } from '@commercetools-backend/loggers';
 import * as Transport from 'winston-transport';
-// import { version } from '../../package.json';
+import { version } from '../../package.json';
+
+const gcpTransport = new winston.transports.Console({
+  level: process.env.LOG_LEVEL ?? 'debug',
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.printf((info) => {
+      const { timestamp, level, context, message, ...meta } = info;
+
+      return JSON.stringify({
+        message: `[${context}] ${message}`,
+        severity: level.toUpperCase(), // GCP uses the "severity" field for log level
+        timestamp,
+        serviceContext: { service: APP_NAME, version }, // Optional: add the service context
+        context,
+        ...meta,
+      });
+    }),
+  ),
+});
 
 export const loggerConfig: { transports: Transport[] } = {
   transports: [
@@ -20,6 +38,6 @@ export const loggerConfig: { transports: Transport[] } = {
             }),
           ),
         })
-      : createApplicationLogger(),
+      : gcpTransport,
   ],
 };

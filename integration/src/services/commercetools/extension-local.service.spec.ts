@@ -2,8 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ExtensionLocalService } from './extension-local.service';
 import { Commercetools } from '../../providers/commercetools/commercetools.provider';
 import { ConfigService } from '@nestjs/config';
-import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
-import { MockLogger } from '../../../test/utils/mocks/MockLogger';
 
 jest.mock('ngrok');
 
@@ -33,7 +31,6 @@ describe('ExtensionLocalService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ExtensionLocalService,
-        { provide: WINSTON_MODULE_NEST_PROVIDER, useValue: new MockLogger() },
         { provide: Commercetools, useValue: mockCommercetoolsService },
         { provide: ConfigService, useValue: mockConfigService },
       ],

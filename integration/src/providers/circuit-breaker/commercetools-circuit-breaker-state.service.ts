@@ -2,23 +2,22 @@ import {
   CircuitBreakerInfo,
   CircuitBreakerState,
 } from './interfaces/circuit-breaker-state.interface';
-import { Inject, Injectable, LoggerService } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import {
   CUSTOM_OBJECT_CIRCUIT_BREAKER_KEY,
   CUSTOM_OBJECT_CONTAINER,
 } from '../../common/constants/constants';
 import { CustomObjectService } from '../commercetools/custom-object/custom-object.service';
-import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 
 @Injectable()
 export class CommercetoolsCircuitBreakerStateService
   implements CircuitBreakerState
 {
-  constructor(
-    @Inject(WINSTON_MODULE_NEST_PROVIDER)
-    private readonly logger: LoggerService,
-    private readonly customObjectService: CustomObjectService,
-  ) {}
+  private readonly logger = new Logger(
+    CommercetoolsCircuitBreakerStateService.name,
+  );
+
+  constructor(private readonly customObjectService: CustomObjectService) {}
 
   async loadState(): Promise<CircuitBreakerInfo> {
     try {

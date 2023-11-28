@@ -1,4 +1,4 @@
-import { Inject, Injectable, LoggerService } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { CartCustomTypeActionBuilder } from './providers/commercetools/actions/cart-update/CartCustomTypeActionBuilder';
 import { EagleEyeApiException } from './common/exceptions/eagle-eye-api.exception';
 import { ExtensionInput } from '@commercetools/platform-sdk/dist/declarations/src/generated/models/extension';
@@ -8,20 +8,21 @@ import {
 } from './providers/commercetools/actions/ActionsBuilder';
 import { CartDiscountActionBuilder } from './providers/commercetools/actions/cart-update/CartDiscountActionBuilder';
 import { PromotionService } from './services/promotions/promotions.service';
-import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 
 @Injectable()
 export class AppService {
-  constructor(
-    @Inject(WINSTON_MODULE_NEST_PROVIDER)
-    private readonly logger: LoggerService,
-    private promotionService: PromotionService,
-  ) {}
+  private logger = new Logger(AppService.name);
+
+  constructor(private promotionService: PromotionService) {}
 
   async handleExtensionRequest(body: ExtensionInput): Promise<{
     actions: ActionsSupported[];
   }> {
-    this.logger.log('Received body: ', body);
+    this.logger.log({
+      message: 'Received body: ',
+      context: AppService.name,
+      body,
+    });
     const actionBuilder = new CTActionsBuilder();
     //todo move logic to guard
     if (body?.resource?.typeId !== 'cart') {

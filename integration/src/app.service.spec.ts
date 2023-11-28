@@ -4,8 +4,6 @@ import { CircuitBreakerService } from './providers/circuit-breaker/circuit-break
 import { ExtensionInput } from '@commercetools/platform-sdk/dist/declarations/src/generated/models/extension';
 import { EagleEyeApiException } from './common/exceptions/eagle-eye-api.exception';
 import { PromotionService } from './services/promotions/promotions.service';
-import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
-import { MockLogger } from '../test/utils/mocks/MockLogger';
 
 describe('AppService', () => {
   let service: AppService;
@@ -16,7 +14,6 @@ describe('AppService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AppService,
-        { provide: WINSTON_MODULE_NEST_PROVIDER, useValue: new MockLogger() },
         { provide: CircuitBreakerService, useValue: { fire: jest.fn() } },
         {
           provide: PromotionService,

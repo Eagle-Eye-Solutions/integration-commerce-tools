@@ -1,7 +1,6 @@
 import {
-  Inject,
   Injectable,
-  LoggerService,
+  Logger,
   OnModuleDestroy,
   OnModuleInit,
 } from '@nestjs/common';
@@ -9,7 +8,6 @@ import { Commercetools } from '../../providers/commercetools/commercetools.provi
 import { ConfigService } from '@nestjs/config';
 import { Extension } from '@commercetools/platform-sdk';
 import { extensions } from '../../common/commercetools';
-import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 
 let ngrok;
 if (process.env.NODE_ENV === 'dev' || process.env.NODE_ENV === 'test') {
@@ -18,12 +16,10 @@ if (process.env.NODE_ENV === 'dev' || process.env.NODE_ENV === 'test') {
 
 @Injectable()
 export class ExtensionLocalService implements OnModuleInit, OnModuleDestroy {
-  // private readonly logger = new Logger(ExtensionLocalService.name);
+  private readonly logger = new Logger(ExtensionLocalService.name);
   private extensionKey = this.configService.get('debug.extensionKey');
 
   constructor(
-    @Inject(WINSTON_MODULE_NEST_PROVIDER)
-    private readonly logger: LoggerService,
     private commercetoolsService: Commercetools,
     private configService: ConfigService,
   ) {}

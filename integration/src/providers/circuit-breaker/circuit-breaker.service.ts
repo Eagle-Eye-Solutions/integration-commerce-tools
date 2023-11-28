@@ -1,9 +1,4 @@
-import {
-  Inject,
-  Injectable,
-  LoggerService,
-  OnModuleInit,
-} from '@nestjs/common';
+import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import * as CircuitBreaker from 'opossum';
 import { ConfigService } from '@nestjs/config';
 import {
@@ -13,15 +8,13 @@ import {
 import { BreakableApi } from './interfaces/breakable-api.interface';
 import { BREAKABLE_API } from './circuit-breaker.provider';
 import { CIRCUIT_BREAKER_STATE_SERVICE_PROVIDER } from './interfaces/circuit-breaker-state.provider';
-import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 
 @Injectable()
 export class CircuitBreakerService implements OnModuleInit {
   private circuit: CircuitBreaker;
+  private readonly logger = new Logger(CircuitBreakerService.name);
 
   constructor(
-    @Inject(WINSTON_MODULE_NEST_PROVIDER)
-    private readonly logger: LoggerService,
     @Inject(BREAKABLE_API) private readonly breakableApi: BreakableApi,
     @Inject(CIRCUIT_BREAKER_STATE_SERVICE_PROVIDER)
     private readonly circuitBreakerState: CircuitBreakerState,
