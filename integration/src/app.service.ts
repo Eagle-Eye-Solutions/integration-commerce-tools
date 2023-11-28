@@ -35,12 +35,23 @@ export class AppService {
       const basketDiscounts = await this.promotionService.getDiscounts(
         body.resource,
       );
-      actionBuilder.add(
-        CartCustomTypeActionBuilder.addCustomType(
-          [],
-          [...basketDiscounts.discountDescriptions],
-        ),
-      );
+      if (
+        CartCustomTypeActionBuilder.checkResourceCustomType(body?.resource?.obj)
+      ) {
+        actionBuilder.addAll(
+          CartCustomTypeActionBuilder.setCustomFields(
+            [],
+            [...basketDiscounts.discountDescriptions],
+          ),
+        );
+      } else {
+        actionBuilder.add(
+          CartCustomTypeActionBuilder.addCustomType(
+            [],
+            [...basketDiscounts.discountDescriptions],
+          ),
+        );
+      }
       actionBuilder.add(
         CartDiscountActionBuilder.addDiscount([...basketDiscounts.discounts]),
       );
@@ -48,15 +59,29 @@ export class AppService {
     } catch (error) {
       this.logger.error(error, error.stack);
       const type = this.getErrorTypeCode(error);
-      actionBuilder.add(
-        CartCustomTypeActionBuilder.addCustomType([
-          {
-            type,
-            message:
-              'The eagle eye API is unavailable, the cart promotions and loyalty points are NOT updated',
-          },
-        ]),
-      );
+      if (
+        CartCustomTypeActionBuilder.checkResourceCustomType(body?.resource?.obj)
+      ) {
+        actionBuilder.addAll(
+          CartCustomTypeActionBuilder.setCustomFields([
+            {
+              type,
+              message:
+                'The eagle eye API is unavailable, the cart promotions and loyalty points are NOT updated',
+            },
+          ]),
+        );
+      } else {
+        actionBuilder.add(
+          CartCustomTypeActionBuilder.addCustomType([
+            {
+              type,
+              message:
+                'The eagle eye API is unavailable, the cart promotions and loyalty points are NOT updated',
+            },
+          ]),
+        );
+      }
       // Discounts should be removed only if the basket was not persisted in AIR. See https://eagleeye.atlassian.net/browse/CTP-3
       actionBuilder.add(CartDiscountActionBuilder.removeDiscounts());
       extensionActions = actionBuilder.build();

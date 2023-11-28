@@ -20,15 +20,14 @@ import { sleep } from '../src/common/helper/timeout';
 const NO_ERRORS = {
   actions: [
     {
-      action: 'setCustomType',
-      type: {
-        typeId: 'type',
-        key: 'eagleEye',
-      },
-      fields: {
-        errors: [],
-        appliedDiscounts: ['Example Discount'],
-      },
+      action: 'setCustomField',
+      name: 'eagleeye-errors',
+      value: [],
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-appliedDiscounts',
+      value: ['Example Discount'],
     },
     {
       action: 'setDirectDiscounts',
@@ -90,17 +89,16 @@ const NO_ERRORS = {
 const ERROR = {
   actions: [
     {
-      action: 'setCustomType',
-      type: {
-        typeId: 'type',
-        key: 'eagleEye',
-      },
-      fields: {
-        errors: [
-          '{"type":"EE_API_UNAVAILABLE","message":"The eagle eye API is unavailable, the cart promotions and loyalty points are NOT updated"}',
-        ],
-        appliedDiscounts: [],
-      },
+      action: 'setCustomField',
+      name: 'eagleeye-errors',
+      value: [
+        '{"type":"EE_API_UNAVAILABLE","message":"The eagle eye API is unavailable, the cart promotions and loyalty points are NOT updated"}',
+      ],
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-appliedDiscounts',
+      value: [],
     },
     { action: 'setDirectDiscounts', discounts: [] },
   ],
@@ -224,14 +222,16 @@ describe('Circuit breaker (e2e)', () => {
       .expect({
         actions: [
           {
-            action: 'setCustomType',
-            type: { typeId: 'type', key: 'eagleEye' },
-            fields: {
-              errors: [
-                '{"type":"EE_API_CIRCUIT_OPEN","message":"The eagle eye API is unavailable, the cart promotions and loyalty points are NOT updated"}',
-              ],
-              appliedDiscounts: [],
-            },
+            action: 'setCustomField',
+            name: 'eagleeye-errors',
+            value: [
+              '{"type":"EE_API_CIRCUIT_OPEN","message":"The eagle eye API is unavailable, the cart promotions and loyalty points are NOT updated"}',
+            ],
+          },
+          {
+            action: 'setCustomField',
+            name: 'eagleeye-appliedDiscounts',
+            value: [],
           },
           { action: 'setDirectDiscounts', discounts: [] },
         ],
