@@ -18,6 +18,9 @@ if (process.env.NODE_ENV === 'dev' || process.env.NODE_ENV === 'test') {
 export class ExtensionLocalService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(ExtensionLocalService.name);
   private extensionKey = this.configService.get('debug.extensionKey');
+  private extensionTriggerCondition = this.configService.get(
+    'debug.extensionTriggerCondition',
+  );
 
   constructor(
     private commercetoolsService: Commercetools,
@@ -46,7 +49,16 @@ export class ExtensionLocalService implements OnModuleInit, OnModuleDestroy {
           actions: [
             {
               action: 'changeTriggers',
-              triggers: extensions.map((ext) => ext.triggers).flat(),
+              triggers: extensions
+                .map((ext) =>
+                  ext.triggers.map((trigger) => {
+                    return {
+                      ...trigger,
+                      condition: this.extensionTriggerCondition,
+                    };
+                  }),
+                )
+                .flat(),
             },
             {
               action: 'changeDestination',
@@ -61,7 +73,16 @@ export class ExtensionLocalService implements OnModuleInit, OnModuleDestroy {
         await this.commercetoolsService.createExtension({
           key: this.extensionKey,
           destination: { type: 'HTTP', url: ngrokUrl },
-          triggers: extensions.map((ext) => ext.triggers).flat(),
+          triggers: extensions
+            .map((ext) =>
+              ext.triggers.map((trigger) => {
+                return {
+                  ...trigger,
+                  condition: this.extensionTriggerCondition,
+                };
+              }),
+            )
+            .flat(),
         });
         this.logger.log('Debug commercetools extension created.');
       }

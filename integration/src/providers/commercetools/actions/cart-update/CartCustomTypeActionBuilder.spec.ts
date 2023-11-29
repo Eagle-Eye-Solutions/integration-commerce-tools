@@ -6,8 +6,8 @@ import {
 describe('CartCustomTypeActionBuilder', () => {
   it('should build an addCustomType action', () => {
     const errors: CustomFieldError[] = [
-      { type: 'type1', message: 'message1' },
-      { type: 'type2', message: 'message2' },
+      { type: 'BASKET_STORE_DELETE', message: 'message1' },
+      { type: 'EE_API_CIRCUIT_OPEN', message: 'message2' },
     ];
 
     const action = CartCustomTypeActionBuilder.addCustomType(errors);
@@ -27,8 +27,8 @@ describe('CartCustomTypeActionBuilder', () => {
 
   it('should build multiple setCustomField actions', () => {
     const errors: CustomFieldError[] = [
-      { type: 'type1', message: 'message1' },
-      { type: 'type2', message: 'message2' },
+      { type: 'EE_API_DISCONNECTED', message: 'message1' },
+      { type: 'EE_API_TIMEOUT', message: 'message2' },
     ];
 
     const action = CartCustomTypeActionBuilder.setCustomFields(errors);
@@ -43,6 +43,16 @@ describe('CartCustomTypeActionBuilder', () => {
         action: 'setCustomField',
         name: 'eagleeye-appliedDiscounts',
         value: [],
+      },
+      {
+        action: 'setCustomField',
+        name: 'eagleeye-basketStore',
+        value: '',
+      },
+      {
+        action: 'setCustomField',
+        name: 'eagleeye-basketUri',
+        value: '',
       },
     ]);
   });

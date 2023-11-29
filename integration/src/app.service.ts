@@ -1,5 +1,8 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { CartCustomTypeActionBuilder } from './providers/commercetools/actions/cart-update/CartCustomTypeActionBuilder';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import {
+  CartCustomTypeActionBuilder,
+  CustomFieldError,
+} from './providers/commercetools/actions/cart-update/CartCustomTypeActionBuilder';
 import { EagleEyeApiException } from './common/exceptions/eagle-eye-api.exception';
 import { ExtensionInput } from '@commercetools/platform-sdk/dist/declarations/src/generated/models/extension';
 import {
@@ -8,12 +11,20 @@ import {
 } from './providers/commercetools/actions/ActionsBuilder';
 import { CartDiscountActionBuilder } from './providers/commercetools/actions/cart-update/CartDiscountActionBuilder';
 import { PromotionService } from './services/promotions/promotions.service';
+import { CartReference } from '@commercetools/platform-sdk';
+import { BasketStoreService } from './services/basket-store/basket-store.interface';
+import { BASKET_STORE_SERVICE } from './services/basket-store/basket-store.provider';
+import { EagleEyePluginException } from './common/exceptions/eagle-eye-plugin.exception';
 
 @Injectable()
 export class AppService {
   private readonly logger = new Logger(AppService.name);
 
-  constructor(private promotionService: PromotionService) {}
+  constructor(
+    private promotionService: PromotionService,
+    @Inject(BASKET_STORE_SERVICE)
+    private readonly basketStoreService: BasketStoreService,
+  ) {}
 
   async handleExtensionRequest(body: ExtensionInput): Promise<{
     actions: ActionsSupported[];
@@ -23,18 +34,23 @@ export class AppService {
       context: AppService.name,
       body,
     });
-    const actionBuilder = new CTActionsBuilder();
     //todo move logic to guard
     if (body?.resource?.typeId !== 'cart') {
-      return actionBuilder.build();
+      return new CTActionsBuilder().build();
     }
-    let extensionActions: {
-      actions: ActionsSupported[];
-    };
+
     try {
       const basketDiscounts = await this.promotionService.getDiscounts(
-        body.resource,
+        body.resource as CartReference, //checked in the ExtensionTypeMiddleware
       );
+
+      //store basket
+      const basketLocation = await this.basketStoreService.save(
+        basketDiscounts.enrichedBasket,
+        body.resource.id,
+      );
+
+      const actionBuilder = new CTActionsBuilder();
       if (
         CartCustomTypeActionBuilder.checkResourceCustomType(body?.resource?.obj)
       ) {
@@ -42,6 +58,7 @@ export class AppService {
           CartCustomTypeActionBuilder.setCustomFields(
             [],
             [...basketDiscounts.discountDescriptions],
+            basketLocation,
           ),
         );
       } else {
@@ -49,57 +66,74 @@ export class AppService {
           CartCustomTypeActionBuilder.addCustomType(
             [],
             [...basketDiscounts.discountDescriptions],
+            basketLocation,
           ),
         );
       }
       actionBuilder.add(
         CartDiscountActionBuilder.addDiscount([...basketDiscounts.discounts]),
       );
-      extensionActions = actionBuilder.build();
+      const extensionActions = actionBuilder.build();
+      this.logger.debug({
+        message: `Returning ${extensionActions.actions.length} actions to commercetools`,
+        extensionActions,
+      });
+      return extensionActions;
     } catch (error) {
       this.logger.error(error, error.stack);
-      const type = this.getErrorTypeCode(error);
+      const customFieldError = this.getErrorDetails(error);
+      const actionBuilder = new CTActionsBuilder();
+
       if (
         CartCustomTypeActionBuilder.checkResourceCustomType(body?.resource?.obj)
       ) {
         actionBuilder.addAll(
-          CartCustomTypeActionBuilder.setCustomFields([
-            {
-              type,
-              message:
-                'The eagle eye API is unavailable, the cart promotions and loyalty points are NOT updated',
-            },
-          ]),
+          CartCustomTypeActionBuilder.setCustomFields(
+            [customFieldError],
+            [],
+            null,
+          ),
         );
       } else {
         actionBuilder.add(
-          CartCustomTypeActionBuilder.addCustomType([
-            {
-              type,
-              message:
-                'The eagle eye API is unavailable, the cart promotions and loyalty points are NOT updated',
-            },
-          ]),
+          CartCustomTypeActionBuilder.addCustomType([customFieldError]),
         );
       }
       // Discounts should be removed only if the basket was not persisted in AIR. See https://eagleeye.atlassian.net/browse/CTP-3
       actionBuilder.add(CartDiscountActionBuilder.removeDiscounts());
-      extensionActions = actionBuilder.build();
+      //delete basket store
+      await this.basketStoreService.delete(body.resource.id);
+
+      const extensionActions = actionBuilder.build();
+      this.logger.debug({
+        message: `Returning ${extensionActions.actions.length} actions to commercetools`,
+        extensionActions,
+      });
+      return extensionActions;
     }
-    this.logger.debug({
-      message: `Returning ${extensionActions.actions.length} actions to commercetools`,
-      extensionActions,
-    });
-    return extensionActions;
   }
 
-  private getErrorTypeCode(error: any) {
-    if (error instanceof EagleEyeApiException) {
-      return error.type;
+  private getErrorDetails(error: any): CustomFieldError {
+    if (
+      error instanceof EagleEyeApiException ||
+      error instanceof EagleEyePluginException
+    ) {
+      return {
+        type: error.type,
+        message: error.message,
+      };
     } else if (error.code === 'EOPENBREAKER') {
-      return 'EE_API_CIRCUIT_OPEN';
+      return {
+        type: 'EE_API_CIRCUIT_OPEN',
+        message:
+          'The eagle eye API is unavailable, the cart promotions and loyalty points are NOT updated',
+      };
     } else {
-      return 'EE_API_GENERIC_ERROR';
+      return {
+        type: 'EE_API_GENERIC_ERROR',
+        message:
+          'Unexpected error with getting the promotions and loyalty points',
+      };
     }
   }
 }

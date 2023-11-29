@@ -178,6 +178,7 @@ describe('PromotionService', () => {
           service.cartToBasketMapper.mapBasketDiscountsToDiscountDescriptions(
             walletOpenResponse.analyseBasketResults.discount,
           ),
+        enrichedBasket: walletOpenResponse.analyseBasketResults.basket,
       });
     });
 

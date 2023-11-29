@@ -8,125 +8,27 @@ import {
   nockCtGetShippingMethodsWithIds,
 } from './utils/nocks/CommercetoolsNock';
 import {
+  nockDeleteCustomObject,
   nockGetCustomObject,
-  nockPostCustomObject,
+  nockPostCircuitStateCustomObject,
+  nockPostEnirchedBasketCustomObject,
 } from './utils/nocks/CustomObjectNock';
 import { nockWalletOpen } from './utils/nocks/EagleEyeNock';
 import { MockLogger } from './utils/mocks/MockLogger';
 import { CIRCUIT_BREAKER_OPEN } from './utils/data/CustomObjects.data';
 import * as nock from 'nock';
 import { sleep } from '../src/common/helper/timeout';
-
-const NO_ERRORS = {
-  actions: [
-    {
-      action: 'setCustomField',
-      name: 'eagleeye-errors',
-      value: [],
-    },
-    {
-      action: 'setCustomField',
-      name: 'eagleeye-appliedDiscounts',
-      value: ['Example Discount'],
-    },
-    {
-      action: 'setDirectDiscounts',
-      discounts: [
-        {
-          value: {
-            type: 'absolute',
-            money: [
-              {
-                centAmount: 200,
-                currencyCode: 'GBP',
-                type: 'centPrecision',
-                fractionDigits: 2,
-              },
-            ],
-          },
-          target: {
-            type: 'totalPrice',
-          },
-        },
-        {
-          value: {
-            type: 'absolute',
-            money: [
-              {
-                centAmount: 500,
-                currencyCode: 'GBP',
-                type: 'centPrecision',
-                fractionDigits: 2,
-              },
-            ],
-          },
-          target: {
-            type: 'totalPrice',
-          },
-        },
-        {
-          value: {
-            type: 'absolute',
-            money: [
-              {
-                centAmount: 100,
-                currencyCode: 'GBP',
-                type: 'centPrecision',
-                fractionDigits: 2,
-              },
-            ],
-          },
-          target: {
-            type: 'lineItems',
-            predicate: 'sku="245865"',
-          },
-        },
-        {
-          value: {
-            type: 'absolute',
-            money: [
-              {
-                centAmount: 250,
-                currencyCode: 'GBP',
-                type: 'centPrecision',
-                fractionDigits: 2,
-              },
-            ],
-          },
-          target: {
-            type: 'shipping',
-          },
-        },
-      ],
-    },
-  ],
-};
-
-const ERROR = {
-  actions: [
-    {
-      action: 'setCustomField',
-      name: 'eagleeye-errors',
-      value: [
-        '{"type":"EE_API_UNAVAILABLE","message":"The eagle eye API is unavailable, the cart promotions and loyalty points are NOT updated"}',
-      ],
-    },
-    {
-      action: 'setCustomField',
-      name: 'eagleeye-appliedDiscounts',
-      value: [],
-    },
-    { action: 'setDirectDiscounts', discounts: [] },
-  ],
-};
+import { CUSTOM_OBJECT_CONTAINER_BASKET_STORE } from '../src/common/constants/constants';
+import {
+  ERROR_RESPONSE,
+  SUCCESS_RESPONSE,
+} from './utils/data/CartExtensionResponse.data';
 
 describe('Circuit breaker (e2e)', () => {
   let app: INestApplication;
   let mockLogger: MockLogger;
 
-  beforeEach(() => {
-    nock.cleanAll();
-  });
+  beforeEach(nock.cleanAll);
 
   // let ctAuthNock: nock.Scope, getCustomObjectNock: nock.Scope;
 
@@ -152,13 +54,23 @@ describe('Circuit breaker (e2e)', () => {
     // nock.recorder.rec();
 
     //the following API calls are done onModuleInit and need to be mocked before the testing module is created
-    const ctAuthNock = nockCtAuth(11);
+    const ctAuthNock = nockCtAuth();
     const nockCtGetShippingMethods = nockCtGetShippingMethodsWithIds(
       [RECALCULATE_CART.resource.obj.shippingInfo.shippingMethod.id],
-      30,
+      50,
     );
-    const getCustomObjectNock = nockGetCustomObject(404, null);
-    const postCustomObjectNock = nockPostCustomObject(200);
+    const getCircuitStateCustomObjectNock = nockGetCustomObject(404, null);
+    const postCircuitStateCustomObjectNock =
+      nockPostCircuitStateCustomObject(200);
+    const postEnrichedBasketCustomObjectNock =
+      nockPostEnirchedBasketCustomObject(9);
+    const deleteCustomObjectNock = nockDeleteCustomObject(
+      RECALCULATE_CART.resource.id,
+      CUSTOM_OBJECT_CONTAINER_BASKET_STORE,
+      {},
+      16,
+    );
+
     const walletOpenNock = await nockWalletOpen(
       RECALCULATE_CART.resource.obj,
       3,
@@ -178,57 +90,65 @@ describe('Circuit breaker (e2e)', () => {
       .post('/')
       .send(RECALCULATE_CART)
       .expect(201)
-      .expect(NO_ERRORS);
+      .expect(SUCCESS_RESPONSE);
     await request(app.getHttpServer())
       .post('/')
       .send(RECALCULATE_CART)
       .expect(201)
-      .expect(NO_ERRORS);
+      .expect(SUCCESS_RESPONSE);
     await request(app.getHttpServer())
       .post('/')
       .send(RECALCULATE_CART)
       .expect(201)
-      .expect(NO_ERRORS);
+      .expect(SUCCESS_RESPONSE);
     await request(app.getHttpServer())
       .post('/')
       .send(RECALCULATE_CART)
       .expect(201)
-      .expect(ERROR);
+      .expect(ERROR_RESPONSE);
 
     await request(app.getHttpServer())
       .post('/')
       .send(RECALCULATE_CART)
       .expect(201)
-      .expect(ERROR);
+      .expect(ERROR_RESPONSE);
     await request(app.getHttpServer())
       .post('/')
       .send(RECALCULATE_CART)
       .expect(201)
-      .expect(ERROR);
+      .expect(ERROR_RESPONSE);
 
-    //open circuit and save circuit state to CT custom object
+    // open circuit and save circuit state to CT custom object
     await request(app.getHttpServer())
       .post('/')
       .send(RECALCULATE_CART)
       .expect(201)
-      .expect(ERROR);
+      .expect(ERROR_RESPONSE);
 
     await sleep(100); //await for
     expect(ctAuthNock.isDone()).toBeTruthy();
     expect(nockCtGetShippingMethods.isDone()).toBeTruthy();
-    expect(getCustomObjectNock.isDone()).toBeTruthy();
-    expect(postCustomObjectNock.isDone()).toBeTruthy();
+    expect(getCircuitStateCustomObjectNock.isDone()).toBeTruthy();
+    expect(postCircuitStateCustomObjectNock.isDone()).toBeTruthy();
+    expect(postEnrichedBasketCustomObjectNock.isDone()).toBeTruthy();
+    expect(deleteCustomObjectNock.isDone()).toBeTruthy();
     expect(walletOpenNock.isDone()).toBeTruthy();
+    expect(walletOpenErrorNock.isDone()).toBeTruthy();
     expect(walletOpenErrorNock.isDone()).toBeTruthy();
   });
 
   it('should fail straight away when the circuit breaker state is loaded with open state', async () => {
-    const ctAuthNock = nockCtAuth(2);
+    const ctAuthNock = nockCtAuth();
     const nockCtGetShippingMethods = nockCtGetShippingMethodsWithIds(
       [RECALCULATE_CART.resource.obj.shippingInfo.shippingMethod.id],
       1,
     );
     const getCustomObjectNock = nockGetCustomObject(200, CIRCUIT_BREAKER_OPEN);
+    const deleteCustomObjectNock = nockDeleteCustomObject(
+      RECALCULATE_CART.resource.id,
+      CUSTOM_OBJECT_CONTAINER_BASKET_STORE,
+      {},
+    );
     app = await initAppModule();
 
     await request(app.getHttpServer())
@@ -249,11 +169,22 @@ describe('Circuit breaker (e2e)', () => {
             name: 'eagleeye-appliedDiscounts',
             value: [],
           },
+          {
+            action: 'setCustomField',
+            name: 'eagleeye-basketStore',
+            value: '',
+          },
+          {
+            action: 'setCustomField',
+            name: 'eagleeye-basketUri',
+            value: '',
+          },
           { action: 'setDirectDiscounts', discounts: [] },
         ],
       });
     expect(ctAuthNock.isDone()).toBeTruthy();
     expect(nockCtGetShippingMethods.isDone()).toBeTruthy();
     expect(getCustomObjectNock.isDone()).toBeTruthy();
+    expect(deleteCustomObjectNock.isDone()).toBeTruthy();
   });
 });

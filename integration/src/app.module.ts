@@ -17,6 +17,7 @@ import { WinstonModule } from 'nest-winston';
 import { loggerConfig } from './config/logger.config';
 import { CTCartToEEBasketMapper } from './common/mappers/ctCartToEeBasket.mapper';
 import { ExtensionLocalService } from './services/commercetools/extension-local.service';
+import { BasketStoreServiceProvider } from './services/basket-store/basket-store.provider';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { ExtensionLocalService } from './services/commercetools/extension-local.
     EagleEyeApiClient,
     CTCartToEEBasketMapper,
     ExtensionLocalService,
+    BasketStoreServiceProvider,
   ],
 })
 export class AppModule {}
