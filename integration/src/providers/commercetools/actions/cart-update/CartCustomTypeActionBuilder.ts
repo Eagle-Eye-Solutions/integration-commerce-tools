@@ -8,6 +8,7 @@ import {
 export type CustomFieldError = {
   type: string;
   message: string;
+  context?: Record<string, any>;
 };
 
 export type DiscountDescription = {

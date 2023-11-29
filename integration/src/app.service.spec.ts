@@ -111,6 +111,7 @@ describe('AppService', () => {
     jest.spyOn(promotionService, 'getDiscounts').mockResolvedValueOnce({
       discounts: discountDrafts,
       discountDescriptions,
+      errors: [],
     } as any);
     const result = {
       actions: [
@@ -118,6 +119,61 @@ describe('AppService', () => {
           action: 'setCustomType',
           fields: {
             'eagleeye-errors': [],
+            'eagleeye-appliedDiscounts': discountDescriptions.map(
+              (d) => d.description,
+            ),
+          },
+          type: {
+            key: 'custom-cart-type',
+            typeId: 'type',
+          },
+        },
+        {
+          action: 'setDirectDiscounts',
+          discounts: discountDrafts,
+        },
+      ],
+    };
+    jest.spyOn(circuitBreakerService, 'fire').mockResolvedValue({});
+    const response = await service.handleExtensionRequest(body);
+    expect(response).toEqual(result);
+  });
+
+  it('should return token errors when provided by the EE API', async () => {
+    const body: ExtensionInput = {
+      action: 'Create',
+      resource: {
+        typeId: 'cart',
+        id: '123',
+        obj: {} as any,
+      },
+    };
+    const discountDrafts = [];
+    const discountDescriptions = [];
+    const errors = [
+      {
+        type: 'EE_API_TOKEN_PCEXNF',
+        message: 'Voucher invalid: Failed to load token',
+        context: {
+          value: '1234590',
+          resourceType: null,
+          resourceId: null,
+          errorCode: 'PCEXNF',
+          errorMessage: 'Voucher invalid: Failed to load token',
+        },
+      },
+    ];
+    jest.spyOn(promotionService, 'getDiscounts').mockResolvedValueOnce({
+      discounts: discountDrafts,
+      discountDescriptions,
+      errors,
+    } as any);
+    const result = {
+      actions: [
+        {
+          action: 'setCustomType',
+          fields: {
+            'eagleeye-errors': errors.map((error) => JSON.stringify(error)),
             'eagleeye-appliedDiscounts': discountDescriptions.map(
               (d) => d.description,
             ),

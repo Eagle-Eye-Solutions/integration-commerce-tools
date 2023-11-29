@@ -1269,7 +1269,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"currency\" : \"GBP\",\n  \"customerEmail\": \"john.toe6@example.org\",\n  \"lineItems\": [\n      {\n          \"sku\": \"245873\",\n          \"quantity\": 3\n      }\n  ]\n}"
+											"raw": "{\n  \"currency\" : \"GBP\",\n  \"customerEmail\": \"john.toe7@example.org\",\n  \"lineItems\": [\n      {\n          \"sku\": \"245873\",\n          \"quantity\": 3\n      }\n  ]\n}"
 										},
 										"url": {
 											"raw": "{{host}}/{{project-key}}/carts",
@@ -1387,7 +1387,7 @@
 									"response": []
 								}
 							],
-							"description": "## Products added:\n\n1. Mojito, SKU: 245873, Pricing: £52.19\n    \n\n## Customer:\n\n1. Email: [john.toe6@example.org](https://mailto:john.toe6@example.org)"
+							"description": "## Products added:\n\n1. Mojito, SKU: 245873, Pricing: £52.19\n    \n\n## Customer:\n\n1. Email: [john.toe7@example.org](https://mailto:john.toe7@example.org)"
 						}
 					],
 					"description": "## Discounts information\n\n### 1 - Campaign Name: Open Discount Basket (10% off 100)\n\nTotal price of basket should be above 100 pounds.\n\n- Campaignid: 1711495.\n- Campaign type: Discount Basket.\n- Reward type: 20% Off basket.\n    \n\n### 2 - Campaign Name: Targeted Basket Discount (£1 off £10 Basket Spend)\n\n- Campaignid: 1653869.\n- Campaign type: Discount Basket.\n- Reward type: 1£ Off basket."
@@ -2637,7 +2637,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n  \"currency\" : \"GBP\",\n  \"lineItems\": [\n      {\n          \"sku\": \"245871\",\n          \"quantity\": 1\n      },\n      {\n          \"sku\": \"245872\",\n          \"quantity\": 1\n      },\n      {\n          \"sku\": \"245873\",\n          \"quantity\": 1\n      }\n  ],\n  \"customerEmail\": \"john.toe6@example.org\"\n}"
+									"raw": "{\n  \"currency\" : \"GBP\",\n  \"lineItems\": [\n      {\n          \"sku\": \"245871\",\n          \"quantity\": 1\n      },\n      {\n          \"sku\": \"245872\",\n          \"quantity\": 1\n      },\n      {\n          \"sku\": \"245873\",\n          \"quantity\": 1\n      }\n  ],\n  \"customerEmail\": \"john.toe7@example.org\"\n}"
 								},
 								"url": {
 									"raw": "{{host}}/{{project-key}}/carts",
@@ -2902,7 +2902,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n  \"currency\" : \"GBP\",\n  \"lineItems\": [\n      {\n          \"sku\": \"245887\",\n          \"quantity\": 1\n      },\n      {\n          \"sku\": \"245872\",\n          \"quantity\": 1\n      },\n      {\n          \"sku\": \"245873\",\n          \"quantity\": 1\n      }\n  ],\n  \"customerEmail\": \"john.toe6@example.org\"\n}"
+									"raw": "{\n  \"currency\" : \"GBP\",\n  \"lineItems\": [\n      {\n          \"sku\": \"245887\",\n          \"quantity\": 1\n      },\n      {\n          \"sku\": \"245872\",\n          \"quantity\": 1\n      },\n      {\n          \"sku\": \"245873\",\n          \"quantity\": 1\n      }\n  ],\n  \"customerEmail\": \"john.toe7@example.org\"\n}"
 								},
 								"url": {
 									"raw": "{{host}}/{{project-key}}/carts",
@@ -3538,7 +3538,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"currency\" : \"GBP\",\n  \"lineItems\": [\n      {\n          \"sku\": \"245871\",\n          \"quantity\": 1\n      },\n      {\n          \"sku\": \"245872\",\n          \"quantity\": 1\n      },\n      {\n          \"sku\": \"245873\",\n          \"quantity\": 1\n      }\n  ],\n  \"customerEmail\": \"john.toe6@example.org\"\n}"
+											"raw": "{\n  \"currency\" : \"GBP\",\n  \"lineItems\": [\n      {\n          \"sku\": \"245871\",\n          \"quantity\": 1\n      },\n      {\n          \"sku\": \"245872\",\n          \"quantity\": 1\n      },\n      {\n          \"sku\": \"245873\",\n          \"quantity\": 1\n      }\n  ],\n  \"customerEmail\": \"john.toe7@example.org\"\n}"
 										},
 										"url": {
 											"raw": "{{host}}/{{project-key}}/carts",
@@ -3749,7 +3749,7 @@
 									"response": []
 								}
 							],
-							"description": "## Targeted Customer:\n\n1. Email: [john.toe6@example.org](https://mailto:john.toe6@example.org)"
+							"description": "## Targeted Customer:\n\n1. Email: [john.toe7@example.org](https://mailto:john.toe7@example.org)"
 						}
 					]
 				},
@@ -4263,7 +4263,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"currency\" : \"GBP\",\n  \"lineItems\": [\n      {\n          \"sku\": \"245871\",\n          \"quantity\": 1\n      },\n      {\n          \"sku\": \"245872\",\n          \"quantity\": 1\n      },\n      {\n          \"sku\": \"245873\",\n          \"quantity\": 1\n      }\n  ],\n  \"customerEmail\": \"john.toe6@example.org\"\n}"
+											"raw": "{\n  \"currency\" : \"GBP\",\n  \"lineItems\": [\n      {\n          \"sku\": \"245871\",\n          \"quantity\": 1\n      },\n      {\n          \"sku\": \"245872\",\n          \"quantity\": 1\n      },\n      {\n          \"sku\": \"245873\",\n          \"quantity\": 1\n      }\n  ],\n  \"customerEmail\": \"john.toe7@example.org\"\n}"
 										},
 										"url": {
 											"raw": "{{host}}/{{project-key}}/carts",
@@ -4474,7 +4474,7 @@
 									"response": []
 								}
 							],
-							"description": "## Targeted Customer:\n\n1. Email: [john.toe6@example.org](https://mailto:john.toe6@example.org)"
+							"description": "## Targeted Customer:\n\n1. Email: [john.toe7@example.org](https://mailto:john.toe7@example.org)"
 						}
 					]
 				}

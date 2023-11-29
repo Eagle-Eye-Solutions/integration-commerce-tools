@@ -39,17 +39,15 @@ export class AppService {
         CartCustomTypeActionBuilder.checkResourceCustomType(body?.resource?.obj)
       ) {
         actionBuilder.addAll(
-          CartCustomTypeActionBuilder.setCustomFields(
-            [],
-            [...basketDiscounts.discountDescriptions],
-          ),
+          CartCustomTypeActionBuilder.setCustomFields(basketDiscounts.errors, [
+            ...basketDiscounts.discountDescriptions,
+          ]),
         );
       } else {
         actionBuilder.add(
-          CartCustomTypeActionBuilder.addCustomType(
-            [],
-            [...basketDiscounts.discountDescriptions],
-          ),
+          CartCustomTypeActionBuilder.addCustomType(basketDiscounts.errors, [
+            ...basketDiscounts.discountDescriptions,
+          ]),
         );
       }
       actionBuilder.add(

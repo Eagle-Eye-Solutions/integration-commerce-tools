@@ -7,7 +7,7 @@ describe('CartCustomTypeActionBuilder', () => {
   it('should build an addCustomType action', () => {
     const errors: CustomFieldError[] = [
       { type: 'type1', message: 'message1' },
-      { type: 'type2', message: 'message2' },
+      { type: 'type2', message: 'message2', context: { example: 'mock' } },
     ];
 
     const action = CartCustomTypeActionBuilder.addCustomType(errors);

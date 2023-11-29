@@ -8,7 +8,10 @@ import {
 import { CTCartToEEBasketMapper } from '../../common/mappers/ctCartToEeBasket.mapper';
 import { CircuitBreakerIntercept } from '../../decorators/circuit-breaker-intercept/circuit-breaker-intercept.decorator';
 import { CircuitBreakerService } from '../../providers/circuit-breaker/circuit-breaker.service';
-import { DiscountDescription } from '../../providers/commercetools/actions/cart-update/CartCustomTypeActionBuilder';
+import {
+  CustomFieldError,
+  DiscountDescription,
+} from '../../providers/commercetools/actions/cart-update/CartCustomTypeActionBuilder';
 
 @Injectable()
 export class PromotionService {
@@ -21,9 +24,11 @@ export class PromotionService {
   async getDiscounts(cartReference: CartReference): Promise<{
     discounts: DirectDiscountDraft[];
     discountDescriptions: DiscountDescription[];
+    errors: CustomFieldError[];
   }> {
-    let discounts: DirectDiscountDraft[] = [];
-    let discountDescriptions: DiscountDescription[] = [];
+    const discounts: DirectDiscountDraft[] = [];
+    const discountDescriptions: DiscountDescription[] = [];
+    const errors: CustomFieldError[] = [];
 
     const walletOpenResponse = await this.walletInvoke(
       'open',
@@ -45,24 +50,38 @@ export class PromotionService {
         walletOpenResponse.analyseBasketResults.basket,
         cartReference.obj,
       );
-      discounts = [
+      discounts.push(
         ...basketLevelDiscounts,
         ...itemLevelDiscounts,
         ...shippingDiscounts,
-      ];
+      );
     }
+
+    const examineTokenErrors =
+      walletOpenResponse.examine
+        ?.filter((entry) => entry.errorCode)
+        .map((error) => {
+          return {
+            type: `EE_API_TOKEN_${error.errorCode}`,
+            message: error.errorMessage,
+            context: error,
+          };
+        }) || [];
+
+    errors.push(...examineTokenErrors);
 
     if (walletOpenResponse?.analyseBasketResults?.discount?.length) {
       const descriptions =
         this.cartToBasketMapper.mapBasketDiscountsToDiscountDescriptions(
           walletOpenResponse?.analyseBasketResults?.discount,
         );
-      discountDescriptions = discountDescriptions.concat(descriptions);
+      discountDescriptions.push(...descriptions);
     }
 
     return {
       discounts,
       discountDescriptions,
+      errors,
     };
   }
 

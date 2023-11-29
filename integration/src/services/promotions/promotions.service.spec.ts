@@ -178,6 +178,7 @@ describe('PromotionService', () => {
           service.cartToBasketMapper.mapBasketDiscountsToDiscountDescriptions(
             walletOpenResponse.analyseBasketResults.discount,
           ),
+        errors: [],
       });
     });
 
@@ -203,6 +204,68 @@ describe('PromotionService', () => {
       expect(result).toEqual({
         discounts: [],
         discountDescriptions: [],
+        errors: [],
+      });
+    });
+
+    it('should return token errors when provided by the EE API', async () => {
+      const cartReference = {
+        id: 'cartId',
+        obj: {
+          ...cartWithoutItems,
+          custom: {
+            type: {
+              typeId: 'type',
+              id: 'some-id',
+            },
+            fields: {
+              'eagleeye-voucherCodes': ['1234590'],
+            },
+          },
+        },
+      };
+      const walletOpenResponse = {
+        analyseBasketResults: {
+          discount: [],
+        },
+        examine: [
+          {
+            value: '1234590',
+            resourceType: null,
+            resourceId: null,
+            errorCode: 'PCEXNF',
+            errorMessage: 'Voucher invalid: Failed to load token',
+          },
+        ],
+      };
+
+      const cbFireMock = jest
+        .spyOn(circuitBreakerService, 'fire')
+        .mockResolvedValue(walletOpenResponse);
+
+      jest
+        .spyOn(configService, 'get')
+        .mockReturnValueOnce(shippingMethodMapMock);
+
+      const result = await service.getDiscounts(cartReference as any);
+
+      expect(cbFireMock).toHaveBeenCalled();
+      expect(result).toEqual({
+        discounts: [],
+        discountDescriptions: [],
+        errors: [
+          {
+            type: 'EE_API_TOKEN_PCEXNF',
+            message: 'Voucher invalid: Failed to load token',
+            context: {
+              value: '1234590',
+              resourceType: null,
+              resourceId: null,
+              errorCode: 'PCEXNF',
+              errorMessage: 'Voucher invalid: Failed to load token',
+            },
+          },
+        ],
       });
     });
   });

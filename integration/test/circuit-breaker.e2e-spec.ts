@@ -22,7 +22,19 @@ const NO_ERRORS = {
     {
       action: 'setCustomField',
       name: 'eagleeye-errors',
-      value: [],
+      value: [
+        JSON.stringify({
+          type: 'EE_API_TOKEN_PCEXNF',
+          message: 'Voucher invalid: Failed to load token',
+          context: {
+            value: '123456',
+            resourceType: null,
+            resourceId: null,
+            errorCode: 'PCEXNF',
+            errorMessage: 'Voucher invalid: Failed to load token',
+          },
+        }),
+      ],
     },
     {
       action: 'setCustomField',
