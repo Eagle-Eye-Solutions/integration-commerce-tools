@@ -120,6 +120,15 @@ export const nockWalletOpen = async (
         },
         basketAdjudicationResult: null,
         spendAdjudicationResults: null,
+        examine: [
+          {
+            value: '123456',
+            resourceType: null,
+            resourceId: null,
+            errorCode: 'PCEXNF',
+            errorMessage: 'Voucher invalid: Failed to load token',
+          },
+        ],
       },
       [],
     );

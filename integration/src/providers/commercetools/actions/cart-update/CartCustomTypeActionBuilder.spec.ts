@@ -8,6 +8,11 @@ describe('CartCustomTypeActionBuilder', () => {
     const errors: CustomFieldError[] = [
       { type: 'BASKET_STORE_DELETE', message: 'message1' },
       { type: 'EE_API_CIRCUIT_OPEN', message: 'message2' },
+      {
+        type: 'EE_API_TOKEN_PCEXNF',
+        message: 'message3',
+        context: { value: '123456' },
+      },
     ];
 
     const action = CartCustomTypeActionBuilder.addCustomType(errors);

@@ -14,8 +14,12 @@ export type CustomFieldError = {
     | 'EE_API_CIRCUIT_OPEN'
     | 'EE_PLUGIN_GENERIC_ERROR'
     | EEApiErrorType
-    | PluginErrorType;
+    | PluginErrorType
+    | 'EE_API_TOKEN_PCEXNF'
+    | 'EE_API_TOKEN_PCEXNV'
+    | 'EE_API_TOKEN_PCEXO';
   message: string;
+  context?: Record<string, any>;
 };
 
 export type DiscountDescription = {

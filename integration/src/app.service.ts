@@ -56,7 +56,7 @@ export class AppService {
       ) {
         actionBuilder.addAll(
           CartCustomTypeActionBuilder.setCustomFields(
-            [],
+            basketDiscounts.errors,
             [...basketDiscounts.discountDescriptions],
             basketLocation,
           ),
@@ -64,7 +64,7 @@ export class AppService {
       } else {
         actionBuilder.add(
           CartCustomTypeActionBuilder.addCustomType(
-            [],
+            basketDiscounts.errors,
             [...basketDiscounts.discountDescriptions],
             basketLocation,
           ),
