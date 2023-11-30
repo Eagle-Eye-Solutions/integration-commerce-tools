@@ -3,7 +3,6 @@ import { BasketLocation, BasketStoreService } from './basket-store.interface';
 import { CustomObjectService } from '../../providers/commercetools/custom-object/custom-object.service';
 import { CUSTOM_OBJECT_CONTAINER_BASKET_STORE } from '../../common/constants/constants';
 import { EagleEyePluginException } from '../../common/exceptions/eagle-eye-plugin.exception';
-import * as nock from 'nock';
 
 /**
  * Stores EagleEye basket in commercetools custom objects
@@ -16,7 +15,6 @@ export class CtBasketStoreService implements BasketStoreService {
 
   async save(eeBasket: any, ctCartId: string): Promise<BasketLocation> {
     try {
-      console.log('pending mocks', nock.pendingMocks());
       const result = await this.customObjectService.saveCustomObject(
         ctCartId,
         CUSTOM_OBJECT_CONTAINER_BASKET_STORE,
