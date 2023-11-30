@@ -3,6 +3,7 @@ import { CtBasketStoreService } from './ct-basket-store.service';
 import { CustomObjectService } from '../../providers/commercetools/custom-object/custom-object.service';
 import { CUSTOM_OBJECT_CONTAINER_BASKET_STORE } from '../../common/constants/constants';
 import { EagleEyePluginException } from '../../common/exceptions/eagle-eye-plugin.exception';
+import { ConfigService } from '@nestjs/config';
 
 describe('CtBasketStoreService', () => {
   let service: CtBasketStoreService;
@@ -17,6 +18,12 @@ describe('CtBasketStoreService', () => {
           useValue: {
             saveCustomObject: jest.fn(),
             deleteCustomObject: jest.fn(),
+          },
+        },
+        {
+          provide: ConfigService,
+          useValue: {
+            get: jest.fn(),
           },
         },
       ],

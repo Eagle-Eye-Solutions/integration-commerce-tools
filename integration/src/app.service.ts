@@ -45,10 +45,13 @@ export class AppService {
       );
 
       //store basket
-      const basketLocation = await this.basketStoreService.save(
-        basketDiscounts.enrichedBasket,
-        body.resource.id,
-      );
+      let basketLocation = null;
+      if (this.basketStoreService.isEnabled(body?.resource?.obj)) {
+        basketLocation = await this.basketStoreService.save(
+          basketDiscounts.enrichedBasket,
+          body.resource.id,
+        );
+      }
 
       const actionBuilder = new CTActionsBuilder();
       if (
@@ -81,28 +84,38 @@ export class AppService {
       return extensionActions;
     } catch (error) {
       this.logger.error(error, error.stack);
-      const customFieldError = this.getErrorDetails(error);
+
+      const errors: CustomFieldError[] = [];
+
+      errors.push(this.getErrorDetails(error));
+
+      //delete basket store
+      if (this.basketStoreService.isEnabled(body?.resource?.obj)) {
+        try {
+          await this.basketStoreService.delete(body.resource.id);
+        } catch (errorDelete) {
+          // we don't want to propagate the basket delete error otherwise it will be catched by the global error handler
+          // and the original error will be hidden
+          if (errorDelete instanceof EagleEyePluginException) {
+            const { type, message } = errorDelete;
+            errors.push({ type, message });
+          }
+        }
+      }
+
       const actionBuilder = new CTActionsBuilder();
 
       if (
         CartCustomTypeActionBuilder.checkResourceCustomType(body?.resource?.obj)
       ) {
         actionBuilder.addAll(
-          CartCustomTypeActionBuilder.setCustomFields(
-            [customFieldError],
-            [],
-            null,
-          ),
+          CartCustomTypeActionBuilder.setCustomFields(errors, [], null),
         );
       } else {
-        actionBuilder.add(
-          CartCustomTypeActionBuilder.addCustomType([customFieldError]),
-        );
+        actionBuilder.add(CartCustomTypeActionBuilder.addCustomType(errors));
       }
       // Discounts should be removed only if the basket was not persisted in AIR. See https://eagleeye.atlassian.net/browse/CTP-3
       actionBuilder.add(CartDiscountActionBuilder.removeDiscounts());
-      //delete basket store
-      await this.basketStoreService.delete(body.resource.id);
 
       const extensionActions = actionBuilder.build();
       this.logger.debug({

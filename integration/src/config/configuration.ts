@@ -29,6 +29,7 @@ const validationSchema = Joi.object({
     shippingMethodMap: Joi.array<{ key: string; upc: string }>(),
     incomingIdentifier: Joi.string().required(),
     parentIncomingIdentifier: Joi.string(),
+    storeBasketCustomObject: Joi.boolean(),
   }),
   circuitBreaker: {
     timeout: Joi.number(),
@@ -77,6 +78,10 @@ export const defaultConfiguration = {
     shippingMethodMap: parseShippingMethodMap(),
     incomingIdentifier: process.env.EE_INCOMING_IDENTIFIER,
     parentIncomingIdentifier: process.env.EE_PARENT_INCOMING_IDENTIFIER,
+    storeBasketCustomObject: parseBool(
+      process.env.ALWAYS_STORE_BASKET_IN_CUSTOM_OBJECT,
+      true,
+    ),
   },
   circuitBreaker: {
     timeout: parseInt(process.env.CIRCUIT_BREAKER_TIMEOUT, 10) || 1800,

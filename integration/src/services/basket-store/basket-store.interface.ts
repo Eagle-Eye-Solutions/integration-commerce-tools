@@ -1,3 +1,5 @@
+import { Cart } from '@commercetools/platform-sdk';
+
 export type BasketLocation = {
   uri: string;
   storeType: 'CUSTOM_TYPE' | 'S3';
@@ -16,4 +18,9 @@ export interface BasketStoreService {
    * @param ctCartID the commercetools cart ID
    */
   delete(ctCartID: string): Promise<void>;
+
+  /**
+   * Returns true if the basket should be stored, false otherwise
+   */
+  isEnabled(cart: Cart): boolean;
 }

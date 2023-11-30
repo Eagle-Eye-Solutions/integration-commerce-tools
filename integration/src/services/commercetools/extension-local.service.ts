@@ -8,12 +8,17 @@ import { Commercetools } from '../../providers/commercetools/commercetools.provi
 import { ConfigService } from '@nestjs/config';
 import { Extension } from '@commercetools/platform-sdk';
 import { extensions } from '../../common/commercetools';
+import { DEFAULT_PORT } from '../../common/constants/constants';
 
 let ngrok;
 if (process.env.NODE_ENV === 'dev' || process.env.NODE_ENV === 'test') {
   ngrok = require('ngrok');
 }
 
+/**
+ * Creates an extension in commercetools for debug purposes that triggers the local running application.
+ * Uses ngrok to create a public URL of the development app.
+ */
 @Injectable()
 export class ExtensionLocalService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(ExtensionLocalService.name);
@@ -33,7 +38,7 @@ export class ExtensionLocalService implements OnModuleInit, OnModuleDestroy {
       this.configService.get('debug.ngrokEnabled')
     ) {
       const ngrokUrl = await ngrok.connect(
-        parseInt(process.env.PORT, 10) || 8080,
+        parseInt(process.env.PORT, 10) || DEFAULT_PORT,
       );
       this.logger.log(`Initialized ngrok at ${ngrokUrl}.`);
       this.logger.log('Creating debug commercetools extension...');

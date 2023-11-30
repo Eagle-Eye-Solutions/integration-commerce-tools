@@ -1,5 +1,6 @@
 import { TypeDraft } from '@commercetools/platform-sdk';
 
+export const FIELD_EAGLEEYE_ACTION = 'eagleeye-action';
 export const ORDER_CUSTOM_FIELDS: TypeDraft = {
   key: 'custom-cart-type',
   name: {
@@ -47,7 +48,7 @@ export const ORDER_CUSTOM_FIELDS: TypeDraft = {
       inputHint: 'SingleLine',
     },
     {
-      name: 'eagleeye-action',
+      name: FIELD_EAGLEEYE_ACTION,
       label: {
         en: 'eagleeye-action',
       },
