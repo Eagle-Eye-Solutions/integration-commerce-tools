@@ -179,6 +179,7 @@ describe('PromotionService', () => {
             walletOpenResponse.analyseBasketResults.discount,
           ),
         errors: [],
+        enrichedBasket: walletOpenResponse.analyseBasketResults.basket,
       });
     });
 

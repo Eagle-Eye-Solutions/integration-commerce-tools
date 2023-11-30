@@ -5,7 +5,7 @@ import {
 import { Injectable, Logger } from '@nestjs/common';
 import {
   CUSTOM_OBJECT_CIRCUIT_BREAKER_KEY,
-  CUSTOM_OBJECT_CONTAINER,
+  CUSTOM_OBJECT_CONTAINER_CIRCUIT_BREAKER,
 } from '../../common/constants/constants';
 import { CustomObjectService } from '../commercetools/custom-object/custom-object.service';
 
@@ -24,12 +24,12 @@ export class CommercetoolsCircuitBreakerStateService
       const {
         body: { value },
       } = await this.customObjectService.getCustomObject(
-        CUSTOM_OBJECT_CONTAINER,
+        CUSTOM_OBJECT_CONTAINER_CIRCUIT_BREAKER,
         CUSTOM_OBJECT_CIRCUIT_BREAKER_KEY,
       );
       this.logger.log('Retrieved circuit breaker state');
       this.logger.debug({ message: 'Circuit breaker state', value });
-      return value as any as CircuitBreakerInfo;
+      return value as CircuitBreakerInfo;
     } catch (e) {
       if (e.code === 404) {
         this.logger.log(
@@ -52,7 +52,7 @@ export class CommercetoolsCircuitBreakerStateService
       );
       await this.customObjectService.saveCustomObject(
         CUSTOM_OBJECT_CIRCUIT_BREAKER_KEY,
-        CUSTOM_OBJECT_CONTAINER,
+        CUSTOM_OBJECT_CONTAINER_CIRCUIT_BREAKER,
         info,
       );
       this.logger.log('Circuit breaker state saved');
@@ -67,7 +67,7 @@ export class CommercetoolsCircuitBreakerStateService
   async deleteState(): Promise<void> {
     try {
       await this.customObjectService.deleteCustomObject(
-        CUSTOM_OBJECT_CONTAINER,
+        CUSTOM_OBJECT_CONTAINER_CIRCUIT_BREAKER,
         CUSTOM_OBJECT_CIRCUIT_BREAKER_KEY,
       );
     } catch (e) {

@@ -4,11 +4,14 @@ import { CircuitBreakerService } from './providers/circuit-breaker/circuit-break
 import { ExtensionInput } from '@commercetools/platform-sdk/dist/declarations/src/generated/models/extension';
 import { EagleEyeApiException } from './common/exceptions/eagle-eye-api.exception';
 import { PromotionService } from './services/promotions/promotions.service';
+import { BASKET_STORE_SERVICE } from './services/basket-store/basket-store.provider';
+import { BasketStoreService } from './services/basket-store/basket-store.interface';
 
 describe('AppService', () => {
   let service: AppService;
   let circuitBreakerService: CircuitBreakerService;
   let promotionService: PromotionService;
+  let basketStoreService: jest.Mocked<BasketStoreService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -23,6 +26,13 @@ describe('AppService', () => {
             getDiscounts: jest.fn(),
           },
         },
+        {
+          provide: BASKET_STORE_SERVICE,
+          useValue: {
+            save: jest.fn(),
+            delete: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
@@ -31,6 +41,7 @@ describe('AppService', () => {
       CircuitBreakerService,
     );
     promotionService = module.get<PromotionService>(PromotionService);
+    basketStoreService = module.get(BASKET_STORE_SERVICE);
   });
 
   it('should be defined', () => {
@@ -137,6 +148,8 @@ describe('AppService', () => {
     jest.spyOn(circuitBreakerService, 'fire').mockResolvedValue({});
     const response = await service.handleExtensionRequest(body);
     expect(response).toEqual(result);
+    expect(basketStoreService.save).toBeCalledTimes(1);
+    expect(basketStoreService.delete).toBeCalledTimes(0);
   });
 
   it('should return token errors when provided by the EE API', async () => {
@@ -201,7 +214,7 @@ describe('AppService', () => {
     };
     const error = new EagleEyeApiException(
       'EE_API_UNAVAILABLE',
-      'Circuit open',
+      'The eagle eye API is unavailable, the cart promotions and loyalty points are NOT updated',
     );
     jest.spyOn(promotionService, 'getDiscounts').mockRejectedValue(error);
     const response = await service.handleExtensionRequest(body);
@@ -227,6 +240,9 @@ describe('AppService', () => {
       ],
     });
     expect(response.actions).toHaveLength(2);
+
+    expect(basketStoreService.save).toBeCalledTimes(0);
+    expect(basketStoreService.delete).toBeCalledTimes(1);
   });
 
   class CircuitBreakerError extends Error {
@@ -265,6 +281,9 @@ describe('AppService', () => {
         },
       ],
     });
+
+    expect(basketStoreService.save).toBeCalledTimes(0);
+    expect(basketStoreService.delete).toBeCalledTimes(1);
   });
 
   it('should return EE_API_GENERIC_ERROR error in the cart custom type when any other error is thrown', async () => {
@@ -282,7 +301,7 @@ describe('AppService', () => {
           action: 'setCustomType',
           fields: {
             'eagleeye-errors': [
-              '{"type":"EE_API_GENERIC_ERROR","message":"The eagle eye API is unavailable, the cart promotions and loyalty points are NOT updated"}',
+              '{"type":"EE_API_GENERIC_ERROR","message":"Unexpected error with getting the promotions and loyalty points"}',
             ],
             'eagleeye-appliedDiscounts': [],
           },
@@ -297,6 +316,9 @@ describe('AppService', () => {
         },
       ],
     });
+
+    expect(basketStoreService.save).toBeCalledTimes(0);
+    expect(basketStoreService.delete).toBeCalledTimes(1);
   });
 
   it('should  return an empty action array if the request body is for an unsupported CT resource type', async () => {
@@ -306,5 +328,8 @@ describe('AppService', () => {
     };
     const response = await service.handleExtensionRequest(body);
     expect(response).toEqual({ actions: [] });
+
+    expect(basketStoreService.save).toBeCalledTimes(0);
+    expect(basketStoreService.delete).toBeCalledTimes(0);
   });
 });

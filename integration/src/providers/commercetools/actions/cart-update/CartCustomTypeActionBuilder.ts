@@ -4,9 +4,20 @@ import {
   BaseResource,
   TypeReference,
 } from '@commercetools/platform-sdk';
+import { EEApiErrorType } from '../../../../common/exceptions/eagle-eye-api.exception';
+import { PluginErrorType } from '../../../../common/exceptions/eagle-eye-plugin.exception';
+import { BasketLocation } from '../../../../services/basket-store/basket-store.interface';
 
 export type CustomFieldError = {
-  type: string;
+  type:
+    | 'EE_API_GENERIC_ERROR'
+    | 'EE_API_CIRCUIT_OPEN'
+    | 'EE_PLUGIN_GENERIC_ERROR'
+    | EEApiErrorType
+    | PluginErrorType
+    | 'EE_API_TOKEN_PCEXNF'
+    | 'EE_API_TOKEN_PCEXNV'
+    | 'EE_API_TOKEN_PCEXO';
   message: string;
   context?: Record<string, any>;
 };
@@ -19,6 +30,7 @@ export class CartCustomTypeActionBuilder {
   static addCustomType = (
     errors: CustomFieldError[],
     appliedDiscounts: DiscountDescription[] = [],
+    basketLocation?: BasketLocation,
   ): OrderUpdateAction => ({
     action: 'setCustomType',
     type: {
@@ -28,12 +40,15 @@ export class CartCustomTypeActionBuilder {
     fields: {
       'eagleeye-errors': errors.map((error) => JSON.stringify(error)),
       'eagleeye-appliedDiscounts': extractDescriptions(appliedDiscounts),
+      'eagleeye-basketStore': basketLocation?.storeType,
+      'eagleeye-basketUri': basketLocation?.uri,
     },
   });
 
   static setCustomFields = (
     errors: CustomFieldError[],
     appliedDiscounts: DiscountDescription[] = [],
+    basketLocation?: BasketLocation,
   ): OrderUpdateAction[] => [
     {
       action: 'setCustomField',
@@ -44,6 +59,16 @@ export class CartCustomTypeActionBuilder {
       action: 'setCustomField',
       name: 'eagleeye-appliedDiscounts',
       value: extractDescriptions(appliedDiscounts),
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-basketStore',
+      value: basketLocation?.storeType ?? '',
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-basketUri',
+      value: basketLocation?.uri ?? '',
     },
   ];
 

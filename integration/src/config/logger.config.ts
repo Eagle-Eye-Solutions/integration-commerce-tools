@@ -28,7 +28,7 @@ export const loggerConfig: { transports: Transport[] } = {
   transports: [
     ['dev', 'test'].includes(process.env.NODE_ENV)
       ? new transports.Console({
-          level: 'debug',
+          level: process.env.LOG_LEVEL ?? 'debug',
           format: format.combine(
             winston.format.timestamp(),
             winston.format.ms(),

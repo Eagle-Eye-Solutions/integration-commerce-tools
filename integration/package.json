@@ -71,7 +71,7 @@
     "jest-fetch-mock": "^3.0.3",
     "jest-mock-extended": "^3.0.5",
     "ngrok": "^5.0.0-beta.2",
-    "nock": "^13.3.8",
+    "nock": "^13.4.0",
     "prettier": "^3.0.0",
     "source-map-support": "^0.5.21",
     "supertest": "^6.3.3",

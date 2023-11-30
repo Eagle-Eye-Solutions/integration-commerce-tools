@@ -25,6 +25,7 @@ export class PromotionService {
     discounts: DirectDiscountDraft[];
     discountDescriptions: DiscountDescription[];
     errors: CustomFieldError[];
+    enrichedBasket: any;
   }> {
     const discounts: DirectDiscountDraft[] = [];
     const discountDescriptions: DiscountDescription[] = [];
@@ -82,6 +83,7 @@ export class PromotionService {
       discounts,
       discountDescriptions,
       errors,
+      enrichedBasket: walletOpenResponse?.analyseBasketResults?.basket,
     };
   }
 
