@@ -1,11 +1,11 @@
 import * as nock from 'nock';
 
-export const nockCtAuth = (times = 1) => {
+export const nockCtAuth = () => {
   return nock('https://auth.europe-west1.gcp.commercetools.com:443', {
     encodedQueryParams: true,
   })
+    .persist()
     .post('/oauth/token', 'grant_type=client_credentials')
-    .times(times)
     .reply(
       200,
       [
@@ -24,6 +24,7 @@ export const nockCtGetShippingMethodsWithIds = (ids: string[], times = 1) => {
   return nock('https://api.europe-west1.gcp.commercetools.com:443', {
     encodedQueryParams: false,
   })
+    .persist()
     .get(`/${process.env.CTP_PROJECT_KEY}/shipping-methods`)
     .query({
       where: `id in ("${ids.join('","')}")`,

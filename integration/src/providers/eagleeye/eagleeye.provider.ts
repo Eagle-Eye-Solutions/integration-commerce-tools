@@ -97,7 +97,7 @@ export abstract class EagleEyeSdkObject implements BreakableApi {
       this.logger.error('EagleEye API error: ', err, EagleEyeSdkObject.name);
       throw new EagleEyeApiException(
         'EE_API_UNAVAILABLE',
-        'Error calling EagleEye API',
+        'The eagle eye API is unavailable, the cart promotions and loyalty points are NOT updated',
       );
     }
   }

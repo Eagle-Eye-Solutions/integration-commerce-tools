@@ -21,6 +21,7 @@ export class PromotionService {
   async getDiscounts(cartReference: CartReference): Promise<{
     discounts: DirectDiscountDraft[];
     discountDescriptions: DiscountDescription[];
+    enrichedBasket: any;
   }> {
     let discounts: DirectDiscountDraft[] = [];
     let discountDescriptions: DiscountDescription[] = [];
@@ -63,6 +64,7 @@ export class PromotionService {
     return {
       discounts,
       discountDescriptions,
+      enrichedBasket: walletOpenResponse?.analyseBasketResults?.basket,
     };
   }
 

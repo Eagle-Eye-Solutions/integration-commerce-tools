@@ -3,7 +3,7 @@ import { CommercetoolsCircuitBreakerStateService } from './commercetools-circuit
 import { CustomObjectService } from '../commercetools/custom-object/custom-object.service';
 import {
   CUSTOM_OBJECT_CIRCUIT_BREAKER_KEY,
-  CUSTOM_OBJECT_CONTAINER,
+  CUSTOM_OBJECT_CONTAINER_CIRCUIT_BREAKER,
 } from '../../common/constants/constants';
 
 describe('Commercetools Circuit Breaker State Service', () => {
@@ -39,7 +39,7 @@ describe('Commercetools Circuit Breaker State Service', () => {
     const result = await service.loadState();
 
     expect(customObjectService.getCustomObject).toHaveBeenCalledWith(
-      CUSTOM_OBJECT_CONTAINER,
+      CUSTOM_OBJECT_CONTAINER_CIRCUIT_BREAKER,
       CUSTOM_OBJECT_CIRCUIT_BREAKER_KEY,
     );
     expect(result).toEqual(mockCircuitBreakerInfo);
@@ -69,7 +69,7 @@ describe('Commercetools Circuit Breaker State Service', () => {
 
     expect(customObjectService.saveCustomObject).toHaveBeenCalledWith(
       CUSTOM_OBJECT_CIRCUIT_BREAKER_KEY,
-      CUSTOM_OBJECT_CONTAINER,
+      CUSTOM_OBJECT_CONTAINER_CIRCUIT_BREAKER,
       mockCircuitBreakerInfo,
     );
   });
@@ -80,7 +80,7 @@ describe('Commercetools Circuit Breaker State Service', () => {
     await service.deleteState();
 
     expect(customObjectService.deleteCustomObject).toHaveBeenCalledWith(
-      CUSTOM_OBJECT_CONTAINER,
+      CUSTOM_OBJECT_CONTAINER_CIRCUIT_BREAKER,
       CUSTOM_OBJECT_CIRCUIT_BREAKER_KEY,
     );
   });

@@ -11,6 +11,7 @@ const validationSchema = Joi.object({
   debug: Joi.object({
     extensionKey: Joi.string(),
     ngrokEnabled: Joi.boolean(),
+    extensionTriggerCondition: Joi.string(),
   }),
   commercetools: Joi.object({
     projectKey: Joi.string().required(),
@@ -55,6 +56,7 @@ export const defaultConfiguration = {
   debug: {
     extensionKey: process.env.DEBUG_EXTENSION_KEY || 'dev-debug-extension',
     ngrokEnabled: process.env.NGROK_ENABLED === 'true',
+    extensionTriggerCondition: process.env.DEBUG_EXTENSION_TRIGGER_CONDITION,
   },
   commercetools: {
     projectKey: process.env.CTP_PROJECT_KEY,

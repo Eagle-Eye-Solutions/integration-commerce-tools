@@ -1,0 +1,111 @@
+export const SUCCESS_RESPONSE = {
+  actions: [
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-errors',
+      value: [],
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-appliedDiscounts',
+      value: ['Example Discount'],
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-basketStore',
+      value: 'CUSTOM_TYPE',
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-basketUri',
+      value:
+        'custom-objects/eagleeye-cart/8be07418-04a0-49ba-b56f-2aa35d1027a4',
+    },
+    {
+      action: 'setDirectDiscounts',
+      discounts: [
+        {
+          value: {
+            type: 'absolute',
+            money: [
+              {
+                centAmount: 200,
+                currencyCode: 'GBP',
+                type: 'centPrecision',
+                fractionDigits: 2,
+              },
+            ],
+          },
+          target: {
+            type: 'totalPrice',
+          },
+        },
+        {
+          value: {
+            type: 'absolute',
+            money: [
+              {
+                centAmount: 500,
+                currencyCode: 'GBP',
+                type: 'centPrecision',
+                fractionDigits: 2,
+              },
+            ],
+          },
+          target: {
+            type: 'totalPrice',
+          },
+        },
+        {
+          value: {
+            type: 'absolute',
+            money: [
+              {
+                centAmount: 100,
+                currencyCode: 'GBP',
+                type: 'centPrecision',
+                fractionDigits: 2,
+              },
+            ],
+          },
+          target: {
+            type: 'lineItems',
+            predicate: 'sku="245865"',
+          },
+        },
+        {
+          value: {
+            type: 'absolute',
+            money: [
+              {
+                centAmount: 250,
+                currencyCode: 'GBP',
+                type: 'centPrecision',
+                fractionDigits: 2,
+              },
+            ],
+          },
+          target: {
+            type: 'shipping',
+          },
+        },
+      ],
+    },
+  ],
+};
+
+export const ERROR_RESPONSE = {
+  actions: [
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-errors',
+      value: [
+        '{"type":"EE_API_UNAVAILABLE","message":"The eagle eye API is unavailable, the cart promotions and loyalty points are NOT updated"}',
+      ],
+    },
+    { action: 'setCustomField', name: 'eagleeye-appliedDiscounts', value: [] },
+    { action: 'setCustomField', name: 'eagleeye-basketStore', value: '' },
+    { action: 'setCustomField', name: 'eagleeye-basketUri', value: '' },
+    { action: 'setDirectDiscounts', discounts: [] },
+  ],
+};
