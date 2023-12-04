@@ -20,23 +20,22 @@ export class EagleEyeApiClient {
   public schemes: Schemes;
 
   constructor(
-    readonly logger: Logger,
     readonly configService: ConfigService,
     readonly httpService: HttpService,
   ) {
-    this.wallet = new Wallet(logger, configService, httpService);
-    this.token = new Token(logger, configService, httpService);
-    this.campaigns = new Campaigns(logger, configService, httpService);
-    this.schemes = new Schemes(logger, configService, httpService);
+    this.wallet = new Wallet(configService, httpService);
+    this.token = new Token(configService, httpService);
+    this.campaigns = new Campaigns(configService, httpService);
+    this.schemes = new Schemes(configService, httpService);
   }
 }
 
 export abstract class EagleEyeSdkObject implements BreakableApi {
   public basePath = this.configService.get('eagleEye.walletUrl');
   private credentials: EagleEyeCredentials;
+  private readonly logger = new Logger(EagleEyeSdkObject.name);
 
   protected constructor(
-    readonly logger: Logger,
     readonly configService: ConfigService,
     readonly httpService: HttpService,
   ) {
@@ -106,11 +105,10 @@ export abstract class EagleEyeSdkObject implements BreakableApi {
 @Injectable()
 export class Wallet extends EagleEyeSdkObject {
   constructor(
-    readonly logger: Logger,
     readonly configService: ConfigService,
     readonly httpService: HttpService,
   ) {
-    super(logger, configService, httpService);
+    super(configService, httpService);
     this.basePath = this.configService.get('eagleEye.posUrl');
     // Binds the object context to the callApi method so that the circuit breaker can access it
     this.invoke = this.invoke.bind(this);
@@ -124,11 +122,10 @@ export class Wallet extends EagleEyeSdkObject {
 @Injectable()
 export class Token extends EagleEyeSdkObject {
   constructor(
-    readonly logger: Logger,
     readonly configService: ConfigService,
     readonly httpService: HttpService,
   ) {
-    super(logger, configService, httpService);
+    super(configService, httpService);
     this.basePath = this.configService.get('eagleEye.walletUrl');
     // Binds the object context to the callApi method so that the circuit breaker can access it
     this.invoke = this.invoke.bind(this);
@@ -141,11 +138,10 @@ export class Token extends EagleEyeSdkObject {
 
 export class Campaigns extends EagleEyeSdkObject {
   constructor(
-    readonly logger: Logger,
     readonly configService: ConfigService,
     readonly httpService: HttpService,
   ) {
-    super(logger, configService, httpService);
+    super(configService, httpService);
     this.basePath = this.configService.get('eagleEye.resourcesUrl');
     // Binds the object context to the callApi method so that the circuit breaker can access it
     this.invoke = this.invoke.bind(this);
@@ -158,11 +154,10 @@ export class Campaigns extends EagleEyeSdkObject {
 
 export class Schemes extends EagleEyeSdkObject {
   constructor(
-    readonly logger: Logger,
     readonly configService: ConfigService,
     readonly httpService: HttpService,
   ) {
-    super(logger, configService, httpService);
+    super(configService, httpService);
     this.basePath = this.configService.get('eagleEye.resourcesUrl');
     // Binds the object context to the callApi method so that the circuit breaker can access it
     this.invoke = this.invoke.bind(this);

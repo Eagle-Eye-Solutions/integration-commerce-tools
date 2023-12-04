@@ -35,7 +35,7 @@ export class CircuitBreakerService implements OnModuleInit {
       errorThresholdPercentage: this.configService.get<number>(
         'circuitBreaker.errorThresholdPercentage',
       ),
-      timeout: this.configService.get<number>('circuitBreaker.timeout', 1800),
+      timeout: this.configService.get<number>('circuitBreaker.timeout', 1700),
       resetTimeout: this.configService.get<number>(
         'circuitBreaker.resetTimeout',
       ),
