@@ -30,6 +30,7 @@ const validationSchema = Joi.object({
     incomingIdentifier: Joi.string().required(),
     parentIncomingIdentifier: Joi.string(),
     storeBasketCustomObject: Joi.boolean(),
+    apiClientTimeout: Joi.number(),
   }),
   circuitBreaker: {
     timeout: Joi.number(),
@@ -82,9 +83,10 @@ export const defaultConfiguration = {
       process.env.ALWAYS_STORE_BASKET_IN_CUSTOM_OBJECT,
       true,
     ),
+    apiClientTimeout: process.env.EE_API_CLIENT_TIMEOUT || 1800,
   },
   circuitBreaker: {
-    timeout: parseInt(process.env.CIRCUIT_BREAKER_TIMEOUT, 10) || 1800,
+    timeout: parseInt(process.env.CIRCUIT_BREAKER_TIMEOUT, 10) || 1700,
     resetTimeout:
       parseInt(process.env.CIRCUIT_BREAKER_RESET_TIMEOUT, 10) || undefined,
     errorThresholdPercentage:

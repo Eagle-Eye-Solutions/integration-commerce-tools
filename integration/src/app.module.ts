@@ -1,8 +1,8 @@
-import { Logger, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { Commercetools } from './providers/commercetools/commercetools.provider';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { configuration, validateConfiguration } from './config/configuration';
 import { CircuitBreakerService } from './providers/circuit-breaker/circuit-breaker.service';
 import { CustomObjectService } from './providers/commercetools/custom-object/custom-object.service';
@@ -25,8 +25,15 @@ import { BasketStoreServiceProvider } from './services/basket-store/basket-store
       load: [configuration],
       isGlobal: true,
       validate: validateConfiguration,
+      cache: true,
     }),
-    HttpModule,
+    HttpModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        timeout: configService.get<number>('eagleEye.apiClientTimeout'),
+      }),
+      inject: [ConfigService],
+    }),
     WinstonModule.forRoot(loggerConfig),
   ],
   controllers: [AppController],
@@ -38,7 +45,6 @@ import { BasketStoreServiceProvider } from './services/basket-store/basket-store
     CircuitBreakerSateServiceProvider,
     CustomObjectService,
     CustomTypeService,
-    Logger,
     OrderCustomTypeCommand,
     PromotionService,
     EagleEyeApiClient,

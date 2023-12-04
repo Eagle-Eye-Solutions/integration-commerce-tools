@@ -81,7 +81,7 @@ describe('CircuitBreakerService', () => {
     await service.onModuleInit();
     expect(configService.get).toHaveBeenCalledWith(
       'circuitBreaker.timeout',
-      1800,
+      1700,
     );
 
     expect(jest.spyOn(circuitBreakerState, 'loadState')).toBeCalledTimes(1);
