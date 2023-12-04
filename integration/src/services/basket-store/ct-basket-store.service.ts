@@ -3,6 +3,9 @@ import { BasketLocation, BasketStoreService } from './basket-store.interface';
 import { CustomObjectService } from '../../providers/commercetools/custom-object/custom-object.service';
 import { CUSTOM_OBJECT_CONTAINER_BASKET_STORE } from '../../common/constants/constants';
 import { EagleEyePluginException } from '../../common/exceptions/eagle-eye-plugin.exception';
+import { ConfigService } from '@nestjs/config';
+import { Cart } from '@commercetools/platform-sdk';
+import { FIELD_EAGLEEYE_ACTION } from '../../providers/commercetools/custom-type/custom-type-definitions';
 
 /**
  * Stores EagleEye basket in commercetools custom objects
@@ -10,8 +13,21 @@ import { EagleEyePluginException } from '../../common/exceptions/eagle-eye-plugi
 @Injectable()
 export class CtBasketStoreService implements BasketStoreService {
   private readonly logger = new Logger(CtBasketStoreService.name);
+  private readonly storeBasketCustomObject = this.configService.get(
+    'eagleEye.storeBasketCustomObject',
+  );
 
-  constructor(private readonly customObjectService: CustomObjectService) {}
+  constructor(
+    private readonly customObjectService: CustomObjectService,
+    private readonly configService: ConfigService,
+  ) {}
+
+  isEnabled(cart: Cart) {
+    return (
+      this.storeBasketCustomObject ||
+      cart.custom.fields[FIELD_EAGLEEYE_ACTION] === 'SAVE_BASKET'
+    );
+  }
 
   async save(eeBasket: any, ctCartId: string): Promise<BasketLocation> {
     try {
@@ -22,6 +38,9 @@ export class CtBasketStoreService implements BasketStoreService {
           enrichedBasket: eeBasket,
           cart: { typeId: 'cart', id: ctCartId },
         },
+      );
+      this.logger.log(
+        `Saved EagleEye enriched basket to: 'custom-objects/${CUSTOM_OBJECT_CONTAINER_BASKET_STORE}/${result.body.key}'`,
       );
       return {
         storeType: 'CUSTOM_TYPE',

@@ -6,6 +6,13 @@ import { EagleEyeApiException } from './common/exceptions/eagle-eye-api.exceptio
 import { PromotionService } from './services/promotions/promotions.service';
 import { BASKET_STORE_SERVICE } from './services/basket-store/basket-store.provider';
 import { BasketStoreService } from './services/basket-store/basket-store.interface';
+import { EagleEyePluginException } from './common/exceptions/eagle-eye-plugin.exception';
+
+class CircuitBreakerError extends Error {
+  constructor(public code: string) {
+    super();
+  }
+}
 
 describe('AppService', () => {
   let service: AppService;
@@ -31,6 +38,7 @@ describe('AppService', () => {
           useValue: {
             save: jest.fn(),
             delete: jest.fn(),
+            isEnabled: jest.fn(),
           },
         },
       ],
@@ -124,6 +132,7 @@ describe('AppService', () => {
       discountDescriptions,
       errors: [],
     } as any);
+    jest.spyOn(basketStoreService, 'isEnabled').mockReturnValue(true);
     const result = {
       actions: [
         {
@@ -152,6 +161,68 @@ describe('AppService', () => {
     expect(basketStoreService.delete).toBeCalledTimes(0);
   });
 
+  it('should not store the enriched basket if that option is not enabled', async () => {
+    const body: ExtensionInput = {
+      action: 'Create',
+      resource: {
+        typeId: 'cart',
+        id: '123',
+        obj: {} as any,
+      },
+    };
+    const discountDrafts = [
+      {
+        target: {
+          type: 'totalPrice',
+        },
+        value: {
+          money: [
+            {
+              centAmount: 100,
+              currencyCode: 'GBP',
+              fractionDigits: 2,
+              type: 'centPrecision',
+            },
+          ],
+          type: 'absolute',
+        },
+      },
+    ];
+    const discountDescriptions = [];
+    jest.spyOn(promotionService, 'getDiscounts').mockResolvedValueOnce({
+      discounts: discountDrafts,
+      discountDescriptions,
+      errors: [],
+    } as any);
+    jest.spyOn(basketStoreService, 'isEnabled').mockReturnValue(false);
+    const result = {
+      actions: [
+        {
+          action: 'setCustomType',
+          fields: {
+            'eagleeye-errors': [],
+            'eagleeye-appliedDiscounts': discountDescriptions.map(
+              (d) => d.description,
+            ),
+          },
+          type: {
+            key: 'custom-cart-type',
+            typeId: 'type',
+          },
+        },
+        {
+          action: 'setDirectDiscounts',
+          discounts: discountDrafts,
+        },
+      ],
+    };
+    jest.spyOn(circuitBreakerService, 'fire').mockResolvedValue({});
+    const response = await service.handleExtensionRequest(body);
+    expect(response).toEqual(result);
+    expect(basketStoreService.save).toBeCalledTimes(0);
+    expect(basketStoreService.delete).toBeCalledTimes(0);
+  });
+
   it('should return token errors when provided by the EE API', async () => {
     const body: ExtensionInput = {
       action: 'Create',
@@ -176,6 +247,7 @@ describe('AppService', () => {
         },
       },
     ];
+    jest.spyOn(basketStoreService, 'isEnabled').mockReturnValue(true);
     jest.spyOn(promotionService, 'getDiscounts').mockResolvedValueOnce({
       discounts: discountDrafts,
       discountDescriptions,
@@ -205,6 +277,8 @@ describe('AppService', () => {
     jest.spyOn(circuitBreakerService, 'fire').mockResolvedValue({});
     const response = await service.handleExtensionRequest(body);
     expect(response).toEqual(result);
+    expect(basketStoreService.save).toBeCalledTimes(1);
+    expect(basketStoreService.delete).toBeCalledTimes(0);
   });
 
   it('should return EE_API_UNAVAILABLE error in the cart custom type when the API request to EagleEye fails', async () => {
@@ -216,6 +290,7 @@ describe('AppService', () => {
       'EE_API_UNAVAILABLE',
       'The eagle eye API is unavailable, the cart promotions and loyalty points are NOT updated',
     );
+    jest.spyOn(basketStoreService, 'isEnabled').mockReturnValue(true);
     jest.spyOn(promotionService, 'getDiscounts').mockRejectedValue(error);
     const response = await service.handleExtensionRequest(body);
     expect(response).toEqual({
@@ -245,11 +320,23 @@ describe('AppService', () => {
     expect(basketStoreService.delete).toBeCalledTimes(1);
   });
 
-  class CircuitBreakerError extends Error {
-    constructor(public code: string) {
-      super();
-    }
-  }
+  it('should not try to delete the enriched basket when the feature is not enabled and the EE API fails', async () => {
+    const body: ExtensionInput = {
+      action: 'Update',
+      resource: { typeId: 'cart', id: '123', obj: {} as any },
+    };
+    const error = new EagleEyeApiException(
+      'EE_API_UNAVAILABLE',
+      'The eagle eye API is unavailable, the cart promotions and loyalty points are NOT updated',
+    );
+    jest.spyOn(basketStoreService, 'isEnabled').mockReturnValue(false);
+    jest.spyOn(promotionService, 'getDiscounts').mockRejectedValue(error);
+    const response = await service.handleExtensionRequest(body);
+    expect(response.actions).toHaveLength(2);
+
+    expect(basketStoreService.save).toBeCalledTimes(0);
+    expect(basketStoreService.delete).toBeCalledTimes(0);
+  });
 
   it('should return EE_API_CIRCUIT_OPEN error in the cart custom type when the circuit breaker is open', async () => {
     const body: ExtensionInput = {
@@ -258,6 +345,7 @@ describe('AppService', () => {
     };
     const error = new CircuitBreakerError('EOPENBREAKER');
     jest.spyOn(promotionService, 'getDiscounts').mockRejectedValue(error);
+    jest.spyOn(basketStoreService, 'isEnabled').mockReturnValue(true);
     const response = await service.handleExtensionRequest(body);
     expect(response.actions).toHaveLength(2);
     expect(response).toEqual({
@@ -292,6 +380,7 @@ describe('AppService', () => {
       resource: { typeId: 'cart', id: '123', obj: {} as any },
     };
     const error = new Error('SOME_OTHER_ERROR');
+    jest.spyOn(basketStoreService, 'isEnabled').mockReturnValue(true);
     jest.spyOn(promotionService, 'getDiscounts').mockRejectedValue(error);
     const response = await service.handleExtensionRequest(body);
     expect(response.actions).toHaveLength(2);
@@ -302,6 +391,51 @@ describe('AppService', () => {
           fields: {
             'eagleeye-errors': [
               '{"type":"EE_API_GENERIC_ERROR","message":"Unexpected error with getting the promotions and loyalty points"}',
+            ],
+            'eagleeye-appliedDiscounts': [],
+          },
+          type: {
+            key: 'custom-cart-type',
+            typeId: 'type',
+          },
+        },
+        {
+          action: 'setDirectDiscounts',
+          discounts: [],
+        },
+      ],
+    });
+
+    expect(basketStoreService.save).toBeCalledTimes(0);
+    expect(basketStoreService.delete).toBeCalledTimes(1);
+  });
+
+  it('should add the BASKET_DELETE error message to the errors list if fails to delete the saved basked following another error', async () => {
+    const body: ExtensionInput = {
+      action: 'Update',
+      resource: { typeId: 'cart', id: '123', obj: {} as any },
+    };
+    const error = new Error('SOME_OTHER_ERROR');
+    jest.spyOn(basketStoreService, 'isEnabled').mockReturnValue(true);
+    jest
+      .spyOn(basketStoreService, 'delete')
+      .mockRejectedValue(
+        new EagleEyePluginException(
+          'BASKET_STORE_DELETE',
+          'Error deleting enriched basket',
+        ),
+      );
+    jest.spyOn(promotionService, 'getDiscounts').mockRejectedValue(error);
+    const response = await service.handleExtensionRequest(body);
+    expect(response.actions).toHaveLength(2);
+    expect(response).toEqual({
+      actions: [
+        {
+          action: 'setCustomType',
+          fields: {
+            'eagleeye-errors': [
+              '{"type":"EE_API_GENERIC_ERROR","message":"Unexpected error with getting the promotions and loyalty points"}',
+              '{"type":"BASKET_STORE_DELETE","message":"Error deleting enriched basket"}',
             ],
             'eagleeye-appliedDiscounts': [],
           },

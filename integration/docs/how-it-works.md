@@ -49,4 +49,10 @@ Any other error in the plugin will also be added to the `errors` field in the `C
 }
 ```
 
-TODO
+## Settle
+
+TODO Explain why is required to settle
+
+### Storing Eagle-Eye enriched basket
+
+TODO Explain how/when to store the eriched basket (configuration options / eagleeye-action)
