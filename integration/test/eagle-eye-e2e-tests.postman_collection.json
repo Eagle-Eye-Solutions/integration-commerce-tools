@@ -2228,263 +2228,438 @@
 					"name": "Discount not applied",
 					"item": [
 						{
-							"name": "Obtain access token",
-							"event": [
+							"name": "No shipping method",
+							"item": [
 								{
-									"listen": "test",
-									"script": {
-										"type": "text/javascript",
-										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;",
-											"var data = JSON.parse(responseBody);",
-											"if(data.access_token){",
-											"    pm.environment.set(\"ctp_access_token\", data.access_token);",
-											"}",
-											"if (data.scope) {",
-											"    parts = data.scope.split(\" \");",
-											"    parts = parts.filter(scope => scope.includes(\":\")).map(scope => scope.split(\":\"))",
-											"    if (parts.length > 0) {",
-											"        scopeParts = parts[0];",
-											"        pm.environment.set(\"project-key\", scopeParts[1]);",
-											"        parts = parts.filter(scope => scope.length >= 3)",
-											"        if (parts.length > 0) {",
-											"            scopeParts = parts[0];",
-											"            pm.environment.set(\"store-key\", scopeParts[2]);",
-											"        }",
-											"    }",
-											"}"
-										]
-									}
-								}
-							],
-							"request": {
-								"auth": {
-									"type": "basic",
-									"basic": [
+									"name": "Obtain access token",
+									"event": [
 										{
-											"key": "username",
-											"value": "{{client_id}}",
-											"type": "string"
+											"listen": "test",
+											"script": {
+												"type": "text/javascript",
+												"exec": [
+													"tests[\"Status code is 200\"] = responseCode.code === 200;",
+													"var data = JSON.parse(responseBody);",
+													"if(data.access_token){",
+													"    pm.environment.set(\"ctp_access_token\", data.access_token);",
+													"}",
+													"if (data.scope) {",
+													"    parts = data.scope.split(\" \");",
+													"    parts = parts.filter(scope => scope.includes(\":\")).map(scope => scope.split(\":\"))",
+													"    if (parts.length > 0) {",
+													"        scopeParts = parts[0];",
+													"        pm.environment.set(\"project-key\", scopeParts[1]);",
+													"        parts = parts.filter(scope => scope.length >= 3)",
+													"        if (parts.length > 0) {",
+													"            scopeParts = parts[0];",
+													"            pm.environment.set(\"store-key\", scopeParts[2]);",
+													"        }",
+													"    }",
+													"}"
+												]
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "basic",
+											"basic": [
+												{
+													"key": "username",
+													"value": "{{client_id}}",
+													"type": "string"
+												},
+												{
+													"key": "password",
+													"value": "{{client_secret}}",
+													"type": "string"
+												}
+											]
 										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{auth_url}}/oauth/token?grant_type=client_credentials",
+											"host": [
+												"{{auth_url}}"
+											],
+											"path": [
+												"oauth",
+												"token"
+											],
+											"query": [
+												{
+													"key": "grant_type",
+													"value": "client_credentials"
+												}
+											]
+										},
+										"description": "Use this request to obtain an access token for your commercetools platform project via Client Credentials Flow. As a prerequisite you must have filled out environment variables in Postman for projectKey, client_id and client_secret to use this."
+									},
+									"response": []
+								},
+								{
+									"name": "Create Cart: No shipping method",
+									"event": [
 										{
-											"key": "password",
-											"value": "{{client_secret}}",
-											"type": "string"
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var data = JSON.parse(responseBody);",
+													"",
+													"pm.test('Check status code', () => {",
+													"    pm.expect(pm.response.code).to.be.oneOf([200, 201])",
+													"})",
+													"",
+													"pm.test(\"Discount not is registered under 'appliedDiscounts'\", function () {",
+													"    pm.expect(data.custom.fields['eagleeye-appliedDiscounts'].some(discount => discount.includes('Shipping'))).to.be.false;",
+													"});",
+													"",
+													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
+													"    pm.environment.set(\"cart-id\", data.results[0].id); ",
+													"    pm.environment.set(\"cart-version\", data.results[0].version);",
+													"}",
+													"if(data.results && data.results[0] && data.results[0].key){",
+													"    pm.environment.set(\"cart-key\", data.results[0].key); ",
+													"}",
+													"if(data.version){",
+													"    pm.environment.set(\"cart-version\", data.version);",
+													"}",
+													"if(data.id){",
+													"    pm.environment.set(\"cart-id\", data.id); ",
+													"}",
+													"if(data.key){",
+													"    pm.environment.set(\"cart-key\", data.key);",
+													"}",
+													"",
+													""
+												],
+												"type": "text/javascript"
+											}
 										}
-									]
-								},
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
-								"url": {
-									"raw": "{{auth_url}}/oauth/token?grant_type=client_credentials",
-									"host": [
-										"{{auth_url}}"
 									],
-									"path": [
-										"oauth",
-										"token"
-									],
-									"query": [
+									"request": {
+										"auth": {
+											"type": "oauth2",
+											"oauth2": [
+												{
+													"key": "accessToken",
+													"value": "{{ctp_access_token}}",
+													"type": "string"
+												},
+												{
+													"key": "addTokenTo",
+													"value": "header",
+													"type": "string"
+												},
+												{
+													"key": "tokenType",
+													"value": "Bearer",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"currency\" : \"GBP\",\n  \"lineItems\": [\n      {\n          \"sku\": \"245872\",\n          \"quantity\": 1\n      }\n  ],\n  \"shippingAddress\": {\n      \"country\": \"GB\"\n  }\n}\n"
+										},
+										"url": {
+											"raw": "{{host}}/{{project-key}}/carts",
+											"host": [
+												"{{host}}"
+											],
+											"path": [
+												"{{project-key}}",
+												"carts"
+											],
+											"query": [
+												{
+													"key": "expand",
+													"value": "",
+													"disabled": true
+												}
+											]
+										},
+										"description": "Creating a Cart fails with an [InvalidOperation](ctp:api:type:InvalidOperationError) error if the\n[ShippingMethod](ctp:api:type:ShippingMethod) referenced in the CartDraft\nhas a `predicate` that does not match the Cart.\n"
+									},
+									"response": []
+								},
+								{
+									"name": "Delete Cart",
+									"event": [
 										{
-											"key": "grant_type",
-											"value": "client_credentials"
+											"listen": "test",
+											"script": {
+												"exec": [
+													"tests[\"Status code \" + responseCode.code] = responseCode.code === 200 || responseCode.code === 201;",
+													"var data = JSON.parse(responseBody);",
+													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
+													"    pm.environment.set(\"cart-id\", data.results[0].id); ",
+													"    pm.environment.set(\"cart-version\", data.results[0].version);",
+													"}",
+													"if(data.results && data.results[0] && data.results[0].key){",
+													"    pm.environment.set(\"cart-key\", data.results[0].key); ",
+													"}",
+													"if(data.version){",
+													"    pm.environment.set(\"cart-version\", data.version);",
+													"}",
+													"if(data.id){",
+													"    pm.environment.set(\"cart-id\", data.id); ",
+													"}",
+													"if(data.key){",
+													"    pm.environment.set(\"cart-key\", data.key);",
+													"}",
+													""
+												],
+												"type": "text/javascript"
+											}
 										}
-									]
-								},
-								"description": "Use this request to obtain an access token for your commercetools platform project via Client Credentials Flow. As a prerequisite you must have filled out environment variables in Postman for projectKey, client_id and client_secret to use this."
-							},
-							"response": []
+									],
+									"request": {
+										"auth": {
+											"type": "oauth2",
+											"oauth2": [
+												{
+													"key": "accessToken",
+													"value": "{{ctp_access_token}}",
+													"type": "string"
+												},
+												{
+													"key": "addTokenTo",
+													"value": "header",
+													"type": "string"
+												},
+												{
+													"key": "tokenType",
+													"value": "Bearer",
+													"type": "string"
+												}
+											]
+										},
+										"method": "DELETE",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{host}}/{{project-key}}/carts/{{cart-id}}?version={{cart-version}}",
+											"host": [
+												"{{host}}"
+											],
+											"path": [
+												"{{project-key}}",
+												"carts",
+												"{{cart-id}}"
+											],
+											"query": [
+												{
+													"key": "dataErasure",
+													"value": "",
+													"disabled": true
+												},
+												{
+													"key": "version",
+													"value": "{{cart-version}}"
+												},
+												{
+													"key": "expand",
+													"value": "",
+													"disabled": true
+												}
+											]
+										},
+										"description": "null"
+									},
+									"response": []
+								}
+							]
 						},
 						{
-							"name": "Create Cart: No shipping method",
-							"event": [
+							"name": "No shipping address",
+							"item": [
 								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"var data = JSON.parse(responseBody);",
-											"",
-											"pm.test('Check status code', () => {",
-											"    pm.expect(pm.response.code).to.be.oneOf([200, 201])",
-											"})",
-											"",
-											"pm.test(\"Discount not is registered under 'appliedDiscounts'\", function () {",
-											"    pm.expect(data.custom.fields['eagleeye-appliedDiscounts'].some(discount => discount.includes('Shipping'))).to.be.false;",
-											"});",
-											"",
-											"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
-											"    pm.environment.set(\"cart-id\", data.results[0].id); ",
-											"    pm.environment.set(\"cart-version\", data.results[0].version);",
-											"}",
-											"if(data.results && data.results[0] && data.results[0].key){",
-											"    pm.environment.set(\"cart-key\", data.results[0].key); ",
-											"}",
-											"if(data.version){",
-											"    pm.environment.set(\"cart-version\", data.version);",
-											"}",
-											"if(data.id){",
-											"    pm.environment.set(\"cart-id\", data.id); ",
-											"}",
-											"if(data.key){",
-											"    pm.environment.set(\"cart-key\", data.key);",
-											"}",
-											"",
-											""
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"auth": {
-									"type": "oauth2",
-									"oauth2": [
+									"name": "Obtain access token",
+									"event": [
 										{
-											"key": "accessToken",
-											"value": "{{ctp_access_token}}",
-											"type": "string"
-										},
-										{
-											"key": "addTokenTo",
-											"value": "header",
-											"type": "string"
-										},
-										{
-											"key": "tokenType",
-											"value": "Bearer",
-											"type": "string"
+											"listen": "test",
+											"script": {
+												"type": "text/javascript",
+												"exec": [
+													"tests[\"Status code is 200\"] = responseCode.code === 200;",
+													"var data = JSON.parse(responseBody);",
+													"if(data.access_token){",
+													"    pm.environment.set(\"ctp_access_token\", data.access_token);",
+													"}",
+													"if (data.scope) {",
+													"    parts = data.scope.split(\" \");",
+													"    parts = parts.filter(scope => scope.includes(\":\")).map(scope => scope.split(\":\"))",
+													"    if (parts.length > 0) {",
+													"        scopeParts = parts[0];",
+													"        pm.environment.set(\"project-key\", scopeParts[1]);",
+													"        parts = parts.filter(scope => scope.length >= 3)",
+													"        if (parts.length > 0) {",
+													"            scopeParts = parts[0];",
+													"            pm.environment.set(\"store-key\", scopeParts[2]);",
+													"        }",
+													"    }",
+													"}"
+												]
+											}
 										}
-									]
-								},
-								"method": "POST",
-								"header": [
-									{
-										"key": "Content-Type",
-										"value": "application/json"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n  \"currency\" : \"GBP\",\n  \"lineItems\": [\n      {\n          \"sku\": \"245872\",\n          \"quantity\": 1\n      }\n  ],\n  \"shippingAddress\": {\n      \"country\": \"GB\"\n  }\n}\n"
-								},
-								"url": {
-									"raw": "{{host}}/{{project-key}}/carts",
-									"host": [
-										"{{host}}"
 									],
-									"path": [
-										"{{project-key}}",
-										"carts"
-									],
-									"query": [
-										{
-											"key": "expand",
-											"value": "",
-											"disabled": true
-										}
-									]
+									"request": {
+										"auth": {
+											"type": "basic",
+											"basic": [
+												{
+													"key": "username",
+													"value": "{{client_id}}",
+													"type": "string"
+												},
+												{
+													"key": "password",
+													"value": "{{client_secret}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{auth_url}}/oauth/token?grant_type=client_credentials",
+											"host": [
+												"{{auth_url}}"
+											],
+											"path": [
+												"oauth",
+												"token"
+											],
+											"query": [
+												{
+													"key": "grant_type",
+													"value": "client_credentials"
+												}
+											]
+										},
+										"description": "Use this request to obtain an access token for your commercetools platform project via Client Credentials Flow. As a prerequisite you must have filled out environment variables in Postman for projectKey, client_id and client_secret to use this."
+									},
+									"response": []
 								},
-								"description": "Creating a Cart fails with an [InvalidOperation](ctp:api:type:InvalidOperationError) error if the\n[ShippingMethod](ctp:api:type:ShippingMethod) referenced in the CartDraft\nhas a `predicate` that does not match the Cart.\n"
-							},
-							"response": []
-						},
-						{
-							"name": "Delete Cart",
-							"event": [
 								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"tests[\"Status code \" + responseCode.code] = responseCode.code === 200 || responseCode.code === 201;",
-											"var data = JSON.parse(responseBody);",
-											"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
-											"    pm.environment.set(\"cart-id\", data.results[0].id); ",
-											"    pm.environment.set(\"cart-version\", data.results[0].version);",
-											"}",
-											"if(data.results && data.results[0] && data.results[0].key){",
-											"    pm.environment.set(\"cart-key\", data.results[0].key); ",
-											"}",
-											"if(data.version){",
-											"    pm.environment.set(\"cart-version\", data.version);",
-											"}",
-											"if(data.id){",
-											"    pm.environment.set(\"cart-id\", data.id); ",
-											"}",
-											"if(data.key){",
-											"    pm.environment.set(\"cart-key\", data.key);",
-											"}",
-											""
+									"name": "Create Cart: No shipping address",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var data = JSON.parse(responseBody);",
+													"",
+													"pm.test('Check status code', () => {",
+													"    pm.expect(pm.response.code).to.equal(400)",
+													"})",
+													"",
+													"pm.test(\"'Shipping address not set' response error\", function () {",
+													"    pm.expect(data.message).to.equal('Shipping address is not set.');",
+													"});",
+													"",
+													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
+													"    pm.environment.set(\"cart-id\", data.results[0].id); ",
+													"    pm.environment.set(\"cart-version\", data.results[0].version);",
+													"}",
+													"if(data.results && data.results[0] && data.results[0].key){",
+													"    pm.environment.set(\"cart-key\", data.results[0].key); ",
+													"}",
+													"if(data.version){",
+													"    pm.environment.set(\"cart-version\", data.version);",
+													"}",
+													"if(data.id){",
+													"    pm.environment.set(\"cart-id\", data.id); ",
+													"}",
+													"if(data.key){",
+													"    pm.environment.set(\"cart-key\", data.key);",
+													"}",
+													"",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "oauth2",
+											"oauth2": [
+												{
+													"key": "accessToken",
+													"value": "{{ctp_access_token}}",
+													"type": "string"
+												},
+												{
+													"key": "addTokenTo",
+													"value": "header",
+													"type": "string"
+												},
+												{
+													"key": "tokenType",
+													"value": "Bearer",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
 										],
-										"type": "text/javascript"
-									}
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"currency\" : \"GBP\",\n  \"lineItems\": [\n      {\n          \"sku\": \"245872\",\n          \"quantity\": 1\n      }\n  ],\n  \"shippingMethod\": {\n      \"typeId\": \"shipping-method\",\n      \"key\": \"standard-key\"\n  }\n}\n"
+										},
+										"url": {
+											"raw": "{{host}}/{{project-key}}/carts",
+											"host": [
+												"{{host}}"
+											],
+											"path": [
+												"{{project-key}}",
+												"carts"
+											],
+											"query": [
+												{
+													"key": "expand",
+													"value": "",
+													"disabled": true
+												}
+											]
+										},
+										"description": "Creating a Cart fails with an [InvalidOperation](ctp:api:type:InvalidOperationError) error if the\n[ShippingMethod](ctp:api:type:ShippingMethod) referenced in the CartDraft\nhas a `predicate` that does not match the Cart.\n"
+									},
+									"response": []
 								}
-							],
-							"request": {
-								"auth": {
-									"type": "oauth2",
-									"oauth2": [
-										{
-											"key": "accessToken",
-											"value": "{{ctp_access_token}}",
-											"type": "string"
-										},
-										{
-											"key": "addTokenTo",
-											"value": "header",
-											"type": "string"
-										},
-										{
-											"key": "tokenType",
-											"value": "Bearer",
-											"type": "string"
-										}
-									]
-								},
-								"method": "DELETE",
-								"header": [
-									{
-										"key": "Content-Type",
-										"value": "application/json"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
-								"url": {
-									"raw": "{{host}}/{{project-key}}/carts/{{cart-id}}?version={{cart-version}}",
-									"host": [
-										"{{host}}"
-									],
-									"path": [
-										"{{project-key}}",
-										"carts",
-										"{{cart-id}}"
-									],
-									"query": [
-										{
-											"key": "dataErasure",
-											"value": "",
-											"disabled": true
-										},
-										{
-											"key": "version",
-											"value": "{{cart-version}}"
-										},
-										{
-											"key": "expand",
-											"value": "",
-											"disabled": true
-										}
-									]
-								},
-								"description": "null"
-							},
-							"response": []
+							]
 						}
 					],
 					"description": "Shipping discount should not be applied if no shippingMethod is stated."
@@ -3032,7 +3207,7 @@
 			"name": "No Longer Applicable Promotions",
 			"item": [
 				{
-					"name": "Basket level discounts",
+					"name": "Basket/Meal discounts",
 					"item": [
 						{
 							"name": "Open basket level discount",
@@ -3633,7 +3808,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"version\": {{cart-version}},\n    \"actions\": [\n        {\n            \"action\" : \"setCustomerEmail\",\n            \"customerEmail\": \"john.nottargeted@example.org\"\n          }\n    ]\n}"
+											"raw": "{\n    \"version\": {{cart-version}},\n    \"actions\": [\n        {\n            \"action\" : \"setCustomerEmail\",\n            \"customerEmail\": \"john.nottargeted@example.org\"\n        }\n    ]\n}"
 										},
 										"url": {
 											"raw": "{{host}}/{{project-key}}/carts/{{cart-id}}",
@@ -3751,8 +3926,7 @@
 									},
 									"response": []
 								}
-							],
-							"description": "## Targeted Customer:\n\n1. Email: [john.toe1@example.org](https://mailto:john.toe1@example.org)"
+							]
 						}
 					]
 				},
@@ -4358,7 +4532,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"version\": {{cart-version}},\n    \"actions\": [\n        {\n            \"action\" : \"setCustomerEmail\",\n            \"customerEmail\": \"john.nottargeted@example.org\"\n          }\n    ]\n}"
+											"raw": "{\n    \"version\": {{cart-version}},\n    \"actions\": [\n        {\n            \"action\" : \"setCustomerEmail\",\n            \"customerEmail\": \"john.nottargeted@example.org\"\n        }\n    ]\n}"
 										},
 										"url": {
 											"raw": "{{host}}/{{project-key}}/carts/{{cart-id}}",
@@ -4491,11 +4665,569 @@
 					"name": "Valid Codes",
 					"item": [
 						{
+							"name": "Basket Level Discount Code",
+							"item": [
+								{
+									"name": "Create EE discount token",
+									"event": [
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"// Load global pre-request script object",
+													"var ee = eval(pm.globals.get('ees'));",
+													"",
+													"// Set up any environment variables",
+													"ee.setUrl('wallet_url');",
+													"",
+													"// Call the global authentication function",
+													"ee.auth();"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"tests[\"Status code is 201\"] = responseCode.code === 201;",
+													"",
+													"var jsonData = JSON.parse(responseBody);",
+													"pm.collectionVariables.set('basketDiscountToken', jsonData.token);"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "X-EES-AUTH-HASH",
+												"value": "{{xAuthHash}}"
+											},
+											{
+												"key": "X-EES-AUTH-CLIENT-ID",
+												"value": "{{xAuthClientId}}"
+											},
+											{
+												"key": "X-AUTH-HASH",
+												"value": "{{xAuthHash}}"
+											},
+											{
+												"key": "X-AUTH-CLIENT-ID",
+												"value": "{{xAuthClientId}}"
+											},
+											{
+												"key": "X-TRANSACTION-ID",
+												"value": "{{xTransactionId}}"
+											},
+											{
+												"key": "X-RETRY",
+												"value": "1"
+											},
+											{
+												"key": "X-EES-OPERATOR",
+												"value": "1"
+											},
+											{
+												"key": "X-EES-CALLER",
+												"value": "DASHBOARD"
+											},
+											{
+												"key": "X-EES-CALLER-VERSION",
+												"value": "0"
+											},
+											{
+												"key": "X-EES-MESSAGEID",
+												"value": "03d476861afd384510f2cb80ccfa8511"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"resourceType\": \"CAMPAIGN\",\n    \"resourceId\": 1744391\n}"
+										},
+										"url": {
+											"raw": "{{url}}/token/create",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"token",
+												"create"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Obtain access token",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"type": "text/javascript",
+												"exec": [
+													"tests[\"Status code is 200\"] = responseCode.code === 200;",
+													"var data = JSON.parse(responseBody);",
+													"if(data.access_token){",
+													"    pm.environment.set(\"ctp_access_token\", data.access_token);",
+													"}",
+													"if (data.scope) {",
+													"    parts = data.scope.split(\" \");",
+													"    parts = parts.filter(scope => scope.includes(\":\")).map(scope => scope.split(\":\"))",
+													"    if (parts.length > 0) {",
+													"        scopeParts = parts[0];",
+													"        pm.environment.set(\"project-key\", scopeParts[1]);",
+													"        parts = parts.filter(scope => scope.length >= 3)",
+													"        if (parts.length > 0) {",
+													"            scopeParts = parts[0];",
+													"            pm.environment.set(\"store-key\", scopeParts[2]);",
+													"        }",
+													"    }",
+													"}"
+												]
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "basic",
+											"basic": [
+												{
+													"key": "username",
+													"value": "{{client_id}}",
+													"type": "string"
+												},
+												{
+													"key": "password",
+													"value": "{{client_secret}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{auth_url}}/oauth/token?grant_type=client_credentials",
+											"host": [
+												"{{auth_url}}"
+											],
+											"path": [
+												"oauth",
+												"token"
+											],
+											"query": [
+												{
+													"key": "grant_type",
+													"value": "client_credentials"
+												}
+											]
+										},
+										"description": "Use this request to obtain an access token for your commercetools platform project via Client Credentials Flow. As a prerequisite you must have filled out environment variables in Postman for projectKey, client_id and client_secret to use this."
+									},
+									"response": []
+								},
+								{
+									"name": "Create Cart: Basket level discount code",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var data = JSON.parse(responseBody);",
+													"",
+													"pm.test('Check status code', () => {",
+													"    pm.expect(pm.response.code).to.be.oneOf([200, 201])",
+													"})",
+													"",
+													"pm.test(\"Discount is added to 'appliedDiscounts'\", function () {",
+													"    pm.expect(data.custom.fields['eagleeye-appliedDiscounts'].some(discount => discount.includes('Discount Basket with Token'))).to.be.true;",
+													"});",
+													"",
+													"pm.collectionVariables.set('customBasketDiscountTokenId', data.lineItems[0].id)",
+													"",
+													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
+													"    pm.environment.set(\"cart-id\", data.results[0].id); ",
+													"    pm.environment.set(\"cart-version\", data.results[0].version);",
+													"}",
+													"if(data.results && data.results[0] && data.results[0].key){",
+													"    pm.environment.set(\"cart-key\", data.results[0].key); ",
+													"}",
+													"if(data.version){",
+													"    pm.environment.set(\"cart-version\", data.version);",
+													"}",
+													"if(data.id){",
+													"    pm.environment.set(\"cart-id\", data.id); ",
+													"}",
+													"if(data.key){",
+													"    pm.environment.set(\"cart-key\", data.key);",
+													"}",
+													"",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "oauth2",
+											"oauth2": [
+												{
+													"key": "accessToken",
+													"value": "{{ctp_access_token}}",
+													"type": "string"
+												},
+												{
+													"key": "addTokenTo",
+													"value": "header",
+													"type": "string"
+												},
+												{
+													"key": "tokenType",
+													"value": "Bearer",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"currency\": \"GBP\",\n  \"customerEmail\": \"john.toe@example.org\",\n  \"lineItems\": [\n    {\n      \"sku\": \"245873\",\n      \"quantity\": 3\n    }\n  ],\n  \"custom\": {\n      \"type\": {\n          \"typeId\": \"type\",\n          \"key\": \"custom-cart-type\"\n      },\n      \"fields\": {\n          \"eagleeye-voucherCodes\": [\n              \"{{basketDiscountToken}}\"\n          ]\n      }\n  }\n}"
+										},
+										"url": {
+											"raw": "{{host}}/{{project-key}}/carts",
+											"host": [
+												"{{host}}"
+											],
+											"path": [
+												"{{project-key}}",
+												"carts"
+											],
+											"query": [
+												{
+													"key": "expand",
+													"value": "",
+													"disabled": true
+												}
+											]
+										},
+										"description": "Creating a Cart fails with an [InvalidOperation](ctp:api:type:InvalidOperationError) error if the\n[ShippingMethod](ctp:api:type:ShippingMethod) referenced in the CartDraft\nhas a `predicate` that does not match the Cart.\n"
+									},
+									"response": []
+								},
+								{
+									"name": "Update Cart: Change items",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var data = JSON.parse(responseBody);",
+													"",
+													"pm.test('Check status code', () => {",
+													"    pm.expect(pm.response.code).to.be.oneOf([200, 201])",
+													"})",
+													"",
+													"pm.test(\"Discount has been removed from 'appliedDiscounts'\", function () {",
+													"    pm.expect(data.custom.fields['eagleeye-appliedDiscounts'].some(discount => discount.includes('Discount Basket with Token'))).to.be.false;",
+													"});",
+													"",
+													"pm.test(\"'Not Valid' Error is seen under 'eagleeye-errors'\", function () {",
+													"    pm.expect(data.custom.fields['eagleeye-errors'].some(discount => discount.includes('Not Valid'))).to.be.true;",
+													"});",
+													"",
+													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
+													"    pm.environment.set(\"cart-id\", data.results[0].id); ",
+													"    pm.environment.set(\"cart-version\", data.results[0].version);",
+													"}",
+													"if(data.results && data.results[0] && data.results[0].key){",
+													"    pm.environment.set(\"cart-key\", data.results[0].key); ",
+													"}",
+													"if(data.version){",
+													"    pm.environment.set(\"cart-version\", data.version);",
+													"}",
+													"if(data.id){",
+													"    pm.environment.set(\"cart-id\", data.id); ",
+													"}",
+													"if(data.key){",
+													"    pm.environment.set(\"cart-key\", data.key);",
+													"}",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "oauth2",
+											"oauth2": [
+												{
+													"key": "accessToken",
+													"value": "{{ctp_access_token}}",
+													"type": "string"
+												},
+												{
+													"key": "addTokenTo",
+													"value": "header",
+													"type": "string"
+												},
+												{
+													"key": "tokenType",
+													"value": "Bearer",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"version\": {{cart-version}},\n    \"actions\": [\n        {\n            \"action\" : \"changeLineItemQuantity\",\n            \"lineItemId\" : \"{{customBasketDiscountTokenId}}\",\n            \"quantity\" : 0\n          }\n    ]\n}"
+										},
+										"url": {
+											"raw": "{{host}}/{{project-key}}/carts/{{cart-id}}",
+											"host": [
+												"{{host}}"
+											],
+											"path": [
+												"{{project-key}}",
+												"carts",
+												"{{cart-id}}"
+											],
+											"query": [
+												{
+													"key": "expand",
+													"value": "",
+													"disabled": true
+												}
+											]
+										},
+										"description": "post Carts"
+									},
+									"response": []
+								},
+								{
+									"name": "Delete Cart",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"tests[\"Status code \" + responseCode.code] = responseCode.code === 200 || responseCode.code === 201;",
+													"var data = JSON.parse(responseBody);",
+													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
+													"    pm.environment.set(\"cart-id\", data.results[0].id); ",
+													"    pm.environment.set(\"cart-version\", data.results[0].version);",
+													"}",
+													"if(data.results && data.results[0] && data.results[0].key){",
+													"    pm.environment.set(\"cart-key\", data.results[0].key); ",
+													"}",
+													"if(data.version){",
+													"    pm.environment.set(\"cart-version\", data.version);",
+													"}",
+													"if(data.id){",
+													"    pm.environment.set(\"cart-id\", data.id); ",
+													"}",
+													"if(data.key){",
+													"    pm.environment.set(\"cart-key\", data.key);",
+													"}",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "oauth2",
+											"oauth2": [
+												{
+													"key": "accessToken",
+													"value": "{{ctp_access_token}}",
+													"type": "string"
+												},
+												{
+													"key": "addTokenTo",
+													"value": "header",
+													"type": "string"
+												},
+												{
+													"key": "tokenType",
+													"value": "Bearer",
+													"type": "string"
+												}
+											]
+										},
+										"method": "DELETE",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{host}}/{{project-key}}/carts/{{cart-id}}?version={{cart-version}}",
+											"host": [
+												"{{host}}"
+											],
+											"path": [
+												"{{project-key}}",
+												"carts",
+												"{{cart-id}}"
+											],
+											"query": [
+												{
+													"key": "dataErasure",
+													"value": "",
+													"disabled": true
+												},
+												{
+													"key": "expand",
+													"value": "",
+													"disabled": true
+												},
+												{
+													"key": "version",
+													"value": "{{cart-version}}"
+												}
+											]
+										},
+										"description": "null"
+									},
+									"response": []
+								}
+							],
+							"description": "## Discount information\n\n- Campaignid: 1744391.\n    \n- Campaign name: Discount Basket (15%) with Token.\n    \n- Campaign type: Discount Basket.\n    \n- Reward type: 15% Off basket."
+						},
+						{
 							"name": "Item Level Discount Code",
 							"item": [
 								{
 									"name": "Single Item",
 									"item": [
+										{
+											"name": "Create EE discount token",
+											"event": [
+												{
+													"listen": "prerequest",
+													"script": {
+														"exec": [
+															"// Load global pre-request script object",
+															"var ee = eval(pm.globals.get('ees'));",
+															"",
+															"// Set up any environment variables",
+															"ee.setUrl('wallet_url');",
+															"",
+															"// Call the global authentication function",
+															"ee.auth();"
+														],
+														"type": "text/javascript"
+													}
+												},
+												{
+													"listen": "test",
+													"script": {
+														"exec": [
+															"tests[\"Status code is 201\"] = responseCode.code === 201;",
+															"",
+															"var jsonData = JSON.parse(responseBody);",
+															"pm.collectionVariables.set('itemDiscountToken', jsonData.token);"
+														],
+														"type": "text/javascript"
+													}
+												}
+											],
+											"request": {
+												"method": "POST",
+												"header": [
+													{
+														"key": "X-EES-AUTH-HASH",
+														"value": "{{xAuthHash}}"
+													},
+													{
+														"key": "X-EES-AUTH-CLIENT-ID",
+														"value": "{{xAuthClientId}}"
+													},
+													{
+														"key": "X-AUTH-HASH",
+														"value": "{{xAuthHash}}"
+													},
+													{
+														"key": "X-AUTH-CLIENT-ID",
+														"value": "{{xAuthClientId}}"
+													},
+													{
+														"key": "X-TRANSACTION-ID",
+														"value": "{{xTransactionId}}"
+													},
+													{
+														"key": "X-RETRY",
+														"value": "1"
+													},
+													{
+														"key": "X-EES-OPERATOR",
+														"value": "1"
+													},
+													{
+														"key": "X-EES-CALLER",
+														"value": "DASHBOARD"
+													},
+													{
+														"key": "X-EES-CALLER-VERSION",
+														"value": "0"
+													},
+													{
+														"key": "X-EES-MESSAGEID",
+														"value": "03d476861afd384510f2cb80ccfa8511"
+													},
+													{
+														"key": "Content-Type",
+														"value": "application/json"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n    \"resourceType\": \"CAMPAIGN\",\n    \"resourceId\": 1744392\n}"
+												},
+												"url": {
+													"raw": "{{url}}/token/create",
+													"host": [
+														"{{url}}"
+													],
+													"path": [
+														"token",
+														"create"
+													]
+												}
+											},
+											"response": []
+										},
 										{
 											"name": "Obtain access token",
 											"event": [
@@ -4640,7 +5372,7 @@
 												],
 												"body": {
 													"mode": "raw",
-													"raw": "{\n  \"currency\": \"GBP\",\n  \"customerEmail\": \"john.toe7@example.org\",\n  \"lineItems\": [\n    {\n      \"sku\": \"245885\",\n      \"quantity\": 1\n    }\n  ],\n  \"custom\": {\n      \"type\": {\n          \"typeId\": \"type\",\n          \"key\": \"custom-cart-type\"\n      },\n      \"fields\": {\n          \"eagleeye-voucherCodes\": [\n              \"45383453461596\"\n          ]\n      }\n  }\n}"
+													"raw": "{\n  \"currency\": \"GBP\",\n  \"customerEmail\": \"john.toe@example.org\",\n  \"lineItems\": [\n    {\n      \"sku\": \"245885\",\n      \"quantity\": 1\n    }\n  ],\n  \"custom\": {\n      \"type\": {\n          \"typeId\": \"type\",\n          \"key\": \"custom-cart-type\"\n      },\n      \"fields\": {\n          \"eagleeye-voucherCodes\": [\n              \"{{itemDiscountToken}}\"\n          ]\n      }\n  }\n}"
 												},
 												"url": {
 													"raw": "{{host}}/{{project-key}}/carts",
@@ -4860,6 +5592,103 @@
 									"name": "Multiple items",
 									"item": [
 										{
+											"name": "Create EE discount token",
+											"event": [
+												{
+													"listen": "prerequest",
+													"script": {
+														"exec": [
+															"// Load global pre-request script object",
+															"var ee = eval(pm.globals.get('ees'));",
+															"",
+															"// Set up any environment variables",
+															"ee.setUrl('wallet_url');",
+															"",
+															"// Call the global authentication function",
+															"ee.auth();"
+														],
+														"type": "text/javascript"
+													}
+												},
+												{
+													"listen": "test",
+													"script": {
+														"exec": [
+															"tests[\"Status code is 201\"] = responseCode.code === 201;",
+															"",
+															"var jsonData = JSON.parse(responseBody);",
+															"pm.collectionVariables.set('itemDiscountToken', jsonData.token);"
+														],
+														"type": "text/javascript"
+													}
+												}
+											],
+											"request": {
+												"method": "POST",
+												"header": [
+													{
+														"key": "X-EES-AUTH-HASH",
+														"value": "{{xAuthHash}}"
+													},
+													{
+														"key": "X-EES-AUTH-CLIENT-ID",
+														"value": "{{xAuthClientId}}"
+													},
+													{
+														"key": "X-AUTH-HASH",
+														"value": "{{xAuthHash}}"
+													},
+													{
+														"key": "X-AUTH-CLIENT-ID",
+														"value": "{{xAuthClientId}}"
+													},
+													{
+														"key": "X-TRANSACTION-ID",
+														"value": "{{xTransactionId}}"
+													},
+													{
+														"key": "X-RETRY",
+														"value": "1"
+													},
+													{
+														"key": "X-EES-OPERATOR",
+														"value": "1"
+													},
+													{
+														"key": "X-EES-CALLER",
+														"value": "DASHBOARD"
+													},
+													{
+														"key": "X-EES-CALLER-VERSION",
+														"value": "0"
+													},
+													{
+														"key": "X-EES-MESSAGEID",
+														"value": "03d476861afd384510f2cb80ccfa8511"
+													},
+													{
+														"key": "Content-Type",
+														"value": "application/json"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n    \"resourceType\": \"CAMPAIGN\",\n    \"resourceId\": 1744392\n}"
+												},
+												"url": {
+													"raw": "{{url}}/token/create",
+													"host": [
+														"{{url}}"
+													],
+													"path": [
+														"token",
+														"create"
+													]
+												}
+											},
+											"response": []
+										},
+										{
 											"name": "Obtain access token",
 											"event": [
 												{
@@ -5003,7 +5832,7 @@
 												],
 												"body": {
 													"mode": "raw",
-													"raw": "{\n  \"currency\": \"GBP\",\n  \"customerEmail\": \"john.toe7@example.org\",\n  \"lineItems\": [\n    {\n      \"sku\": \"245885\",\n      \"quantity\": 1\n    },\n    {\n      \"sku\": \"245872\",\n      \"quantity\": 1\n    }\n  ],\n  \"custom\": {\n      \"type\": {\n          \"typeId\": \"type\",\n          \"key\": \"custom-cart-type\"\n      },\n      \"fields\": {\n          \"eagleeye-voucherCodes\": [\n              \"78573545840842\"\n          ]\n      }\n  }\n}"
+													"raw": "{\n  \"currency\": \"GBP\",\n  \"customerEmail\": \"john.toe@example.org\",\n  \"lineItems\": [\n    {\n      \"sku\": \"245885\",\n      \"quantity\": 1\n    },\n    {\n      \"sku\": \"245872\",\n      \"quantity\": 1\n    }\n  ],\n  \"custom\": {\n      \"type\": {\n          \"typeId\": \"type\",\n          \"key\": \"custom-cart-type\"\n      },\n      \"fields\": {\n          \"eagleeye-voucherCodes\": [\n              \"{{itemDiscountToken}}\"\n          ]\n      }\n  }\n}"
 												},
 												"url": {
 													"raw": "{{host}}/{{project-key}}/carts",
@@ -5223,8 +6052,105 @@
 							"description": "## Discount information\n\n- Campaignid: 1744392.\n- Campaign name: Product Discount With Token (UPC: 245885).\n- Campaign type: Discount Products.\n- Reward type: £2 Off UPC: 245885."
 						},
 						{
-							"name": "Basket Level Discount Code",
+							"name": "Multi-item Discount Code",
 							"item": [
+								{
+									"name": "Create EE discount token",
+									"event": [
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"// Load global pre-request script object",
+													"var ee = eval(pm.globals.get('ees'));",
+													"",
+													"// Set up any environment variables",
+													"ee.setUrl('wallet_url');",
+													"",
+													"// Call the global authentication function",
+													"ee.auth();"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"tests[\"Status code is 201\"] = responseCode.code === 201;",
+													"",
+													"var jsonData = JSON.parse(responseBody);",
+													"pm.collectionVariables.set('multiItemDiscountToken', jsonData.token);"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "X-EES-AUTH-HASH",
+												"value": "{{xAuthHash}}"
+											},
+											{
+												"key": "X-EES-AUTH-CLIENT-ID",
+												"value": "{{xAuthClientId}}"
+											},
+											{
+												"key": "X-AUTH-HASH",
+												"value": "{{xAuthHash}}"
+											},
+											{
+												"key": "X-AUTH-CLIENT-ID",
+												"value": "{{xAuthClientId}}"
+											},
+											{
+												"key": "X-TRANSACTION-ID",
+												"value": "{{xTransactionId}}"
+											},
+											{
+												"key": "X-RETRY",
+												"value": "1"
+											},
+											{
+												"key": "X-EES-OPERATOR",
+												"value": "1"
+											},
+											{
+												"key": "X-EES-CALLER",
+												"value": "DASHBOARD"
+											},
+											{
+												"key": "X-EES-CALLER-VERSION",
+												"value": "0"
+											},
+											{
+												"key": "X-EES-MESSAGEID",
+												"value": "03d476861afd384510f2cb80ccfa8511"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"resourceType\": \"CAMPAIGN\",\n    \"resourceId\": 1746967\n}"
+										},
+										"url": {
+											"raw": "{{url}}/token/create",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"token",
+												"create"
+											]
+										}
+									},
+									"response": []
+								},
 								{
 									"name": "Obtain access token",
 									"event": [
@@ -5298,7 +6224,7 @@
 									"response": []
 								},
 								{
-									"name": "Create Cart: Basket level discount code",
+									"name": "Create Cart: Multi-item discount code",
 									"event": [
 										{
 											"listen": "test",
@@ -5311,10 +6237,10 @@
 													"})",
 													"",
 													"pm.test(\"Discount is added to 'appliedDiscounts'\", function () {",
-													"    pm.expect(data.custom.fields['eagleeye-appliedDiscounts'].some(discount => discount.includes('Discount Basket with Token'))).to.be.true;",
+													"    pm.expect(data.custom.fields['eagleeye-appliedDiscounts'].some(discount => discount.includes('Meal Deal with Token'))).to.be.true;",
 													"});",
 													"",
-													"pm.collectionVariables.set('customBasketDiscountTokenId', data.lineItems[0].id)",
+													"pm.collectionVariables.set('customMealDiscountTokenId', data.lineItems[0].id)",
 													"",
 													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
 													"    pm.environment.set(\"cart-id\", data.results[0].id); ",
@@ -5369,7 +6295,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"currency\": \"GBP\",\n  \"customerEmail\": \"john.toe7@example.org\",\n  \"lineItems\": [\n    {\n      \"sku\": \"245873\",\n      \"quantity\": 3\n    }\n  ],\n  \"custom\": {\n      \"type\": {\n          \"typeId\": \"type\",\n          \"key\": \"custom-cart-type\"\n      },\n      \"fields\": {\n          \"eagleeye-voucherCodes\": [\n              \"77421608703986\"\n          ]\n      }\n  }\n}"
+											"raw": "{\n  \"currency\": \"GBP\",\n  \"customerEmail\": \"john.toe@example.org\",\n  \"lineItems\": [\n    {\n      \"sku\": \"245871\",\n      \"quantity\": 1\n    },\n    {\n      \"sku\": \"245872\",\n      \"quantity\": 1\n    },\n    {\n      \"sku\": \"245873\",\n      \"quantity\": 1\n    }\n  ],\n  \"custom\": {\n      \"type\": {\n          \"typeId\": \"type\",\n          \"key\": \"custom-cart-type\"\n      },\n      \"fields\": {\n          \"eagleeye-voucherCodes\": [\n              \"{{multiItemDiscountToken}}\"\n          ]\n      }\n  }\n}"
 										},
 										"url": {
 											"raw": "{{host}}/{{project-key}}/carts",
@@ -5393,7 +6319,7 @@
 									"response": []
 								},
 								{
-									"name": "Update Cart: Remove items",
+									"name": "Update Cart: Change items",
 									"event": [
 										{
 											"listen": "test",
@@ -5406,7 +6332,7 @@
 													"})",
 													"",
 													"pm.test(\"Discount has been removed from 'appliedDiscounts'\", function () {",
-													"    pm.expect(data.custom.fields['eagleeye-appliedDiscounts'].some(discount => discount.includes('Discount Basket with Token'))).to.be.false;",
+													"    pm.expect(data.custom.fields['eagleeye-appliedDiscounts'].some(discount => discount.includes('Meal Deal with Token'))).to.be.false;",
 													"});",
 													"",
 													"pm.test(\"'Not Valid' Error is seen under 'eagleeye-errors'\", function () {",
@@ -5465,7 +6391,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"version\": {{cart-version}},\n    \"actions\": [\n        {\n            \"action\" : \"changeLineItemQuantity\",\n            \"lineItemId\" : \"{{customBasketDiscountTokenId}}\",\n            \"quantity\" : 0\n          }\n    ]\n}"
+											"raw": "{\n    \"version\": {{cart-version}},\n    \"actions\": [\n        {\n            \"action\" : \"changeLineItemQuantity\",\n            \"lineItemId\" : \"{{customMealDiscountTokenId}}\",\n            \"quantity\" : 0\n          }\n    ]\n}"
 										},
 										"url": {
 											"raw": "{{host}}/{{project-key}}/carts/{{cart-id}}",
@@ -5584,10 +6510,376 @@
 									"response": []
 								}
 							],
-							"description": "## Discount information\n\n- Campaignid: 1744391.\n    \n- Campaign name: Discount Basket (15%) with Token.\n    \n- Campaign type: Discount Basket.\n    \n- Reward type: 15% Off basket."
+							"description": "## Discount information\n\n- Campaignid: 1746967.\n    \n- Campaign name: Targeted Meal Deal with Token (UPCs: 245871, 245872, 245873)\n- Campaign type: Meal Deal.\n- Reward type: £1 off."
+						},
+						{
+							"name": "Shipping Discount Code",
+							"item": [
+								{
+									"name": "Create EE discount token",
+									"event": [
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"// Load global pre-request script object",
+													"var ee = eval(pm.globals.get('ees'));",
+													"",
+													"// Set up any environment variables",
+													"ee.setUrl('wallet_url');",
+													"",
+													"// Call the global authentication function",
+													"ee.auth();"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"tests[\"Status code is 201\"] = responseCode.code === 201;",
+													"",
+													"var jsonData = JSON.parse(responseBody);",
+													"pm.collectionVariables.set('shippingDiscountToken', jsonData.token);"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "X-EES-AUTH-HASH",
+												"value": "{{xAuthHash}}"
+											},
+											{
+												"key": "X-EES-AUTH-CLIENT-ID",
+												"value": "{{xAuthClientId}}"
+											},
+											{
+												"key": "X-AUTH-HASH",
+												"value": "{{xAuthHash}}"
+											},
+											{
+												"key": "X-AUTH-CLIENT-ID",
+												"value": "{{xAuthClientId}}"
+											},
+											{
+												"key": "X-TRANSACTION-ID",
+												"value": "{{xTransactionId}}"
+											},
+											{
+												"key": "X-RETRY",
+												"value": "1"
+											},
+											{
+												"key": "X-EES-OPERATOR",
+												"value": "1"
+											},
+											{
+												"key": "X-EES-CALLER",
+												"value": "DASHBOARD"
+											},
+											{
+												"key": "X-EES-CALLER-VERSION",
+												"value": "0"
+											},
+											{
+												"key": "X-EES-MESSAGEID",
+												"value": "03d476861afd384510f2cb80ccfa8511"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"resourceType\": \"CAMPAIGN\",\n    \"resourceId\": 1746956\n}"
+										},
+										"url": {
+											"raw": "{{url}}/token/create",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"token",
+												"create"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Obtain access token",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"type": "text/javascript",
+												"exec": [
+													"tests[\"Status code is 200\"] = responseCode.code === 200;",
+													"var data = JSON.parse(responseBody);",
+													"if(data.access_token){",
+													"    pm.environment.set(\"ctp_access_token\", data.access_token);",
+													"}",
+													"if (data.scope) {",
+													"    parts = data.scope.split(\" \");",
+													"    parts = parts.filter(scope => scope.includes(\":\")).map(scope => scope.split(\":\"))",
+													"    if (parts.length > 0) {",
+													"        scopeParts = parts[0];",
+													"        pm.environment.set(\"project-key\", scopeParts[1]);",
+													"        parts = parts.filter(scope => scope.length >= 3)",
+													"        if (parts.length > 0) {",
+													"            scopeParts = parts[0];",
+													"            pm.environment.set(\"store-key\", scopeParts[2]);",
+													"        }",
+													"    }",
+													"}"
+												]
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "basic",
+											"basic": [
+												{
+													"key": "username",
+													"value": "{{client_id}}",
+													"type": "string"
+												},
+												{
+													"key": "password",
+													"value": "{{client_secret}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{auth_url}}/oauth/token?grant_type=client_credentials",
+											"host": [
+												"{{auth_url}}"
+											],
+											"path": [
+												"oauth",
+												"token"
+											],
+											"query": [
+												{
+													"key": "grant_type",
+													"value": "client_credentials"
+												}
+											]
+										},
+										"description": "Use this request to obtain an access token for your commercetools platform project via Client Credentials Flow. As a prerequisite you must have filled out environment variables in Postman for projectKey, client_id and client_secret to use this."
+									},
+									"response": []
+								},
+								{
+									"name": "Create Cart: Shipping discount code",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var data = JSON.parse(responseBody);",
+													"",
+													"pm.test('Check status code', () => {",
+													"    pm.expect(pm.response.code).to.be.oneOf([200, 201])",
+													"})",
+													"",
+													"pm.test(\"Discount is added to 'appliedDiscounts'\", function () {",
+													"    pm.expect(data.custom.fields['eagleeye-appliedDiscounts'].some(discount => discount.includes('Discount on Standard Shipping with Token'))).to.be.true;",
+													"});",
+													"",
+													"//Related: 'taxedShippingPrice' is not showing up some times. Comercetools service desk ticket opened: SUPPORT-24310",
+													"pm.test(\"Shipping discount is applied\", function () {",
+													"    pm.expect(data.lineItems[0].totalPrice.centAmount).to.equal(6183)",
+													"});",
+													"",
+													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
+													"    pm.environment.set(\"cart-id\", data.results[0].id); ",
+													"    pm.environment.set(\"cart-version\", data.results[0].version);",
+													"}",
+													"if(data.results && data.results[0] && data.results[0].key){",
+													"    pm.environment.set(\"cart-key\", data.results[0].key); ",
+													"}",
+													"if(data.version){",
+													"    pm.environment.set(\"cart-version\", data.version);",
+													"}",
+													"if(data.id){",
+													"    pm.environment.set(\"cart-id\", data.id); ",
+													"}",
+													"if(data.key){",
+													"    pm.environment.set(\"cart-key\", data.key);",
+													"}",
+													"",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "oauth2",
+											"oauth2": [
+												{
+													"key": "accessToken",
+													"value": "{{ctp_access_token}}",
+													"type": "string"
+												},
+												{
+													"key": "addTokenTo",
+													"value": "header",
+													"type": "string"
+												},
+												{
+													"key": "tokenType",
+													"value": "Bearer",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n   \"currency\":\"GBP\",\n   \"customerEmail\":\"john.toe@example.org\",\n   \"lineItems\":[\n      {\n         \"sku\":\"245872\",\n         \"quantity\":1\n      }\n   ],\n   \"custom\":{\n      \"type\":{\n         \"typeId\":\"type\",\n         \"key\":\"custom-cart-type\"\n      },\n      \"fields\":{\n         \"eagleeye-voucherCodes\":[\n            \"{{shippingDiscountToken}}\"\n         ]\n      }\n   },\n     \"shippingAddress\":{\n      \"country\":\"GB\"\n   },\n   \"shippingMethod\":{\n      \"typeId\":\"shipping-method\",\n      \"key\":\"standard-key\"\n   }\n}"
+										},
+										"url": {
+											"raw": "{{host}}/{{project-key}}/carts",
+											"host": [
+												"{{host}}"
+											],
+											"path": [
+												"{{project-key}}",
+												"carts"
+											],
+											"query": [
+												{
+													"key": "expand",
+													"value": "",
+													"disabled": true
+												}
+											]
+										},
+										"description": "Creating a Cart fails with an [InvalidOperation](ctp:api:type:InvalidOperationError) error if the\n[ShippingMethod](ctp:api:type:ShippingMethod) referenced in the CartDraft\nhas a `predicate` that does not match the Cart.\n"
+									},
+									"response": []
+								},
+								{
+									"name": "Delete Cart",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"tests[\"Status code \" + responseCode.code] = responseCode.code === 200 || responseCode.code === 201;",
+													"var data = JSON.parse(responseBody);",
+													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
+													"    pm.environment.set(\"cart-id\", data.results[0].id); ",
+													"    pm.environment.set(\"cart-version\", data.results[0].version);",
+													"}",
+													"if(data.results && data.results[0] && data.results[0].key){",
+													"    pm.environment.set(\"cart-key\", data.results[0].key); ",
+													"}",
+													"if(data.version){",
+													"    pm.environment.set(\"cart-version\", data.version);",
+													"}",
+													"if(data.id){",
+													"    pm.environment.set(\"cart-id\", data.id); ",
+													"}",
+													"if(data.key){",
+													"    pm.environment.set(\"cart-key\", data.key);",
+													"}",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "oauth2",
+											"oauth2": [
+												{
+													"key": "accessToken",
+													"value": "{{ctp_access_token}}",
+													"type": "string"
+												},
+												{
+													"key": "addTokenTo",
+													"value": "header",
+													"type": "string"
+												},
+												{
+													"key": "tokenType",
+													"value": "Bearer",
+													"type": "string"
+												}
+											]
+										},
+										"method": "DELETE",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{host}}/{{project-key}}/carts/{{cart-id}}?version={{cart-version}}",
+											"host": [
+												"{{host}}"
+											],
+											"path": [
+												"{{project-key}}",
+												"carts",
+												"{{cart-id}}"
+											],
+											"query": [
+												{
+													"key": "dataErasure",
+													"value": "",
+													"disabled": true
+												},
+												{
+													"key": "expand",
+													"value": "",
+													"disabled": true
+												},
+												{
+													"key": "version",
+													"value": "{{cart-version}}"
+												}
+											]
+										},
+										"description": "null"
+									},
+									"response": []
+								}
+							],
+							"description": "## Discount information\n\n- Campaignid: 1746956.\n    \n- Campaign name: 20% Discount on Standard Shipping with Token (UPC: 245879) (unlocked).\n    \n- Campaign type: Discount Products.\n- Reward type: 20% off Shipping (UPC: 245879)."
 						}
-					],
-					"description": "Valid discount tokens **(eagleeye-voucherCodes)** are generated through the Eagle Eye collection. Please reach out to an Eagle Eye team member if you need a valid code."
+					]
 				},
 				{
 					"name": "Invalid Codes",
@@ -5685,7 +6977,7 @@
 											"    pm.expect(data.custom.fields['eagleeye-errors'].some(discount => discount.includes('Voucher invalid'))).to.be.true;",
 											"});",
 											"",
-											"pm.collectionVariables.set('customItemDiscountTokenId', data.lineItems[0].id)",
+											"// pm.collectionVariables.set('customItemDiscountTokenId', data.lineItems[0].id)",
 											"",
 											"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
 											"    pm.environment.set(\"cart-id\", data.results[0].id); ",
@@ -5954,6 +7246,34 @@
 		},
 		{
 			"key": "invalidDiscountCode",
+			"value": ""
+		},
+		{
+			"key": "customShippingDiscountTokenId",
+			"value": ""
+		},
+		{
+			"key": "customMealDiscountTokenId",
+			"value": ""
+		},
+		{
+			"key": "itemLevelDiscountToken",
+			"value": ""
+		},
+		{
+			"key": "itemDiscountToken",
+			"value": ""
+		},
+		{
+			"key": "basketDiscountToken",
+			"value": ""
+		},
+		{
+			"key": "multiItemDiscountToken",
+			"value": ""
+		},
+		{
+			"key": "shippingDiscountToken",
 			"value": ""
 		}
 	]
