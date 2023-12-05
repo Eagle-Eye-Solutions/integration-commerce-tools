@@ -17,6 +17,22 @@ inputs:
   ct_project_id:
     description: 'commercetools project id'
     required: true
+  ee_wallet_url:
+    description: 'EagleEye API Wallet URL'
+    required: false
+  ee_pos_url:
+    description: 'EagleEye API POS URL'
+    required: false
+  ee_resources_url:
+    description: 'EagleEye API Resources URL'
+    required: false
+  ee_client_id:
+    description: 'EagleEye API client id'
+    required: true
+  ee_client_secret:
+    description: 'EagleEye API client secret'
+    required: true
+
 runs:
   using: "composite"
   steps:
@@ -40,7 +56,12 @@ runs:
           --env-var "auth_url=https://auth.${{ inputs.ct_region }}.commercetools.com" \
           --env-var "host=https://api.${{ inputs.ct_region }}.commercetools.com" \
           --env-var "project-key=${{ inputs.ct_project_id }}" \
-          --env-var "customer-key=testcustomer"
+          --env-var "customer-key=testcustomer" \
+          --env-var "pos_url=${{ inputs.ee_pos_url }}" \
+          --env-var "wallet_url=${{ inputs.ee_wallet_url }}" \
+          --env-var "resources_url=${{ inputs.ee_resources_url }}" \
+          --env-var "ee_client_id=${{ inputs.ee_client_id }}" \
+          --env-var "ee_client_secret=${{ inputs.ee_client_secret }}"
       shell: bash
       working-directory: ./integration/test
     - name: Upload test results
