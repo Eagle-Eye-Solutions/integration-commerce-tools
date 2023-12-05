@@ -7350,6 +7350,10 @@
 		{
 			"key": "shippingDiscountToken",
 			"value": ""
+		},
+		{
+			"key": "url",
+			"value": "https://wallet.sandbox.uk.eagleeye.com"
 		}
 	]
 }
