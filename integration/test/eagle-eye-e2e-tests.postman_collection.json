@@ -4908,7 +4908,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"currency\": \"GBP\",\n  \"customerEmail\": \"john.toe@example.org\",\n  \"lineItems\": [\n    {\n      \"sku\": \"245873\",\n      \"quantity\": 3\n    }\n  ],\n  \"custom\": {\n      \"type\": {\n          \"typeId\": \"type\",\n          \"key\": \"custom-cart-type\"\n      },\n      \"fields\": {\n          \"eagleeye-voucherCodes\": [\n              \"{{basketDiscountToken}}\"\n          ]\n      }\n  }\n}"
+											"raw": "{\n  \"currency\": \"GBP\",\n  \"customerEmail\": \"john.toe7@example.org\",\n  \"lineItems\": [\n    {\n      \"sku\": \"245873\",\n      \"quantity\": 3\n    }\n  ],\n  \"custom\": {\n      \"type\": {\n          \"typeId\": \"type\",\n          \"key\": \"custom-cart-type\"\n      },\n      \"fields\": {\n          \"eagleeye-voucherCodes\": [\n              \"{{basketDiscountToken}}\"\n          ]\n      }\n  }\n}"
 										},
 										"url": {
 											"raw": "{{host}}/{{project-key}}/carts",
@@ -5372,7 +5372,7 @@
 												],
 												"body": {
 													"mode": "raw",
-													"raw": "{\n  \"currency\": \"GBP\",\n  \"customerEmail\": \"john.toe@example.org\",\n  \"lineItems\": [\n    {\n      \"sku\": \"245885\",\n      \"quantity\": 1\n    }\n  ],\n  \"custom\": {\n      \"type\": {\n          \"typeId\": \"type\",\n          \"key\": \"custom-cart-type\"\n      },\n      \"fields\": {\n          \"eagleeye-voucherCodes\": [\n              \"{{itemDiscountToken}}\"\n          ]\n      }\n  }\n}"
+													"raw": "{\n  \"currency\": \"GBP\",\n  \"customerEmail\": \"john.toe7@example.org\",\n  \"lineItems\": [\n    {\n      \"sku\": \"245885\",\n      \"quantity\": 1\n    }\n  ],\n  \"custom\": {\n      \"type\": {\n          \"typeId\": \"type\",\n          \"key\": \"custom-cart-type\"\n      },\n      \"fields\": {\n          \"eagleeye-voucherCodes\": [\n              \"{{itemDiscountToken}}\"\n          ]\n      }\n  }\n}"
 												},
 												"url": {
 													"raw": "{{host}}/{{project-key}}/carts",
@@ -5832,7 +5832,7 @@
 												],
 												"body": {
 													"mode": "raw",
-													"raw": "{\n  \"currency\": \"GBP\",\n  \"customerEmail\": \"john.toe@example.org\",\n  \"lineItems\": [\n    {\n      \"sku\": \"245885\",\n      \"quantity\": 1\n    },\n    {\n      \"sku\": \"245872\",\n      \"quantity\": 1\n    }\n  ],\n  \"custom\": {\n      \"type\": {\n          \"typeId\": \"type\",\n          \"key\": \"custom-cart-type\"\n      },\n      \"fields\": {\n          \"eagleeye-voucherCodes\": [\n              \"{{itemDiscountToken}}\"\n          ]\n      }\n  }\n}"
+													"raw": "{\n  \"currency\": \"GBP\",\n  \"customerEmail\": \"john.toe7@example.org\",\n  \"lineItems\": [\n    {\n      \"sku\": \"245885\",\n      \"quantity\": 1\n    },\n    {\n      \"sku\": \"245872\",\n      \"quantity\": 1\n    }\n  ],\n  \"custom\": {\n      \"type\": {\n          \"typeId\": \"type\",\n          \"key\": \"custom-cart-type\"\n      },\n      \"fields\": {\n          \"eagleeye-voucherCodes\": [\n              \"{{itemDiscountToken}}\"\n          ]\n      }\n  }\n}"
 												},
 												"url": {
 													"raw": "{{host}}/{{project-key}}/carts",
@@ -6759,7 +6759,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n   \"currency\":\"GBP\",\n   \"customerEmail\":\"john.toe@example.org\",\n   \"lineItems\":[\n      {\n         \"sku\":\"245872\",\n         \"quantity\":1\n      }\n   ],\n   \"custom\":{\n      \"type\":{\n         \"typeId\":\"type\",\n         \"key\":\"custom-cart-type\"\n      },\n      \"fields\":{\n         \"eagleeye-voucherCodes\":[\n            \"{{shippingDiscountToken}}\"\n         ]\n      }\n   },\n     \"shippingAddress\":{\n      \"country\":\"GB\"\n   },\n   \"shippingMethod\":{\n      \"typeId\":\"shipping-method\",\n      \"key\":\"standard-key\"\n   }\n}"
+											"raw": "{\n   \"currency\":\"GBP\",\n  \"customerEmail\": \"john.toe7@example.org\",\n   \"lineItems\":[\n      {\n         \"sku\":\"245872\",\n         \"quantity\":1\n      }\n   ],\n   \"custom\":{\n      \"type\":{\n         \"typeId\":\"type\",\n         \"key\":\"custom-cart-type\"\n      },\n      \"fields\":{\n         \"eagleeye-voucherCodes\":[\n            \"{{shippingDiscountToken}}\"\n         ]\n      }\n   },\n     \"shippingAddress\":{\n      \"country\":\"GB\"\n   },\n   \"shippingMethod\":{\n      \"typeId\":\"shipping-method\",\n      \"key\":\"standard-key\"\n   }\n}"
 										},
 										"url": {
 											"raw": "{{host}}/{{project-key}}/carts",
