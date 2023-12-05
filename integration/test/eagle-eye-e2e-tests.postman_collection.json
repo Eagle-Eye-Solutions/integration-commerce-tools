@@ -7211,6 +7211,81 @@
 			}
 		]
 	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"pm.globals.set('ees', function ees() {",
+					"    let ee = {};",
+					"    ee.url = function() {",
+					"        let url = pm.request.url.toString();",
+					"        return url.slice(url.indexOf('/')).replace(/{{(\\w*)}}/g, function(str, key) {",
+					"            return pm.environment.get(key);",
+					"        }).replace(/!/g, '%21');",
+					"    };",
+					"    ee.payload = function() {",
+					"        let payload = '';",
+					"        if ('undefined' !== typeof pm.request.body && 'undefined' !== typeof pm.request.body.raw) {",
+					"            payload = pm.request.body.raw;",
+					"        }",
+					"",
+					"        if ('' === payload) {",
+					"            return '';",
+					"        }",
+					"        return payload.replace(/{{(\\w*)}}/g, function(str, key) {",
+					"            return pm.environment.get(key);",
+					"        });",
+					"    };",
+					"    ee.hash = function() {",
+					"        return CryptoJS.SHA256(",
+					"            ee.url() + ee.payload() + pm.environment.get('ee_client_secret')",
+					"        ).toString();",
+					"    };",
+					"    ee.transaction = function() {",
+					"        return CryptoJS.MD5(new Date().getTime().toString()).toString();",
+					"    };",
+					"    ee.setUrl = function(key) {",
+					"        if (pm.environment.has(key)) {",
+					"            pm.environment.set('url', pm.environment.get(key));",
+					"        }",
+					"    };",
+					"    ee.auth = function() {",
+					"        pm.globals.set('xAuthHash', ee.hash());",
+					"        pm.globals.set('xAuthClientId', pm.environment.get('ee_client_id'));",
+					"        pm.globals.set('xTransactionId', ee.transaction());",
+					"    };",
+					"    ee.pad = function(str, len) {",
+					"        str.toString().padStart(len, '0');",
+					"    };",
+					"    ee.getCurrentAtomDateTime = function() {",
+					"        let now = new Date();",
+					"        return now.getUTCFullYear() +",
+					"            '-' + ee.pad((now.getUTCMonth() + 1), 2) +",
+					"            '-' + ee.pad(now.getUTCDate(), 2) +",
+					"            'T' + ee.pad(now.getUTCHours(), 2) +",
+					"            ':' + ee.pad(now.getUTCMinutes(), 2) +",
+					"            ':' + ee.pad(now.getUTCSeconds(), 2) +",
+					"            '+' + ee.pad((now.getTimezoneOffset() / -60), 2) + ':00';",
+					"    };",
+					"    return ee;",
+					"} + '; ees();');",
+					"",
+					"tests['Global pre-request scripts loaded'] = true;"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
 	"variable": [
 		{
 			"key": "customOpenLevelDiscountItemID",
