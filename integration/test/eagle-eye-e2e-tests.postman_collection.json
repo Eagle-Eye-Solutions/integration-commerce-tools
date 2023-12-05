@@ -4671,6 +4671,78 @@
 									"name": "Single Item",
 									"item": [
 										{
+											"name": "Obtain access token",
+											"event": [
+												{
+													"listen": "test",
+													"script": {
+														"type": "text/javascript",
+														"exec": [
+															"tests[\"Status code is 200\"] = responseCode.code === 200;",
+															"var data = JSON.parse(responseBody);",
+															"if(data.access_token){",
+															"    pm.environment.set(\"ctp_access_token\", data.access_token);",
+															"}",
+															"if (data.scope) {",
+															"    parts = data.scope.split(\" \");",
+															"    parts = parts.filter(scope => scope.includes(\":\")).map(scope => scope.split(\":\"))",
+															"    if (parts.length > 0) {",
+															"        scopeParts = parts[0];",
+															"        pm.environment.set(\"project-key\", scopeParts[1]);",
+															"        parts = parts.filter(scope => scope.length >= 3)",
+															"        if (parts.length > 0) {",
+															"            scopeParts = parts[0];",
+															"            pm.environment.set(\"store-key\", scopeParts[2]);",
+															"        }",
+															"    }",
+															"}"
+														]
+													}
+												}
+											],
+											"request": {
+												"auth": {
+													"type": "basic",
+													"basic": [
+														{
+															"key": "username",
+															"value": "{{client_id}}",
+															"type": "string"
+														},
+														{
+															"key": "password",
+															"value": "{{client_secret}}",
+															"type": "string"
+														}
+													]
+												},
+												"method": "POST",
+												"header": [],
+												"body": {
+													"mode": "raw",
+													"raw": ""
+												},
+												"url": {
+													"raw": "{{auth_url}}/oauth/token?grant_type=client_credentials",
+													"host": [
+														"{{auth_url}}"
+													],
+													"path": [
+														"oauth",
+														"token"
+													],
+													"query": [
+														{
+															"key": "grant_type",
+															"value": "client_credentials"
+														}
+													]
+												},
+												"description": "Use this request to obtain an access token for your commercetools platform project via Client Credentials Flow. As a prerequisite you must have filled out environment variables in Postman for projectKey, client_id and client_secret to use this."
+											},
+											"response": []
+										},
+										{
 											"name": "Create EE discount token",
 											"event": [
 												{
@@ -4764,78 +4836,6 @@
 														"create"
 													]
 												}
-											},
-											"response": []
-										},
-										{
-											"name": "Obtain access token",
-											"event": [
-												{
-													"listen": "test",
-													"script": {
-														"type": "text/javascript",
-														"exec": [
-															"tests[\"Status code is 200\"] = responseCode.code === 200;",
-															"var data = JSON.parse(responseBody);",
-															"if(data.access_token){",
-															"    pm.environment.set(\"ctp_access_token\", data.access_token);",
-															"}",
-															"if (data.scope) {",
-															"    parts = data.scope.split(\" \");",
-															"    parts = parts.filter(scope => scope.includes(\":\")).map(scope => scope.split(\":\"))",
-															"    if (parts.length > 0) {",
-															"        scopeParts = parts[0];",
-															"        pm.environment.set(\"project-key\", scopeParts[1]);",
-															"        parts = parts.filter(scope => scope.length >= 3)",
-															"        if (parts.length > 0) {",
-															"            scopeParts = parts[0];",
-															"            pm.environment.set(\"store-key\", scopeParts[2]);",
-															"        }",
-															"    }",
-															"}"
-														]
-													}
-												}
-											],
-											"request": {
-												"auth": {
-													"type": "basic",
-													"basic": [
-														{
-															"key": "username",
-															"value": "{{client_id}}",
-															"type": "string"
-														},
-														{
-															"key": "password",
-															"value": "{{client_secret}}",
-															"type": "string"
-														}
-													]
-												},
-												"method": "POST",
-												"header": [],
-												"body": {
-													"mode": "raw",
-													"raw": ""
-												},
-												"url": {
-													"raw": "{{auth_url}}/oauth/token?grant_type=client_credentials",
-													"host": [
-														"{{auth_url}}"
-													],
-													"path": [
-														"oauth",
-														"token"
-													],
-													"query": [
-														{
-															"key": "grant_type",
-															"value": "client_credentials"
-														}
-													]
-												},
-												"description": "Use this request to obtain an access token for your commercetools platform project via Client Credentials Flow. As a prerequisite you must have filled out environment variables in Postman for projectKey, client_id and client_secret to use this."
 											},
 											"response": []
 										},
