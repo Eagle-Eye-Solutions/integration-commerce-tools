@@ -191,12 +191,12 @@ export class CTCartToEEBasketMapper {
     // Get a default identity to open the wallet
     // TODO: make configurable on a per-merchant basis
     const identities = [];
-    if (cart.customerEmail) {
-      identities.push({
-        type: 'CUSTOMER_ID',
-        value: cart.customerEmail,
-      });
-    }
+    // if (cart.customerEmail) {
+    //   identities.push({
+    //     type: 'CUSTOMER_ID',
+    //     value: cart.customerEmail,
+    //   });
+    // }
 
     const basketContents = [
       ...this.mapCartLineItemsToBasketContent(cart.lineItems),
