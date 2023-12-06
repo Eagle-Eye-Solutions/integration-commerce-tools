@@ -137,3 +137,8 @@ jobs:
           postman_collection_json: "eagle-eye-e2e-tests.postman_collection.json"
           ct_region: ${{ vars.CT_REGION }}
           ct_project_id: ${{ vars.CT_PROJECT_KEY }}
+          ee_client_id: ${{ secrets.EE_CLIENT_ID }}
+          ee_client_secret: ${{ secrets.EE_CLIENT_SECRET }}
+          ee_wallet_url: ${{ vars.EE_WALLET_URL }}
+          ee_pos_url: ${{ vars.EE_POS_URL }}
+          ee_resources_url: ${{ vars.EE_RESOURCES_URL }}
