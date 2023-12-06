@@ -435,7 +435,6 @@ describe('AppService', () => {
           fields: {
             'eagleeye-errors': [
               '{"type":"EE_API_GENERIC_ERROR","message":"Unexpected error with getting the promotions and loyalty points"}',
-              '{"type":"BASKET_STORE_DELETE","message":"Error deleting enriched basket"}',
             ],
             'eagleeye-appliedDiscounts': [],
           },
