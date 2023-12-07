@@ -48,7 +48,7 @@ runs:
       shell: bash
     - name: Run e2e tests
       run: |
-        newman run ${{ inputs.postman_collection_json }} --bail \
+        newman run ${{ inputs.postman_collection_json }} \
           -r htmlextra \
           --reporter-htmlextra-export newman/htmlreport-${{ inputs.ct_project_id }}.html \
           --env-var "client_id=${{ inputs.ct_client_id }}" \
