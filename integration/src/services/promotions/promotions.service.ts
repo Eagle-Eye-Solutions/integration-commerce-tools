@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { EagleEyeApiClient } from '../../providers/eagleeye/eagleeye.provider';
 import {
   Cart,
@@ -15,6 +15,7 @@ import {
 
 @Injectable()
 export class PromotionService {
+  private readonly logger = new Logger(PromotionService.name);
   constructor(
     private eagleEyeClient: EagleEyeApiClient,
     readonly circuitBreakerService: CircuitBreakerService,
@@ -31,12 +32,45 @@ export class PromotionService {
     const discountDescriptions: DiscountDescription[] = [];
     const errors: CustomFieldError[] = [];
 
-    const walletOpenResponse = await this.walletInvoke(
-      'open',
-      await this.cartToBasketMapper.mapCartToWalletOpenPayload(
-        cartReference.obj,
-      ),
-    );
+    let walletOpenResponse;
+    try {
+      walletOpenResponse = await this.walletInvoke(
+        'open',
+        await this.cartToBasketMapper.mapCartToWalletOpenPayload(
+          cartReference.obj,
+          true,
+        ),
+      );
+    } catch (error) {
+      this.logger.warn('Error while opening the wallet', error);
+      if (error.type === 'EE_IDENTITY_NOT_FOUND') {
+        const errorMessage =
+          cartReference.obj.custom?.fields['eagleeye-identityValue'] +
+          ' - Customer identity not found';
+
+        this.logger.warn(errorMessage);
+        const unidentifiedCustomerError: CustomFieldError = {
+          type: 'EE_API_CUSTOMER_NF',
+          message: errorMessage,
+          context: error,
+        };
+        errors.push(unidentifiedCustomerError);
+        try {
+          this.logger.warn(
+            'Attempting to fetch open promotions without identity',
+          );
+          walletOpenResponse = await this.walletInvoke(
+            'open',
+            await this.cartToBasketMapper.mapCartToWalletOpenPayload(
+              cartReference.obj,
+              false,
+            ),
+          );
+        } catch (error) {
+          throw error;
+        }
+      }
+    }
 
     if (walletOpenResponse?.analyseBasketResults?.basket) {
       const basketLevelDiscounts = await this.getBasketLevelDiscounts(
@@ -57,7 +91,6 @@ export class PromotionService {
         ...shippingDiscounts,
       );
     }
-
     const examineTokenErrors =
       walletOpenResponse.examine
         ?.filter((entry) => entry.errorCode)

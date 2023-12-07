@@ -3,7 +3,7 @@ import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { Logger } from '@nestjs/common';
 import { EagleEyeApiClient, Token, Wallet } from './eagleeye.provider';
-import { of, throwError } from 'rxjs';
+import { of } from 'rxjs';
 import { AxiosResponse } from 'axios';
 import { EagleEyeApiException } from '../../common/exceptions/eagle-eye-api.exception';
 
@@ -159,10 +159,23 @@ describe('Token', () => {
     expect(result).toEqual(mockResponse.data);
   });
 
-  it('should throw an error when the EE API request fails', async () => {
-    jest
-      .spyOn(httpService, 'request')
-      .mockReturnValue(throwError(() => new Error()));
+  it('should throw an error when the EE API request fails with status 404', async () => {
+    const error = { response: { status: 404 } };
+    jest.spyOn(httpService, 'request').mockImplementationOnce(() => {
+      throw error;
+    });
+
+    await expect(service.invoke('create', { test: 'test' })).rejects.toThrow(
+      EagleEyeApiException,
+    );
+  });
+
+  it('should throw an error when the EE API request fails with status other than 404', async () => {
+    const error = { response: { status: 500 } };
+    jest.spyOn(httpService, 'request').mockImplementationOnce(() => {
+      throw error;
+    });
+
     await expect(service.invoke('create', { test: 'test' })).rejects.toThrow(
       EagleEyeApiException,
     );

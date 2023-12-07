@@ -115,7 +115,7 @@ export class CTCartToEEBasketMapper {
 
     return basket.contents
       .map((item) => {
-        const matchingMethod = shippingMethodMap.find(
+        const matchingMethod = shippingMethodMap?.find(
           (method) => method.upc === item.upc,
         );
         if (matchingMethod) {
@@ -149,7 +149,7 @@ export class CTCartToEEBasketMapper {
     const shippingMethodMap = this.configService.get(
       'eagleEye.shippingMethodMap',
     );
-    if (shippingMethodMap.length && shippingInfo?.shippingMethod) {
+    if (shippingMethodMap?.length && shippingInfo?.shippingMethod) {
       // In case multi-shipping method needs to be supported
       const shippingIds = [shippingInfo?.shippingMethod.id];
       const shippingMethod = await this.commercetools.getShippingMethods({
@@ -187,15 +187,10 @@ export class CTCartToEEBasketMapper {
     });
   }
 
-  async mapCartToWalletOpenPayload(cart: Cart) {
-    // Get a default identity to open the wallet
-    // TODO: make configurable on a per-merchant basis
-    const identities = [];
-    if (cart.customerEmail) {
-      identities.push({
-        type: 'CUSTOMER_ID',
-        value: cart.customerEmail,
-      });
+  async mapCartToWalletOpenPayload(cart: Cart, includeIdentity: boolean) {
+    let identity;
+    if (includeIdentity) {
+      identity = cart.custom?.fields['eagleeye-identityValue'];
     }
 
     const basketContents = [
@@ -218,11 +213,7 @@ export class CTCartToEEBasketMapper {
 
     return {
       reference: cart.id,
-      identity: identities[0]
-        ? {
-            identityValue: identities[0].value,
-          }
-        : undefined,
+      ...(identity ? { identity: { identityValue: identity } } : {}),
       lock: true,
       location: {
         incomingIdentifier,

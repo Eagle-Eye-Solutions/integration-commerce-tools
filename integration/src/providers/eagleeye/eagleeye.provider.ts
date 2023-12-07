@@ -94,6 +94,12 @@ export abstract class EagleEyeSdkObject implements BreakableApi {
       return value.data;
     } catch (err) {
       this.logger.error('EagleEye API error: ', err, EagleEyeSdkObject.name);
+      if (err.response.status === 404) {
+        throw new EagleEyeApiException(
+          'EE_IDENTITY_NOT_FOUND',
+          'The customer identity doesnt exist in EE AIR Platform',
+        );
+      }
       throw new EagleEyeApiException(
         'EE_API_UNAVAILABLE',
         'The eagle eye API is unavailable, the cart promotions and loyalty points are NOT updated',

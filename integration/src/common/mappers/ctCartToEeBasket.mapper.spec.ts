@@ -207,7 +207,7 @@ describe('CTCartToEEBasketMapper', () => {
       .mockReturnValueOnce('outlet1')
       .mockReturnValueOnce('banner1');
 
-    const payload = await service.mapCartToWalletOpenPayload(cart);
+    const payload = await service.mapCartToWalletOpenPayload(cart, false);
 
     expect(payload).toMatchSnapshot();
   });
@@ -231,7 +231,62 @@ describe('CTCartToEEBasketMapper', () => {
       },
     };
 
-    const payload = await service.mapCartToWalletOpenPayload(cartWithCodes);
+    const payload = await service.mapCartToWalletOpenPayload(
+      cartWithCodes,
+      false,
+    );
+
+    expect(payload).toMatchSnapshot();
+  });
+
+  test('mapCartToWalletOpenPayload should include eagle eye identity if present in the cart', async () => {
+    jest
+      .spyOn(configService, 'get')
+      .mockReturnValueOnce('outlet1')
+      .mockReturnValueOnce('banner1');
+
+    const cartWithCodes = {
+      ...cart,
+      custom: {
+        type: {
+          typeId: 'type',
+          id: '123456',
+        },
+        fields: {
+          'eagleeye-identityValue': ['12345678'],
+        },
+      },
+    };
+
+    const payload = await service.mapCartToWalletOpenPayload(
+      cartWithCodes,
+      true,
+    );
+
+    expect(payload).toMatchSnapshot();
+  });
+
+  test('mapCartToWalletOpenPayload should not include eagle eye identity if not present in the cart but the instruction is to include identity', async () => {
+    jest
+      .spyOn(configService, 'get')
+      .mockReturnValueOnce('outlet1')
+      .mockReturnValueOnce('banner1');
+
+    const cartWithCodes = {
+      ...cart,
+      custom: {
+        type: {
+          typeId: 'type',
+          id: '123456',
+        },
+        fields: {},
+      },
+    };
+
+    const payload = await service.mapCartToWalletOpenPayload(
+      cartWithCodes,
+      true,
+    );
 
     expect(payload).toMatchSnapshot();
   });
@@ -239,7 +294,7 @@ describe('CTCartToEEBasketMapper', () => {
   test('mapCartToWalletOpenPayload should return the payload for /wallet/open, without the optional parentIncomingIdentifier when not set in the configuration', async () => {
     jest.spyOn(configService, 'get').mockReturnValueOnce('outlet1');
 
-    const payload = await service.mapCartToWalletOpenPayload(cart);
+    const payload = await service.mapCartToWalletOpenPayload(cart, false);
 
     expect(payload).toMatchSnapshot();
   });

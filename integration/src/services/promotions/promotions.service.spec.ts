@@ -269,6 +269,140 @@ describe('PromotionService', () => {
         ],
       });
     });
+
+    it('should add identity not found error when provided by the EE API', async () => {
+      const cartReference = {
+        id: 'cartId',
+        obj: {
+          ...cartWithoutItems,
+          custom: {
+            type: {
+              typeId: 'type',
+              id: 'some-id',
+            },
+            fields: {
+              'eagleeye-identityValue': '1234590',
+            },
+          },
+        },
+      };
+      const walletOpenResponse = {
+        analyseBasketResults: {
+          basket: {
+            summary: {
+              totalDiscountAmount: {
+                promotions: 10,
+              },
+              adjustmentResults: [
+                {
+                  value: 10,
+                },
+              ],
+            },
+            contents: [
+              {
+                upc: 'SKU123',
+                adjustmentResults: [
+                  {
+                    totalDiscountAmount: 10,
+                  },
+                ],
+              },
+            ],
+          },
+          discount: [
+            {
+              campaignName: 'Example Discount',
+            },
+          ],
+        },
+      };
+
+      const cbFireMock = jest
+        .spyOn(circuitBreakerService, 'fire')
+        .mockRejectedValue({ type: 'EE_IDENTITY_NOT_FOUND' })
+        .mockResolvedValueOnce(walletOpenResponse);
+
+      jest
+        .spyOn(configService, 'get')
+        .mockReturnValueOnce(shippingMethodMapMock);
+
+      const result = await service.getDiscounts(cartReference as any);
+
+      expect(cbFireMock).toHaveBeenCalled();
+      expect(result).toEqual({
+        discounts: [
+          {
+            value: {
+              type: 'absolute',
+              money: [
+                {
+                  centAmount: 10,
+                  currencyCode: 'USD',
+                  type: 'centPrecision',
+                  fractionDigits: 2,
+                },
+              ],
+            },
+            target: { type: 'totalPrice' },
+          },
+        ],
+        discountDescriptions: [{ description: 'Example Discount' }],
+        errors: [],
+        enrichedBasket: {
+          summary: {
+            totalDiscountAmount: { promotions: 10 },
+            adjustmentResults: [{ value: 10 }],
+          },
+          contents: [
+            { upc: 'SKU123', adjustmentResults: [{ totalDiscountAmount: 10 }] },
+          ],
+        },
+      });
+    });
+
+    it('should throw error when 2nd wallet open call returns an error as well in the identity not found scenario', async () => {
+      const cartReference = {
+        id: 'cartId',
+        obj: {
+          ...cartWithoutItems,
+          custom: {
+            type: {
+              typeId: 'type',
+              id: 'some-id',
+            },
+            fields: {
+              'eagleeye-identityValue': '1234590',
+            },
+          },
+        },
+      };
+
+      const cbFireMock = jest
+        .spyOn(circuitBreakerService, 'fire')
+        .mockImplementationOnce(() => {
+          throw {
+            type: 'EE_IDENTITY_NOT_FOUND',
+          };
+        })
+        .mockImplementationOnce(() => {
+          throw new Error();
+        });
+
+      jest
+        .spyOn(configService, 'get')
+        .mockReturnValueOnce(shippingMethodMapMock);
+
+      let expectFlag: boolean = false;
+      try {
+        await service.getDiscounts(cartReference as any);
+      } catch (error) {
+        expectFlag = true;
+      }
+
+      expect(cbFireMock).toHaveBeenCalled();
+      expect(expectFlag).toBeTruthy;
+    });
   });
 
   describe('getBasketLevelDiscounts', () => {
