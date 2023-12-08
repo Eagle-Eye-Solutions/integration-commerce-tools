@@ -8,10 +8,12 @@ export class CTActionsBuilder {
 
   add(action: ActionsSupported) {
     this.actions.push(action);
+    return this;
   }
 
   addAll(actions: ActionsSupported[]) {
     this.actions.push(...actions);
+    return this;
   }
 
   build(): { actions: ActionsSupported[] } {

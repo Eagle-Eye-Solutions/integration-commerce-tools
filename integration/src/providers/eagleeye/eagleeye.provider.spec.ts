@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { Logger } from '@nestjs/common';
-import { EagleEyeApiClient, Token, Wallet } from './eagleeye.provider';
+import { EagleEyeApiClient, Wallet } from './eagleeye.provider';
 import { of, throwError } from 'rxjs';
 import { AxiosResponse } from 'axios';
 import { EagleEyeApiException } from '../../common/exceptions/eagle-eye-api.exception';
@@ -26,9 +26,6 @@ describe('EagleEyeApiClient', () => {
   it('should create an instance of EagleEyeApiClient', () => {
     expect(eagleEyeApiClient).toBeDefined();
     expect(eagleEyeApiClient.wallet).toBeDefined();
-    expect(eagleEyeApiClient.token).toBeDefined();
-    expect(eagleEyeApiClient.campaigns).toBeDefined();
-    expect(eagleEyeApiClient.schemes).toBeDefined();
   });
 });
 
@@ -75,6 +72,19 @@ describe('Wallet', () => {
     expect(result).toEqual(mockResponse.data);
   });
 
+  it('should throw EagleEyeApiException when the API request to EagleEye fails', async () => {
+    jest
+      .spyOn(httpService, 'request')
+      .mockImplementationOnce(() => throwError(() => new Error('API Error')));
+
+    await expect(service.invoke('open', { test: 'test' })).rejects.toThrow(
+      new EagleEyeApiException(
+        'EE_API_UNAVAILABLE',
+        'The eagle eye API is unavailable, the cart promotions and loyalty points are NOT updated',
+      ),
+    );
+  });
+
   it('should return a correct hash', () => {
     const requestUrl = 'testUrl';
     const requestBody = { key: 'value' };
@@ -113,58 +123,5 @@ describe('Wallet', () => {
 
       expect(error).toBeDefined();
     });
-  });
-});
-
-describe('Token', () => {
-  let service: Token;
-  let httpService: HttpService;
-
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        Token,
-        { provide: HttpService, useValue: { request: jest.fn() } },
-        { provide: ConfigService, useValue: { get: jest.fn() } },
-        Logger,
-      ],
-    }).compile();
-
-    service = module.get<Token>(Token);
-    httpService = module.get<HttpService>(HttpService);
-  });
-
-  it('should be defined', () => {
-    expect(service).toBeDefined();
-  });
-
-  it('should call the API with correct parameters', async () => {
-    const mockResponse: AxiosResponse = {
-      config: undefined,
-      data: 'test',
-      status: 200,
-      statusText: 'OK',
-      headers: {},
-    };
-    jest
-      .spyOn(httpService, 'request')
-      .mockImplementationOnce(() => of(mockResponse));
-    const result = await service.invoke('create', { test: 'test' });
-    expect(httpService.request).toHaveBeenCalledWith({
-      url: expect.any(String),
-      method: 'POST',
-      data: JSON.stringify({ test: 'test' }),
-      headers: expect.any(Object),
-    });
-    expect(result).toEqual(mockResponse.data);
-  });
-
-  it('should throw an error when the EE API request fails', async () => {
-    jest
-      .spyOn(httpService, 'request')
-      .mockReturnValue(throwError(() => new Error()));
-    await expect(service.invoke('create', { test: 'test' })).rejects.toThrow(
-      EagleEyeApiException,
-    );
   });
 });

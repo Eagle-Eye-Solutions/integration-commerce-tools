@@ -13,18 +13,9 @@ deployAs:
         - key: CTP_REGION
           description: Region where the commercetools Composable Commerce Project is hosted
           required: true
-        - key: EE_WALLET_URL
-          description: URL for the EagleEye API Wallet endpoints
-          required: false
-          default: 'https://wallet.sandbox.uk.eagleeye.com'
         - key: EE_POS_URL
           description: URL for the EagleEye API POS endpoints
-          required: false
-          default: 'https://pos.sandbox.uk.eagleeye.com'
-        - key: EE_RESOURCES_URL
-          description: URL for the EagleEye API Wallet endpoints
-          required: false
-          default: 'https://resources.sandbox.uk.eagleeye.com'
+          required: true
         - key: SHIPPING_METHOD_MAP
           description: Stringified JSON array for mapping shipping methods to EE UPCs
           required: false
