@@ -69,6 +69,8 @@ export class PromotionService {
         } catch (error) {
           throw error;
         }
+      } else {
+        throw error;
       }
     }
 

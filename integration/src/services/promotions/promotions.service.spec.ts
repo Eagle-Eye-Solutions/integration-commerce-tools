@@ -320,7 +320,7 @@ describe('PromotionService', () => {
 
       const cbFireMock = jest
         .spyOn(circuitBreakerService, 'fire')
-        .mockRejectedValue({ type: 'EE_IDENTITY_NOT_FOUND' })
+        .mockRejectedValueOnce({ type: 'EE_IDENTITY_NOT_FOUND' })
         .mockResolvedValueOnce(walletOpenResponse);
 
       jest
@@ -328,7 +328,6 @@ describe('PromotionService', () => {
         .mockReturnValueOnce(shippingMethodMapMock);
 
       const result = await service.getDiscounts(cartReference as any);
-
       expect(cbFireMock).toHaveBeenCalled();
       expect(result).toEqual({
         discounts: [
@@ -348,7 +347,13 @@ describe('PromotionService', () => {
           },
         ],
         discountDescriptions: [{ description: 'Example Discount' }],
-        errors: [],
+        errors: [
+          {
+            type: 'EE_API_CUSTOMER_NF',
+            message: '1234590 - Customer identity not found',
+            context: { type: 'EE_IDENTITY_NOT_FOUND' },
+          },
+        ],
         enrichedBasket: {
           summary: {
             totalDiscountAmount: { promotions: 10 },
@@ -359,6 +364,41 @@ describe('PromotionService', () => {
           ],
         },
       });
+    });
+
+    it('should throw error when received any other error apart from identity not found during the wallet open call', async () => {
+      const cartReference = {
+        id: 'cartId',
+        obj: {
+          ...cartWithoutItems,
+          custom: {
+            type: {
+              typeId: 'type',
+              id: 'some-id',
+            },
+            fields: {
+              'eagleeye-identityValue': '1234590',
+            },
+          },
+        },
+      };
+
+      const cbFireMock = jest
+        .spyOn(circuitBreakerService, 'fire')
+        .mockRejectedValue({ type: 'EE_NOT_IDENTITY_NOT_FOUND_ERROR' });
+
+      jest
+        .spyOn(configService, 'get')
+        .mockReturnValueOnce(shippingMethodMapMock);
+
+      let expectFlag: boolean = false;
+      try {
+        await service.getDiscounts(cartReference as any);
+      } catch (error) {
+        expectFlag = true;
+      }
+      expect(cbFireMock).toHaveBeenCalled();
+      expect(expectFlag).toBeTruthy;
     });
 
     it('should throw error when 2nd wallet open call returns an error as well in the identity not found scenario', async () => {
