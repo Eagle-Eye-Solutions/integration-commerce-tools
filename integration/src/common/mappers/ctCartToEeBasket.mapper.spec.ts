@@ -24,6 +24,7 @@ describe('CTCartToEEBasketMapper', () => {
             fractionDigits: 2,
           },
         },
+        quantity: 1,
         totalPrice: {
           centAmount: 300,
           currencyCode: 'USD',
