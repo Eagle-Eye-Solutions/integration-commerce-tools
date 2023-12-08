@@ -142,6 +142,9 @@ describe('AppService', () => {
             'eagleeye-appliedDiscounts': discountDescriptions.map(
               (d) => d.description,
             ),
+            'eagleeye-basketStore': undefined,
+            'eagleeye-basketUri': undefined,
+            'eagleeye-voucherCodes': [],
           },
           type: {
             key: 'custom-cart-type',
@@ -204,6 +207,9 @@ describe('AppService', () => {
             'eagleeye-appliedDiscounts': discountDescriptions.map(
               (d) => d.description,
             ),
+            'eagleeye-basketStore': undefined,
+            'eagleeye-basketUri': undefined,
+            'eagleeye-voucherCodes': [],
           },
           type: {
             key: 'custom-cart-type',
@@ -223,7 +229,7 @@ describe('AppService', () => {
     expect(basketStoreService.delete).toBeCalledTimes(0);
   });
 
-  it('should return token errors when provided by the EE API', async () => {
+  it('should return valid token and invalid token errors when provided by the EE API', async () => {
     const body: ExtensionInput = {
       action: 'Create',
       resource: {
@@ -252,6 +258,7 @@ describe('AppService', () => {
       discounts: discountDrafts,
       discountDescriptions,
       errors,
+      voucherCodes: ['valid-token'],
     } as any);
     const result = {
       actions: [
@@ -262,6 +269,9 @@ describe('AppService', () => {
             'eagleeye-appliedDiscounts': discountDescriptions.map(
               (d) => d.description,
             ),
+            'eagleeye-basketStore': undefined,
+            'eagleeye-basketUri': undefined,
+            'eagleeye-voucherCodes': ['valid-token'],
           },
           type: {
             key: 'custom-cart-type',
@@ -302,6 +312,9 @@ describe('AppService', () => {
               '{"type":"EE_API_UNAVAILABLE","message":"The eagle eye API is unavailable, the cart promotions and loyalty points are NOT updated"}',
             ],
             'eagleeye-appliedDiscounts': [],
+            'eagleeye-basketStore': undefined,
+            'eagleeye-basketUri': undefined,
+            'eagleeye-voucherCodes': [],
           },
           type: {
             key: 'custom-cart-type',
@@ -357,6 +370,9 @@ describe('AppService', () => {
               '{"type":"EE_API_CIRCUIT_OPEN","message":"The eagle eye API is unavailable, the cart promotions and loyalty points are NOT updated"}',
             ],
             'eagleeye-appliedDiscounts': [],
+            'eagleeye-basketStore': undefined,
+            'eagleeye-basketUri': undefined,
+            'eagleeye-voucherCodes': [],
           },
           type: {
             key: 'custom-cart-type',
@@ -393,6 +409,9 @@ describe('AppService', () => {
               '{"type":"EE_API_GENERIC_ERROR","message":"Unexpected error with getting the promotions and loyalty points"}',
             ],
             'eagleeye-appliedDiscounts': [],
+            'eagleeye-basketStore': undefined,
+            'eagleeye-basketUri': undefined,
+            'eagleeye-voucherCodes': [],
           },
           type: {
             key: 'custom-cart-type',
@@ -437,6 +456,9 @@ describe('AppService', () => {
               '{"type":"EE_API_GENERIC_ERROR","message":"Unexpected error with getting the promotions and loyalty points"}',
             ],
             'eagleeye-appliedDiscounts': [],
+            'eagleeye-basketStore': undefined,
+            'eagleeye-basketUri': undefined,
+            'eagleeye-voucherCodes': [],
           },
           type: {
             key: 'custom-cart-type',

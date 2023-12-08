@@ -39,6 +39,10 @@ export const nockWalletOpen = async (
           type: 'TOKEN',
           value: '123456',
         },
+        {
+          type: 'TOKEN',
+          value: 'valid-code',
+        },
       ],
       options: {
         adjustBasket: {
@@ -127,6 +131,13 @@ export const nockWalletOpen = async (
             resourceId: null,
             errorCode: 'PCEXNF',
             errorMessage: 'Voucher invalid: Failed to load token',
+          },
+          {
+            value: 'valid-code',
+            resourceType: null,
+            resourceId: null,
+            errorCode: null,
+            errorMessage: null,
           },
         ],
       },
