@@ -63,8 +63,16 @@ export const nockWalletOpen = async (
             staff: null,
             promotions: 0,
           },
-          totalItems: cart.lineItems.length,
-          totalBasketValue: cart.totalPrice.centAmount,
+          totalItems: cart.lineItems.reduce(
+            (acc, lineItem) => lineItem.quantity + acc,
+            0,
+          ),
+          totalBasketValue:
+            cart.lineItems.reduce(
+              (acc, lineItem) =>
+                lineItem.price.value.centAmount * lineItem.quantity + acc,
+              0,
+            ) + (cart.shippingInfo?.price?.centAmount ?? 0),
         },
         contents: basketContents,
       },
