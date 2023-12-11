@@ -38,7 +38,7 @@ export class CTCartToEEBasketMapper {
   }
 
   mapLineItemToBasketItem(lineItem: LineItem) {
-    let basketItem: BasketItem = {
+    const basketItem: BasketItem = {
       itemUnitCost: lineItem.price.value.centAmount,
       totalUnitCostAfterDiscount: lineItem.totalPrice.centAmount,
       totalUnitCost: lineItem.totalPrice.centAmount,
