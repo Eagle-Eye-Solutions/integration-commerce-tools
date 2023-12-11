@@ -53,8 +53,8 @@ exports[`CTCartToEEBasketMapper mapCartLineItemsToBasketContent should return th
     "itemUnitCount": 2,
     "itemUnitMetric": "EACH",
     "salesKey": "SALE",
-    "totalUnitCost": 900,
-    "totalUnitCostAfterDiscount": 900,
+    "totalUnitCost": 2000,
+    "totalUnitCostAfterDiscount": 2000,
     "upc": "SKU123",
   },
 ]
@@ -67,7 +67,7 @@ exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should include vouche
       {
         "description": "Example Product",
         "itemUnitCost": 300,
-        "itemUnitCount": undefined,
+        "itemUnitCount": 1,
         "itemUnitMetric": "EACH",
         "salesKey": "SALE",
         "totalUnitCost": 300,
@@ -120,7 +120,7 @@ exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should return the pay
       {
         "description": "Example Product",
         "itemUnitCost": 300,
-        "itemUnitCount": undefined,
+        "itemUnitCount": 1,
         "itemUnitMetric": "EACH",
         "salesKey": "SALE",
         "totalUnitCost": 300,
@@ -168,7 +168,7 @@ exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should return the pay
       {
         "description": "Example Product",
         "itemUnitCost": 300,
-        "itemUnitCount": undefined,
+        "itemUnitCount": 1,
         "itemUnitMetric": "EACH",
         "salesKey": "SALE",
         "sku": "SKU123",
@@ -215,7 +215,7 @@ exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should return the pay
       {
         "description": "Example Product",
         "itemUnitCost": 300,
-        "itemUnitCount": undefined,
+        "itemUnitCount": 1,
         "itemUnitMetric": "EACH",
         "salesKey": "SALE",
         "totalUnitCost": 300,

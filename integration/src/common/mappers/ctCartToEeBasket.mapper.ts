@@ -40,8 +40,9 @@ export class CTCartToEEBasketMapper {
   mapLineItemToBasketItem(lineItem: LineItem) {
     const basketItem: BasketItem = {
       itemUnitCost: lineItem.price.value.centAmount,
-      totalUnitCostAfterDiscount: lineItem.totalPrice.centAmount,
-      totalUnitCost: lineItem.totalPrice.centAmount,
+      totalUnitCostAfterDiscount:
+        lineItem.price.value.centAmount * lineItem.quantity,
+      totalUnitCost: lineItem.price.value.centAmount * lineItem.quantity,
       description: lineItem.name[Object.keys(lineItem.name)[0]], // TODO: handle locales
       itemUnitMetric: 'EACH',
       itemUnitCount: lineItem.quantity,
@@ -267,8 +268,16 @@ export class CTCartToEEBasketMapper {
             staff: null,
             promotions: 0,
           },
-          totalItems: cart.lineItems.length,
-          totalBasketValue: cart.totalPrice.centAmount,
+          totalItems: cart.lineItems.reduce(
+            (acc, lineItem) => lineItem.quantity + acc,
+            0,
+          ),
+          totalBasketValue:
+            cart.lineItems.reduce(
+              (acc, lineItem) =>
+                lineItem.price.value.centAmount * lineItem.quantity + acc,
+              0,
+            ) + (cart.shippingInfo?.price?.centAmount ?? 0),
         },
         contents: basketContents,
       },

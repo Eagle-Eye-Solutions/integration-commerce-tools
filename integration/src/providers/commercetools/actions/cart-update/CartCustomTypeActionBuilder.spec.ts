@@ -1,7 +1,9 @@
 import {
   CartCustomTypeActionBuilder,
   CustomFieldError,
+  DiscountDescription,
 } from './CartCustomTypeActionBuilder';
+import { BasketLocation } from '../../../../services/basket-store/basket-store.interface';
 
 describe('CartCustomTypeActionBuilder', () => {
   it('should build an addCustomType action', () => {
@@ -15,7 +17,21 @@ describe('CartCustomTypeActionBuilder', () => {
       },
     ];
 
-    const action = CartCustomTypeActionBuilder.addCustomType(errors);
+    const appliedDiscounts: DiscountDescription[] = [
+      { description: 'disc1' },
+      { description: 'disc2' },
+    ];
+    const voucherCodes = ['code1', 'code2'];
+    const basketLocation: BasketLocation = {
+      uri: 'path/to/basket',
+      storeType: 'CUSTOM_TYPE',
+    };
+    const action = CartCustomTypeActionBuilder.addCustomType(
+      errors,
+      appliedDiscounts,
+      voucherCodes,
+      basketLocation,
+    );
 
     expect(action).toEqual({
       action: 'setCustomType',
@@ -25,7 +41,10 @@ describe('CartCustomTypeActionBuilder', () => {
       },
       fields: {
         'eagleeye-errors': errors.map((error) => JSON.stringify(error)),
-        'eagleeye-appliedDiscounts': [],
+        'eagleeye-appliedDiscounts': ['disc1', 'disc2'],
+        'eagleeye-basketStore': 'CUSTOM_TYPE',
+        'eagleeye-basketUri': 'path/to/basket',
+        'eagleeye-voucherCodes': ['code1', 'code2'],
       },
     });
   });
@@ -58,6 +77,11 @@ describe('CartCustomTypeActionBuilder', () => {
         action: 'setCustomField',
         name: 'eagleeye-basketUri',
         value: '',
+      },
+      {
+        action: 'setCustomField',
+        name: 'eagleeye-voucherCodes',
+        value: [],
       },
     ]);
   });

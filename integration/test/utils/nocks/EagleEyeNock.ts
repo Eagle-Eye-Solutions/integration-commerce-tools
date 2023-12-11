@@ -39,6 +39,10 @@ export const nockWalletOpen = async (
           type: 'TOKEN',
           value: '123456',
         },
+        {
+          type: 'TOKEN',
+          value: 'valid-code',
+        },
       ],
       options: {
         adjustBasket: {
@@ -59,8 +63,16 @@ export const nockWalletOpen = async (
             staff: null,
             promotions: 0,
           },
-          totalItems: cart.lineItems.length,
-          totalBasketValue: cart.totalPrice.centAmount,
+          totalItems: cart.lineItems.reduce(
+            (acc, lineItem) => lineItem.quantity + acc,
+            0,
+          ),
+          totalBasketValue:
+            cart.lineItems.reduce(
+              (acc, lineItem) =>
+                lineItem.price.value.centAmount * lineItem.quantity + acc,
+              0,
+            ) + (cart.shippingInfo?.price?.centAmount ?? 0),
         },
         contents: basketContents,
       },
@@ -127,6 +139,13 @@ export const nockWalletOpen = async (
             resourceId: null,
             errorCode: 'PCEXNF',
             errorMessage: 'Voucher invalid: Failed to load token',
+          },
+          {
+            value: 'valid-code',
+            resourceType: null,
+            resourceId: null,
+            errorCode: null,
+            errorMessage: null,
           },
         ],
       },

@@ -10,7 +10,6 @@ import { CartCustomTypeActionBuilder } from '../../providers/commercetools/actio
 export class UnhandledExceptionsFilter implements ExceptionFilter {
   private readonly logger = new Logger(UnhandledExceptionsFilter.name);
 
-  //TODO review this as not working as expected
   catch(exception: unknown, host: ArgumentsHost): void {
     this.logger.error('Unhandled error: ', exception);
     const ctx = host.switchToHttp();
