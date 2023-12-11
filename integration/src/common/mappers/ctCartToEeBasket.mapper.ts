@@ -9,6 +9,18 @@ import { DiscountDescription } from '../../providers/commercetools/actions/cart-
 import { ConfigService } from '@nestjs/config';
 import { Commercetools } from '../../providers/commercetools/commercetools.provider';
 
+export type BasketItem = {
+  itemUnitCost: number;
+  totalUnitCostAfterDiscount: number;
+  totalUnitCost: number;
+  description: string;
+  itemUnitMetric: string;
+  itemUnitCount: number;
+  salesKey: string;
+  sku?: string;
+  upc?: string;
+};
+
 @Injectable()
 export class CTCartToEEBasketMapper {
   constructor(
@@ -26,8 +38,7 @@ export class CTCartToEEBasketMapper {
   }
 
   mapLineItemToBasketItem(lineItem: LineItem) {
-    return {
-      upc: lineItem.variant.sku,
+    let basketItem: BasketItem = {
       itemUnitCost: lineItem.price.value.centAmount,
       totalUnitCostAfterDiscount: lineItem.totalPrice.centAmount,
       totalUnitCost: lineItem.totalPrice.centAmount,
@@ -36,6 +47,12 @@ export class CTCartToEEBasketMapper {
       itemUnitCount: lineItem.quantity,
       salesKey: 'SALE',
     };
+    if (this.configService.get<boolean>('eagleEye.useItemSku')) {
+      basketItem.sku = lineItem.variant.sku;
+    } else {
+      basketItem.upc = lineItem.variant.sku;
+    }
+    return basketItem;
   }
 
   mapAdjustedBasketToCartDirectDiscounts(
