@@ -30,6 +30,7 @@ export class CartCustomTypeActionBuilder {
   static addCustomType = (
     errors: CustomFieldError[],
     appliedDiscounts: DiscountDescription[] = [],
+    voucherCodes: string[] = [],
     basketLocation?: BasketLocation,
   ): OrderUpdateAction => ({
     action: 'setCustomType',
@@ -42,12 +43,14 @@ export class CartCustomTypeActionBuilder {
       'eagleeye-appliedDiscounts': extractDescriptions(appliedDiscounts),
       'eagleeye-basketStore': basketLocation?.storeType,
       'eagleeye-basketUri': basketLocation?.uri,
+      'eagleeye-voucherCodes': voucherCodes,
     },
   });
 
   static setCustomFields = (
     errors: CustomFieldError[],
     appliedDiscounts: DiscountDescription[] = [],
+    voucherCodes: string[] = [],
     basketLocation?: BasketLocation,
   ): OrderUpdateAction[] => [
     {
@@ -69,6 +72,11 @@ export class CartCustomTypeActionBuilder {
       action: 'setCustomField',
       name: 'eagleeye-basketUri',
       value: basketLocation?.uri ?? '',
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-voucherCodes',
+      value: voucherCodes,
     },
   ];
 

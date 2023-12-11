@@ -61,6 +61,7 @@ export class AppService {
           CartCustomTypeActionBuilder.setCustomFields(
             basketDiscounts.errors,
             [...basketDiscounts.discountDescriptions],
+            basketDiscounts.voucherCodes,
             basketLocation,
           ),
         );
@@ -69,6 +70,7 @@ export class AppService {
           CartCustomTypeActionBuilder.addCustomType(
             basketDiscounts.errors,
             [...basketDiscounts.discountDescriptions],
+            basketDiscounts.voucherCodes,
             basketLocation,
           ),
         );
@@ -107,7 +109,7 @@ export class AppService {
         CartCustomTypeActionBuilder.checkResourceCustomType(body?.resource?.obj)
       ) {
         actionBuilder.addAll(
-          CartCustomTypeActionBuilder.setCustomFields(errors, [], null),
+          CartCustomTypeActionBuilder.setCustomFields(errors, []),
         );
       } else {
         actionBuilder.add(CartCustomTypeActionBuilder.addCustomType(errors));

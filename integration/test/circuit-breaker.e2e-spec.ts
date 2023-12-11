@@ -179,6 +179,11 @@ describe('Circuit breaker (e2e)', () => {
             name: 'eagleeye-basketUri',
             value: '',
           },
+          {
+            action: 'setCustomField',
+            name: 'eagleeye-voucherCodes',
+            value: [],
+          },
           { action: 'setDirectDiscounts', discounts: [] },
         ],
       });

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { EagleEyeApiClient } from '../../providers/eagleeye/eagleeye.provider';
 import {
   Cart,
@@ -15,6 +15,8 @@ import {
 
 @Injectable()
 export class PromotionService {
+  private readonly logger = new Logger(PromotionService.name);
+
   constructor(
     private eagleEyeClient: EagleEyeApiClient,
     readonly circuitBreakerService: CircuitBreakerService,
@@ -26,17 +28,21 @@ export class PromotionService {
     discountDescriptions: DiscountDescription[];
     errors: CustomFieldError[];
     enrichedBasket: any;
+    voucherCodes: string[];
   }> {
     const discounts: DirectDiscountDraft[] = [];
     const discountDescriptions: DiscountDescription[] = [];
     const errors: CustomFieldError[] = [];
 
-    const walletOpenResponse = await this.walletInvoke(
-      'open',
+    const eeOpenRequest =
       await this.cartToBasketMapper.mapCartToWalletOpenPayload(
         cartReference.obj,
-      ),
-    );
+      );
+    this.logger.debug({
+      message: 'Sending open request to EagleEye with body',
+      eeOpenRequest,
+    });
+    const walletOpenResponse = await this.walletInvoke('open', eeOpenRequest);
 
     if (walletOpenResponse?.analyseBasketResults?.basket) {
       const basketLevelDiscounts = await this.getBasketLevelDiscounts(
@@ -71,6 +77,11 @@ export class PromotionService {
 
     errors.push(...examineTokenErrors);
 
+    const validTokens =
+      walletOpenResponse.examine
+        ?.filter((entry) => !entry.errorCode)
+        .map((result) => result.value) || [];
+
     if (walletOpenResponse?.analyseBasketResults?.discount?.length) {
       const descriptions =
         this.cartToBasketMapper.mapBasketDiscountsToDiscountDescriptions(
@@ -84,6 +95,7 @@ export class PromotionService {
       discountDescriptions,
       errors,
       enrichedBasket: walletOpenResponse?.analyseBasketResults?.basket,
+      voucherCodes: validTokens,
     };
   }
 
