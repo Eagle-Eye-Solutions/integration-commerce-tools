@@ -40,10 +40,11 @@ export const nockDeleteCustomObject = (
     .reply(200, response, []);
 };
 
-export const nockPostEnirchedBasketCustomObject = (times = 1) => {
+export const nockPostEnirchedBasketCustomObject = () => {
   return nock('https://api.europe-west1.gcp.commercetools.com:443', {
     encodedQueryParams: true,
   })
+    .persist()
     .post(`/${process.env.CTP_PROJECT_KEY}/custom-objects`, {
       key: '8be07418-04a0-49ba-b56f-2aa35d1027a4',
       container: 'eagleeye-cart',
@@ -75,7 +76,6 @@ export const nockPostEnirchedBasketCustomObject = (times = 1) => {
         cart: { typeId: 'cart', id: '8be07418-04a0-49ba-b56f-2aa35d1027a4' },
       },
     })
-    .times(times)
     .reply(
       200,
       {
@@ -192,7 +192,10 @@ export const nockPostEnirchedBasketCustomObject = (times = 1) => {
             ],
             analysedDateTime: '2023-11-29T12:10:58+00:00',
           },
-          cart: { typeId: 'cart', id: '8be07418-04a0-49ba-b56f-2aa35d1027a4' },
+          cart: {
+            typeId: 'cart',
+            id: '8be07418-04a0-49ba-b56f-2aa35d1027a4',
+          },
         },
       },
       [],
