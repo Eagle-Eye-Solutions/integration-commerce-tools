@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { Commercetools } from './providers/commercetools/commercetools.provider';
@@ -18,6 +18,7 @@ import { loggerConfig } from './config/logger.config';
 import { CTCartToEEBasketMapper } from './common/mappers/ctCartToEeBasket.mapper';
 import { ExtensionLocalService } from './services/commercetools/extension-local.service';
 import { BasketStoreServiceProvider } from './services/basket-store/basket-store.provider';
+import { UnidentifiedCustomerMiddleware } from './common/middlewares/unidentified-customer/unidentified-customer.middleware';
 
 @Module({
   imports: [
@@ -53,4 +54,8 @@ import { BasketStoreServiceProvider } from './services/basket-store/basket-store
     BasketStoreServiceProvider,
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer): any {
+    consumer.apply(UnidentifiedCustomerMiddleware).forRoutes(AppController);
+  }
+}

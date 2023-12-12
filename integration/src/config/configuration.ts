@@ -30,6 +30,7 @@ const validationSchema = Joi.object({
     storeBasketCustomObject: Joi.boolean(),
     apiClientTimeout: Joi.number(),
     useItemSku: Joi.boolean(),
+    excludeUnidentifiedCustomers: Joi.boolean(),
   }),
   circuitBreaker: {
     timeout: Joi.number(),
@@ -79,6 +80,10 @@ export const defaultConfiguration = {
     ),
     apiClientTimeout: process.env.EE_API_CLIENT_TIMEOUT || 1800,
     useItemSku: parseBool(process.env.EE_USE_ITEM_SKU, false),
+    excludeUnidentifiedCustomers: parseBool(
+      process.env.EE_EXCLUDE_UNIDENTIFIED_CUSTOMERS,
+      false,
+    ),
   },
   circuitBreaker: {
     timeout: parseInt(process.env.CIRCUIT_BREAKER_TIMEOUT, 10) || 1700,

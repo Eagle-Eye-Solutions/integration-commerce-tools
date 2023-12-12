@@ -207,6 +207,13 @@ describe('CTCartToEEBasketMapper', () => {
     expect(payload).toMatchSnapshot();
   });
 
+  test('mapVoucherCodesToCampaignTokens should ignore empty string vouchers', async () => {
+    const voucherCodes = [''];
+    const payload = await service.mapVoucherCodesToCampaignTokens(voucherCodes);
+
+    expect(payload).toMatchSnapshot();
+  });
+
   test('mapCartToWalletOpenPayload should return the payload for /wallet/open', async () => {
     jest
       .spyOn(configService, 'get')
