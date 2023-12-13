@@ -60,7 +60,6 @@ describe('Identity Not Found (e2e)', () => {
     const getCircuitStateCustomObjectNock = nockGetCustomObject(404, null);
     const postEnrichedBasketCustomObjectNock =
       nockPostEnirchedBasketCustomObject();
-
     const walletOpenErrorNock = await nockWalletOpenIdentityError(
       cartExtenstionInput.resource.obj,
       404,

@@ -25,6 +25,9 @@ export class CustomObjectService {
       message: 'Creating custom object draft',
       customObjectDraft,
     });
+    console.log(
+      `*************************\n${JSON.stringify(customObjectDraft)}`,
+    );
     return this.commercetools
       .getApiRoot()
       .customObjects()

@@ -24,6 +24,7 @@ describe('CTCartToEEBasketMapper', () => {
             fractionDigits: 2,
           },
         },
+        quantity: 1,
         totalPrice: {
           centAmount: 300,
           currencyCode: 'USD',
@@ -63,10 +64,15 @@ describe('CTCartToEEBasketMapper', () => {
     service = module.get<CTCartToEEBasketMapper>(CTCartToEEBasketMapper);
     configService = module.get<ConfigService>(ConfigService);
     commercetools = module.get<Commercetools>(Commercetools);
-    jest.spyOn(configService, 'get').mockReturnValueOnce(shippingMethodMapMock);
+    jest.resetAllMocks();
   });
 
   test('mapCartLineItemsToBasketContent should return the mapped line items', () => {
+    jest
+      .spyOn(configService, 'get')
+      .mockReturnValueOnce(false)
+      .mockReturnValueOnce(shippingMethodMapMock);
+
     const lineItems = [
       {
         variant: {
@@ -204,6 +210,8 @@ describe('CTCartToEEBasketMapper', () => {
   test('mapCartToWalletOpenPayload should return the payload for /wallet/open', async () => {
     jest
       .spyOn(configService, 'get')
+      .mockReturnValueOnce(false)
+      .mockReturnValueOnce(shippingMethodMapMock)
       .mockReturnValueOnce('outlet1')
       .mockReturnValueOnce('banner1');
 
@@ -215,6 +223,8 @@ describe('CTCartToEEBasketMapper', () => {
   test('mapCartToWalletOpenPayload should include voucher codes (tokens) if present in the cart', async () => {
     jest
       .spyOn(configService, 'get')
+      .mockReturnValueOnce(false)
+      .mockReturnValueOnce(shippingMethodMapMock)
       .mockReturnValueOnce('outlet1')
       .mockReturnValueOnce('banner1');
 
@@ -292,7 +302,23 @@ describe('CTCartToEEBasketMapper', () => {
   });
 
   test('mapCartToWalletOpenPayload should return the payload for /wallet/open, without the optional parentIncomingIdentifier when not set in the configuration', async () => {
-    jest.spyOn(configService, 'get').mockReturnValueOnce('outlet1');
+    jest
+      .spyOn(configService, 'get')
+      .mockReturnValueOnce(false)
+      .mockReturnValueOnce(shippingMethodMapMock)
+      .mockReturnValueOnce('outlet1');
+
+    const payload = await service.mapCartToWalletOpenPayload(cart, false);
+
+    expect(payload).toMatchSnapshot();
+  });
+
+  test("mapCartToWalletOpenPayload should return the payload for /wallet/open, with sku instead of upc when 'useItemSku' is set to true", async () => {
+    jest
+      .spyOn(configService, 'get')
+      .mockReturnValueOnce(true)
+      .mockReturnValueOnce(shippingMethodMapMock)
+      .mockReturnValueOnce('outlet1');
 
     const payload = await service.mapCartToWalletOpenPayload(cart, false);
 

@@ -9,6 +9,18 @@ import { DiscountDescription } from '../../providers/commercetools/actions/cart-
 import { ConfigService } from '@nestjs/config';
 import { Commercetools } from '../../providers/commercetools/commercetools.provider';
 
+export type BasketItem = {
+  itemUnitCost: number;
+  totalUnitCostAfterDiscount: number;
+  totalUnitCost: number;
+  description: string;
+  itemUnitMetric: string;
+  itemUnitCount: number;
+  salesKey: string;
+  sku?: string;
+  upc?: string;
+};
+
 @Injectable()
 export class CTCartToEEBasketMapper {
   constructor(
@@ -26,16 +38,22 @@ export class CTCartToEEBasketMapper {
   }
 
   mapLineItemToBasketItem(lineItem: LineItem) {
-    return {
-      upc: lineItem.variant.sku,
+    const basketItem: BasketItem = {
       itemUnitCost: lineItem.price.value.centAmount,
-      totalUnitCostAfterDiscount: lineItem.totalPrice.centAmount,
-      totalUnitCost: lineItem.totalPrice.centAmount,
+      totalUnitCostAfterDiscount:
+        lineItem.price.value.centAmount * lineItem.quantity,
+      totalUnitCost: lineItem.price.value.centAmount * lineItem.quantity,
       description: lineItem.name[Object.keys(lineItem.name)[0]], // TODO: handle locales
       itemUnitMetric: 'EACH',
       itemUnitCount: lineItem.quantity,
       salesKey: 'SALE',
     };
+    if (this.configService.get<boolean>('eagleEye.useItemSku')) {
+      basketItem.sku = lineItem.variant.sku;
+    } else {
+      basketItem.upc = lineItem.variant.sku;
+    }
+    return basketItem;
   }
 
   mapAdjustedBasketToCartDirectDiscounts(
@@ -241,8 +259,16 @@ export class CTCartToEEBasketMapper {
             staff: null,
             promotions: 0,
           },
-          totalItems: cart.lineItems.length,
-          totalBasketValue: cart.totalPrice.centAmount,
+          totalItems: cart.lineItems.reduce(
+            (acc, lineItem) => lineItem.quantity + acc,
+            0,
+          ),
+          totalBasketValue:
+            cart.lineItems.reduce(
+              (acc, lineItem) =>
+                lineItem.price.value.centAmount * lineItem.quantity + acc,
+              0,
+            ) + (cart.shippingInfo?.price?.centAmount ?? 0),
         },
         contents: basketContents,
       },

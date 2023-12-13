@@ -150,6 +150,7 @@ describe('PromotionService', () => {
 
       jest
         .spyOn(configService, 'get')
+        .mockReturnValueOnce(false)
         .mockReturnValueOnce(shippingMethodMapMock)
         .mockReturnValueOnce('outlet1')
         .mockReturnValueOnce('banner1')
@@ -180,6 +181,7 @@ describe('PromotionService', () => {
           ),
         errors: [],
         enrichedBasket: walletOpenResponse.analyseBasketResults.basket,
+        voucherCodes: [],
       });
     });
 
@@ -204,12 +206,14 @@ describe('PromotionService', () => {
       expect(cbFireMock).toHaveBeenCalled();
       expect(result).toEqual({
         discounts: [],
+        enrichedBasket: undefined,
         discountDescriptions: [],
         errors: [],
+        voucherCodes: [],
       });
     });
 
-    it('should return token errors when provided by the EE API', async () => {
+    it('should return valid vocherCodes and token errors when provided by the EE API', async () => {
       const cartReference = {
         id: 'cartId',
         obj: {
@@ -220,7 +224,7 @@ describe('PromotionService', () => {
               id: 'some-id',
             },
             fields: {
-              'eagleeye-voucherCodes': ['1234590'],
+              'eagleeye-voucherCodes': ['1234590', 'valid-code'],
             },
           },
         },
@@ -230,6 +234,13 @@ describe('PromotionService', () => {
           discount: [],
         },
         examine: [
+          {
+            value: 'valid-code',
+            resourceType: null,
+            resourceId: null,
+            errorCode: null,
+            errorMessage: null,
+          },
           {
             value: '1234590',
             resourceType: null,
@@ -254,6 +265,7 @@ describe('PromotionService', () => {
       expect(result).toEqual({
         discounts: [],
         discountDescriptions: [],
+        enrichedBasket: undefined,
         errors: [
           {
             type: 'EE_API_TOKEN_PCEXNF',
@@ -267,6 +279,7 @@ describe('PromotionService', () => {
             },
           },
         ],
+        voucherCodes: ['valid-code'],
       });
     });
 
@@ -354,6 +367,7 @@ describe('PromotionService', () => {
             context: { type: 'EE_IDENTITY_NOT_FOUND' },
           },
         ],
+        voucherCodes: [],
         enrichedBasket: {
           summary: {
             totalDiscountAmount: { promotions: 10 },

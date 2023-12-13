@@ -34,6 +34,11 @@ export const SUCCESS_RESPONSE = {
         'custom-objects/eagleeye-cart/8be07418-04a0-49ba-b56f-2aa35d1027a4',
     },
     {
+      action: 'setCustomField',
+      name: 'eagleeye-voucherCodes',
+      value: ['valid-code'],
+    },
+    {
       action: 'setDirectDiscounts',
       discounts: [
         {
@@ -118,6 +123,7 @@ export const ERROR_RESPONSE = {
     { action: 'setCustomField', name: 'eagleeye-appliedDiscounts', value: [] },
     { action: 'setCustomField', name: 'eagleeye-basketStore', value: '' },
     { action: 'setCustomField', name: 'eagleeye-basketUri', value: '' },
+    { action: 'setCustomField', name: 'eagleeye-voucherCodes', value: [] },
     { action: 'setDirectDiscounts', discounts: [] },
   ],
 };
@@ -138,6 +144,7 @@ export const CUSTOMER_NOT_FOUND_FETCHED_OPEN_PROMOTIONS_RESPONSE = {
         'eagleeye-basketStore': 'CUSTOM_TYPE',
         'eagleeye-basketUri':
           'custom-objects/eagleeye-cart/8be07418-04a0-49ba-b56f-2aa35d1027a4',
+        'eagleeye-voucherCodes': [],
       },
     },
     {

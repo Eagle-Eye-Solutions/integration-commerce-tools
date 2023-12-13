@@ -27,20 +27,25 @@ export class PromotionService {
     discountDescriptions: DiscountDescription[];
     errors: CustomFieldError[];
     enrichedBasket: any;
+    voucherCodes: string[];
   }> {
     const discounts: DirectDiscountDraft[] = [];
     const discountDescriptions: DiscountDescription[] = [];
     const errors: CustomFieldError[] = [];
 
     let walletOpenResponse;
+    let eeWalletOpenRequest;
     try {
-      walletOpenResponse = await this.walletInvoke(
-        'open',
+      eeWalletOpenRequest =
         await this.cartToBasketMapper.mapCartToWalletOpenPayload(
           cartReference.obj,
           true,
-        ),
-      );
+        );
+      this.logger.debug({
+        message: 'Sending open request to EagleEye with body',
+        eeWalletOpenRequest,
+      });
+      walletOpenResponse = await this.walletInvoke('open', eeWalletOpenRequest);
     } catch (error) {
       this.logger.warn('Error while opening the wallet', error);
       if (error.type === 'EE_IDENTITY_NOT_FOUND') {
@@ -59,12 +64,18 @@ export class PromotionService {
           this.logger.warn(
             'Attempting to fetch open promotions without identity',
           );
-          walletOpenResponse = await this.walletInvoke(
-            'open',
+          eeWalletOpenRequest =
             await this.cartToBasketMapper.mapCartToWalletOpenPayload(
               cartReference.obj,
               false,
-            ),
+            );
+          this.logger.debug({
+            message: 'Sending open request to EagleEye with body',
+            eeWalletOpenRequest,
+          });
+          walletOpenResponse = await this.walletInvoke(
+            'open',
+            eeWalletOpenRequest,
           );
         } catch (error) {
           throw error;
@@ -106,6 +117,11 @@ export class PromotionService {
 
     errors.push(...examineTokenErrors);
 
+    const validTokens =
+      walletOpenResponse.examine
+        ?.filter((entry) => !entry.errorCode)
+        .map((result) => result.value) || [];
+
     if (walletOpenResponse?.analyseBasketResults?.discount?.length) {
       const descriptions =
         this.cartToBasketMapper.mapBasketDiscountsToDiscountDescriptions(
@@ -119,6 +135,7 @@ export class PromotionService {
       discountDescriptions,
       errors,
       enrichedBasket: walletOpenResponse?.analyseBasketResults?.basket,
+      voucherCodes: validTokens,
     };
   }
 

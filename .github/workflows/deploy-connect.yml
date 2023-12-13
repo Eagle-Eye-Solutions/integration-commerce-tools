@@ -114,9 +114,7 @@ jobs:
           connect_env: ${{ github.event.inputs.environment }}
           connector_key: ${{ github.event.inputs.connector_key }}
           config_override: ${{ github.event.inputs.config_override }}
-          ee_wallet_url: ${{ vars.EE_WALLET_URL }}
           ee_pos_url: ${{ vars.EE_POS_URL }}
-          ee_resources_url: ${{ vars.EE_RESOURCES_URL }}
           shipping_method_map: ${{ vars.SHIPPING_METHOD_MAP }}
           ee_incoming_identifier: ${{ vars.EE_INCOMING_IDENTIFIER }}
           ee_parent_incoming_identifier: ${{ vars.EE_PARENT_INCOMING_IDENTIFIER }}
@@ -137,3 +135,8 @@ jobs:
           postman_collection_json: "eagle-eye-e2e-tests.postman_collection.json"
           ct_region: ${{ vars.CT_REGION }}
           ct_project_id: ${{ vars.CT_PROJECT_KEY }}
+          ee_client_id: ${{ secrets.EE_CLIENT_ID }}
+          ee_client_secret: ${{ secrets.EE_CLIENT_SECRET }}
+          ee_wallet_url: ${{ vars.EE_WALLET_URL }}
+          ee_pos_url: ${{ vars.EE_POS_URL }}
+          ee_resources_url: ${{ vars.EE_RESOURCES_URL }}

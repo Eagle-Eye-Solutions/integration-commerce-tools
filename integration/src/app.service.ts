@@ -61,6 +61,7 @@ export class AppService {
           CartCustomTypeActionBuilder.setCustomFields(
             basketDiscounts.errors,
             [...basketDiscounts.discountDescriptions],
+            basketDiscounts.voucherCodes,
             basketLocation,
           ),
         );
@@ -69,6 +70,7 @@ export class AppService {
           CartCustomTypeActionBuilder.addCustomType(
             basketDiscounts.errors,
             [...basketDiscounts.discountDescriptions],
+            basketDiscounts.voucherCodes,
             basketLocation,
           ),
         );
@@ -94,12 +96,10 @@ export class AppService {
         try {
           await this.basketStoreService.delete(body.resource.id);
         } catch (errorDelete) {
-          // we don't want to propagate the basket delete error otherwise it will be catched by the global error handler
-          // and the original error will be hidden
-          if (errorDelete instanceof EagleEyePluginException) {
-            const { type, message } = errorDelete;
-            errors.push({ type, message });
-          }
+          this.logger.error(
+            'Error deleting stored enriched basket',
+            errorDelete,
+          );
         }
       }
 
@@ -109,7 +109,7 @@ export class AppService {
         CartCustomTypeActionBuilder.checkResourceCustomType(body?.resource?.obj)
       ) {
         actionBuilder.addAll(
-          CartCustomTypeActionBuilder.setCustomFields(errors, [], null),
+          CartCustomTypeActionBuilder.setCustomFields(errors, []),
         );
       } else {
         actionBuilder.add(CartCustomTypeActionBuilder.addCustomType(errors));

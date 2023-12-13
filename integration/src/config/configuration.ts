@@ -23,14 +23,13 @@ const validationSchema = Joi.object({
   eagleEye: Joi.object({
     clientId: Joi.string().required(),
     clientSecret: Joi.string().required(),
-    walletUrl: Joi.string(),
     posUrl: Joi.string(),
-    resourcesUrl: Joi.string(),
     shippingMethodMap: Joi.array<{ key: string; upc: string }>(),
     incomingIdentifier: Joi.string().required(),
     parentIncomingIdentifier: Joi.string(),
     storeBasketCustomObject: Joi.boolean(),
     apiClientTimeout: Joi.number(),
+    useItemSku: Joi.boolean(),
   }),
   circuitBreaker: {
     timeout: Joi.number(),
@@ -70,12 +69,7 @@ export const defaultConfiguration = {
   eagleEye: {
     clientId: process.env.EE_CLIENT_ID,
     clientSecret: process.env.EE_CLIENT_SECRET,
-    walletUrl:
-      process.env.EE_WALLET_URL || 'https://wallet.sandbox.uk.eagleeye.com',
-    posUrl: process.env.EE_POS_URL || 'https://pos.sandbox.uk.eagleeye.com',
-    resourcesUrl:
-      process.env.EE_RESOURCES_URL ||
-      'https://resources.sandbox.uk.eagleeye.com',
+    posUrl: process.env.EE_POS_URL,
     shippingMethodMap: parseShippingMethodMap(),
     incomingIdentifier: process.env.EE_INCOMING_IDENTIFIER,
     parentIncomingIdentifier: process.env.EE_PARENT_INCOMING_IDENTIFIER,
@@ -84,6 +78,7 @@ export const defaultConfiguration = {
       true,
     ),
     apiClientTimeout: process.env.EE_API_CLIENT_TIMEOUT || 1800,
+    useItemSku: parseBool(process.env.EE_USE_ITEM_SKU, false),
   },
   circuitBreaker: {
     timeout: parseInt(process.env.CIRCUIT_BREAKER_TIMEOUT, 10) || 1700,
@@ -129,7 +124,7 @@ export const configuration = () => {
 // Only intended for scripts or cases where NestJS modules are not available
 @Injectable()
 export class ScriptConfigService {
-  private config;
+  private readonly config;
 
   constructor() {
     validateConfiguration();

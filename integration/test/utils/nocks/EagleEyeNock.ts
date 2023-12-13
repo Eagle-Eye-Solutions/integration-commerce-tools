@@ -39,6 +39,10 @@ export const nockWalletOpen = async (
           type: 'TOKEN',
           value: '123456',
         },
+        {
+          type: 'TOKEN',
+          value: 'valid-code',
+        },
       ],
       options: {
         adjustBasket: {
@@ -59,8 +63,8 @@ export const nockWalletOpen = async (
             staff: null,
             promotions: 0,
           },
-          totalItems: cart.lineItems.length,
-          totalBasketValue: cart.totalPrice.centAmount,
+          totalItems: getTotalItemCount(cart),
+          totalBasketValue: getTotalBasketValue(cart),
         },
         contents: basketContents,
       },
@@ -86,8 +90,8 @@ export const nockWalletOpen = async (
                 staff: null,
                 promotions: 300,
               },
-              totalItems: cart.lineItems.length,
-              totalBasketValue: cart.totalPrice.centAmount,
+              totalItems: getTotalItemCount(cart),
+              totalBasketValue: getTotalBasketValue(cart),
               adjustmentResults: [
                 { value: 200 },
                 { value: 500 }, // Voucher code "123456", 5 pounds off 50 (Basket)
@@ -127,6 +131,13 @@ export const nockWalletOpen = async (
             resourceId: null,
             errorCode: 'PCEXNF',
             errorMessage: 'Voucher invalid: Failed to load token',
+          },
+          {
+            value: 'valid-code',
+            resourceType: null,
+            resourceId: null,
+            errorCode: null,
+            errorMessage: null,
           },
         ],
       },
@@ -184,8 +195,16 @@ export const nockWalletOpenRetryOnIdentificationError = async (
               staff: null,
               promotions: 0,
             },
-            totalItems: cart.lineItems.length,
-            totalBasketValue: cart.totalPrice.centAmount,
+            totalItems: cart.lineItems.reduce(
+              (acc, lineItem) => lineItem.quantity + acc,
+              0,
+            ),
+            totalBasketValue:
+              cart.lineItems.reduce(
+                (acc, lineItem) =>
+                  lineItem.price.value.centAmount * lineItem.quantity + acc,
+                0,
+              ) + (cart.shippingInfo?.price?.centAmount ?? 0),
           },
           contents: basketContents,
         },
@@ -211,8 +230,8 @@ export const nockWalletOpenRetryOnIdentificationError = async (
                   staff: null,
                   promotions: 300,
                 },
-                totalItems: cart.lineItems.length,
-                totalBasketValue: cart.totalPrice.centAmount,
+                totalItems: getTotalItemCount(cart),
+                totalBasketValue: getTotalBasketValue(cart),
                 adjustmentResults: [
                   { value: 200 },
                   { value: 500 }, // Voucher code "123456", 5 pounds off 50 (Basket)
@@ -270,6 +289,7 @@ export const nockWalletOpenIdentityError = async (
   if (shippingDiscountItem.upc) {
     basketContents.push(shippingDiscountItem);
   }
+
   return nock('https://pos.sandbox.uk.eagleeye.com:443', {
     encodedQueryParams: true,
   })
@@ -303,8 +323,8 @@ export const nockWalletOpenIdentityError = async (
             staff: null,
             promotions: 0,
           },
-          totalItems: cart.lineItems.length,
-          totalBasketValue: cart.totalPrice.centAmount,
+          totalItems: getTotalItemCount(cart),
+          totalBasketValue: getTotalBasketValue(cart),
         },
         contents: basketContents,
       },
@@ -317,3 +337,17 @@ export const nockWalletOpenIdentityError = async (
       },
     });
 };
+
+function getTotalItemCount(cart: any): number {
+  return cart.lineItems.reduce((acc, lineItem) => lineItem.quantity + acc, 0);
+}
+
+function getTotalBasketValue(cart: any): number {
+  return (
+    cart.lineItems.reduce(
+      (acc, lineItem) =>
+        lineItem.price.value.centAmount * lineItem.quantity + acc,
+      0,
+    ) + (cart.shippingInfo?.price?.centAmount ?? 0)
+  );
+}

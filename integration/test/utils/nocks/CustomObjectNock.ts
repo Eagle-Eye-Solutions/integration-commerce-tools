@@ -58,8 +58,8 @@ export const nockPostEnirchedBasketCustomObject = () => {
               staff: null,
               promotions: 300,
             },
-            totalItems: 2,
-            totalBasketValue: 5538,
+            totalItems: 7,
+            totalBasketValue: 6138,
             adjustmentResults: [{ value: 200 }, { value: 500 }],
           },
           contents: [

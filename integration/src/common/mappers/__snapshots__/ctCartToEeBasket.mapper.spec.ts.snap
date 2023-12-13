@@ -53,8 +53,8 @@ exports[`CTCartToEEBasketMapper mapCartLineItemsToBasketContent should return th
     "itemUnitCount": 2,
     "itemUnitMetric": "EACH",
     "salesKey": "SALE",
-    "totalUnitCost": 900,
-    "totalUnitCostAfterDiscount": 900,
+    "totalUnitCost": 2000,
+    "totalUnitCostAfterDiscount": 2000,
     "upc": "SKU123",
   },
 ]
@@ -67,12 +67,12 @@ exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should include eagle 
       {
         "description": "Example Product",
         "itemUnitCost": 300,
-        "itemUnitCount": undefined,
+        "itemUnitCount": 1,
         "itemUnitMetric": "EACH",
         "salesKey": "SALE",
+        "sku": "SKU123",
         "totalUnitCost": 300,
         "totalUnitCostAfterDiscount": 300,
-        "upc": "SKU123",
       },
     ],
     "summary": {
@@ -94,8 +94,7 @@ exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should include eagle 
     ],
   },
   "location": {
-    "incomingIdentifier": "outlet1",
-    "parentIncomingIdentifier": "banner1",
+    "incomingIdentifier": undefined,
   },
   "lock": true,
   "options": {
@@ -119,7 +118,7 @@ exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should include vouche
       {
         "description": "Example Product",
         "itemUnitCost": 300,
-        "itemUnitCount": undefined,
+        "itemUnitCount": 1,
         "itemUnitMetric": "EACH",
         "salesKey": "SALE",
         "totalUnitCost": 300,
@@ -171,12 +170,12 @@ exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should not include ea
       {
         "description": "Example Product",
         "itemUnitCost": 300,
-        "itemUnitCount": undefined,
+        "itemUnitCount": 1,
         "itemUnitMetric": "EACH",
         "salesKey": "SALE",
+        "sku": "SKU123",
         "totalUnitCost": 300,
         "totalUnitCostAfterDiscount": 300,
-        "upc": "SKU123",
       },
     ],
     "summary": {
@@ -193,8 +192,7 @@ exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should not include ea
   },
   "examine": undefined,
   "location": {
-    "incomingIdentifier": "outlet1",
-    "parentIncomingIdentifier": "banner1",
+    "incomingIdentifier": undefined,
   },
   "lock": true,
   "options": {
@@ -218,7 +216,7 @@ exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should return the pay
       {
         "description": "Example Product",
         "itemUnitCost": 300,
-        "itemUnitCount": undefined,
+        "itemUnitCount": 1,
         "itemUnitMetric": "EACH",
         "salesKey": "SALE",
         "totalUnitCost": 300,
@@ -258,6 +256,52 @@ exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should return the pay
 }
 `;
 
+exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should return the payload for /wallet/open, with sku instead of upc when 'useItemSku' is set to true 1`] = `
+{
+  "basket": {
+    "contents": [
+      {
+        "description": "Example Product",
+        "itemUnitCost": 300,
+        "itemUnitCount": 1,
+        "itemUnitMetric": "EACH",
+        "salesKey": "SALE",
+        "sku": "SKU123",
+        "totalUnitCost": 300,
+        "totalUnitCostAfterDiscount": 300,
+      },
+    ],
+    "summary": {
+      "redemptionChannel": "Online",
+      "totalBasketValue": 300,
+      "totalDiscountAmount": {
+        "general": null,
+        "promotions": 0,
+        "staff": null,
+      },
+      "totalItems": 1,
+    },
+    "type": "STANDARD",
+  },
+  "examine": undefined,
+  "location": {
+    "incomingIdentifier": "outlet1",
+  },
+  "lock": true,
+  "options": {
+    "adjustBasket": {
+      "enabled": true,
+      "includeOpenOffers": true,
+    },
+    "analyseBasket": {
+      "enabled": true,
+      "includeOpenOffers": true,
+    },
+  },
+  "reference": undefined,
+}
+`;
+
 exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should return the payload for /wallet/open, without the optional parentIncomingIdentifier when not set in the configuration 1`] = `
 {
   "basket": {
@@ -265,7 +309,7 @@ exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should return the pay
       {
         "description": "Example Product",
         "itemUnitCost": 300,
-        "itemUnitCount": undefined,
+        "itemUnitCount": 1,
         "itemUnitMetric": "EACH",
         "salesKey": "SALE",
         "totalUnitCost": 300,
