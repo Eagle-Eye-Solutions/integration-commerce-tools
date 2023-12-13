@@ -17,7 +17,8 @@ export type CustomFieldError = {
     | PluginErrorType
     | 'EE_API_TOKEN_PCEXNF'
     | 'EE_API_TOKEN_PCEXNV'
-    | 'EE_API_TOKEN_PCEXO';
+    | 'EE_API_TOKEN_PCEXO'
+    | 'EE_API_CUSTOMER_NF';
   message: string;
   context?: Record<string, any>;
 };

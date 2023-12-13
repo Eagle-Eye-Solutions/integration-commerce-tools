@@ -91,5 +91,16 @@ export const ORDER_CUSTOM_FIELDS: TypeDraft = {
       },
       inputHint: 'SingleLine',
     },
+    {
+      name: 'eagleeye-identityValue',
+      label: {
+        en: 'eagleeye-identityValue',
+      },
+      required: false,
+      type: {
+        name: 'String',
+      },
+      inputHint: 'SingleLine',
+    },
   ],
 };

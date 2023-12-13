@@ -60,6 +60,57 @@ exports[`CTCartToEEBasketMapper mapCartLineItemsToBasketContent should return th
 ]
 `;
 
+exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should include eagle eye identity if present in the cart 1`] = `
+{
+  "basket": {
+    "contents": [
+      {
+        "description": "Example Product",
+        "itemUnitCost": 300,
+        "itemUnitCount": 1,
+        "itemUnitMetric": "EACH",
+        "salesKey": "SALE",
+        "sku": "SKU123",
+        "totalUnitCost": 300,
+        "totalUnitCostAfterDiscount": 300,
+      },
+    ],
+    "summary": {
+      "redemptionChannel": "Online",
+      "totalBasketValue": 300,
+      "totalDiscountAmount": {
+        "general": null,
+        "promotions": 0,
+        "staff": null,
+      },
+      "totalItems": 1,
+    },
+    "type": "STANDARD",
+  },
+  "examine": undefined,
+  "identity": {
+    "identityValue": [
+      "12345678",
+    ],
+  },
+  "location": {
+    "incomingIdentifier": undefined,
+  },
+  "lock": true,
+  "options": {
+    "adjustBasket": {
+      "enabled": true,
+      "includeOpenOffers": true,
+    },
+    "analyseBasket": {
+      "enabled": true,
+      "includeOpenOffers": true,
+    },
+  },
+  "reference": undefined,
+}
+`;
+
 exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should include voucher codes (tokens) if present in the cart 1`] = `
 {
   "basket": {
@@ -93,10 +144,55 @@ exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should include vouche
       "value": "12345678",
     },
   ],
-  "identity": undefined,
   "location": {
     "incomingIdentifier": "outlet1",
     "parentIncomingIdentifier": "banner1",
+  },
+  "lock": true,
+  "options": {
+    "adjustBasket": {
+      "enabled": true,
+      "includeOpenOffers": true,
+    },
+    "analyseBasket": {
+      "enabled": true,
+      "includeOpenOffers": true,
+    },
+  },
+  "reference": undefined,
+}
+`;
+
+exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should not include eagle eye identity if not present in the cart but the instruction is to include identity 1`] = `
+{
+  "basket": {
+    "contents": [
+      {
+        "description": "Example Product",
+        "itemUnitCost": 300,
+        "itemUnitCount": 1,
+        "itemUnitMetric": "EACH",
+        "salesKey": "SALE",
+        "sku": "SKU123",
+        "totalUnitCost": 300,
+        "totalUnitCostAfterDiscount": 300,
+      },
+    ],
+    "summary": {
+      "redemptionChannel": "Online",
+      "totalBasketValue": 300,
+      "totalDiscountAmount": {
+        "general": null,
+        "promotions": 0,
+        "staff": null,
+      },
+      "totalItems": 1,
+    },
+    "type": "STANDARD",
+  },
+  "examine": undefined,
+  "location": {
+    "incomingIdentifier": undefined,
   },
   "lock": true,
   "options": {
@@ -141,7 +237,6 @@ exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should return the pay
     "type": "STANDARD",
   },
   "examine": undefined,
-  "identity": undefined,
   "location": {
     "incomingIdentifier": "outlet1",
     "parentIncomingIdentifier": "banner1",
@@ -189,7 +284,6 @@ exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should return the pay
     "type": "STANDARD",
   },
   "examine": undefined,
-  "identity": undefined,
   "location": {
     "incomingIdentifier": "outlet1",
   },
@@ -236,7 +330,6 @@ exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should return the pay
     "type": "STANDARD",
   },
   "examine": undefined,
-  "identity": undefined,
   "location": {
     "incomingIdentifier": "outlet1",
   },

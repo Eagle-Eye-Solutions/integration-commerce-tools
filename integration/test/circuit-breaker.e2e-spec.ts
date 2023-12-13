@@ -52,8 +52,7 @@ describe('Circuit breaker (e2e)', () => {
   it('should allow three requests when the circuit breaker is loaded with closed or empty state and open the circuit after 3 API errors, given the CIRCUIT_BREAKER_ERROR_THRESHOLD_PERCENTAGE is set to 50%', async () => {
     // ****** NOCK ******
     // nock.recorder.rec();
-
-    //the following API calls are done onModuleInit and need to be mocked before the testing module is created
+    // the following API calls are done onModuleInit and need to be mocked before the testing module is created
     const ctAuthNock = nockCtAuth();
     const nockCtGetShippingMethods = nockCtGetShippingMethodsWithIds(
       [RECALCULATE_CART.resource.obj.shippingInfo.shippingMethod.id],
@@ -63,14 +62,13 @@ describe('Circuit breaker (e2e)', () => {
     const postCircuitStateCustomObjectNock =
       nockPostCircuitStateCustomObject(200);
     const postEnrichedBasketCustomObjectNock =
-      nockPostEnirchedBasketCustomObject(9);
+      nockPostEnirchedBasketCustomObject();
     const deleteCustomObjectNock = nockDeleteCustomObject(
       RECALCULATE_CART.resource.id,
       CUSTOM_OBJECT_CONTAINER_BASKET_STORE,
       {},
       16,
     );
-
     const walletOpenNock = await nockWalletOpen(
       RECALCULATE_CART.resource.obj,
       3,
@@ -83,9 +81,7 @@ describe('Circuit breaker (e2e)', () => {
       500,
       0,
     );
-
     app = await initAppModule();
-
     await request(app.getHttpServer())
       .post('/')
       .send(RECALCULATE_CART)
@@ -106,7 +102,6 @@ describe('Circuit breaker (e2e)', () => {
       .send(RECALCULATE_CART)
       .expect(201)
       .expect(ERROR_RESPONSE);
-
     await request(app.getHttpServer())
       .post('/')
       .send(RECALCULATE_CART)
@@ -117,14 +112,12 @@ describe('Circuit breaker (e2e)', () => {
       .send(RECALCULATE_CART)
       .expect(201)
       .expect(ERROR_RESPONSE);
-
     // open circuit and save circuit state to CT custom object
     await request(app.getHttpServer())
       .post('/')
       .send(RECALCULATE_CART)
       .expect(201)
       .expect(ERROR_RESPONSE);
-
     await sleep(100); //await for
     expect(ctAuthNock.isDone()).toBeTruthy();
     expect(nockCtGetShippingMethods.isDone()).toBeTruthy();
