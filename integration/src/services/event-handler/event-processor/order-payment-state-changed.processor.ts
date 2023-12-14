@@ -10,6 +10,7 @@ import { Commercetools } from '../../../providers/commercetools/commercetools.pr
 import { BasketStoreService } from '../../basket-store/basket-store.interface';
 import { CircuitBreakerService } from '../../../providers/circuit-breaker/circuit-breaker.service';
 import { OrderSettleService } from '../../order-settle/order-settle.service';
+import { FIELD_EAGLEEYE_SETTLED_STATUS } from '../../../providers/commercetools/custom-type/custom-type-definitions';
 
 export class OrderPaymentStateChangedProcessor extends AbstractEventProcessor {
   private readonly PROCESSOR_NAME = 'OrderPaymentStateChanged';
@@ -45,12 +46,17 @@ export class OrderPaymentStateChangedProcessor extends AbstractEventProcessor {
       const ctOrder: Order = await this.commercetools.getOrderById(
         this.message.resource.id,
       );
-      const updateActions =
-        await this.orderSettleService.settleTransactionFromOrder(ctOrder);
-      await this.commercetools.updateOrderById(ctOrder.id, {
-        version: ctOrder.version,
-        actions: updateActions,
-      });
+      if (
+        ctOrder.custom.fields &&
+        ctOrder.custom.fields[FIELD_EAGLEEYE_SETTLED_STATUS] !== 'SETTLED'
+      ) {
+        const updateActions =
+          await this.orderSettleService.settleTransactionFromOrder(ctOrder);
+        await this.commercetools.updateOrderById(ctOrder.id, {
+          version: ctOrder.version,
+          actions: updateActions,
+        });
+      }
     });
     return actions;
   }

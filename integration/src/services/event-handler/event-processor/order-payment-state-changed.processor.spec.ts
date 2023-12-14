@@ -68,6 +68,9 @@ describe('OrderPaymentStateChangedProcessor', () => {
         cart: {
           id: 'cart-id',
         },
+        custom: {
+          fields: {},
+        },
       };
       jest
         .spyOn(commercetools, 'getOrderById')
@@ -90,19 +93,9 @@ describe('OrderPaymentStateChangedProcessor', () => {
     });
 
     it('should throw error if action fails', async () => {
-      const ctOrder = {
-        cart: {
-          id: 'cart-id',
-        },
-      };
-      jest
-        .spyOn(commercetools, 'getOrderById')
-        .mockResolvedValue(ctOrder as any);
-      jest
-        .spyOn(orderSettleService, 'settleTransactionFromOrder')
-        .mockImplementationOnce(() => {
-          throw new EagleEyePluginException('BASKET_STORE_DELETE', 'Example');
-        });
+      jest.spyOn(commercetools, 'getOrderById').mockImplementationOnce(() => {
+        throw new EagleEyePluginException('BASKET_STORE_DELETE', 'Example');
+      });
       jest.spyOn(basketStoreService, 'hasSavedBasket').mockReturnValue(true);
 
       let error;
