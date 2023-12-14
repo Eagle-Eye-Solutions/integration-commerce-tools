@@ -39,7 +39,7 @@ const validationSchema = Joi.object({
   },
 });
 
-const parseShippingMethodMap = (): { key: string; upc: string }[] => {
+export const parseShippingMethodMap = (): { key: string; upc: string }[] => {
   if (process.env.SHIPPING_METHOD_MAP) {
     try {
       return JSON.parse(process.env.SHIPPING_METHOD_MAP);

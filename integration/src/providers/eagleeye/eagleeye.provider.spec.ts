@@ -51,7 +51,7 @@ describe('Wallet', () => {
     expect(service).toBeDefined();
   });
 
-  it('should call the API with correct parameters', async () => {
+  it('should call the /wallet/open with correct parameters', async () => {
     const mockResponse: AxiosResponse = {
       config: undefined,
       data: 'test',
@@ -84,6 +84,27 @@ describe('Wallet', () => {
         'The eagle eye API is unavailable, the cart promotions and loyalty points are NOT updated',
       ),
     );
+  });
+
+  it('should call the /wallet/settle with correct parameters', async () => {
+    const mockResponse: AxiosResponse = {
+      config: undefined,
+      data: 'test',
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+    };
+    jest
+      .spyOn(httpService, 'request')
+      .mockImplementationOnce(() => of(mockResponse));
+    const result = await service.invoke('settle', { test: 'test' });
+    expect(httpService.request).toHaveBeenCalledWith({
+      url: expect.any(String),
+      method: 'POST',
+      data: JSON.stringify({ test: 'test' }),
+      headers: expect.any(Object),
+    });
+    expect(result).toEqual(mockResponse.data);
   });
 
   it('should return a correct hash', () => {

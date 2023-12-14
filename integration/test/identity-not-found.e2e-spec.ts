@@ -9,7 +9,7 @@ import {
 } from './utils/nocks/CommercetoolsNock';
 import {
   nockGetCustomObject,
-  nockPostEnirchedBasketCustomObject,
+  nockPostEnrichedBasketCustomObject,
 } from './utils/nocks/CustomObjectNock';
 import {
   nockWalletOpenIdentityError,
@@ -59,7 +59,7 @@ describe('Identity Not Found (e2e)', () => {
     );
     const getCircuitStateCustomObjectNock = nockGetCustomObject(404, null);
     const postEnrichedBasketCustomObjectNock =
-      nockPostEnirchedBasketCustomObject();
+      nockPostEnrichedBasketCustomObject();
     const walletOpenErrorNock = await nockWalletOpenIdentityError(
       cartExtenstionInput.resource.obj,
       404,
@@ -72,7 +72,7 @@ describe('Identity Not Found (e2e)', () => {
 
     app = await initAppModule();
     await request(app.getHttpServer())
-      .post('/')
+      .post('/service')
       .send(cartExtenstionInput)
       .expect(201)
       .expect(CUSTOMER_NOT_FOUND_FETCHED_OPEN_PROMOTIONS_RESPONSE);

@@ -18,6 +18,9 @@ import { loggerConfig } from './config/logger.config';
 import { CTCartToEEBasketMapper } from './common/mappers/ctCartToEeBasket.mapper';
 import { ExtensionLocalService } from './services/commercetools/extension-local.service';
 import { BasketStoreServiceProvider } from './services/basket-store/basket-store.provider';
+import { EventHandlerService } from './services/event-handler/event-handler.service';
+import { OrderSettleService } from './services/order-settle/order-settle.service';
+import { OrderPaymentStateChangedProcessor } from './services/event-handler/event-processor/order-payment-state-changed.processor';
 
 @Module({
   imports: [
@@ -51,6 +54,14 @@ import { BasketStoreServiceProvider } from './services/basket-store/basket-store
     CTCartToEEBasketMapper,
     ExtensionLocalService,
     BasketStoreServiceProvider,
+    EventHandlerService,
+    OrderSettleService,
+    OrderPaymentStateChangedProcessor,
+    {
+      provide: 'EventProcessors',
+      useFactory: (orderPaymentStateChanged) => [orderPaymentStateChanged],
+      inject: [OrderPaymentStateChangedProcessor],
+    },
   ],
 })
 export class AppModule {}

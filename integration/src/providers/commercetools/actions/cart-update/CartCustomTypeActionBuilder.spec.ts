@@ -83,6 +83,16 @@ describe('CartCustomTypeActionBuilder', () => {
         name: 'eagleeye-voucherCodes',
         value: [],
       },
+      {
+        action: 'setCustomField',
+        name: 'eagleeye-action',
+        value: '',
+      },
+      {
+        action: 'setCustomField',
+        name: 'eagleeye-settledStatus',
+        value: '',
+      },
     ]);
   });
 

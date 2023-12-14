@@ -2,11 +2,15 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CTCartToEEBasketMapper } from './ctCartToEeBasket.mapper';
 import { Commercetools } from '../../providers/commercetools/commercetools.provider';
 import { ConfigService } from '@nestjs/config';
+import { BASKET_STORE_SERVICE } from '../../services/basket-store/basket-store.provider';
+import { BasketStoreService } from '../../services/basket-store/basket-store.interface';
 
 describe('CTCartToEEBasketMapper', () => {
   let service: CTCartToEEBasketMapper;
   let configService: ConfigService;
   let commercetools: Commercetools;
+  let basketStoreService: jest.Mocked<BasketStoreService>;
+
   const cart: any = {
     lineItems: [
       {
@@ -50,6 +54,7 @@ describe('CTCartToEEBasketMapper', () => {
           provide: Commercetools,
           useValue: {
             getShippingMethods: jest.fn(),
+            getOrderById: jest.fn(),
           },
         },
         {
@@ -58,12 +63,23 @@ describe('CTCartToEEBasketMapper', () => {
             get: jest.fn(),
           },
         },
+        {
+          provide: BASKET_STORE_SERVICE,
+          useValue: {
+            save: jest.fn(),
+            get: jest.fn(),
+            delete: jest.fn(),
+            isEnabled: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
     service = module.get<CTCartToEEBasketMapper>(CTCartToEEBasketMapper);
     configService = module.get<ConfigService>(ConfigService);
     commercetools = module.get<Commercetools>(Commercetools);
+    basketStoreService = module.get(BASKET_STORE_SERVICE);
+    jest.spyOn(configService, 'get').mockReturnValueOnce(shippingMethodMapMock);
     jest.resetAllMocks();
   });
 
@@ -144,60 +160,110 @@ describe('CTCartToEEBasketMapper', () => {
     expect(directDiscount).toMatchSnapshot();
   });
 
-  test('mapAdjustedBasketToItemDirectDiscounts should return the direct discount drafts', () => {
-    const basket = {
-      summary: {
-        totalDiscountAmount: {
-          promotions: 10,
+  describe('mapAdjustedBasketToItemDirectDiscounts', () => {
+    test('should return the direct discount drafts', () => {
+      const basket = {
+        summary: {
+          totalDiscountAmount: {
+            promotions: 10,
+          },
         },
-      },
-      contents: [
-        {
-          upc: 'SKU123',
-          adjustmentResults: [
-            {
-              totalDiscountAmount: 10,
-            },
-          ],
+        contents: [
+          {
+            upc: 'SKU123',
+            adjustmentResults: [
+              {
+                totalDiscountAmount: 10,
+              },
+            ],
+          },
+        ],
+      };
+
+      const directDiscounts = service.mapAdjustedBasketToItemDirectDiscounts(
+        basket,
+        cart,
+      );
+
+      expect(directDiscounts).toMatchSnapshot();
+    });
+
+    test('should not return the direct discount drafts if there are no adjustmentResults', () => {
+      const basket = {
+        summary: {
+          totalDiscountAmount: {
+            promotions: 10,
+          },
         },
-      ],
-    };
+        contents: [
+          {
+            upc: 'SKU123',
+          },
+        ],
+      };
 
-    const directDiscounts = service.mapAdjustedBasketToItemDirectDiscounts(
-      basket,
-      cart,
-    );
+      const directDiscounts = service.mapAdjustedBasketToItemDirectDiscounts(
+        basket,
+        cart,
+      );
 
-    expect(directDiscounts).toMatchSnapshot();
+      expect(directDiscounts).toMatchSnapshot();
+    });
   });
 
-  test('mapAdjustedBasketToShippingDirectDiscounts should return the direct discount drafts', () => {
-    const basket = {
-      summary: {
-        totalDiscountAmount: {
-          promotions: 10,
+  describe('mapAdjustedBasketToShippingDirectDiscounts', () => {
+    test('should return the direct discount drafts', () => {
+      const basket = {
+        summary: {
+          totalDiscountAmount: {
+            promotions: 10,
+          },
         },
-      },
-      contents: [
-        {
-          upc: '245879',
-          adjustmentResults: [
-            {
-              totalDiscountAmount: 10,
-            },
-          ],
+        contents: [
+          {
+            upc: '245879',
+            adjustmentResults: [
+              {
+                totalDiscountAmount: 10,
+              },
+            ],
+          },
+        ],
+      };
+
+      jest
+        .spyOn(configService, 'get')
+        .mockReturnValueOnce(shippingMethodMapMock);
+
+      const directDiscounts =
+        service.mapAdjustedBasketToShippingDirectDiscounts(basket, cart);
+
+      expect(directDiscounts).toMatchSnapshot();
+    });
+
+    test('should not return the direct discount drafts if there are no adjustmentResults', () => {
+      const basket = {
+        summary: {
+          totalDiscountAmount: {
+            promotions: 10,
+          },
         },
-      ],
-    };
+        contents: [
+          {
+            upc: '245879',
+          },
+        ],
+      };
 
-    jest.spyOn(configService, 'get').mockReturnValueOnce(shippingMethodMapMock);
+      jest
+        .spyOn(configService, 'get')
+        .mockReturnValueOnce(shippingMethodMapMock);
 
-    const directDiscounts = service.mapAdjustedBasketToShippingDirectDiscounts(
-      basket,
-      cart,
-    );
+      const directDiscounts =
+        service.mapAdjustedBasketToShippingDirectDiscounts(basket, cart);
 
-    expect(directDiscounts).toMatchSnapshot();
+      expect(directDiscounts).toMatchSnapshot();
+    });
   });
 
   test('mapVoucherCodesToCampaignTokens should return an array of tokens to be examined', async () => {
@@ -216,6 +282,34 @@ describe('CTCartToEEBasketMapper', () => {
       .mockReturnValueOnce('banner1');
 
     const payload = await service.mapCartToWalletOpenPayload(cart, false);
+
+    expect(payload).toMatchSnapshot();
+  });
+
+  test('mapOrderToWalletSettlePayload should return the payload for /wallet/settle', async () => {
+    jest
+      .spyOn(configService, 'get')
+      .mockReturnValueOnce('outlet1')
+      .mockReturnValueOnce('banner1');
+
+    jest.spyOn(commercetools, 'getOrderById').mockResolvedValueOnce({
+      id: '123456',
+      cart: {
+        typeId: 'cart',
+        id: '12345678',
+      },
+      custom: {
+        fields: {},
+      },
+    } as any);
+
+    jest.spyOn(basketStoreService, 'get').mockResolvedValueOnce({
+      enrichedBasket: {
+        contents: [],
+      },
+    });
+
+    const payload = await service.mapOrderToWalletSettlePayload('123456');
 
     expect(payload).toMatchSnapshot();
   });

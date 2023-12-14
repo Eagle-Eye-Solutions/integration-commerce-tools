@@ -10,6 +10,11 @@ import {
   ExtensionDraft,
   ExtensionUpdateAction,
   ShippingMethod,
+  Subscription,
+  SubscriptionDraft,
+  SubscriptionUpdateAction,
+  Order,
+  OrderUpdateAction,
 } from '@commercetools/platform-sdk';
 import { ByProjectKeyRequestBuilder } from '@commercetools/platform-sdk/dist/declarations/src/generated/client/by-project-key-request-builder';
 import { ConfigService } from '@nestjs/config';
@@ -112,8 +117,65 @@ export class Commercetools {
       .execute();
   }
 
+  public async querySubscriptions(
+    methodArgs: any = {},
+  ): Promise<Subscription[]> {
+    return (await this.getApiRoot().subscriptions().get(methodArgs).execute())
+      .body.results;
+  }
+
+  public async createSubscription(
+    body: SubscriptionDraft,
+  ): Promise<Subscription> {
+    return (await this.getApiRoot().subscriptions().post({ body }).execute())
+      .body;
+  }
+
+  public async updateSubscription(
+    key: string,
+    body: {
+      version: number;
+      actions: SubscriptionUpdateAction[];
+    },
+  ): Promise<Subscription> {
+    return (
+      await this.getApiRoot()
+        .subscriptions()
+        .withKey({ key })
+        .post({ body })
+        .execute()
+    ).body;
+  }
+
+  public async deleteSubscription(key: string, version: number) {
+    return await this.getApiRoot()
+      .subscriptions()
+      .withKey({ key })
+      .delete({ queryArgs: { version } })
+      .execute();
+  }
+
   public async getShippingMethods(methodArgs: any): Promise<ShippingMethod[]> {
     return (await this.getApiRoot().shippingMethods().get(methodArgs).execute())
       .body.results;
+  }
+
+  public async getOrderById(orderId: string): Promise<Order> {
+    return (
+      await this.getApiRoot().orders().withId({ ID: orderId }).get().execute()
+    ).body;
+  }
+
+  public async updateOrderById(
+    orderId: string,
+    body: { version: number; actions: OrderUpdateAction[] },
+  ): Promise<Order> {
+    return (
+      await this.getApiRoot()
+        .orders()
+        .withId({ ID: orderId })
+        .post({ body })
+        .execute()
+    ).body;
   }
 }

@@ -5,8 +5,13 @@ import { AppService } from './app.service';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Post()
+  @Post('service')
   async handleExtensionRequest(@Body() body): Promise<any> {
     return await this.appService.handleExtensionRequest(body);
+  }
+
+  @Post('events')
+  async handleSubscriptionEvents(@Body() body): Promise<any> {
+    return await this.appService.handleSubscriptionEvents(body);
   }
 }

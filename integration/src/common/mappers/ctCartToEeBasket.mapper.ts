@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import {
   Cart,
   LineItem,
@@ -8,6 +8,8 @@ import {
 import { DiscountDescription } from '../../providers/commercetools/actions/cart-update/CartCustomTypeActionBuilder';
 import { ConfigService } from '@nestjs/config';
 import { Commercetools } from '../../providers/commercetools/commercetools.provider';
+import { BasketStoreService } from '../../services/basket-store/basket-store.interface';
+import { BASKET_STORE_SERVICE } from '../../services/basket-store/basket-store.provider';
 
 export type BasketItem = {
   itemUnitCost: number;
@@ -26,6 +28,8 @@ export class CTCartToEEBasketMapper {
   constructor(
     readonly configService: ConfigService,
     readonly commercetools: Commercetools,
+    @Inject(BASKET_STORE_SERVICE)
+    private readonly basketStoreService: BasketStoreService,
   ) {}
 
   mapCartLineItemsToBasketContent(lineItems: LineItem[]) {
@@ -169,7 +173,7 @@ export class CTCartToEEBasketMapper {
     );
     if (shippingMethodMap?.length && shippingInfo?.shippingMethod) {
       // In case multi-shipping method needs to be supported
-      const shippingIds = [shippingInfo?.shippingMethod.id];
+      const shippingIds = [shippingInfo.shippingMethod.id];
       const shippingMethod = await this.commercetools.getShippingMethods({
         queryArgs: {
           where: `id in ("${shippingIds.join('","')}")`,
@@ -272,6 +276,29 @@ export class CTCartToEEBasketMapper {
         },
         contents: basketContents,
       },
+    };
+  }
+
+  async mapOrderToWalletSettlePayload(orderId: string) {
+    const incomingIdentifier = this.configService.get(
+      'eagleEye.incomingIdentifier',
+    );
+    const parentIncomingIdentifier = this.configService.get(
+      'eagleEye.parentIncomingIdentifier',
+    );
+
+    // TODO: handle cases where store location is not custom object
+    const enrichedBasket = (await this.basketStoreService.get(orderId))
+      .enrichedBasket;
+
+    return {
+      mode: 'ACTIVE',
+      reference: orderId,
+      location: {
+        incomingIdentifier,
+        ...(parentIncomingIdentifier && { parentIncomingIdentifier }),
+      },
+      basket: enrichedBasket,
     };
   }
 }

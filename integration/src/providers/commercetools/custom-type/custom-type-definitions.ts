@@ -1,6 +1,10 @@
 import { TypeDraft } from '@commercetools/platform-sdk';
 
 export const FIELD_EAGLEEYE_ACTION = 'eagleeye-action';
+export const FIELD_EAGLEEYE_BASKET_STORE = 'eagleeye-basketStore';
+export const FIELD_EAGLEEYE_BASKET_URI = 'eagleeye-basketUri';
+export const FIELD_EAGLEEYE_SETTLED_STATUS = 'eagleeye-settledStatus';
+export const FIELD_EAGLEEYE_APPLIED_DISCOUNTS = 'eagleeye-appliedDiscounts';
 export const ORDER_CUSTOM_FIELDS: TypeDraft = {
   key: 'custom-cart-type',
   name: {
@@ -59,7 +63,7 @@ export const ORDER_CUSTOM_FIELDS: TypeDraft = {
       inputHint: 'SingleLine',
     },
     {
-      name: 'eagleeye-basketStore',
+      name: FIELD_EAGLEEYE_BASKET_STORE,
       label: {
         en: 'eagleeye-basketStore',
       },
@@ -81,7 +85,7 @@ export const ORDER_CUSTOM_FIELDS: TypeDraft = {
       inputHint: 'SingleLine',
     },
     {
-      name: 'eagleeye-settledStatus',
+      name: FIELD_EAGLEEYE_SETTLED_STATUS,
       label: {
         en: 'eagleeye-settledStatus',
       },

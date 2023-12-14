@@ -11,7 +11,7 @@ import {
   nockDeleteCustomObject,
   nockGetCustomObject,
   nockPostCircuitStateCustomObject,
-  nockPostEnirchedBasketCustomObject,
+  nockPostEnrichedBasketCustomObject,
 } from './utils/nocks/CustomObjectNock';
 import { nockWalletOpen } from './utils/nocks/EagleEyeNock';
 import { MockLogger } from './utils/mocks/MockLogger';
@@ -62,7 +62,7 @@ describe('Circuit breaker (e2e)', () => {
     const postCircuitStateCustomObjectNock =
       nockPostCircuitStateCustomObject(200);
     const postEnrichedBasketCustomObjectNock =
-      nockPostEnirchedBasketCustomObject();
+      nockPostEnrichedBasketCustomObject();
     const deleteCustomObjectNock = nockDeleteCustomObject(
       RECALCULATE_CART.resource.id,
       CUSTOM_OBJECT_CONTAINER_BASKET_STORE,
@@ -83,38 +83,38 @@ describe('Circuit breaker (e2e)', () => {
     );
     app = await initAppModule();
     await request(app.getHttpServer())
-      .post('/')
+      .post('/service')
       .send(RECALCULATE_CART)
       .expect(201)
       .expect(SUCCESS_RESPONSE);
     await request(app.getHttpServer())
-      .post('/')
+      .post('/service')
       .send(RECALCULATE_CART)
       .expect(201)
       .expect(SUCCESS_RESPONSE);
     await request(app.getHttpServer())
-      .post('/')
+      .post('/service')
       .send(RECALCULATE_CART)
       .expect(201)
       .expect(SUCCESS_RESPONSE);
     await request(app.getHttpServer())
-      .post('/')
+      .post('/service')
       .send(RECALCULATE_CART)
       .expect(201)
       .expect(ERROR_RESPONSE);
     await request(app.getHttpServer())
-      .post('/')
+      .post('/service')
       .send(RECALCULATE_CART)
       .expect(201)
       .expect(ERROR_RESPONSE);
     await request(app.getHttpServer())
-      .post('/')
+      .post('/service')
       .send(RECALCULATE_CART)
       .expect(201)
       .expect(ERROR_RESPONSE);
     // open circuit and save circuit state to CT custom object
     await request(app.getHttpServer())
-      .post('/')
+      .post('/service')
       .send(RECALCULATE_CART)
       .expect(201)
       .expect(ERROR_RESPONSE);
@@ -145,7 +145,7 @@ describe('Circuit breaker (e2e)', () => {
     app = await initAppModule();
 
     await request(app.getHttpServer())
-      .post('/')
+      .post('/service')
       .send(RECALCULATE_CART)
       .expect(201)
       .expect({
@@ -176,6 +176,12 @@ describe('Circuit breaker (e2e)', () => {
             action: 'setCustomField',
             name: 'eagleeye-voucherCodes',
             value: [],
+          },
+          { action: 'setCustomField', name: 'eagleeye-action', value: '' },
+          {
+            action: 'setCustomField',
+            name: 'eagleeye-settledStatus',
+            value: '',
           },
           { action: 'setDirectDiscounts', discounts: [] },
         ],

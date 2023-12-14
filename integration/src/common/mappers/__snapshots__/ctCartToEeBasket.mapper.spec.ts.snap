@@ -2,6 +2,8 @@
 
 exports[`CTCartToEEBasketMapper mapAdjustedBasketToCartDirectDiscounts should return the direct discount draft 1`] = `[]`;
 
+exports[`CTCartToEEBasketMapper mapAdjustedBasketToItemDirectDiscounts should not return the direct discount drafts if there are no adjustmentResults 1`] = `[]`;
+
 exports[`CTCartToEEBasketMapper mapAdjustedBasketToItemDirectDiscounts should return the direct discount drafts 1`] = `
 [
   {
@@ -23,6 +25,8 @@ exports[`CTCartToEEBasketMapper mapAdjustedBasketToItemDirectDiscounts should re
   },
 ]
 `;
+
+exports[`CTCartToEEBasketMapper mapAdjustedBasketToShippingDirectDiscounts should not return the direct discount drafts if there are no adjustmentResults 1`] = `[]`;
 
 exports[`CTCartToEEBasketMapper mapAdjustedBasketToShippingDirectDiscounts should return the direct discount drafts 1`] = `
 [
@@ -345,6 +349,20 @@ exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should return the pay
     },
   },
   "reference": undefined,
+}
+`;
+
+exports[`CTCartToEEBasketMapper mapOrderToWalletSettlePayload should return the payload for /wallet/settle 1`] = `
+{
+  "basket": {
+    "contents": [],
+  },
+  "location": {
+    "incomingIdentifier": "outlet1",
+    "parentIncomingIdentifier": "banner1",
+  },
+  "mode": "ACTIVE",
+  "reference": "123456",
 }
 `;
 

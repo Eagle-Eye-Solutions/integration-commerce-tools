@@ -1,10 +1,64 @@
 deployAs:
   - name: integration
     applicationType: service
-    endpoint: /
+    endpoint: /service
     scripts:
-      postDeploy: npm install && npm run build && npm run connector:post-deploy
-      preUndeploy: npm install && npm run build && npm run connector:pre-undeploy
+      postDeploy: npm install && npm run build && npm run connector:post-deploy:service
+      preUndeploy: npm install && npm run build && npm run connector:pre-undeploy:service
+    configuration:
+      standardConfiguration:
+        - key: CTP_PROJECT_KEY
+          description: Project key of the commercetools Composable Commerce Project
+          required: true
+        - key: CTP_REGION
+          description: Region where the commercetools Composable Commerce Project is hosted
+          required: true
+        - key: EE_POS_URL
+          description: URL for the EagleEye API POS endpoints
+          required: false
+        - key: SHIPPING_METHOD_MAP
+          description: Stringified JSON array for mapping shipping methods to EE UPCs
+          required: false
+        - key: CONFIG_OVERRIDE
+          description: Stringified and escaped JSON to override all integration configurations
+          required: false
+        - key: EE_INCOMING_IDENTIFIER
+          description: EagleEye Outlet Incoming Identifier
+          required: true
+        - key: EE_PARENT_INCOMING_IDENTIFIER
+          description: EagleEye Outlet Parent unit Incoming Identifier
+          required: false
+        - key: ALWAYS_STORE_BASKET_IN_CUSTOM_OBJECT
+          description: Wether to always create a custo object for EE basket after opening a wallet
+          required: false
+        - key: EE_API_CLIENT_TIMEOUT
+          description: Amount of time to wait before EE API calls timeout
+          required: false
+        - key: USE_ITEM_SKU
+          description: Wether to set item SKUs as "SKU" instead of "UPC" for EagleEye Baskets
+          required: false
+      securedConfiguration:
+        - key: CTP_CLIENT_ID
+          description: client_id of an API Client for the commercetools Composable Commerce Project
+          required: true
+        - key: CTP_CLIENT_SECRET
+          description: secret of an API Client for the commercetools Composable Commerce Project
+          required: true
+        - key: CTP_SCOPE
+          description: scope of an API Client for the commercetools Composable Commerce Project
+          required: false
+        - key: EE_CLIENT_ID
+          description: client_id of an API Client for the EagleEye API
+          required: true
+        - key: EE_CLIENT_SECRET
+          description: secret of an API Client for the EagleEye API
+          required: true
+  - name: integration_events
+    applicationType: event
+    endpoint: /events
+    scripts:
+      postDeploy: npm install && npm run build && npm run connector:post-deploy:events
+      preUndeploy: npm install && npm run build && npm run connector:pre-undeploy:events
     configuration:
       standardConfiguration:
         - key: CTP_PROJECT_KEY
@@ -27,6 +81,15 @@ deployAs:
           required: true
         - key: EE_PARENT_INCOMING_IDENTIFIER
           description: EagleEye Outlet Parent unit Incoming Identifier
+          required: false
+        - key: ALWAYS_STORE_BASKET_IN_CUSTOM_OBJECT
+          description: Wether to always create a custo object for EE basket after opening a wallet
+          required: false
+        - key: EE_API_CLIENT_TIMEOUT
+          description: Amount of time to wait before EE API calls timeout
+          required: false
+        - key: USE_ITEM_SKU
+          description: Wether to set item SKUs as "SKU" instead of "UPC" for EagleEye Baskets
           required: false
       securedConfiguration:
         - key: CTP_CLIENT_ID
