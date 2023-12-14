@@ -2,14 +2,17 @@ import { DeliveryPayload } from '@commercetools/platform-sdk';
 import { ConfigService } from '@nestjs/config';
 
 export abstract class AbstractEventProcessor {
-  constructor(
-    protected readonly message: DeliveryPayload,
-    protected readonly configService: ConfigService,
-  ) {}
+  message: DeliveryPayload;
+  constructor(protected readonly configService: ConfigService) {}
+
+  setMessage(message): AbstractEventProcessor {
+    this.message = message;
+    return this;
+  }
 
   abstract isEventValid(): boolean;
 
-  abstract generateActions(): Promise<any[]>;
+  abstract generateActions(): Promise<(() => any)[]>;
 
   isEventDisabled(PROCESSOR_NAME: string): boolean {
     const disabledEvents =

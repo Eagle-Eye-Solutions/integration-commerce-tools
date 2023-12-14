@@ -1,7 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { MessageDeliveryPayload } from '@commercetools/platform-sdk';
 import { isFulfilled, isRejected } from '../../common/helper/promise';
-import { OrderPaymentStateChangedProcessor } from './event-processor/order-payment-state-changed.processor';
 import { ConfigService } from '@nestjs/config';
 import { EagleEyeApiClient } from '../../providers/eagleeye/eagleeye.provider';
 import { CTCartToEEBasketMapper } from '../../common/mappers/ctCartToEeBasket.mapper';
@@ -10,12 +9,11 @@ import { BASKET_STORE_SERVICE } from '../basket-store/basket-store.provider';
 import { BasketStoreService } from '../basket-store/basket-store.interface';
 import { CircuitBreakerService } from '../../providers/circuit-breaker/circuit-breaker.service';
 import { OrderSettleService } from '../order-settle/order-settle.service';
+import { AbstractEventProcessor } from './event-processor/abstract-event.processor';
 
 type ProcessingResult = {
   status: 'OK' | '4xx';
 };
-
-const eventProcessors = [OrderPaymentStateChangedProcessor];
 
 @Injectable()
 export class EventHandlerService {
@@ -30,25 +28,15 @@ export class EventHandlerService {
     private readonly basketStoreService: BasketStoreService,
     private circuitBreakerService: CircuitBreakerService,
     private orderSettleService: OrderSettleService,
+    @Inject('EventProcessors')
+    private eventProcessors: AbstractEventProcessor[],
   ) {}
 
   async processEvent(message: MessageDeliveryPayload) {
     this.logger.log('Processing commercetools message');
     const actionPromises = await Promise.allSettled(
-      eventProcessors
-        .map(
-          (eventProcessor) =>
-            new eventProcessor(
-              message,
-              this.configService,
-              this.eagleEyeClient,
-              this.cartToBasketMapper,
-              this.commercetools,
-              this.basketStoreService,
-              this.circuitBreakerService,
-              this.orderSettleService,
-            ),
-        )
+      this.eventProcessors
+        .map((eventProcessor) => eventProcessor.setMessage(message))
         .filter((eventProcessor) => eventProcessor.isEventValid())
         .map((eventProcessor) => eventProcessor.generateActions()),
     );

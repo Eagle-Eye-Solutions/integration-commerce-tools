@@ -1,4 +1,3 @@
-import { DeliveryPayload } from '@commercetools/platform-sdk';
 import { ConfigService } from '@nestjs/config';
 import { AbstractEventProcessor } from './abstract-event.processor';
 
@@ -13,14 +12,12 @@ class ConcreteEventProcessor extends AbstractEventProcessor {
 }
 
 describe('AbstractEventProcessor', () => {
-  let message: DeliveryPayload;
   let configService: ConfigService;
   let eventProcessor: ConcreteEventProcessor;
 
   beforeEach(() => {
-    message = {} as DeliveryPayload;
     configService = new ConfigService();
-    eventProcessor = new ConcreteEventProcessor(message, configService);
+    eventProcessor = new ConcreteEventProcessor(configService);
   });
 
   describe('isEventDisabled', () => {

@@ -4,7 +4,7 @@ import { CustomObjectService } from '../../providers/commercetools/custom-object
 import { CUSTOM_OBJECT_CONTAINER_BASKET_STORE } from '../../common/constants/constants';
 import { EagleEyePluginException } from '../../common/exceptions/eagle-eye-plugin.exception';
 import { ConfigService } from '@nestjs/config';
-import { Cart, Order } from '@commercetools/platform-sdk';
+import { Cart, Order, Reference } from '@commercetools/platform-sdk';
 import {
   FIELD_EAGLEEYE_ACTION,
   FIELD_EAGLEEYE_BASKET_STORE,
@@ -26,10 +26,11 @@ export class CtBasketStoreService implements BasketStoreService {
     private readonly configService: ConfigService,
   ) {}
 
-  isEnabled(cart: Cart) {
+  isEnabled(cart: Cart, reference: Reference) {
     return (
-      this.storeBasketCustomObject ||
-      cart.custom.fields[FIELD_EAGLEEYE_ACTION] === 'SAVE_BASKET'
+      reference.typeId === 'cart' &&
+      (this.storeBasketCustomObject ||
+        cart.custom.fields[FIELD_EAGLEEYE_ACTION] === 'SAVE_BASKET')
     );
   }
 

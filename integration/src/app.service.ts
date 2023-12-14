@@ -68,10 +68,7 @@ export class AppService {
       errors.push(this.getErrorDetails(error));
 
       //delete basket store
-      if (
-        this.basketStoreService.isEnabled(resourceObj) &&
-        body?.resource?.typeId === 'cart'
-      ) {
+      if (this.basketStoreService.isEnabled(resourceObj, body.resource)) {
         try {
           await this.basketStoreService.delete(body.resource.id);
         } catch (errorDelete) {
@@ -99,7 +96,6 @@ export class AppService {
         message: `Returning ${extensionActions.actions.length} actions to commercetools`,
         extensionActions,
       });
-      console.log(JSON.stringify(extensionActions));
       return extensionActions;
     }
   }
@@ -140,7 +136,7 @@ export class AppService {
 
     //store basket
     let basketLocation = null;
-    if (this.basketStoreService.isEnabled(resourceObj)) {
+    if (this.basketStoreService.isEnabled(resourceObj, body.resource)) {
       basketLocation = await this.basketStoreService.save(
         basketDiscounts.enrichedBasket,
         body.resource.id,

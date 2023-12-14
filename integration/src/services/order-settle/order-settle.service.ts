@@ -31,6 +31,9 @@ export class OrderSettleService {
   async settleTransactionFromOrder(
     ctOrder: Order,
   ): Promise<OrderUpdateAction[]> {
+    this.logger.log(
+      `Attempting to settle transaction for order ${ctOrder.id} / cart ${ctOrder.cart.id}.`,
+    );
     // Delete basket custom object after transaction is settled successfully
     if (this.basketStoreService.hasSavedBasket(ctOrder)) {
       // TODO: handle known settle errors returned with 2XX responses
@@ -41,6 +44,9 @@ export class OrderSettleService {
         ),
       );
       try {
+        this.logger.log(
+          `Attempting to delete stored basket for order ${ctOrder.id} / cart ${ctOrder.cart.id}..`,
+        );
         await this.basketStoreService.delete(ctOrder.cart.id);
       } catch (errorDelete) {
         if (errorDelete instanceof EagleEyePluginException) {
@@ -74,6 +80,9 @@ export class OrderSettleService {
       });
       return actions;
     }
+    this.logger.log(
+      `Transaction for order ${ctOrder.id} / cart ${ctOrder.cart.id} is already settled.`,
+    );
     return [];
   }
 

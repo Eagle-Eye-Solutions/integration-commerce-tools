@@ -1,4 +1,4 @@
-import { Cart, Order } from '@commercetools/platform-sdk';
+import { Cart, Order, Reference } from '@commercetools/platform-sdk';
 
 export type BasketLocation = {
   uri: string;
@@ -28,7 +28,7 @@ export interface BasketStoreService {
   /**
    * Returns true if the basket should be stored, false otherwise
    */
-  isEnabled(cart: Cart): boolean;
+  isEnabled(cart: Cart, reference: Reference): boolean;
 
   /**
    * Returns true if the basket has been previously saved, false otherwise

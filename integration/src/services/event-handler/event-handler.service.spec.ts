@@ -7,6 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import { CircuitBreakerService } from '../../providers/circuit-breaker/circuit-breaker.service';
 import { BASKET_STORE_SERVICE } from '../basket-store/basket-store.provider';
 import { OrderSettleService } from '../order-settle/order-settle.service';
+import { OrderPaymentStateChangedProcessor } from './event-processor/order-payment-state-changed.processor';
 
 describe('EventHandlerService', () => {
   let service: EventHandlerService;
@@ -53,6 +54,12 @@ describe('EventHandlerService', () => {
           useValue: {
             settleTransactionFromOrder: jest.fn(),
           },
+        },
+        OrderPaymentStateChangedProcessor,
+        {
+          provide: 'EventProcessors',
+          useFactory: (orderPaymentStateChanged) => [orderPaymentStateChanged],
+          inject: [OrderPaymentStateChangedProcessor],
         },
       ],
     }).compile();
