@@ -9,9 +9,10 @@ const configService = new ScriptConfigService();
 const commercetools = new Commercetools(configService as any);
 
 const run = async () => {
-  await configureExtensions();
-  if (['EVENTS', 'BOTH'].includes(process.env.INTEGRATION_MODE)) {
+  if (process.env.INTEGRATION_MODE === 'events') {
     await configureSubscriptions();
+  } else if (process.env.INTEGRATION_MODE === 'service') {
+    await configureExtensions();
   }
 };
 
