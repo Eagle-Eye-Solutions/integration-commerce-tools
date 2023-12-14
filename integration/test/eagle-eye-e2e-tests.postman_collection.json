@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "2b2ca83a-80ce-42c3-bfbb-c6b342698b9d",
+		"_postman_id": "be952d9d-3354-430c-8188-f13f05287363",
 		"name": "EagleEye CT Plugin - E2E Tests",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "17495524"
+		"_exporter_id": "17929605"
 	},
 	"item": [
 		{
@@ -2815,7 +2815,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n  \"currency\" : \"GBP\",\n  \"lineItems\": [\n      {\n          \"sku\": \"245871\",\n          \"quantity\": 1\n      },\n      {\n          \"sku\": \"245872\",\n          \"quantity\": 1\n      },\n      {\n          \"sku\": \"245873\",\n          \"quantity\": 1\n      }\n  ],\n  \"customerEmail\": \"john.toe6@example.org\"\n}"
+									"raw": "{\n  \"currency\" : \"GBP\",\n  \"lineItems\": [\n      {\n          \"sku\": \"245871\",\n          \"quantity\": 1\n      },\n      {\n          \"sku\": \"245872\",\n          \"quantity\": 1\n      },\n      {\n          \"sku\": \"245873\",\n          \"quantity\": 1\n      }\n  ],\n  \"custom\": {\n      \"typeKey\": \"custom-cart-type\",\n      \"fields\": {\n          \"eagleeye-identityValue\":  \"john.toe6@example.org\"\n      }\n     \n  }\n}"
 								},
 								"url": {
 									"raw": "{{host}}/{{project-key}}/carts",
@@ -3301,7 +3301,7 @@
 													"    pm.expect(data.custom.fields['eagleeye-appliedDiscounts'].some(discount => discount.includes('Open Discount Basket'))).to.be.true;",
 													"});",
 													"",
-													"pm.collectionVariables.set('customOpenBasketDiscountItemID', data.lineItems[0].id)",
+													"pm.collectionVariables.set('customOpenBasketDiscountItemID', data.lineItems[1].id)",
 													"",
 													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
 													"    pm.environment.set(\"cart-id\", data.results[0].id); ",
@@ -3716,7 +3716,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"currency\" : \"GBP\",\n  \"lineItems\": [\n      {\n          \"sku\": \"245871\",\n          \"quantity\": 1\n      },\n      {\n          \"sku\": \"245872\",\n          \"quantity\": 1\n      },\n      {\n          \"sku\": \"245873\",\n          \"quantity\": 1\n      }\n  ],\n  \"customerEmail\": \"john.toe6@example.org\"\n}"
+											"raw": "{\n  \"currency\" : \"GBP\",\n  \"lineItems\": [\n      {\n          \"sku\": \"245871\",\n          \"quantity\": 1\n      },\n      {\n          \"sku\": \"245872\",\n          \"quantity\": 1\n      },\n      {\n          \"sku\": \"245873\",\n          \"quantity\": 1\n      }\n  ],\n  \"custom\": {\n      \"typeKey\": \"custom-cart-type\",\n      \"fields\": {\n          \"eagleeye-identityValue\":  \"john.toe6@example.org\"\n      }\n     \n  }\n}"
 										},
 										"url": {
 											"raw": "{{host}}/{{project-key}}/carts",
@@ -4440,7 +4440,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"currency\" : \"GBP\",\n  \"lineItems\": [\n      {\n          \"sku\": \"245871\",\n          \"quantity\": 1\n      },\n      {\n          \"sku\": \"245872\",\n          \"quantity\": 1\n      },\n      {\n          \"sku\": \"245873\",\n          \"quantity\": 1\n      }\n  ],\n  \"customerEmail\": \"john.toe6@example.org\"\n}"
+											"raw": "{\n  \"currency\" : \"GBP\",\n  \"lineItems\": [\n      {\n          \"sku\": \"245871\",\n          \"quantity\": 1\n      },\n      {\n          \"sku\": \"245872\",\n          \"quantity\": 1\n      },\n      {\n          \"sku\": \"245873\",\n          \"quantity\": 1\n      }\n  ],\n  \"custom\": {\n      \"typeKey\": \"custom-cart-type\",\n      \"fields\": {\n          \"eagleeye-identityValue\":  \"john.toe6@example.org\"\n      }\n     \n  }\n}"
 										},
 										"url": {
 											"raw": "{{host}}/{{project-key}}/carts",
@@ -4532,7 +4532,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"version\": {{cart-version}},\n    \"actions\": [\n        {\n            \"action\" : \"setCustomerEmail\",\n            \"customerEmail\": \"john.nottargeted@example.org\"\n        }\n    ]\n}"
+											"raw": "{\n    \"version\": {{cart-version}},\n    \"actions\": [\n        {\n            \"action\" : \"setCustomField\",\n            \"name\": \"eagleeye-identityValue\",\n            \"value\": null\n        }\n    ]\n}"
 										},
 										"url": {
 											"raw": "{{host}}/{{project-key}}/carts/{{cart-id}}",
