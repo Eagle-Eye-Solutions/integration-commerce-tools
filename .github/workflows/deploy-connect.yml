@@ -118,25 +118,25 @@ jobs:
           shipping_method_map: ${{ vars.SHIPPING_METHOD_MAP }}
           ee_incoming_identifier: ${{ vars.EE_INCOMING_IDENTIFIER }}
           ee_parent_incoming_identifier: ${{ vars.EE_PARENT_INCOMING_IDENTIFIER }}
-  # e2e-tests:
-  #   name: 'Running E2E tests'
-  #   if: ${{ github.event.inputs.environment != 'staging' }}
-  #   runs-on: ubuntu-latest
-  #   needs: [ 'ct-deploy' ]
-  #   environment: ${{ github.event.inputs.environment }}
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v3
-  #     - name: Run E2E e2e-tests
-  #       uses: ./.github/actions/postman
-  #       with:
-  #         ct_client_id: ${{ secrets.CT_CLIENT_ID }}
-  #         ct_secret: ${{ secrets.CT_CLIENT_SECRET }}
-  #         postman_collection_json: "eagle-eye-e2e-tests.postman_collection.json"
-  #         ct_region: ${{ vars.CT_REGION }}
-  #         ct_project_id: ${{ vars.CT_PROJECT_KEY }}
-  #         ee_client_id: ${{ secrets.EE_CLIENT_ID }}
-  #         ee_client_secret: ${{ secrets.EE_CLIENT_SECRET }}
-  #         ee_wallet_url: ${{ vars.EE_WALLET_URL }}
-  #         ee_pos_url: ${{ vars.EE_POS_URL }}
-  #         ee_resources_url: ${{ vars.EE_RESOURCES_URL }}
+  e2e-tests:
+    name: 'Running E2E tests'
+    if: ${{ github.event.inputs.environment != 'staging' }}
+    runs-on: ubuntu-latest
+    needs: [ 'ct-deploy' ]
+    environment: ${{ github.event.inputs.environment }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Run E2E e2e-tests
+        uses: ./.github/actions/postman
+        with:
+          ct_client_id: ${{ secrets.CT_CLIENT_ID }}
+          ct_secret: ${{ secrets.CT_CLIENT_SECRET }}
+          postman_collection_json: "eagle-eye-e2e-tests.postman_collection.json"
+          ct_region: ${{ vars.CT_REGION }}
+          ct_project_id: ${{ vars.CT_PROJECT_KEY }}
+          ee_client_id: ${{ secrets.EE_CLIENT_ID }}
+          ee_client_secret: ${{ secrets.EE_CLIENT_SECRET }}
+          ee_wallet_url: ${{ vars.EE_WALLET_URL }}
+          ee_pos_url: ${{ vars.EE_POS_URL }}
+          ee_resources_url: ${{ vars.EE_RESOURCES_URL }}
