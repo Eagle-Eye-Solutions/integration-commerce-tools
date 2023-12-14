@@ -68,7 +68,7 @@ export class AppService {
       errors.push(this.getErrorDetails(error));
 
       //delete basket store
-      if (this.basketStoreService.isEnabled(resourceObj, body.resource)) {
+      if (this.basketStoreService.isEnabled(body.resource as CartReference)) {
         try {
           await this.basketStoreService.delete(body.resource.id);
         } catch (errorDelete) {
@@ -136,7 +136,7 @@ export class AppService {
 
     //store basket
     let basketLocation = null;
-    if (this.basketStoreService.isEnabled(resourceObj, body.resource)) {
+    if (this.basketStoreService.isEnabled(body.resource as CartReference)) {
       basketLocation = await this.basketStoreService.save(
         basketDiscounts.enrichedBasket,
         body.resource.id,
