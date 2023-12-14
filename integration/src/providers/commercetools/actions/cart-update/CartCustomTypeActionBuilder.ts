@@ -48,11 +48,14 @@ export class CartCustomTypeActionBuilder {
     },
   });
 
+  // TODO: refactor to consider non-existant fields in resource. This is to avoid InvalidOperation error.
   static setCustomFields = (
     errors: CustomFieldError[],
     appliedDiscounts: DiscountDescription[] = [],
     voucherCodes: string[] = [],
     basketLocation?: BasketLocation,
+    action?: string,
+    settledStatus?: string,
   ): OrderUpdateAction[] => [
     {
       action: 'setCustomField',
@@ -78,6 +81,16 @@ export class CartCustomTypeActionBuilder {
       action: 'setCustomField',
       name: 'eagleeye-voucherCodes',
       value: voucherCodes,
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-action',
+      value: action || '',
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-settledStatus',
+      value: settledStatus || '',
     },
   ];
 

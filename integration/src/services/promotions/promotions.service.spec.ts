@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { CTCartToEEBasketMapper } from '../../common/mappers/ctCartToEeBasket.mapper';
 import { Logger } from '@nestjs/common';
 import { CircuitBreakerService } from '../../providers/circuit-breaker/circuit-breaker.service';
+import { BASKET_STORE_SERVICE } from '../basket-store/basket-store.provider';
 
 describe('PromotionService', () => {
   let service: PromotionService;
@@ -53,6 +54,15 @@ describe('PromotionService', () => {
         CTCartToEEBasketMapper,
         { provide: CircuitBreakerService, useValue: { fire: jest.fn() } },
         Logger,
+        {
+          provide: BASKET_STORE_SERVICE,
+          useValue: {
+            save: jest.fn(),
+            get: jest.fn(),
+            delete: jest.fn(),
+            isEnabled: jest.fn(),
+          },
+        },
       ],
     }).compile();
 

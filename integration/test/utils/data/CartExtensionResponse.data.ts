@@ -38,6 +38,12 @@ export const SUCCESS_RESPONSE = {
       name: 'eagleeye-voucherCodes',
       value: ['valid-code'],
     },
+    { action: 'setCustomField', name: 'eagleeye-action', value: '' },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-settledStatus',
+      value: '',
+    },
     {
       action: 'setDirectDiscounts',
       discounts: [
@@ -124,6 +130,12 @@ export const ERROR_RESPONSE = {
     { action: 'setCustomField', name: 'eagleeye-basketStore', value: '' },
     { action: 'setCustomField', name: 'eagleeye-basketUri', value: '' },
     { action: 'setCustomField', name: 'eagleeye-voucherCodes', value: [] },
+    { action: 'setCustomField', name: 'eagleeye-action', value: '' },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-settledStatus',
+      value: '',
+    },
     { action: 'setDirectDiscounts', discounts: [] },
   ],
 };

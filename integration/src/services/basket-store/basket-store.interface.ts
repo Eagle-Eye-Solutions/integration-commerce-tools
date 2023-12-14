@@ -1,4 +1,4 @@
-import { Cart } from '@commercetools/platform-sdk';
+import { Cart, Order } from '@commercetools/platform-sdk';
 
 export type BasketLocation = {
   uri: string;
@@ -7,11 +7,17 @@ export type BasketLocation = {
 
 export interface BasketStoreService {
   /**
-   * Persists the eagleEye enriched basket with the releated id of the commercetools cart that generated it
+   * Persists the eagleEye enriched basket with the related id of the commercetools cart that generated it
    * @param eeBasket the eagleEye enriched basket
    * @param ctCartId the commercetools cart ID
    */
   save(eeBasket: any, ctCartId: string): Promise<BasketLocation>;
+
+  /**
+   * Gets the eagleEye enriched basket with the related id of the commercetools cart that generated it
+   * @param ctCartId the commercetools cart ID
+   */
+  get(ctCartId: string): Promise<any>;
 
   /**
    * Deleted the eagleEye enriched basked given the related commercetools cart ID
@@ -23,4 +29,9 @@ export interface BasketStoreService {
    * Returns true if the basket should be stored, false otherwise
    */
   isEnabled(cart: Cart): boolean;
+
+  /**
+   * Returns true if the basket has been previously saved, false otherwise
+   */
+  hasSavedBasket(resource: Cart | Order): boolean;
 }

@@ -117,4 +117,8 @@ export class Wallet extends EagleEyeSdkObject {
   public async open(body: any) {
     return super.makeApiRequest(`/connect/wallet/open`, 'POST', body);
   }
+
+  public async settle(body: any) {
+    return super.makeApiRequest(`/connect/wallet/settle`, 'POST', body);
+  }
 }

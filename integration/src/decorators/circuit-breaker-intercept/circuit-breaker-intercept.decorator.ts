@@ -2,6 +2,7 @@ import { Inject, Logger } from '@nestjs/common';
 import { CircuitBreakerService } from '../../providers/circuit-breaker/circuit-breaker.service';
 
 export function CircuitBreakerIntercept() {
+  // NOTE: always inject CircuitBreakerService into any class using this decorator.
   const circuitBreakerService = Inject(CircuitBreakerService);
   const logger = new Logger('CircuitBreakerIntercept');
   return function (

@@ -69,7 +69,7 @@ export class ExtensionLocalService implements OnModuleInit, OnModuleDestroy {
               action: 'changeDestination',
               destination: {
                 type: 'HTTP',
-                url: ngrokUrl,
+                url: `${ngrokUrl}/service`,
               },
             },
           ],
@@ -77,7 +77,7 @@ export class ExtensionLocalService implements OnModuleInit, OnModuleDestroy {
       } else {
         await this.commercetoolsService.createExtension({
           key: this.extensionKey,
-          destination: { type: 'HTTP', url: ngrokUrl },
+          destination: { type: 'HTTP', url: `${ngrokUrl}/service` },
           triggers: extensions
             .map((ext) =>
               ext.triggers.map((trigger) => {

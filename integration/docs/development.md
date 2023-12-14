@@ -2,7 +2,36 @@
 
 ## Local setup
 
-TODO
+### Basic steps
+
+The project is currently setup with Node v20. To install dependencies just run:
+```shell
+yarn install
+```
+
+Several environment variables are needed to get started. As a reference check/make a copy of `.env.example` and
+set the required variables.
+
+Then, to start the integration in watch mode run:
+```shell
+yarn run start:dev
+```
+
+With this the integration is ready to receive requests in the port of your choosing (or port `8080`, which is
+the default).
+
+### Testing the local environment as an extension
+
+The integration can automatically create an extension which reaches your local environment using `ngrok`.
+To do this, you just need to set the following environment variable:
+
+```shell
+NGROK_ENABLED=true
+```
+
+After that, start the plugin in .All cart creation/update actions will now be processed by your local environment. Keep in mind if you have
+other extensions in your commercetools project, the order in which extensions are called is not guaranteed.
+
 
 ## Tests
 

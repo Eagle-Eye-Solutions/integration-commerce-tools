@@ -4,17 +4,23 @@ import {
   CustomFieldError,
 } from './providers/commercetools/actions/cart-update/CartCustomTypeActionBuilder';
 import { EagleEyeApiException } from './common/exceptions/eagle-eye-api.exception';
-import { ExtensionInput } from '@commercetools/platform-sdk/dist/declarations/src/generated/models/extension';
 import {
   ActionsSupported,
   CTActionsBuilder,
 } from './providers/commercetools/actions/ActionsBuilder';
 import { CartDiscountActionBuilder } from './providers/commercetools/actions/cart-update/CartDiscountActionBuilder';
 import { PromotionService } from './services/promotions/promotions.service';
-import { CartReference } from '@commercetools/platform-sdk';
+import {
+  CartReference,
+  ExtensionInput,
+  MessageDeliveryPayload,
+} from '@commercetools/platform-sdk';
 import { BasketStoreService } from './services/basket-store/basket-store.interface';
 import { BASKET_STORE_SERVICE } from './services/basket-store/basket-store.provider';
 import { EagleEyePluginException } from './common/exceptions/eagle-eye-plugin.exception';
+import { EventHandlerService } from './services/event-handler/event-handler.service';
+import { isFulfilled } from './common/helper/promise';
+import { OrderSettleService } from './services/order-settle/order-settle.service';
 
 @Injectable()
 export class AppService {
@@ -24,6 +30,8 @@ export class AppService {
     private promotionService: PromotionService,
     @Inject(BASKET_STORE_SERVICE)
     private readonly basketStoreService: BasketStoreService,
+    private eventHandlerService: EventHandlerService,
+    private orderSettleService: OrderSettleService,
   ) {}
 
   async handleExtensionRequest(body: ExtensionInput): Promise<{
@@ -34,50 +42,18 @@ export class AppService {
       context: AppService.name,
       body,
     });
-    //todo move logic to guard
-    if (body?.resource?.typeId !== 'cart') {
-      return new CTActionsBuilder().build();
-    }
+    const resourceObj = (body?.resource as any)?.obj;
 
     try {
-      const basketDiscounts = await this.promotionService.getDiscounts(
-        body.resource as CartReference, //checked in the ExtensionTypeMiddleware
-      );
-
-      //store basket
-      let basketLocation = null;
-      if (this.basketStoreService.isEnabled(body?.resource?.obj)) {
-        basketLocation = await this.basketStoreService.save(
-          basketDiscounts.enrichedBasket,
-          body.resource.id,
-        );
-      }
-
       const actionBuilder = new CTActionsBuilder();
-      if (
-        CartCustomTypeActionBuilder.checkResourceCustomType(body?.resource?.obj)
-      ) {
-        actionBuilder.addAll(
-          CartCustomTypeActionBuilder.setCustomFields(
-            basketDiscounts.errors,
-            [...basketDiscounts.discountDescriptions],
-            basketDiscounts.voucherCodes,
-            basketLocation,
-          ),
-        );
-      } else {
-        actionBuilder.add(
-          CartCustomTypeActionBuilder.addCustomType(
-            basketDiscounts.errors,
-            [...basketDiscounts.discountDescriptions],
-            basketDiscounts.voucherCodes,
-            basketLocation,
-          ),
-        );
+      switch (body?.resource?.typeId) {
+        case 'cart':
+          await this.applyCartExtensionUpdates(actionBuilder, body);
+          break;
+        case 'order':
+          await this.applyOrderExtensionUpdates(actionBuilder, body);
+          break;
       }
-      actionBuilder.add(
-        CartDiscountActionBuilder.addDiscount([...basketDiscounts.discounts]),
-      );
       const extensionActions = actionBuilder.build();
       this.logger.debug({
         message: `Returning ${extensionActions.actions.length} actions to commercetools`,
@@ -92,7 +68,10 @@ export class AppService {
       errors.push(this.getErrorDetails(error));
 
       //delete basket store
-      if (this.basketStoreService.isEnabled(body?.resource?.obj)) {
+      if (
+        this.basketStoreService.isEnabled(resourceObj) &&
+        body?.resource?.typeId === 'cart'
+      ) {
         try {
           await this.basketStoreService.delete(body.resource.id);
         } catch (errorDelete) {
@@ -105,9 +84,7 @@ export class AppService {
 
       const actionBuilder = new CTActionsBuilder();
 
-      if (
-        CartCustomTypeActionBuilder.checkResourceCustomType(body?.resource?.obj)
-      ) {
+      if (CartCustomTypeActionBuilder.checkResourceCustomType(resourceObj)) {
         actionBuilder.addAll(
           CartCustomTypeActionBuilder.setCustomFields(errors, []),
         );
@@ -122,8 +99,87 @@ export class AppService {
         message: `Returning ${extensionActions.actions.length} actions to commercetools`,
         extensionActions,
       });
+      console.log(JSON.stringify(extensionActions));
       return extensionActions;
     }
+  }
+
+  async handleSubscriptionEvents(
+    message: MessageDeliveryPayload,
+  ): Promise<any> {
+    const actionPromises = await this.eventHandlerService.processEvent(message);
+    const response = this.eventHandlerService.handleProcessedEventResponse(
+      actionPromises,
+      message,
+      true,
+    );
+    if (response.status != 'OK') {
+      return response;
+    }
+    const validRequests = actionPromises
+      .filter(isFulfilled)
+      .map((done) => done.value);
+    const eagleeyeActionPromises = validRequests
+      .flat()
+      .map((action) => action());
+    const results = await Promise.allSettled(eagleeyeActionPromises);
+    return this.eventHandlerService.handleProcessedEventResponse(
+      results,
+      message,
+    );
+  }
+
+  async applyCartExtensionUpdates(
+    actionBuilder: CTActionsBuilder,
+    body: ExtensionInput,
+  ) {
+    const resourceObj = (body?.resource as any)?.obj;
+    const basketDiscounts = await this.promotionService.getDiscounts(
+      body.resource as CartReference, //checked in the ExtensionTypeMiddleware
+    );
+
+    //store basket
+    let basketLocation = null;
+    if (this.basketStoreService.isEnabled(resourceObj)) {
+      basketLocation = await this.basketStoreService.save(
+        basketDiscounts.enrichedBasket,
+        body.resource.id,
+      );
+    }
+
+    if (CartCustomTypeActionBuilder.checkResourceCustomType(resourceObj)) {
+      actionBuilder.addAll(
+        CartCustomTypeActionBuilder.setCustomFields(
+          basketDiscounts.errors,
+          [...basketDiscounts.discountDescriptions],
+          basketDiscounts.voucherCodes,
+          basketLocation,
+        ),
+      );
+    } else {
+      actionBuilder.add(
+        CartCustomTypeActionBuilder.addCustomType(
+          basketDiscounts.errors,
+          [...basketDiscounts.discountDescriptions],
+          basketDiscounts.voucherCodes,
+          basketLocation,
+        ),
+      );
+    }
+    actionBuilder.add(
+      CartDiscountActionBuilder.addDiscount([...basketDiscounts.discounts]),
+    );
+  }
+
+  async applyOrderExtensionUpdates(
+    actionBuilder: CTActionsBuilder,
+    body: ExtensionInput,
+  ) {
+    const ctOrder = (body.resource as any).obj;
+    const actions =
+      await this.orderSettleService.settleTransactionFromOrder(ctOrder);
+
+    actionBuilder.addAll(actions);
   }
 
   private getErrorDetails(error: any): CustomFieldError {
