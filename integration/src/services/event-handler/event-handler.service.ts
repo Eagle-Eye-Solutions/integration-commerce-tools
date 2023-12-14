@@ -1,14 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { MessageDeliveryPayload } from '@commercetools/platform-sdk';
 import { isFulfilled, isRejected } from '../../common/helper/promise';
-import { ConfigService } from '@nestjs/config';
-import { EagleEyeApiClient } from '../../providers/eagleeye/eagleeye.provider';
-import { CTCartToEEBasketMapper } from '../../common/mappers/ctCartToEeBasket.mapper';
-import { Commercetools } from '../../providers/commercetools/commercetools.provider';
-import { BASKET_STORE_SERVICE } from '../basket-store/basket-store.provider';
-import { BasketStoreService } from '../basket-store/basket-store.interface';
-import { CircuitBreakerService } from '../../providers/circuit-breaker/circuit-breaker.service';
-import { OrderSettleService } from '../order-settle/order-settle.service';
 import { AbstractEventProcessor } from './event-processor/abstract-event.processor';
 
 type ProcessingResult = {
@@ -20,14 +12,6 @@ export class EventHandlerService {
   private readonly logger = new Logger(EventHandlerService.name);
 
   constructor(
-    private configService: ConfigService,
-    private eagleEyeClient: EagleEyeApiClient,
-    private cartToBasketMapper: CTCartToEEBasketMapper,
-    private commercetools: Commercetools,
-    @Inject(BASKET_STORE_SERVICE)
-    private readonly basketStoreService: BasketStoreService,
-    private circuitBreakerService: CircuitBreakerService,
-    private orderSettleService: OrderSettleService,
     @Inject('EventProcessors')
     private eventProcessors: AbstractEventProcessor[],
   ) {}
