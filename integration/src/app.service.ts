@@ -88,8 +88,11 @@ export class AppService {
       } else {
         actionBuilder.add(CartCustomTypeActionBuilder.addCustomType(errors));
       }
-      // Discounts should be removed only if the basket was not persisted in AIR. See https://eagleeye.atlassian.net/browse/CTP-3
-      actionBuilder.add(CartDiscountActionBuilder.removeDiscounts());
+      // Discount removal should only be done for carts. This action is not valid for orders.
+      if (body.resource.typeId === 'cart') {
+        // Discounts should be removed only if the basket was not persisted in AIR. See https://eagleeye.atlassian.net/browse/CTP-3
+        actionBuilder.add(CartDiscountActionBuilder.removeDiscounts());
+      }
 
       const extensionActions = actionBuilder.build();
       this.logger.debug({

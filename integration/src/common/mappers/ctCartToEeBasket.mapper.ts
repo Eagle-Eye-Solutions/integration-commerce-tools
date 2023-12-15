@@ -4,6 +4,7 @@ import {
   LineItem,
   DirectDiscountDraft,
   ShippingInfo,
+  Order,
 } from '@commercetools/platform-sdk';
 import { DiscountDescription } from '../../providers/commercetools/actions/cart-update/CartCustomTypeActionBuilder';
 import { ConfigService } from '@nestjs/config';
@@ -283,7 +284,7 @@ export class CTCartToEEBasketMapper {
     };
   }
 
-  async mapOrderToWalletSettlePayload(orderId: string) {
+  async mapOrderToWalletSettlePayload(order: Order) {
     const incomingIdentifier = this.configService.get(
       'eagleEye.incomingIdentifier',
     );
@@ -291,13 +292,16 @@ export class CTCartToEEBasketMapper {
       'eagleEye.parentIncomingIdentifier',
     );
 
+    const identity = order.custom?.fields['eagleeye-identityValue'];
+
     // TODO: handle cases where store location is not custom object
-    const enrichedBasket = (await this.basketStoreService.get(orderId))
+    const enrichedBasket = (await this.basketStoreService.get(order.cart.id))
       .enrichedBasket;
 
     return {
       mode: 'ACTIVE',
-      reference: orderId,
+      reference: order.cart.id,
+      ...(identity ? { identity: { identityValue: identity } } : {}),
       location: {
         incomingIdentifier,
         ...(parentIncomingIdentifier && { parentIncomingIdentifier }),

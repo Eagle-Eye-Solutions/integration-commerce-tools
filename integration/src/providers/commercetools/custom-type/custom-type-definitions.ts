@@ -1,5 +1,6 @@
 import { TypeDraft } from '@commercetools/platform-sdk';
 
+export const FIELD_EAGLEEYE_ERRORS = 'eagleeye-errors';
 export const FIELD_EAGLEEYE_ACTION = 'eagleeye-action';
 export const FIELD_EAGLEEYE_BASKET_STORE = 'eagleeye-basketStore';
 export const FIELD_EAGLEEYE_BASKET_URI = 'eagleeye-basketUri';
@@ -16,7 +17,7 @@ export const ORDER_CUSTOM_FIELDS: TypeDraft = {
   resourceTypeIds: ['order'],
   fieldDefinitions: [
     {
-      name: 'eagleeye-errors',
+      name: FIELD_EAGLEEYE_ERRORS,
       label: {
         en: 'eagleeye-errors',
       },

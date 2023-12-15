@@ -299,7 +299,13 @@ describe('CTCartToEEBasketMapper', () => {
       .mockReturnValueOnce('outlet1')
       .mockReturnValueOnce('banner1');
 
-    jest.spyOn(commercetools, 'getOrderById').mockResolvedValueOnce({
+    jest.spyOn(basketStoreService, 'get').mockResolvedValueOnce({
+      enrichedBasket: {
+        contents: [],
+      },
+    });
+
+    const payload = await service.mapOrderToWalletSettlePayload({
       id: '123456',
       cart: {
         typeId: 'cart',
@@ -310,13 +316,33 @@ describe('CTCartToEEBasketMapper', () => {
       },
     } as any);
 
+    expect(payload).toMatchSnapshot();
+  });
+
+  test('mapOrderToWalletSettlePayload should include eagleeye-identityValue for /wallet/settle when available', async () => {
+    jest
+      .spyOn(configService, 'get')
+      .mockReturnValueOnce('outlet1')
+      .mockReturnValueOnce('banner1');
+
     jest.spyOn(basketStoreService, 'get').mockResolvedValueOnce({
       enrichedBasket: {
         contents: [],
       },
     });
 
-    const payload = await service.mapOrderToWalletSettlePayload('123456');
+    const payload = await service.mapOrderToWalletSettlePayload({
+      id: '123456',
+      cart: {
+        typeId: 'cart',
+        id: '12345678',
+      },
+      custom: {
+        fields: {
+          'eagleeye-identityValue': 'some-identity',
+        },
+      },
+    } as any);
 
     expect(payload).toMatchSnapshot();
   });

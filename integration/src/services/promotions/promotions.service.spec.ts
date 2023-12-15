@@ -156,7 +156,7 @@ describe('PromotionService', () => {
 
       const cbFireMock = jest
         .spyOn(circuitBreakerService, 'fire')
-        .mockResolvedValue(walletOpenResponse);
+        .mockResolvedValue({ status: 200, data: walletOpenResponse });
 
       jest
         .spyOn(configService, 'get')
@@ -206,7 +206,7 @@ describe('PromotionService', () => {
 
       const cbFireMock = jest
         .spyOn(circuitBreakerService, 'fire')
-        .mockResolvedValue(walletOpenResponse);
+        .mockResolvedValue({ status: 200, data: walletOpenResponse });
 
       jest
         .spyOn(configService, 'get')
@@ -264,7 +264,7 @@ describe('PromotionService', () => {
 
       const cbFireMock = jest
         .spyOn(circuitBreakerService, 'fire')
-        .mockResolvedValue(walletOpenResponse);
+        .mockResolvedValue({ status: 200, data: walletOpenResponse });
 
       jest
         .spyOn(configService, 'get')
@@ -345,7 +345,7 @@ describe('PromotionService', () => {
       const cbFireMock = jest
         .spyOn(circuitBreakerService, 'fire')
         .mockRejectedValueOnce({ type: 'EE_IDENTITY_NOT_FOUND' })
-        .mockResolvedValueOnce(walletOpenResponse);
+        .mockResolvedValueOnce({ status: 200, data: walletOpenResponse });
 
       jest
         .spyOn(configService, 'get')

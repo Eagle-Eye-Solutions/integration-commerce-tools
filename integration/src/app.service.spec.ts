@@ -193,6 +193,8 @@ describe('AppService', () => {
             'eagleeye-basketStore': undefined,
             'eagleeye-basketUri': undefined,
             'eagleeye-voucherCodes': [],
+            'eagleeye-action': '',
+            'eagleeye-settledStatus': '',
           },
           type: {
             key: 'custom-cart-type',
@@ -353,6 +355,8 @@ describe('AppService', () => {
             'eagleeye-basketStore': undefined,
             'eagleeye-basketUri': undefined,
             'eagleeye-voucherCodes': [],
+            'eagleeye-action': '',
+            'eagleeye-settledStatus': '',
           },
           type: {
             key: 'custom-cart-type',
@@ -415,6 +419,8 @@ describe('AppService', () => {
             'eagleeye-basketStore': undefined,
             'eagleeye-basketUri': undefined,
             'eagleeye-voucherCodes': ['valid-token'],
+            'eagleeye-action': '',
+            'eagleeye-settledStatus': '',
           },
           type: {
             key: 'custom-cart-type',
@@ -458,6 +464,8 @@ describe('AppService', () => {
             'eagleeye-basketStore': undefined,
             'eagleeye-basketUri': undefined,
             'eagleeye-voucherCodes': [],
+            'eagleeye-action': '',
+            'eagleeye-settledStatus': '',
           },
           type: {
             key: 'custom-cart-type',
@@ -516,6 +524,8 @@ describe('AppService', () => {
             'eagleeye-basketStore': undefined,
             'eagleeye-basketUri': undefined,
             'eagleeye-voucherCodes': [],
+            'eagleeye-action': '',
+            'eagleeye-settledStatus': '',
           },
           type: {
             key: 'custom-cart-type',
@@ -555,6 +565,8 @@ describe('AppService', () => {
             'eagleeye-basketStore': undefined,
             'eagleeye-basketUri': undefined,
             'eagleeye-voucherCodes': [],
+            'eagleeye-action': '',
+            'eagleeye-settledStatus': '',
           },
           type: {
             key: 'custom-cart-type',
@@ -602,6 +614,8 @@ describe('AppService', () => {
             'eagleeye-basketStore': undefined,
             'eagleeye-basketUri': undefined,
             'eagleeye-voucherCodes': [],
+            'eagleeye-action': '',
+            'eagleeye-settledStatus': '',
           },
           type: {
             key: 'custom-cart-type',

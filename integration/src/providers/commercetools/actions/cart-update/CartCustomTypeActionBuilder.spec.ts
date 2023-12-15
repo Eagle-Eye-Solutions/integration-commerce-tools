@@ -45,6 +45,8 @@ describe('CartCustomTypeActionBuilder', () => {
         'eagleeye-basketStore': 'CUSTOM_TYPE',
         'eagleeye-basketUri': 'path/to/basket',
         'eagleeye-voucherCodes': ['code1', 'code2'],
+        'eagleeye-action': '',
+        'eagleeye-settledStatus': '',
       },
     });
   });

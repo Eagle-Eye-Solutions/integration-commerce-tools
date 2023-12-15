@@ -12,6 +12,7 @@ import {
   FIELD_EAGLEEYE_BASKET_STORE,
   FIELD_EAGLEEYE_BASKET_URI,
   FIELD_EAGLEEYE_SETTLED_STATUS,
+  FIELD_EAGLEEYE_ERRORS,
 } from '../../providers/commercetools/custom-type/custom-type-definitions';
 import { CircuitBreakerService } from '../../providers/circuit-breaker/circuit-breaker.service';
 
@@ -36,12 +37,9 @@ export class OrderSettleService {
     );
     // Delete basket custom object after transaction is settled successfully
     if (this.basketStoreService.hasSavedBasket(ctOrder)) {
-      // TODO: handle known settle errors returned with 2XX responses
-      await this.walletSettleInvoke(
+      const walletSettleResponse = await this.walletSettleInvoke(
         'settle',
-        await this.cartToBasketMapper.mapOrderToWalletSettlePayload(
-          ctOrder.cart.id,
-        ),
+        await this.cartToBasketMapper.mapOrderToWalletSettlePayload(ctOrder),
       );
       try {
         this.logger.log(
@@ -78,6 +76,22 @@ export class OrderSettleService {
           });
         }
       });
+      if (walletSettleResponse.status === 207) {
+        const currentErrors =
+          ctOrder.custom?.fields[FIELD_EAGLEEYE_ERRORS] || [];
+        actions.push({
+          action: 'setCustomField',
+          name: FIELD_EAGLEEYE_ERRORS,
+          value: [
+            ...currentErrors,
+            JSON.stringify({
+              type: 'EE_API_SETTLE_POTENTIAL_ISSUES',
+              message:
+                'EagleEye transaction settle was processed successfully, but there might be issues.',
+            }),
+          ],
+        });
+      }
       return actions;
     }
     this.logger.log(

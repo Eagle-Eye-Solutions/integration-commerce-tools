@@ -80,4 +80,58 @@ describe('Settle EE transactions on order update (e2e)', () => {
     expect(walletSettleNock.isDone()).toBeTruthy();
     expect(deleteCustomObjectNock.isDone()).toBeTruthy();
   });
+
+  it('should settle the EE transaction and return an error if status code is 207', async () => {
+    const ctAuthNock = nockCtAuth();
+    const getCircuitStateCustomObjectNock = nockGetCustomObject(404, null);
+    const getEnrichedBasketCustomObjectNock =
+      nockGetEnrichedBasketCustomObject();
+
+    const walletSettleNock = await nockWalletSettle(
+      ORDER_FOR_SETTLE.resource.obj.cart,
+      1,
+      207,
+    );
+
+    const deleteCustomObjectNock = nockDeleteCustomObject(
+      ORDER_FOR_SETTLE.resource.obj.cart.id,
+      CUSTOM_OBJECT_CONTAINER_BASKET_STORE,
+      {},
+    );
+
+    app = await initAppModule();
+    await request(app.getHttpServer())
+      .post('/service')
+      .send(ORDER_FOR_SETTLE)
+      .expect(201)
+      .expect({
+        actions: [
+          {
+            action: 'setCustomField',
+            name: 'eagleeye-settledStatus',
+            value: 'SETTLED',
+          },
+          { action: 'setCustomField', name: 'eagleeye-basketStore' },
+          { action: 'setCustomField', name: 'eagleeye-basketUri' },
+          {
+            action: 'setCustomField',
+            name: 'eagleeye-errors',
+            value: [
+              JSON.stringify({
+                type: 'EE_API_SETTLE_POTENTIAL_ISSUES',
+                message:
+                  'EagleEye transaction settle was processed successfully, but there might be issues.',
+              }),
+            ],
+          },
+        ],
+      });
+
+    await sleep(100); //await for
+    expect(ctAuthNock.isDone()).toBeTruthy();
+    expect(getCircuitStateCustomObjectNock.isDone()).toBeTruthy();
+    expect(getEnrichedBasketCustomObjectNock.isDone()).toBeTruthy();
+    expect(walletSettleNock.isDone()).toBeTruthy();
+    expect(deleteCustomObjectNock.isDone()).toBeTruthy();
+  });
 });
