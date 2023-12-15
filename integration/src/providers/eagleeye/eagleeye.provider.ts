@@ -27,7 +27,7 @@ export class EagleEyeApiClient {
 export abstract class EagleEyeSdkObject implements BreakableApi {
   public basePath = this.configService.get('eagleEye.walletUrl');
   private credentials: EagleEyeCredentials;
-  private readonly logger = new Logger(EagleEyeSdkObject.name);
+  readonly logger = new Logger(this.constructor.name);
 
   protected constructor(
     readonly configService: ConfigService,
@@ -119,6 +119,7 @@ export class Wallet extends EagleEyeSdkObject {
   }
 
   public async settle(body: any) {
+    this.logger.log(`Preparing to call /wallet/settle with payload:`, body);
     return super.makeApiRequest(`/connect/wallet/settle`, 'POST', body);
   }
 }
