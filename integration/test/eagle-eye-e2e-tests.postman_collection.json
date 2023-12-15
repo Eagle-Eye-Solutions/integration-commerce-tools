@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "be952d9d-3354-430c-8188-f13f05287363",
+		"_postman_id": "0c8557c9-7214-4417-90bf-8f2489685074",
 		"name": "EagleEye CT Plugin - E2E Tests",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "17929605"
+		"_exporter_id": "10594136"
 	},
 	"item": [
 		{
@@ -6295,7 +6295,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"currency\": \"GBP\",\n  \"customerEmail\": \"john.toe@example.org\",\n  \"lineItems\": [\n    {\n      \"sku\": \"245871\",\n      \"quantity\": 1\n    },\n    {\n      \"sku\": \"245872\",\n      \"quantity\": 1\n    },\n    {\n      \"sku\": \"245873\",\n      \"quantity\": 1\n    }\n  ],\n  \"custom\": {\n      \"type\": {\n          \"typeId\": \"type\",\n          \"key\": \"custom-cart-type\"\n      },\n      \"fields\": {\n          \"eagleeye-voucherCodes\": [\n              \"{{multiItemDiscountToken}}\"\n          ]\n      }\n  }\n}"
+											"raw": "{\n  \"currency\": \"GBP\",\n  \"customerEmail\": \"john.toe@example.org\",\n  \"lineItems\": [\n    {\n      \"sku\": \"245871\",\n      \"quantity\": 1\n    },\n    {\n      \"sku\": \"245872\",\n      \"quantity\": 1\n    },\n    {\n      \"sku\": \"245873\",\n      \"quantity\": 1\n    }\n  ],\n  \"custom\": {\n      \"type\": {\n          \"typeId\": \"type\",\n          \"key\": \"custom-cart-type\"\n      },\n      \"fields\": {\n          \"eagleeye-voucherCodes\": [\n              \"{{multiItemDiscountToken}}\"\n          ],\n          \"eagleeye-identityValue\": \"john.toe@example.org\"\n      }\n  }\n}"
 										},
 										"url": {
 											"raw": "{{host}}/{{project-key}}/carts",
