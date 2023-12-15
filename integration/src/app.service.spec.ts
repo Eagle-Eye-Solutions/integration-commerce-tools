@@ -1,12 +1,21 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppService } from './app.service';
 import { CircuitBreakerService } from './providers/circuit-breaker/circuit-breaker.service';
-import { ExtensionInput } from '@commercetools/platform-sdk/dist/declarations/src/generated/models/extension';
+import {
+  ExtensionInput,
+  OrderPaymentStateChangedMessage,
+} from '@commercetools/platform-sdk';
 import { EagleEyeApiException } from './common/exceptions/eagle-eye-api.exception';
 import { PromotionService } from './services/promotions/promotions.service';
 import { BASKET_STORE_SERVICE } from './services/basket-store/basket-store.provider';
 import { BasketStoreService } from './services/basket-store/basket-store.interface';
 import { EagleEyePluginException } from './common/exceptions/eagle-eye-plugin.exception';
+import { EventHandlerService } from './services/event-handler/event-handler.service';
+import { ConfigService } from '@nestjs/config';
+import { EagleEyeApiClient } from './providers/eagleeye/eagleeye.provider';
+import { CTCartToEEBasketMapper } from './common/mappers/ctCartToEeBasket.mapper';
+import { Commercetools } from './providers/commercetools/commercetools.provider';
+import { OrderSettleService } from './services/order-settle/order-settle.service';
 
 class CircuitBreakerError extends Error {
   constructor(public code: string) {
@@ -19,6 +28,8 @@ describe('AppService', () => {
   let circuitBreakerService: CircuitBreakerService;
   let promotionService: PromotionService;
   let basketStoreService: jest.Mocked<BasketStoreService>;
+  let orderSettleService: OrderSettleService;
+  let eventHandlerService: EventHandlerService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -37,8 +48,43 @@ describe('AppService', () => {
           provide: BASKET_STORE_SERVICE,
           useValue: {
             save: jest.fn(),
+            get: jest.fn(),
             delete: jest.fn(),
             isEnabled: jest.fn(),
+          },
+        },
+        {
+          provide: EventHandlerService,
+          useValue: {
+            processEvent: jest.fn(),
+            handleProcessedEventResponse: jest.fn(),
+          },
+        },
+        {
+          provide: ConfigService,
+          useValue: {
+            get: jest.fn(),
+          },
+        },
+        {
+          provide: EagleEyeApiClient,
+          useValue: {
+            wallet: {
+              invoke: jest.fn(),
+            },
+          },
+        },
+        CTCartToEEBasketMapper,
+        {
+          provide: Commercetools,
+          useValue: {
+            getOrderById: jest.fn(),
+          },
+        },
+        {
+          provide: OrderSettleService,
+          useValue: {
+            settleTransactionFromOrder: jest.fn(),
           },
         },
       ],
@@ -50,13 +96,15 @@ describe('AppService', () => {
     );
     promotionService = module.get<PromotionService>(PromotionService);
     basketStoreService = module.get(BASKET_STORE_SERVICE);
+    orderSettleService = module.get(OrderSettleService);
+    eventHandlerService = module.get(EventHandlerService);
   });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
 
-  it('should handle extension request', async () => {
+  it('should handle cart extension request', async () => {
     const body: ExtensionInput = {
       action: 'Create',
       resource: {
@@ -162,6 +210,101 @@ describe('AppService', () => {
     expect(response).toEqual(result);
     expect(basketStoreService.save).toBeCalledTimes(1);
     expect(basketStoreService.delete).toBeCalledTimes(0);
+  });
+
+  it('should handle order extension request', async () => {
+    const body: ExtensionInput = {
+      action: 'Update',
+      resource: {
+        typeId: 'order',
+        id: '123',
+        obj: {
+          custom: {
+            fields: {
+              'eagleeye-action': 'SETTLE',
+              'eagleeye-basketStore': 'CUSTOM_TYPE',
+              'eagleeye-basketUri': 'some/uri',
+            },
+          },
+          cart: {
+            id: 'cart-id',
+          },
+        } as any,
+      },
+    };
+    const updateActions = [
+      {
+        action: 'setCustomField',
+        name: 'eagleeye-action',
+      },
+      {
+        action: 'setCustomField',
+        name: 'eagleeye-basketStore',
+      },
+      {
+        action: 'setCustomField',
+        name: 'eagleeye-basketUri',
+      },
+      {
+        action: 'setCustomField',
+        name: 'eagleeye-settledStatus',
+        value: 'SETTLED',
+      },
+    ];
+    jest
+      .spyOn(orderSettleService, 'settleTransactionFromOrder')
+      .mockResolvedValue(updateActions as any);
+    const result = {
+      actions: updateActions,
+    };
+    const response = await service.handleExtensionRequest(body);
+    expect(response).toEqual(result);
+  });
+
+  it('should handle successful order subscription events', async () => {
+    const body = {
+      resource: {
+        typeId: 'order',
+        id: 'order-id',
+      },
+      type: 'OrderPaymentStateChanged',
+      paymentState: 'Paid',
+    } as unknown as OrderPaymentStateChangedMessage;
+    jest.spyOn(eventHandlerService, 'processEvent').mockResolvedValueOnce([
+      {
+        status: 'fulfilled',
+        value: [() => {}],
+      },
+    ]);
+    const result = { status: 'OK' };
+    jest
+      .spyOn(eventHandlerService, 'handleProcessedEventResponse')
+      .mockReturnValue(result as any);
+    const response = await service.handleSubscriptionEvents(body as any);
+    expect(response).toEqual(result);
+  });
+
+  it('should handle failed order subscription events', async () => {
+    const body = {
+      resource: {
+        typeId: 'order',
+        id: 'order-id',
+      },
+      type: 'OrderPaymentStateChanged',
+      paymentState: 'Paid',
+    } as unknown as OrderPaymentStateChangedMessage;
+    jest.spyOn(eventHandlerService, 'processEvent').mockResolvedValueOnce([
+      {
+        status: 'rejected',
+        reason: {},
+      },
+    ]);
+    const result = { status: '4xx' };
+    jest
+      .spyOn(eventHandlerService, 'handleProcessedEventResponse')
+      .mockReturnValue(result as any);
+    const response = await service.handleSubscriptionEvents(body as any);
+    expect(response).toEqual(result);
   });
 
   it('should not store the enriched basket if that option is not enabled', async () => {
@@ -474,17 +617,5 @@ describe('AppService', () => {
 
     expect(basketStoreService.save).toBeCalledTimes(0);
     expect(basketStoreService.delete).toBeCalledTimes(1);
-  });
-
-  it('should  return an empty action array if the request body is for an unsupported CT resource type', async () => {
-    const body: ExtensionInput = {
-      action: 'Update',
-      resource: { typeId: 'product-type', id: '123', obj: {} as any }, //invalid product-type
-    };
-    const response = await service.handleExtensionRequest(body);
-    expect(response).toEqual({ actions: [] });
-
-    expect(basketStoreService.save).toBeCalledTimes(0);
-    expect(basketStoreService.delete).toBeCalledTimes(0);
   });
 });

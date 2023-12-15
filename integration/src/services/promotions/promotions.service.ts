@@ -16,7 +16,6 @@ import {
 @Injectable()
 export class PromotionService {
   private readonly logger = new Logger(PromotionService.name);
-
   constructor(
     private eagleEyeClient: EagleEyeApiClient,
     readonly circuitBreakerService: CircuitBreakerService,
@@ -34,15 +33,57 @@ export class PromotionService {
     const discountDescriptions: DiscountDescription[] = [];
     const errors: CustomFieldError[] = [];
 
-    const eeOpenRequest =
-      await this.cartToBasketMapper.mapCartToWalletOpenPayload(
-        cartReference.obj,
-      );
-    this.logger.debug({
-      message: 'Sending open request to EagleEye with body',
-      eeOpenRequest,
-    });
-    const walletOpenResponse = await this.walletInvoke('open', eeOpenRequest);
+    let walletOpenResponse;
+    let eeWalletOpenRequest;
+    try {
+      eeWalletOpenRequest =
+        await this.cartToBasketMapper.mapCartToWalletOpenPayload(
+          cartReference.obj,
+          true,
+        );
+      this.logger.debug({
+        message: 'Sending open request to EagleEye with body',
+        eeWalletOpenRequest,
+      });
+      walletOpenResponse = await this.walletInvoke('open', eeWalletOpenRequest);
+    } catch (error) {
+      this.logger.warn('Error while opening the wallet', error);
+      if (error.type === 'EE_IDENTITY_NOT_FOUND') {
+        const errorMessage =
+          cartReference.obj.custom?.fields['eagleeye-identityValue'] +
+          ' - Customer identity not found';
+
+        this.logger.warn(errorMessage);
+        const unidentifiedCustomerError: CustomFieldError = {
+          type: 'EE_API_CUSTOMER_NF',
+          message: errorMessage,
+          context: error,
+        };
+        errors.push(unidentifiedCustomerError);
+        try {
+          this.logger.warn(
+            'Attempting to fetch open promotions without identity',
+          );
+          eeWalletOpenRequest =
+            await this.cartToBasketMapper.mapCartToWalletOpenPayload(
+              cartReference.obj,
+              false,
+            );
+          this.logger.debug({
+            message: 'Sending open request to EagleEye with body',
+            eeWalletOpenRequest,
+          });
+          walletOpenResponse = await this.walletInvoke(
+            'open',
+            eeWalletOpenRequest,
+          );
+        } catch (error) {
+          throw error;
+        }
+      } else {
+        throw error;
+      }
+    }
 
     if (walletOpenResponse?.analyseBasketResults?.basket) {
       const basketLevelDiscounts = await this.getBasketLevelDiscounts(
@@ -63,7 +104,6 @@ export class PromotionService {
         ...shippingDiscounts,
       );
     }
-
     const examineTokenErrors =
       walletOpenResponse.examine
         ?.filter((entry) => entry.errorCode)

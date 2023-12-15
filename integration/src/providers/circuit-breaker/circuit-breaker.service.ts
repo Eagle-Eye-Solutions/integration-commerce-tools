@@ -39,6 +39,9 @@ export class CircuitBreakerService implements OnModuleInit {
       resetTimeout: this.configService.get<number>(
         'circuitBreaker.resetTimeout',
       ),
+      errorFilter: (err) => {
+        return err.type === 'EE_IDENTITY_NOT_FOUND';
+      },
     };
 
     this.circuit = new CircuitBreaker(this.breakableApi.invoke, options);

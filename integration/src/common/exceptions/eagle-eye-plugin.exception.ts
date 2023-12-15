@@ -1,4 +1,7 @@
-export type PluginErrorType = 'BASKET_STORE_SAVE' | 'BASKET_STORE_DELETE';
+export type PluginErrorType =
+  | 'BASKET_STORE_SAVE'
+  | 'BASKET_STORE_GET'
+  | 'BASKET_STORE_DELETE';
 
 export class EagleEyePluginException extends Error {
   constructor(

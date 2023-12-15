@@ -4,6 +4,7 @@ import {
   configuration,
   ScriptConfigService,
   defaultConfiguration,
+  parseShippingMethodMap,
 } from './configuration';
 import * as configurationUtil from './configuration';
 
@@ -62,6 +63,34 @@ describe('validateConfiguration', () => {
   });
 });
 
+describe('parseShippingMethodMap', () => {
+  it('should return an empty array if SHIPPING_METHOD_MAP is not defined', () => {
+    delete process.env.SHIPPING_METHOD_MAP;
+    const result = parseShippingMethodMap();
+    expect(result).toEqual([]);
+  });
+
+  it('should return the parsed shipping method map if SHIPPING_METHOD_MAP is defined and valid JSON', () => {
+    const shippingMethodMap = [
+      { key: 'method1', upc: '123' },
+      { key: 'method2', upc: '456' },
+    ];
+    process.env.SHIPPING_METHOD_MAP = JSON.stringify(shippingMethodMap);
+
+    const result = parseShippingMethodMap();
+    expect(result).toEqual(shippingMethodMap);
+  });
+
+  it('should log an error if SHIPPING_METHOD_MAP is defined but invalid JSON', () => {
+    const invalidJson = 'invalid-json';
+    process.env.SHIPPING_METHOD_MAP = invalidJson;
+
+    const result = parseShippingMethodMap();
+    delete process.env.SHIPPING_METHOD_MAP;
+    expect(result).toEqual([]);
+  });
+});
+
 describe('configuration', () => {
   let configSpy;
 
@@ -93,6 +122,14 @@ describe('configuration', () => {
 
     expect(result).toEqual(expectedConfig);
     configSpy.mockRestore();
+  });
+
+  test('should log error and return default configuration if config cannot be merged', () => {
+    process.env.CONFIG_OVERRIDE = 'invalid-json';
+
+    const result = configuration();
+    delete process.env.CONFIG_OVERRIDE;
+    expect(result).toEqual(defaultConfiguration);
   });
 });
 

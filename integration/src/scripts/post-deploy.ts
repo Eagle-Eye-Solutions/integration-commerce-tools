@@ -1,7 +1,7 @@
-import { Extension } from '@commercetools/platform-sdk';
+import { Extension, Subscription } from '@commercetools/platform-sdk';
 import { Commercetools } from '../providers/commercetools/commercetools.provider';
 import { ScriptConfigService } from '../config/configuration';
-import { extensions } from '../common/commercetools';
+import { extensions, subscriptions } from '../common/commercetools';
 import { Logger } from '@nestjs/common';
 
 const logger = new Logger('Post-Deploy');
@@ -9,7 +9,11 @@ const configService = new ScriptConfigService();
 const commercetools = new Commercetools(configService as any);
 
 const run = async () => {
-  await configureExtensions();
+  if (process.env.INTEGRATION_MODE === 'events') {
+    await configureSubscriptions();
+  } else if (process.env.INTEGRATION_MODE === 'service') {
+    await configureExtensions();
+  }
 };
 
 const configureExtensions = async () => {
@@ -54,6 +58,76 @@ const configureExtensions = async () => {
         `PostDeploy: Failed to ${existingExtension ? 'update' : 'create'} ${
           ext.key
         } extension: ${error.message}`,
+        error,
+      );
+    }
+  });
+};
+
+const configureSubscriptions = async () => {
+  const ctSubscriptions: Subscription[] =
+    await commercetools.querySubscriptions();
+
+  subscriptions.forEach(async (sub) => {
+    const existingSubscription = ctSubscriptions.find((s) => s.key === sub.key);
+    try {
+      if (existingSubscription) {
+        await commercetools.updateSubscription(sub.key, {
+          version: existingSubscription.version,
+          actions: [
+            {
+              action: 'setMessages',
+              messages: [
+                {
+                  resourceTypeId: sub.resource,
+                  types: sub.types,
+                },
+              ],
+            },
+            {
+              action: 'setChanges',
+              changes: sub.changes.map((c) => {
+                return {
+                  resourceTypeId: c,
+                };
+              }),
+            },
+            {
+              action: 'changeDestination',
+              destination: {
+                type: 'GoogleCloudPubSub',
+                topic: process.env.CONNECT_GCP_TOPIC_NAME,
+                projectId: process.env.CONNECT_GCP_PROJECT_ID,
+              },
+            },
+          ],
+        });
+      } else {
+        await commercetools.createSubscription({
+          key: sub.key,
+          destination: {
+            type: 'GoogleCloudPubSub',
+            topic: process.env.CONNECT_GCP_TOPIC_NAME,
+            projectId: process.env.CONNECT_GCP_PROJECT_ID,
+          },
+          messages: [
+            {
+              resourceTypeId: sub.resource,
+              types: sub.types,
+            },
+          ],
+          changes: sub.changes.map((c) => {
+            return {
+              resourceTypeId: c,
+            };
+          }),
+        });
+      }
+    } catch (error) {
+      logger.error(
+        `PostDeploy: Failed to ${existingSubscription ? 'update' : 'create'} ${
+          sub.key
+        } subscription: ${error.message}`,
         error,
       );
     }

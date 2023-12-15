@@ -3,7 +3,7 @@ import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { Logger } from '@nestjs/common';
 import { EagleEyeApiClient, Wallet } from './eagleeye.provider';
-import { of, throwError } from 'rxjs';
+import { of } from 'rxjs';
 import { AxiosResponse } from 'axios';
 import { EagleEyeApiException } from '../../common/exceptions/eagle-eye-api.exception';
 
@@ -51,7 +51,7 @@ describe('Wallet', () => {
     expect(service).toBeDefined();
   });
 
-  it('should call the API with correct parameters', async () => {
+  it('should call the /wallet/open with correct parameters', async () => {
     const mockResponse: AxiosResponse = {
       config: undefined,
       data: 'test',
@@ -73,9 +73,10 @@ describe('Wallet', () => {
   });
 
   it('should throw EagleEyeApiException when the API request to EagleEye fails', async () => {
-    jest
-      .spyOn(httpService, 'request')
-      .mockImplementationOnce(() => throwError(() => new Error('API Error')));
+    const error = { response: { status: 500 } };
+    jest.spyOn(httpService, 'request').mockImplementationOnce(() => {
+      throw error;
+    });
 
     await expect(service.invoke('open', { test: 'test' })).rejects.toThrow(
       new EagleEyeApiException(
@@ -83,6 +84,27 @@ describe('Wallet', () => {
         'The eagle eye API is unavailable, the cart promotions and loyalty points are NOT updated',
       ),
     );
+  });
+
+  it('should call the /wallet/settle with correct parameters', async () => {
+    const mockResponse: AxiosResponse = {
+      config: undefined,
+      data: 'test',
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+    };
+    jest
+      .spyOn(httpService, 'request')
+      .mockImplementationOnce(() => of(mockResponse));
+    const result = await service.invoke('settle', { test: 'test' });
+    expect(httpService.request).toHaveBeenCalledWith({
+      url: expect.any(String),
+      method: 'POST',
+      data: JSON.stringify({ test: 'test' }),
+      headers: expect.any(Object),
+    });
+    expect(result).toEqual(mockResponse.data);
   });
 
   it('should return a correct hash', () => {

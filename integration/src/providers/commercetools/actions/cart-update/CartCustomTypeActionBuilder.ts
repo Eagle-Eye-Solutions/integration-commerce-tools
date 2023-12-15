@@ -17,7 +17,8 @@ export type CustomFieldError = {
     | PluginErrorType
     | 'EE_API_TOKEN_PCEXNF'
     | 'EE_API_TOKEN_PCEXNV'
-    | 'EE_API_TOKEN_PCEXO';
+    | 'EE_API_TOKEN_PCEXO'
+    | 'EE_API_CUSTOMER_NF';
   message: string;
   context?: Record<string, any>;
 };
@@ -47,11 +48,14 @@ export class CartCustomTypeActionBuilder {
     },
   });
 
+  // TODO: refactor to consider non-existant fields in resource. This is to avoid InvalidOperation error.
   static setCustomFields = (
     errors: CustomFieldError[],
     appliedDiscounts: DiscountDescription[] = [],
     voucherCodes: string[] = [],
     basketLocation?: BasketLocation,
+    action?: string,
+    settledStatus?: string,
   ): OrderUpdateAction[] => [
     {
       action: 'setCustomField',
@@ -77,6 +81,16 @@ export class CartCustomTypeActionBuilder {
       action: 'setCustomField',
       name: 'eagleeye-voucherCodes',
       value: voucherCodes,
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-action',
+      value: action || '',
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-settledStatus',
+      value: settledStatus || '',
     },
   ];
 

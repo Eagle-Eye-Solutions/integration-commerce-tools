@@ -40,10 +40,11 @@ export const nockDeleteCustomObject = (
     .reply(200, response, []);
 };
 
-export const nockPostEnirchedBasketCustomObject = (times = 1) => {
+export const nockPostEnrichedBasketCustomObject = () => {
   return nock('https://api.europe-west1.gcp.commercetools.com:443', {
     encodedQueryParams: true,
   })
+    .persist()
     .post(`/${process.env.CTP_PROJECT_KEY}/custom-objects`, {
       key: '8be07418-04a0-49ba-b56f-2aa35d1027a4',
       container: 'eagleeye-cart',
@@ -57,8 +58,8 @@ export const nockPostEnirchedBasketCustomObject = (times = 1) => {
               staff: null,
               promotions: 300,
             },
-            totalItems: 2,
-            totalBasketValue: 5538,
+            totalItems: 7,
+            totalBasketValue: 6138,
             adjustmentResults: [{ value: 200 }, { value: 500 }],
           },
           contents: [
@@ -75,7 +76,6 @@ export const nockPostEnirchedBasketCustomObject = (times = 1) => {
         cart: { typeId: 'cart', id: '8be07418-04a0-49ba-b56f-2aa35d1027a4' },
       },
     })
-    .times(times)
     .reply(
       200,
       {
@@ -192,7 +192,144 @@ export const nockPostEnirchedBasketCustomObject = (times = 1) => {
             ],
             analysedDateTime: '2023-11-29T12:10:58+00:00',
           },
-          cart: { typeId: 'cart', id: '8be07418-04a0-49ba-b56f-2aa35d1027a4' },
+          cart: {
+            typeId: 'cart',
+            id: '8be07418-04a0-49ba-b56f-2aa35d1027a4',
+          },
+        },
+      },
+      [],
+    );
+};
+
+export const nockGetEnrichedBasketCustomObject = () => {
+  return nock('https://api.europe-west1.gcp.commercetools.com:443', {
+    encodedQueryParams: true,
+  })
+    .persist()
+    .get(
+      `/${process.env.CTP_PROJECT_KEY}/custom-objects/eagleeye-cart/45311522-50f6-4aa1-9aba-add802387c1c`,
+    )
+    .reply(
+      200,
+      {
+        id: 'b54fee86-f295-48b9-ad94-e5fad3191ad7',
+        version: 4,
+        versionModifiedAt: '2023-11-29T12:10:58.869Z',
+        createdAt: '2023-11-29T11:26:33.883Z',
+        lastModifiedAt: '2023-11-29T12:10:58.869Z',
+        lastModifiedBy: {
+          clientId: 'Uy9RaeGH91kFO3und4o-K55R',
+          isPlatformClient: false,
+        },
+        createdBy: {
+          clientId: 'Uy9RaeGH91kFO3und4o-K55R',
+          isPlatformClient: false,
+        },
+        container: 'eagleeye-cart',
+        key: '45311522-50f6-4aa1-9aba-add802387c1c',
+        value: {
+          enrichedBasket: {
+            type: 'ENRICHED',
+            summary: {
+              redemptionChannel: 'Online',
+              totalDiscountAmount: { promotions: 1133 },
+              totalItems: 2,
+              totalBasketValue: 4405,
+              qualifiesResults: [
+                { instanceId: '1744391-1', totalMatchingSpend: 100 },
+              ],
+              adjustmentResults: [
+                {
+                  resourceType: 'CAMPAIGN',
+                  resourceId: '1744391',
+                  instanceId: '1744391-1',
+                  relatedAccountIds: [],
+                  type: 'createRedeem',
+                  multiItem: [],
+                  value: 883,
+                  isUnredeemable: false,
+                  playOrderPosition: 2,
+                  totalDiscountAmount: 883,
+                },
+              ],
+              results: {
+                points: {
+                  spend: 0,
+                  debit: 0,
+                  refund: 0,
+                  totalPointsTaken: 0,
+                  earn: 0,
+                  credit: 0,
+                  totalPointsGiven: 0,
+                  totalMonetaryValue: 0,
+                },
+              },
+            },
+            contents: [
+              {
+                upc: '245865',
+                itemUnitCost: 1000,
+                totalUnitCostAfterDiscount: 4000,
+                totalUnitCost: 4000,
+                description: 'Farm Fresh Cheddar Cheese 500g',
+                itemUnitMetric: 'EACH',
+                itemUnitCount: 4,
+                salesKey: 'SALE',
+                contributionResults: [{ instanceId: '1744391-1', value: 601 }],
+              },
+              {
+                upc: '245877',
+                itemUnitCost: 546,
+                totalUnitCostAfterDiscount: 1638,
+                totalUnitCost: 1638,
+                description: 'Bottled Still Water',
+                itemUnitMetric: 'EACH',
+                itemUnitCount: 3,
+                salesKey: 'SALE',
+                contributionResults: [{ instanceId: '1744391-1', value: 245 }],
+              },
+              {
+                upc: '245879',
+                itemUnitCost: 500,
+                totalUnitCostAfterDiscount: 250,
+                totalUnitCost: 500,
+                description: 'Shipping method',
+                itemUnitMetric: 'EACH',
+                itemUnitCount: 1,
+                salesKey: 'SALE',
+                qualifiesResults: [
+                  {
+                    instanceId: '1736971-1',
+                    totalMatchingUnits: 1,
+                    totalMatchingSpend: 1,
+                  },
+                ],
+                adjustmentResults: [
+                  {
+                    resourceType: 'CAMPAIGN',
+                    resourceId: '1736971',
+                    instanceId: '1736971-1',
+                    relatedAccountIds: [],
+                    type: 'createRedeem',
+                    multiItem: [],
+                    value: 250,
+                    isUnredeemable: false,
+                    totalMatchingUnits: 1,
+                    playOrderPosition: 1,
+                    totalDiscountAmount: 250,
+                  },
+                ],
+                itemUnitDiscount: 250,
+                contributionResults: [{ instanceId: '1744391-1', value: 37 }],
+              },
+            ],
+            analysedDateTime: '2023-11-29T12:10:58+00:00',
+          },
+          cart: {
+            typeId: 'cart',
+            id: '45311522-50f6-4aa1-9aba-add802387c1c',
+          },
         },
       },
       [],

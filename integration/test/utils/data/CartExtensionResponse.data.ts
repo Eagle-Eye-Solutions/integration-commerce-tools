@@ -38,6 +38,12 @@ export const SUCCESS_RESPONSE = {
       name: 'eagleeye-voucherCodes',
       value: ['valid-code'],
     },
+    { action: 'setCustomField', name: 'eagleeye-action', value: '' },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-settledStatus',
+      value: '',
+    },
     {
       action: 'setDirectDiscounts',
       discounts: [
@@ -124,6 +130,104 @@ export const ERROR_RESPONSE = {
     { action: 'setCustomField', name: 'eagleeye-basketStore', value: '' },
     { action: 'setCustomField', name: 'eagleeye-basketUri', value: '' },
     { action: 'setCustomField', name: 'eagleeye-voucherCodes', value: [] },
+    { action: 'setCustomField', name: 'eagleeye-action', value: '' },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-settledStatus',
+      value: '',
+    },
     { action: 'setDirectDiscounts', discounts: [] },
+  ],
+};
+
+export const CUSTOMER_NOT_FOUND_FETCHED_OPEN_PROMOTIONS_RESPONSE = {
+  actions: [
+    {
+      action: 'setCustomType',
+      type: {
+        typeId: 'type',
+        key: 'custom-cart-type',
+      },
+      fields: {
+        'eagleeye-errors': [
+          '{"type":"EE_API_CUSTOMER_NF","message":"123456 - Customer identity not found","context":{"type":"EE_IDENTITY_NOT_FOUND"}}',
+        ],
+        'eagleeye-appliedDiscounts': ['Example Discount'],
+        'eagleeye-basketStore': 'CUSTOM_TYPE',
+        'eagleeye-basketUri':
+          'custom-objects/eagleeye-cart/8be07418-04a0-49ba-b56f-2aa35d1027a4',
+        'eagleeye-voucherCodes': [],
+      },
+    },
+    {
+      action: 'setDirectDiscounts',
+      discounts: [
+        {
+          value: {
+            type: 'absolute',
+            money: [
+              {
+                centAmount: 200,
+                currencyCode: 'GBP',
+                type: 'centPrecision',
+                fractionDigits: 2,
+              },
+            ],
+          },
+          target: {
+            type: 'totalPrice',
+          },
+        },
+        {
+          value: {
+            type: 'absolute',
+            money: [
+              {
+                centAmount: 500,
+                currencyCode: 'GBP',
+                type: 'centPrecision',
+                fractionDigits: 2,
+              },
+            ],
+          },
+          target: {
+            type: 'totalPrice',
+          },
+        },
+        {
+          value: {
+            type: 'absolute',
+            money: [
+              {
+                centAmount: 100,
+                currencyCode: 'GBP',
+                type: 'centPrecision',
+                fractionDigits: 2,
+              },
+            ],
+          },
+          target: {
+            type: 'lineItems',
+            predicate: 'sku="245865"',
+          },
+        },
+        {
+          value: {
+            type: 'absolute',
+            money: [
+              {
+                centAmount: 250,
+                currencyCode: 'GBP',
+                type: 'centPrecision',
+                fractionDigits: 2,
+              },
+            ],
+          },
+          target: {
+            type: 'shipping',
+          },
+        },
+      ],
+    },
   ],
 };

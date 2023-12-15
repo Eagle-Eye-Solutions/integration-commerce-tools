@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import {
   Cart,
   LineItem,
@@ -8,6 +8,8 @@ import {
 import { DiscountDescription } from '../../providers/commercetools/actions/cart-update/CartCustomTypeActionBuilder';
 import { ConfigService } from '@nestjs/config';
 import { Commercetools } from '../../providers/commercetools/commercetools.provider';
+import { BasketStoreService } from '../../services/basket-store/basket-store.interface';
+import { BASKET_STORE_SERVICE } from '../../services/basket-store/basket-store.provider';
 
 export type BasketItem = {
   itemUnitCost: number;
@@ -26,6 +28,8 @@ export class CTCartToEEBasketMapper {
   constructor(
     readonly configService: ConfigService,
     readonly commercetools: Commercetools,
+    @Inject(BASKET_STORE_SERVICE)
+    private readonly basketStoreService: BasketStoreService,
   ) {}
 
   mapCartLineItemsToBasketContent(lineItems: LineItem[]) {
@@ -133,7 +137,7 @@ export class CTCartToEEBasketMapper {
 
     return basket.contents
       .map((item) => {
-        const matchingMethod = shippingMethodMap.find(
+        const matchingMethod = shippingMethodMap?.find(
           (method) => method.upc === item.upc,
         );
         if (matchingMethod) {
@@ -167,9 +171,9 @@ export class CTCartToEEBasketMapper {
     const shippingMethodMap = this.configService.get(
       'eagleEye.shippingMethodMap',
     );
-    if (shippingMethodMap.length && shippingInfo?.shippingMethod) {
+    if (shippingMethodMap?.length && shippingInfo?.shippingMethod) {
       // In case multi-shipping method needs to be supported
-      const shippingIds = [shippingInfo?.shippingMethod.id];
+      const shippingIds = [shippingInfo.shippingMethod.id];
       const shippingMethod = await this.commercetools.getShippingMethods({
         queryArgs: {
           where: `id in ("${shippingIds.join('","')}")`,
@@ -207,16 +211,11 @@ export class CTCartToEEBasketMapper {
       });
   }
 
-  async mapCartToWalletOpenPayload(cart: Cart) {
-    // Get a default identity to open the wallet
-    // TODO: make configurable on a per-merchant basis
-    const identities = [];
-    // if (cart.customerEmail) {
-    //   identities.push({
-    //     type: 'CUSTOMER_ID',
-    //     value: cart.customerEmail,
-    //   });
-    // }
+  async mapCartToWalletOpenPayload(cart: Cart, includeIdentity: boolean) {
+    let identity;
+    if (includeIdentity) {
+      identity = cart.custom?.fields['eagleeye-identityValue'];
+    }
 
     const basketContents = [
       ...this.mapCartLineItemsToBasketContent(cart.lineItems),
@@ -240,11 +239,7 @@ export class CTCartToEEBasketMapper {
     );
     return {
       reference: cart.id,
-      identity: identities[0]
-        ? {
-            identityValue: identities[0].value,
-          }
-        : undefined,
+      ...(identity ? { identity: { identityValue: identity } } : {}),
       lock: true,
       location: {
         incomingIdentifier,
@@ -285,6 +280,29 @@ export class CTCartToEEBasketMapper {
         },
         contents: basketContents,
       },
+    };
+  }
+
+  async mapOrderToWalletSettlePayload(orderId: string) {
+    const incomingIdentifier = this.configService.get(
+      'eagleEye.incomingIdentifier',
+    );
+    const parentIncomingIdentifier = this.configService.get(
+      'eagleEye.parentIncomingIdentifier',
+    );
+
+    // TODO: handle cases where store location is not custom object
+    const enrichedBasket = (await this.basketStoreService.get(orderId))
+      .enrichedBasket;
+
+    return {
+      mode: 'ACTIVE',
+      reference: orderId,
+      location: {
+        incomingIdentifier,
+        ...(parentIncomingIdentifier && { parentIncomingIdentifier }),
+      },
+      basket: enrichedBasket,
     };
   }
 }
