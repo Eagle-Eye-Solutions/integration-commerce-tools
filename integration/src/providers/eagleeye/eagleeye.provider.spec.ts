@@ -69,7 +69,7 @@ describe('Wallet', () => {
       data: JSON.stringify({ test: 'test' }),
       headers: expect.any(Object),
     });
-    expect(result).toEqual(mockResponse.data);
+    expect(result).toEqual(mockResponse);
   });
 
   it('should throw EagleEyeApiException when the API request to EagleEye fails', async () => {
@@ -104,7 +104,7 @@ describe('Wallet', () => {
       data: JSON.stringify({ test: 'test' }),
       headers: expect.any(Object),
     });
-    expect(result).toEqual(mockResponse.data);
+    expect(result).toEqual(mockResponse);
   });
 
   it('should return a correct hash', () => {

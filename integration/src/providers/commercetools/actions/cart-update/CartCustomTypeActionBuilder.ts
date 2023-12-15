@@ -33,20 +33,33 @@ export class CartCustomTypeActionBuilder {
     appliedDiscounts: DiscountDescription[] = [],
     voucherCodes: string[] = [],
     basketLocation?: BasketLocation,
-  ): OrderUpdateAction => ({
-    action: 'setCustomType',
-    type: {
-      typeId: 'type',
-      key: 'custom-cart-type',
-    },
-    fields: {
+    action?: string,
+    settledStatus?: string,
+  ): OrderUpdateAction => {
+    const customFields = {
       'eagleeye-errors': errors.map((error) => JSON.stringify(error)),
       'eagleeye-appliedDiscounts': extractDescriptions(appliedDiscounts),
       'eagleeye-basketStore': basketLocation?.storeType,
       'eagleeye-basketUri': basketLocation?.uri,
       'eagleeye-voucherCodes': voucherCodes,
-    },
-  });
+      'eagleeye-action': action || '',
+      'eagleeye-settledStatus': settledStatus || '',
+    };
+    // If an identity was not found, it should be removed.
+    // Otherwise it will be used when calling settle.
+    if (errors.find((err) => err.type === 'EE_API_CUSTOMER_NF')) {
+      customFields['eagleeye-identityValue'] = '';
+    }
+
+    return {
+      action: 'setCustomType',
+      type: {
+        typeId: 'type',
+        key: 'custom-cart-type',
+      },
+      fields: customFields,
+    };
+  };
 
   // TODO: refactor to consider non-existant fields in resource. This is to avoid InvalidOperation error.
   static setCustomFields = (
@@ -56,43 +69,54 @@ export class CartCustomTypeActionBuilder {
     basketLocation?: BasketLocation,
     action?: string,
     settledStatus?: string,
-  ): OrderUpdateAction[] => [
-    {
-      action: 'setCustomField',
-      name: 'eagleeye-errors',
-      value: errors.map((error) => JSON.stringify(error)),
-    },
-    {
-      action: 'setCustomField',
-      name: 'eagleeye-appliedDiscounts',
-      value: extractDescriptions(appliedDiscounts),
-    },
-    {
-      action: 'setCustomField',
-      name: 'eagleeye-basketStore',
-      value: basketLocation?.storeType ?? '',
-    },
-    {
-      action: 'setCustomField',
-      name: 'eagleeye-basketUri',
-      value: basketLocation?.uri ?? '',
-    },
-    {
-      action: 'setCustomField',
-      name: 'eagleeye-voucherCodes',
-      value: voucherCodes,
-    },
-    {
-      action: 'setCustomField',
-      name: 'eagleeye-action',
-      value: action || '',
-    },
-    {
-      action: 'setCustomField',
-      name: 'eagleeye-settledStatus',
-      value: settledStatus || '',
-    },
-  ];
+  ): OrderUpdateAction[] => {
+    const actions: OrderUpdateAction[] = [
+      {
+        action: 'setCustomField',
+        name: 'eagleeye-errors',
+        value: errors.map((error) => JSON.stringify(error)),
+      },
+      {
+        action: 'setCustomField',
+        name: 'eagleeye-appliedDiscounts',
+        value: extractDescriptions(appliedDiscounts),
+      },
+      {
+        action: 'setCustomField',
+        name: 'eagleeye-basketStore',
+        value: basketLocation?.storeType ?? '',
+      },
+      {
+        action: 'setCustomField',
+        name: 'eagleeye-basketUri',
+        value: basketLocation?.uri ?? '',
+      },
+      {
+        action: 'setCustomField',
+        name: 'eagleeye-voucherCodes',
+        value: voucherCodes,
+      },
+      {
+        action: 'setCustomField',
+        name: 'eagleeye-action',
+        value: action || '',
+      },
+      {
+        action: 'setCustomField',
+        name: 'eagleeye-settledStatus',
+        value: settledStatus || '',
+      },
+    ];
+    // If an identity was not found, it should be removed.
+    // Otherwise it will be used when calling settle.
+    if (errors.find((err) => err.type === 'EE_API_CUSTOMER_NF')) {
+      actions.push({
+        action: 'setCustomField',
+        name: 'eagleeye-identityValue',
+      });
+    }
+    return actions;
+  };
 
   static removeCustomType = (): OrderSetCustomTypeAction => ({
     action: 'setCustomType',

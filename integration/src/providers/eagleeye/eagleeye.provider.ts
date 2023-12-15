@@ -85,7 +85,7 @@ export abstract class EagleEyeSdkObject implements BreakableApi {
           }),
         );
       const value = await firstValueFrom(response);
-      return value.data;
+      return value;
     } catch (err) {
       this.logger.error('EagleEye API error: ', err, EagleEyeSdkObject.name);
       if (err.response.status === 404) {

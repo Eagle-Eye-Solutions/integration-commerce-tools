@@ -5,7 +5,7 @@ export const extensions = [
   },
   {
     key: 'connect-eagleeye-integration-order',
-    triggers: [{ resourceTypeId: 'order', actions: ['Update'] }],
+    triggers: [{ resourceTypeId: 'order', actions: ['Create', 'Update'] }],
   },
 ];
 

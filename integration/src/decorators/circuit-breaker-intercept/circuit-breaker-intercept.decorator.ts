@@ -20,7 +20,10 @@ export function CircuitBreakerIntercept() {
       // Modify the arguments or perform any other actions
       try {
         const result = await circuitBreaker.fire(...args);
-        logger.log({ message: `Circuit breaker call result: `, result });
+        logger.log({
+          message: `Circuit breaker call result: `,
+          result: { status: result.status, data: result.data },
+        });
         return result;
       } catch (error) {
         logger.error('Error calling the circuit breaker API', error);

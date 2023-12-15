@@ -117,7 +117,8 @@
       "src/main.ts",
       ".mock.ts",
       "scripts",
-      "promise.ts"
+      "promise.ts",
+      "logger.config.ts"
     ],
     "automock": false,
     "setupFiles": [

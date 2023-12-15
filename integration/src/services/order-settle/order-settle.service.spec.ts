@@ -86,7 +86,10 @@ describe('OrderSettleService', () => {
         });
       const walletSettleInvokeSpy = jest
         .spyOn(orderSettleService, 'walletSettleInvoke')
-        .mockResolvedValue(undefined);
+        .mockResolvedValueOnce({
+          status: 200,
+          data: {},
+        });
 
       const result =
         await orderSettleService.settleTransactionFromOrder(ctOrder);
@@ -107,6 +110,72 @@ describe('OrderSettleService', () => {
         {
           action: 'setCustomField',
           name: 'eagleeye-action',
+        },
+      ]);
+    });
+
+    it('should return error when transaction is settled but has status code 207', async () => {
+      const ctOrder: Order = {
+        id: 'order-id',
+        cart: {
+          id: 'cart-id',
+        },
+        custom: {
+          fields: {
+            'eagleeye-action': 'EXAMPLE',
+          },
+        },
+      } as any;
+      const hasSavedBasketSpy = jest
+        .spyOn(basketStoreService, 'hasSavedBasket')
+        .mockReturnValue(true);
+      const deleteBasketSpy = jest
+        .spyOn(basketStoreService, 'delete')
+        .mockResolvedValue(undefined);
+      const getBasketSpy = jest
+        .spyOn(basketStoreService, 'get')
+        .mockResolvedValue({
+          enrichedBasket: {
+            contents: [],
+          },
+        });
+      const walletSettleInvokeSpy = jest
+        .spyOn(orderSettleService, 'walletSettleInvoke')
+        .mockResolvedValueOnce({
+          status: 207,
+          data: {},
+        });
+
+      const result =
+        await orderSettleService.settleTransactionFromOrder(ctOrder);
+
+      expect(hasSavedBasketSpy).toHaveBeenCalledWith(ctOrder);
+      expect(walletSettleInvokeSpy).toHaveBeenCalledWith(
+        'settle',
+        expect.anything(),
+      );
+      expect(deleteBasketSpy).toHaveBeenCalledWith(ctOrder.cart.id);
+      expect(getBasketSpy).toHaveBeenCalled();
+      expect(result).toEqual([
+        {
+          action: 'setCustomField',
+          name: 'eagleeye-settledStatus',
+          value: 'SETTLED',
+        },
+        {
+          action: 'setCustomField',
+          name: 'eagleeye-action',
+        },
+        {
+          action: 'setCustomField',
+          name: 'eagleeye-errors',
+          value: [
+            JSON.stringify({
+              type: 'EE_API_SETTLE_POTENTIAL_ISSUES',
+              message:
+                'EagleEye transaction settle was processed successfully, but there might be issues.',
+            }),
+          ],
         },
       ]);
     });
@@ -160,6 +229,12 @@ describe('OrderSettleService', () => {
       const loggerErrorSpy = jest
         .spyOn(orderSettleService['logger'], 'error')
         .mockImplementation();
+      const walletSettleInvokeSpy = jest
+        .spyOn(orderSettleService, 'walletSettleInvoke')
+        .mockResolvedValueOnce({
+          status: 200,
+          data: {},
+        });
 
       const result =
         await orderSettleService.settleTransactionFromOrder(ctOrder);
@@ -168,6 +243,10 @@ describe('OrderSettleService', () => {
       expect(deleteBasketSpy).toHaveBeenCalledWith(ctOrder.cart.id);
       expect(getBasketSpy).toHaveBeenCalled();
       expect(loggerErrorSpy).toHaveBeenCalled();
+      expect(walletSettleInvokeSpy).toHaveBeenCalledWith(
+        'settle',
+        expect.anything(),
+      );
       expect(result).toEqual([
         {
           action: 'setCustomField',

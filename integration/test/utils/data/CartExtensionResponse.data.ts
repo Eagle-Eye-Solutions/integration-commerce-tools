@@ -157,6 +157,9 @@ export const CUSTOMER_NOT_FOUND_FETCHED_OPEN_PROMOTIONS_RESPONSE = {
         'eagleeye-basketUri':
           'custom-objects/eagleeye-cart/8be07418-04a0-49ba-b56f-2aa35d1027a4',
         'eagleeye-voucherCodes': [],
+        'eagleeye-action': '',
+        'eagleeye-settledStatus': '',
+        'eagleeye-identityValue': '',
       },
     },
     {

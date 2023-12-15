@@ -85,17 +85,17 @@ export class PromotionService {
       }
     }
 
-    if (walletOpenResponse?.analyseBasketResults?.basket) {
+    if (walletOpenResponse.data?.analyseBasketResults?.basket) {
       const basketLevelDiscounts = await this.getBasketLevelDiscounts(
-        walletOpenResponse.analyseBasketResults.basket,
+        walletOpenResponse.data.analyseBasketResults.basket,
         cartReference.obj,
       );
       const itemLevelDiscounts = await this.getItemLevelDiscounts(
-        walletOpenResponse.analyseBasketResults.basket,
+        walletOpenResponse.data.analyseBasketResults.basket,
         cartReference.obj,
       );
       const shippingDiscounts = await this.getShippingDiscounts(
-        walletOpenResponse.analyseBasketResults.basket,
+        walletOpenResponse.data.analyseBasketResults.basket,
         cartReference.obj,
       );
       discounts.push(
@@ -105,7 +105,7 @@ export class PromotionService {
       );
     }
     const examineTokenErrors =
-      walletOpenResponse.examine
+      walletOpenResponse.data.examine
         ?.filter((entry) => entry.errorCode)
         .map((error) => {
           return {
@@ -118,14 +118,14 @@ export class PromotionService {
     errors.push(...examineTokenErrors);
 
     const validTokens =
-      walletOpenResponse.examine
+      walletOpenResponse.data.examine
         ?.filter((entry) => !entry.errorCode)
         .map((result) => result.value) || [];
 
-    if (walletOpenResponse?.analyseBasketResults?.discount?.length) {
+    if (walletOpenResponse.data?.analyseBasketResults?.discount?.length) {
       const descriptions =
         this.cartToBasketMapper.mapBasketDiscountsToDiscountDescriptions(
-          walletOpenResponse?.analyseBasketResults?.discount,
+          walletOpenResponse.data?.analyseBasketResults?.discount,
         );
       discountDescriptions.push(...descriptions);
     }
@@ -134,7 +134,7 @@ export class PromotionService {
       discounts,
       discountDescriptions,
       errors,
-      enrichedBasket: walletOpenResponse?.analyseBasketResults?.basket,
+      enrichedBasket: walletOpenResponse.data?.analyseBasketResults?.basket,
       voucherCodes: validTokens,
     };
   }
