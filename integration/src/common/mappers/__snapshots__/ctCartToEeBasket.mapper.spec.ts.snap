@@ -379,6 +379,8 @@ exports[`CTCartToEEBasketMapper mapShippingMethodSkusToBasketItems should return
 }
 `;
 
+exports[`CTCartToEEBasketMapper mapVoucherCodesToCampaignTokens should ignore empty string vouchers 1`] = `[]`;
+
 exports[`CTCartToEEBasketMapper mapVoucherCodesToCampaignTokens should return an array of tokens to be examined 1`] = `
 [
   {

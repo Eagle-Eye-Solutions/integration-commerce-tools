@@ -201,12 +201,14 @@ export class CTCartToEEBasketMapper {
   mapVoucherCodesToCampaignTokens(
     voucherCodes: string[],
   ): { type: 'TOKEN'; value: string }[] {
-    return voucherCodes.map((code) => {
-      return {
-        type: 'TOKEN',
-        value: code,
-      };
-    });
+    return voucherCodes
+      .filter((v) => v)
+      .map((code) => {
+        return {
+          type: 'TOKEN',
+          value: code,
+        };
+      });
   }
 
   async mapCartToWalletOpenPayload(cart: Cart, includeIdentity: boolean) {
@@ -232,7 +234,9 @@ export class CTCartToEEBasketMapper {
     );
 
     const voucherCodes: string[] = cart.custom?.fields['eagleeye-voucherCodes'];
-
+    const excludeUnidentifiedCustomers = this.configService.get<boolean>(
+      'eagleEye.excludeUnidentifiedCustomers',
+    );
     return {
       reference: cart.id,
       ...(identity ? { identity: { identityValue: identity } } : {}),
@@ -246,11 +250,11 @@ export class CTCartToEEBasketMapper {
         : undefined,
       options: {
         adjustBasket: {
-          includeOpenOffers: true,
+          includeOpenOffers: !excludeUnidentifiedCustomers,
           enabled: true,
         },
         analyseBasket: {
-          includeOpenOffers: true,
+          includeOpenOffers: !excludeUnidentifiedCustomers,
           enabled: true,
         },
       },

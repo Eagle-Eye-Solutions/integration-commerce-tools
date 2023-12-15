@@ -161,6 +161,7 @@ describe('PromotionService', () => {
       jest
         .spyOn(configService, 'get')
         .mockReturnValueOnce(false)
+        .mockReturnValueOnce(false)
         .mockReturnValueOnce(shippingMethodMapMock)
         .mockReturnValueOnce('outlet1')
         .mockReturnValueOnce('banner1')

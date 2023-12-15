@@ -8,7 +8,7 @@ import * as _ from 'lodash';
 
 export const nockGetCustomObject = (
   statusCode = 200,
-  response: any,
+  response?: any,
   times = 1,
   container: string = CUSTOM_OBJECT_CONTAINER_CIRCUIT_BREAKER,
   key: string = CUSTOM_OBJECT_CIRCUIT_BREAKER_KEY,

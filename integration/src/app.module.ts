@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { Commercetools } from './providers/commercetools/commercetools.provider';
@@ -21,6 +21,7 @@ import { BasketStoreServiceProvider } from './services/basket-store/basket-store
 import { EventHandlerService } from './services/event-handler/event-handler.service';
 import { OrderSettleService } from './services/order-settle/order-settle.service';
 import { OrderPaymentStateChangedProcessor } from './services/event-handler/event-processor/order-payment-state-changed.processor';
+import { UnidentifiedCustomerMiddleware } from './common/middlewares/unidentified-customer/unidentified-customer.middleware';
 
 @Module({
   imports: [
@@ -64,4 +65,8 @@ import { OrderPaymentStateChangedProcessor } from './services/event-handler/even
     },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer): any {
+    consumer.apply(UnidentifiedCustomerMiddleware).forRoutes(AppController);
+  }
+}
