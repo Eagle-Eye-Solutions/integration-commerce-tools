@@ -10,7 +10,7 @@ export abstract class AbstractEventProcessor {
     return this;
   }
 
-  abstract isEventValid(): boolean;
+  abstract isEventValid(): Promise<boolean>;
 
   abstract generateActions(): Promise<(() => any)[]>;
 

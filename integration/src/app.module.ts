@@ -22,6 +22,7 @@ import { EventHandlerService } from './services/event-handler/event-handler.serv
 import { OrderSettleService } from './services/order-settle/order-settle.service';
 import { OrderPaymentStateChangedProcessor } from './services/event-handler/event-processor/order-payment-state-changed.processor';
 import { UnidentifiedCustomerMiddleware } from './common/middlewares/unidentified-customer/unidentified-customer.middleware';
+import { OrderCreatedProcessor } from './services/event-handler/event-processor/order-created.processor';
 
 @Module({
   imports: [
@@ -58,10 +59,14 @@ import { UnidentifiedCustomerMiddleware } from './common/middlewares/unidentifie
     EventHandlerService,
     OrderSettleService,
     OrderPaymentStateChangedProcessor,
+    OrderCreatedProcessor,
     {
       provide: 'EventProcessors',
-      useFactory: (orderPaymentStateChanged) => [orderPaymentStateChanged],
-      inject: [OrderPaymentStateChangedProcessor],
+      useFactory: (orderPaymentStateChanged, orderCreated) => [
+        orderPaymentStateChanged,
+        orderCreated,
+      ],
+      inject: [OrderPaymentStateChangedProcessor, OrderCreatedProcessor],
     },
   ],
 })

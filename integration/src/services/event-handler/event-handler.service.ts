@@ -19,10 +19,12 @@ export class EventHandlerService {
   async processEvent(message: MessageDeliveryPayload) {
     this.logger.log('Processing commercetools message');
     const actionPromises = await Promise.allSettled(
-      this.eventProcessors
-        .map((eventProcessor) => eventProcessor.setMessage(message))
-        .filter((eventProcessor) => eventProcessor.isEventValid())
-        .map((eventProcessor) => eventProcessor.generateActions()),
+      this.eventProcessors.map(async (eventProcessor) => {
+        await eventProcessor.setMessage(message);
+        if (await eventProcessor.isEventValid()) {
+          return eventProcessor.generateActions();
+        }
+      }),
     );
 
     return actionPromises;
