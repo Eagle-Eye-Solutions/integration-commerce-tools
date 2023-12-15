@@ -56,10 +56,9 @@ runs:
           --env-var "auth_url=https://auth.${{ inputs.ct_region }}.commercetools.com" \
           --env-var "host=https://api.${{ inputs.ct_region }}.commercetools.com" \
           --env-var "project-key=${{ inputs.ct_project_id }}" \
-          --env-var "customer-key=testcustomer" \
           --env-var "pos_url=${{ inputs.ee_pos_url }}" \
           --env-var "wallet_url=${{ inputs.ee_wallet_url }}" \
-          --env-var "resources_url=${{ inputs.ee_resources_url }}" \
+          --env-var "schemeId=1653843" \
           --env-var "ee_client_id=${{ inputs.ee_client_id }}" \
           --env-var "ee_client_secret=${{ inputs.ee_client_secret }}"
       shell: bash

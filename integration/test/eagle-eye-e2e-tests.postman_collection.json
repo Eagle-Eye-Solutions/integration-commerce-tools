@@ -6087,6 +6087,9 @@
 										}
 									],
 									"request": {
+										"auth": {
+											"type": "noauth"
+										},
 										"method": "POST",
 										"header": [
 											{
@@ -6160,7 +6163,7 @@
 												"exec": [
 													"// Load global pre-request script object",
 													"var ee = eval(pm.globals.get('ees'));",
-													"ee.setUrl('medusaUrl');",
+													"ee.setUrl('wallet_url');",
 													"",
 													"// Set up any environment variables",
 													"pm.environment.set('value', CryptoJS.lib.WordArray.random(128/8).toString());",
@@ -6186,6 +6189,9 @@
 										}
 									],
 									"request": {
+										"auth": {
+											"type": "noauth"
+										},
 										"method": "POST",
 										"header": [
 											{
@@ -7348,6 +7354,7 @@
 					"    };",
 					"    ee.setUrl = function(key) {",
 					"        if (pm.environment.has(key)) {",
+					"            console.log(`Setting url for key ${key} to ${pm.environment.get(key)}`)",
 					"            pm.environment.set('url', pm.environment.get(key));",
 					"        }",
 					"    };",
