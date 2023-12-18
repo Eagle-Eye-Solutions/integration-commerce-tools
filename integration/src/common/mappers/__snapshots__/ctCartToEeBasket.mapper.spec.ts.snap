@@ -115,6 +115,58 @@ exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should include eagle 
 }
 `;
 
+exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should include potential voucher codes (old invalid tokens) if present in the cart 1`] = `
+{
+  "basket": {
+    "contents": [
+      {
+        "description": "Example Product",
+        "itemUnitCost": 300,
+        "itemUnitCount": 1,
+        "itemUnitMetric": "EACH",
+        "salesKey": "SALE",
+        "totalUnitCost": 300,
+        "totalUnitCostAfterDiscount": 300,
+        "upc": "SKU123",
+      },
+    ],
+    "summary": {
+      "redemptionChannel": "Online",
+      "totalBasketValue": 300,
+      "totalDiscountAmount": {
+        "general": null,
+        "promotions": 0,
+        "staff": null,
+      },
+      "totalItems": 1,
+    },
+    "type": "STANDARD",
+  },
+  "examine": [
+    {
+      "type": "TOKEN",
+      "value": "1234567890",
+    },
+  ],
+  "location": {
+    "incomingIdentifier": "outlet1",
+    "parentIncomingIdentifier": "banner1",
+  },
+  "lock": true,
+  "options": {
+    "adjustBasket": {
+      "enabled": true,
+      "includeOpenOffers": true,
+    },
+    "analyseBasket": {
+      "enabled": true,
+      "includeOpenOffers": true,
+    },
+  },
+  "reference": undefined,
+}
+`;
+
 exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should include voucher codes (tokens) if present in the cart 1`] = `
 {
   "basket": {

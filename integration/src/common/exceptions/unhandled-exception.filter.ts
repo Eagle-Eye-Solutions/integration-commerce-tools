@@ -17,12 +17,14 @@ export class UnhandledExceptionsFilter implements ExceptionFilter {
 
     const actionBuilder = new CTActionsBuilder();
     actionBuilder.add(
-      CartCustomTypeActionBuilder.addCustomType([
-        {
-          type: 'EE_PLUGIN_GENERIC_ERROR',
-          message: 'An unexpected error occured in the eagle eye plugin',
-        },
-      ]),
+      CartCustomTypeActionBuilder.addCustomType({
+        errors: [
+          {
+            type: 'EE_PLUGIN_GENERIC_ERROR',
+            message: 'An unexpected error occured in the eagle eye plugin',
+          },
+        ],
+      }),
     );
 
     response.status(200).json(actionBuilder.build());

@@ -347,108 +347,139 @@ describe('CTCartToEEBasketMapper', () => {
     expect(payload).toMatchSnapshot();
   });
 
-  test('mapCartToWalletOpenPayload should include voucher codes (tokens) if present in the cart', async () => {
-    jest
-      .spyOn(configService, 'get')
-      .mockReturnValueOnce(false)
-      .mockReturnValueOnce(shippingMethodMapMock)
-      .mockReturnValueOnce('outlet1')
-      .mockReturnValueOnce('banner1');
+  describe('mapCartToWalletOpenPayload', () => {
+    test('should include voucher codes (tokens) if present in the cart', async () => {
+      jest
+        .spyOn(configService, 'get')
+        .mockReturnValueOnce(false)
+        .mockReturnValueOnce(shippingMethodMapMock)
+        .mockReturnValueOnce('outlet1')
+        .mockReturnValueOnce('banner1');
 
-    const cartWithCodes = {
-      ...cart,
-      custom: {
-        type: {
-          typeId: 'type',
-          id: '123456',
+      const cartWithCodes = {
+        ...cart,
+        custom: {
+          type: {
+            typeId: 'type',
+            id: '123456',
+          },
+          fields: {
+            'eagleeye-voucherCodes': ['12345678'],
+          },
         },
-        fields: {
-          'eagleeye-voucherCodes': ['12345678'],
+      };
+
+      const payload = await service.mapCartToWalletOpenPayload(
+        cartWithCodes,
+        false,
+      );
+
+      expect(payload).toMatchSnapshot();
+    });
+
+    test('should include potential voucher codes (old invalid tokens) if present in the cart', async () => {
+      jest
+        .spyOn(configService, 'get')
+        .mockReturnValueOnce(false)
+        .mockReturnValueOnce(shippingMethodMapMock)
+        .mockReturnValueOnce('outlet1')
+        .mockReturnValueOnce('banner1');
+
+      const cartWithCodes = {
+        ...cart,
+        custom: {
+          type: {
+            typeId: 'type',
+            id: '123456',
+          },
+          fields: {
+            'eagleeye-potentialVoucherCodes': ['1234567890'],
+          },
         },
-      },
-    };
+      };
 
-    const payload = await service.mapCartToWalletOpenPayload(
-      cartWithCodes,
-      false,
-    );
+      const payload = await service.mapCartToWalletOpenPayload(
+        cartWithCodes,
+        false,
+      );
 
-    expect(payload).toMatchSnapshot();
-  });
+      expect(payload).toMatchSnapshot();
+    });
 
-  test('mapCartToWalletOpenPayload should include eagle eye identity if present in the cart', async () => {
-    jest
-      .spyOn(configService, 'get')
-      .mockReturnValueOnce('outlet1')
-      .mockReturnValueOnce('banner1');
+    test('should include eagle eye identity if present in the cart', async () => {
+      jest
+        .spyOn(configService, 'get')
+        .mockReturnValueOnce('outlet1')
+        .mockReturnValueOnce('banner1');
 
-    const cartWithCodes = {
-      ...cart,
-      custom: {
-        type: {
-          typeId: 'type',
-          id: '123456',
+      const cartWithCodes = {
+        ...cart,
+        custom: {
+          type: {
+            typeId: 'type',
+            id: '123456',
+          },
+          fields: {
+            'eagleeye-identityValue': ['12345678'],
+          },
         },
-        fields: {
-          'eagleeye-identityValue': ['12345678'],
+      };
+
+      const payload = await service.mapCartToWalletOpenPayload(
+        cartWithCodes,
+        true,
+      );
+
+      expect(payload).toMatchSnapshot();
+    });
+
+    test('should not include eagle eye identity if not present in the cart but the instruction is to include identity', async () => {
+      jest
+        .spyOn(configService, 'get')
+        .mockReturnValueOnce('outlet1')
+        .mockReturnValueOnce('banner1');
+
+      const cartWithCodes = {
+        ...cart,
+        custom: {
+          type: {
+            typeId: 'type',
+            id: '123456',
+          },
+          fields: {},
         },
-      },
-    };
+      };
 
-    const payload = await service.mapCartToWalletOpenPayload(
-      cartWithCodes,
-      true,
-    );
+      const payload = await service.mapCartToWalletOpenPayload(
+        cartWithCodes,
+        true,
+      );
 
-    expect(payload).toMatchSnapshot();
-  });
+      expect(payload).toMatchSnapshot();
+    });
 
-  test('mapCartToWalletOpenPayload should not include eagle eye identity if not present in the cart but the instruction is to include identity', async () => {
-    jest
-      .spyOn(configService, 'get')
-      .mockReturnValueOnce('outlet1')
-      .mockReturnValueOnce('banner1');
+    test('should return the payload for /wallet/open, without the optional parentIncomingIdentifier when not set in the configuration', async () => {
+      jest
+        .spyOn(configService, 'get')
+        .mockReturnValueOnce(false)
+        .mockReturnValueOnce(shippingMethodMapMock)
+        .mockReturnValueOnce('outlet1');
 
-    const cartWithCodes = {
-      ...cart,
-      custom: {
-        type: {
-          typeId: 'type',
-          id: '123456',
-        },
-        fields: {},
-      },
-    };
+      const payload = await service.mapCartToWalletOpenPayload(cart, false);
 
-    const payload = await service.mapCartToWalletOpenPayload(
-      cartWithCodes,
-      true,
-    );
+      expect(payload).toMatchSnapshot();
+    });
 
-    expect(payload).toMatchSnapshot();
-  });
+    test("should return the payload for /wallet/open, with sku instead of upc when 'useItemSku' is set to true", async () => {
+      jest
+        .spyOn(configService, 'get')
+        .mockReturnValueOnce(true)
+        .mockReturnValueOnce(shippingMethodMapMock)
+        .mockReturnValueOnce('outlet1');
 
-  test('mapCartToWalletOpenPayload should return the payload for /wallet/open, without the optional parentIncomingIdentifier when not set in the configuration', async () => {
-    jest
-      .spyOn(configService, 'get')
-      .mockReturnValueOnce(false)
-      .mockReturnValueOnce(shippingMethodMapMock)
-      .mockReturnValueOnce('outlet1');
+      const payload = await service.mapCartToWalletOpenPayload(cart, false);
 
-    const payload = await service.mapCartToWalletOpenPayload(cart, false);
-
-    expect(payload).toMatchSnapshot();
-  });
-
-  test("mapCartToWalletOpenPayload should return the payload for /wallet/open, with sku instead of upc when 'useItemSku' is set to true", async () => {
-    jest
-      .spyOn(configService, 'get')
-      .mockReturnValueOnce(true)
-      .mockReturnValueOnce(shippingMethodMapMock)
-      .mockReturnValueOnce('outlet1');
-
-    const payload = await service.mapCartToWalletOpenPayload(cart, false);
-
-    expect(payload).toMatchSnapshot();
+      expect(payload).toMatchSnapshot();
+    });
   });
 });

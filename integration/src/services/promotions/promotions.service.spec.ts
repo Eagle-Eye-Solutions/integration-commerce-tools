@@ -193,6 +193,7 @@ describe('PromotionService', () => {
         errors: [],
         enrichedBasket: walletOpenResponse.analyseBasketResults.basket,
         voucherCodes: [],
+        potentialVoucherCodes: [],
       });
     });
 
@@ -221,10 +222,11 @@ describe('PromotionService', () => {
         discountDescriptions: [],
         errors: [],
         voucherCodes: [],
+        potentialVoucherCodes: [],
       });
     });
 
-    it('should return valid vocherCodes and token errors when provided by the EE API', async () => {
+    it('should return valid voucherCodes, potential voucherCodes and errors when provided by the EE API', async () => {
       const cartReference = {
         id: 'cartId',
         obj: {
@@ -235,7 +237,11 @@ describe('PromotionService', () => {
               id: 'some-id',
             },
             fields: {
-              'eagleeye-voucherCodes': ['1234590', 'valid-code'],
+              'eagleeye-voucherCodes': [
+                'not-found-code',
+                'valid-code',
+                'invalid-code',
+              ],
             },
           },
         },
@@ -253,11 +259,19 @@ describe('PromotionService', () => {
             errorMessage: null,
           },
           {
-            value: '1234590',
+            value: 'not-found-code',
             resourceType: null,
             resourceId: null,
             errorCode: 'PCEXNF',
             errorMessage: 'Voucher invalid: Failed to load token',
+          },
+          {
+            value: 'invalid-code',
+            resourceType: null,
+            resourceId: null,
+            errorCode: 'PCEXNV',
+            errorMessage:
+              'Voucher invalid: identity is required for a points based offering',
           },
         ],
       };
@@ -282,15 +296,29 @@ describe('PromotionService', () => {
             type: 'EE_API_TOKEN_PCEXNF',
             message: 'Voucher invalid: Failed to load token',
             context: {
-              value: '1234590',
+              value: 'not-found-code',
               resourceType: null,
               resourceId: null,
               errorCode: 'PCEXNF',
               errorMessage: 'Voucher invalid: Failed to load token',
             },
           },
+          {
+            type: 'EE_API_TOKEN_PCEXNV',
+            message:
+              'Voucher invalid: identity is required for a points based offering',
+            context: {
+              value: 'invalid-code',
+              resourceType: null,
+              resourceId: null,
+              errorCode: 'PCEXNV',
+              errorMessage:
+                'Voucher invalid: identity is required for a points based offering',
+            },
+          },
         ],
         voucherCodes: ['valid-code'],
+        potentialVoucherCodes: ['invalid-code'],
       });
     });
 
@@ -379,6 +407,7 @@ describe('PromotionService', () => {
           },
         ],
         voucherCodes: [],
+        potentialVoucherCodes: [],
         enrichedBasket: {
           summary: {
             totalDiscountAmount: { promotions: 10 },

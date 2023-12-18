@@ -27,27 +27,40 @@ export type DiscountDescription = {
   description: string;
 };
 
+interface CustomFieldsObject {
+  errors: CustomFieldError[];
+  discountDescriptions?: DiscountDescription[];
+  voucherCodes?: string[];
+  potentialVoucherCodes?: string[];
+  basketLocation?: BasketLocation;
+  action?: string;
+  settledStatus?: string;
+}
+
 export class CartCustomTypeActionBuilder {
   static addCustomType = (
-    errors: CustomFieldError[],
-    appliedDiscounts: DiscountDescription[] = [],
-    voucherCodes: string[] = [],
-    basketLocation?: BasketLocation,
-    action?: string,
-    settledStatus?: string,
+    customFieldsObject: CustomFieldsObject,
   ): OrderUpdateAction => {
     const customFields = {
-      'eagleeye-errors': errors.map((error) => JSON.stringify(error)),
-      'eagleeye-appliedDiscounts': extractDescriptions(appliedDiscounts),
-      'eagleeye-basketStore': basketLocation?.storeType,
-      'eagleeye-basketUri': basketLocation?.uri,
-      'eagleeye-voucherCodes': voucherCodes,
-      'eagleeye-action': action || '',
-      'eagleeye-settledStatus': settledStatus || '',
+      'eagleeye-errors': customFieldsObject.errors.map((error) =>
+        JSON.stringify(error),
+      ),
+      'eagleeye-appliedDiscounts': extractDescriptions(
+        customFieldsObject.discountDescriptions || [],
+      ),
+      'eagleeye-basketStore': customFieldsObject.basketLocation?.storeType,
+      'eagleeye-basketUri': customFieldsObject.basketLocation?.uri,
+      'eagleeye-voucherCodes': customFieldsObject.voucherCodes || [],
+      'eagleeye-potentialVoucherCodes':
+        customFieldsObject.potentialVoucherCodes || [],
+      'eagleeye-action': customFieldsObject.action || '',
+      'eagleeye-settledStatus': customFieldsObject.settledStatus || '',
     };
     // If an identity was not found, it should be removed.
     // Otherwise it will be used when calling settle.
-    if (errors.find((err) => err.type === 'EE_API_CUSTOMER_NF')) {
+    if (
+      customFieldsObject.errors.find((err) => err.type === 'EE_API_CUSTOMER_NF')
+    ) {
       customFields['eagleeye-identityValue'] = '';
     }
 
@@ -63,53 +76,57 @@ export class CartCustomTypeActionBuilder {
 
   // TODO: refactor to consider non-existant fields in resource. This is to avoid InvalidOperation error.
   static setCustomFields = (
-    errors: CustomFieldError[],
-    appliedDiscounts: DiscountDescription[] = [],
-    voucherCodes: string[] = [],
-    basketLocation?: BasketLocation,
-    action?: string,
-    settledStatus?: string,
+    customFieldsObject: CustomFieldsObject,
   ): OrderUpdateAction[] => {
     const actions: OrderUpdateAction[] = [
       {
         action: 'setCustomField',
         name: 'eagleeye-errors',
-        value: errors.map((error) => JSON.stringify(error)),
+        value: customFieldsObject.errors.map((error) => JSON.stringify(error)),
       },
       {
         action: 'setCustomField',
         name: 'eagleeye-appliedDiscounts',
-        value: extractDescriptions(appliedDiscounts),
+        value: extractDescriptions(
+          customFieldsObject.discountDescriptions || [],
+        ),
       },
       {
         action: 'setCustomField',
         name: 'eagleeye-basketStore',
-        value: basketLocation?.storeType ?? '',
+        value: customFieldsObject.basketLocation?.storeType ?? '',
       },
       {
         action: 'setCustomField',
         name: 'eagleeye-basketUri',
-        value: basketLocation?.uri ?? '',
+        value: customFieldsObject.basketLocation?.uri ?? '',
       },
       {
         action: 'setCustomField',
         name: 'eagleeye-voucherCodes',
-        value: voucherCodes,
+        value: customFieldsObject.voucherCodes || [],
+      },
+      {
+        action: 'setCustomField',
+        name: 'eagleeye-potentialVoucherCodes',
+        value: customFieldsObject.potentialVoucherCodes || [],
       },
       {
         action: 'setCustomField',
         name: 'eagleeye-action',
-        value: action || '',
+        value: customFieldsObject.action || '',
       },
       {
         action: 'setCustomField',
         name: 'eagleeye-settledStatus',
-        value: settledStatus || '',
+        value: customFieldsObject.settledStatus || '',
       },
     ];
     // If an identity was not found, it should be removed.
     // Otherwise it will be used when calling settle.
-    if (errors.find((err) => err.type === 'EE_API_CUSTOMER_NF')) {
+    if (
+      customFieldsObject.errors.find((err) => err.type === 'EE_API_CUSTOMER_NF')
+    ) {
       actions.push({
         action: 'setCustomField',
         name: 'eagleeye-identityValue',
