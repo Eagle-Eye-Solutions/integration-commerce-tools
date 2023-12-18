@@ -2,7 +2,7 @@ import { ConfigService } from '@nestjs/config';
 import { AbstractEventProcessor } from './abstract-event.processor';
 
 class ConcreteEventProcessor extends AbstractEventProcessor {
-  isEventValid(): boolean {
+  async isEventValid(): Promise<boolean> {
     return true;
   }
 
@@ -21,7 +21,7 @@ describe('AbstractEventProcessor', () => {
   });
 
   describe('isEventDisabled', () => {
-    it('should return true if the event is disabled', () => {
+    it('should return true if the event is disabled', async () => {
       configService.get = jest.fn().mockReturnValue(['event1', 'event2']);
       const result = eventProcessor.isEventDisabled('event1');
       expect(result).toBe(true);
