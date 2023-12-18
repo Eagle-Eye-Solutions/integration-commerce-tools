@@ -648,6 +648,7 @@ export const ORDER_FOR_SETTLE = {
           id: '1553e344-f197-474a-a51f-df68136a96da',
         },
         fields: {
+          'eagleeye-action': 'SETTLE',
           'eagleeye-basketStore': 'CUSTOM_TYPE',
           'eagleeye-appliedDiscounts': [
             'Open Item Level Discount (UPC: 245872) (x2)',
@@ -670,6 +671,7 @@ export const ORDER_FOR_SETTLE = {
         state: 'England',
         country: 'GB',
       },
+      paymentState: 'Paid',
     },
   },
 };
