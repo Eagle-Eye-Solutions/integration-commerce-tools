@@ -53,7 +53,7 @@ export abstract class EagleEyeSdkObject implements BreakableApi {
   public getAuthenticationHash(
     requestUrl: string,
     requestBody: Record<string, any>,
-  ) {
+  ): string {
     const preHashedString =
       requestUrl +
       (requestBody ? JSON.stringify(requestBody) : '') +
@@ -65,7 +65,7 @@ export abstract class EagleEyeSdkObject implements BreakableApi {
     url: string,
     method: string,
     body: Record<string, any>,
-  ) {
+  ): Promise<any> {
     try {
       const response = this.httpService
         .request({
@@ -114,11 +114,11 @@ export class Wallet extends EagleEyeSdkObject {
     this.invoke = this.invoke.bind(this);
   }
 
-  public async open(body: any) {
+  public async open(body: any): Promise<any> {
     return super.makeApiRequest(`/connect/wallet/open`, 'POST', body);
   }
 
-  public async settle(body: any) {
+  public async settle(body: any): Promise<any> {
     this.logger.log(`Preparing to call /wallet/settle with payload:`, body);
     return super.makeApiRequest(`/connect/wallet/settle`, 'POST', body);
   }

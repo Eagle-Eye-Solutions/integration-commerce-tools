@@ -266,16 +266,16 @@ describe('CTCartToEEBasketMapper', () => {
     });
   });
 
-  test('mapVoucherCodesToCampaignTokens should return an array of tokens to be examined', async () => {
+  test('mapVoucherCodesToCampaignTokens should return an array of tokens to be examined', () => {
     const voucherCodes = ['12345678'];
-    const payload = await service.mapVoucherCodesToCampaignTokens(voucherCodes);
+    const payload = service.mapVoucherCodesToCampaignTokens(voucherCodes);
 
     expect(payload).toMatchSnapshot();
   });
 
-  test('mapVoucherCodesToCampaignTokens should ignore empty string vouchers', async () => {
+  test('mapVoucherCodesToCampaignTokens should ignore empty string vouchers', () => {
     const voucherCodes = [''];
-    const payload = await service.mapVoucherCodesToCampaignTokens(voucherCodes);
+    const payload = service.mapVoucherCodesToCampaignTokens(voucherCodes);
 
     expect(payload).toMatchSnapshot();
   });
