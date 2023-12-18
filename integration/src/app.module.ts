@@ -1,4 +1,9 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { Commercetools } from './providers/commercetools/commercetools.provider';
@@ -23,6 +28,7 @@ import { OrderSettleService } from './services/order-settle/order-settle.service
 import { OrderPaymentStateChangedProcessor } from './services/event-handler/event-processor/order-payment-state-changed.processor';
 import { UnidentifiedCustomerMiddleware } from './common/middlewares/unidentified-customer/unidentified-customer.middleware';
 import { OrderCreatedProcessor } from './services/event-handler/event-processor/order-created.processor';
+import { ExtensionTypeMiddleware } from './common/middlewares/extension-type/extension-type.middleware';
 
 @Module({
   imports: [
@@ -72,6 +78,8 @@ import { OrderCreatedProcessor } from './services/event-handler/event-processor/
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): any {
-    consumer.apply(UnidentifiedCustomerMiddleware).forRoutes(AppController);
+    consumer
+      .apply(ExtensionTypeMiddleware, UnidentifiedCustomerMiddleware)
+      .forRoutes({ path: 'service', method: RequestMethod.POST });
   }
 }
