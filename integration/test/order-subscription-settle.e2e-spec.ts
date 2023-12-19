@@ -244,4 +244,76 @@ describe('Settle EE transactions on Order messages (e2e)', () => {
     expect(deleteCustomObjectNock.isDone()).toBeTruthy();
     expect(updateOrderByIdNock.isDone()).toBeTruthy();
   });
+
+  it('should try to settle the EE transaction when an order changes the action custom field to "SETTLE"', async () => {
+    const ctAuthNock = nockCtAuth();
+    const getCircuitStateCustomObjectNock = nockGetCustomObject(404, null);
+    const getEnrichedBasketCustomObjectNock =
+      nockGetEnrichedBasketCustomObject();
+
+    const orderWithSettleAction = {
+      ...ORDER_FOR_SETTLE.resource.obj,
+    };
+    orderWithSettleAction.custom.fields['eagleeye-action'] = 'SETTLE';
+
+    const updateOrderByIdNock = nockCtUpdateOrderById(orderWithSettleAction, {
+      version: ORDER_FOR_SETTLE.resource.obj.version,
+      actions: [
+        {
+          action: 'setCustomField',
+          name: 'eagleeye-settledStatus',
+          value: 'SETTLED',
+        },
+        { action: 'setCustomField', name: 'eagleeye-action' },
+        {
+          action: 'setCustomField',
+          name: 'eagleeye-basketStore',
+        },
+        {
+          action: 'setCustomField',
+          name: 'eagleeye-basketUri',
+        },
+      ],
+    });
+
+    const walletSettleNock = await nockWalletSettle(
+      ORDER_FOR_SETTLE.resource.obj.cart,
+    );
+
+    const deleteCustomObjectNock = nockDeleteCustomObject(
+      ORDER_FOR_SETTLE.resource.obj.cart.id,
+      CUSTOM_OBJECT_CONTAINER_BASKET_STORE,
+      {},
+    );
+
+    const getOrderByIdNock = nockCtGetOrderById(orderWithSettleAction);
+
+    app = await initAppModule();
+
+    const requestData = {
+      resource: {
+        typeId: 'order',
+        id: ORDER_FOR_SETTLE.resource.obj.id,
+      },
+      type: 'OrderCustomFieldChanged',
+      notificationType: 'Message',
+      name: 'eagleeye-action',
+      value: 'SETTLE',
+    };
+    await request(app.getHttpServer())
+      .post('/events')
+      .send({ message: { data: Buffer.from(JSON.stringify(requestData)) } })
+
+      .expect(201)
+      .expect({ status: 'OK' });
+
+    await sleep(100); //await for
+    expect(ctAuthNock.isDone()).toBeTruthy();
+    expect(getCircuitStateCustomObjectNock.isDone()).toBeTruthy();
+    expect(getEnrichedBasketCustomObjectNock.isDone()).toBeTruthy();
+    expect(getOrderByIdNock.isDone()).toBeTruthy();
+    expect(walletSettleNock.isDone()).toBeTruthy();
+    expect(deleteCustomObjectNock.isDone()).toBeTruthy();
+    expect(updateOrderByIdNock.isDone()).toBeTruthy();
+  });
 });

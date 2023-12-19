@@ -1,12 +1,13 @@
-import { OrderCreatedWithSettleActionProcessor } from './order-created-with-settle-action.processor';
+import { OrderUpdatedWithSettleActionProcessor } from './order-updated-with-settle-action.processor';
 import { ConfigService } from '@nestjs/config';
 import { Commercetools } from '../../../providers/commercetools/commercetools.provider';
 import { MessageDeliveryPayload } from '@commercetools/platform-sdk';
 import { EagleEyePluginException } from '../../../common/exceptions/eagle-eye-plugin.exception';
 import { OrderSettleService } from '../../order-settle/order-settle.service';
+import { FIELD_EAGLEEYE_ACTION } from '../../../providers/commercetools/custom-type/custom-type-definitions';
 
-describe('OrderCreatedWithSettleActionProcessor', () => {
-  let processor: OrderCreatedWithSettleActionProcessor;
+describe('OrderUpdatedWithSettleActionProcessor', () => {
+  let processor: OrderUpdatedWithSettleActionProcessor;
   let message: MessageDeliveryPayload;
   let configService: ConfigService;
   let commercetools: Commercetools;
@@ -25,7 +26,7 @@ describe('OrderCreatedWithSettleActionProcessor', () => {
       settleTransactionFromOrder: jest.fn(),
     } as unknown as OrderSettleService;
 
-    processor = new OrderCreatedWithSettleActionProcessor(
+    processor = new OrderUpdatedWithSettleActionProcessor(
       configService,
       commercetools,
       orderSettleService,
@@ -63,7 +64,10 @@ describe('OrderCreatedWithSettleActionProcessor', () => {
             value: 'settled',
           },
         ]);
-      await processor.isValidState({} as any);
+      await processor.isValidState({
+        name: FIELD_EAGLEEYE_ACTION,
+        value: 'SETTLE',
+      } as any);
       const actions = await processor.generateActions();
       const result = await actions[0]();
 
@@ -100,38 +104,6 @@ describe('OrderCreatedWithSettleActionProcessor', () => {
 
   describe('isValidState', () => {
     it('should return true if the order action is settle and settledStatus is not "SETTLED"', async () => {
-      const result = await processor.isValidState({
-        resource: { id: 'some-id', typeId: 'order' },
-        order: {
-          custom: {
-            fields: {
-              'eagleeye-action': 'SETTLE',
-              'eagleeye-settledStatus': '',
-            },
-          },
-        },
-      } as any);
-
-      expect(result).toBe(true);
-    });
-
-    it('should return false if the order payment state does not fulfill the conditions', async () => {
-      const result = await processor.isValidState({
-        resource: { id: 'some-id', typeId: 'order' },
-        order: {
-          custom: {
-            fields: {
-              'eagleeye-action': 'SETTLE',
-              'eagleeye-settledStatus': 'SETTLED',
-            },
-          },
-        },
-      } as any);
-
-      expect(result).toBe(false);
-    });
-
-    it('should get the order from commercetools to check conditions if missing from the message', async () => {
       const ctOrder = {
         cart: {
           id: 'cart-id',
@@ -148,17 +120,32 @@ describe('OrderCreatedWithSettleActionProcessor', () => {
         .mockResolvedValue(ctOrder as any);
       const result = await processor.isValidState({
         resource: { id: 'some-id', typeId: 'order' },
+        name: FIELD_EAGLEEYE_ACTION,
+        value: 'SETTLE',
       } as any);
 
       expect(result).toBe(true);
     });
 
-    it('should return false if getOrderById fails', async () => {
-      jest.spyOn(commercetools, 'getOrderById').mockImplementationOnce(() => {
-        throw Error;
-      });
+    it('should return false if the order payment state does not fulfill the conditions', async () => {
+      const ctOrder = {
+        cart: {
+          id: 'cart-id',
+        },
+        custom: {
+          fields: {
+            'eagleeye-action': '',
+            'eagleeye-settledStatus': 'SETTLED',
+          },
+        },
+      };
+      jest
+        .spyOn(commercetools, 'getOrderById')
+        .mockResolvedValue(ctOrder as any);
       const result = await processor.isValidState({
         resource: { id: 'some-id', typeId: 'order' },
+        name: FIELD_EAGLEEYE_ACTION,
+        value: '',
       } as any);
 
       expect(result).toBe(false);
@@ -167,9 +154,13 @@ describe('OrderCreatedWithSettleActionProcessor', () => {
 
   describe('isValidMessageType', () => {
     it('should return true if the order message type is valid"', () => {
-      const result = processor.isValidMessageType('OrderCreated');
+      const resultAdded = processor.isValidMessageType('OrderCustomFieldAdded');
+      const resultChanged = processor.isValidMessageType(
+        'OrderCustomFieldChanged',
+      );
 
-      expect(result).toBe(true);
+      expect(resultAdded).toBe(true);
+      expect(resultChanged).toBe(true);
     });
 
     it('should return false if the order message type is invalid', () => {

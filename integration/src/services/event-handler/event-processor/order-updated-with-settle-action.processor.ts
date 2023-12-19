@@ -1,5 +1,8 @@
 import { AbstractEventProcessor } from './abstract-event.processor';
-import { OrderCreatedMessage } from '@commercetools/platform-sdk/dist/declarations/src/generated/models/message';
+import {
+  OrderCustomFieldAddedMessage,
+  OrderCustomFieldChangedMessage,
+} from '@commercetools/platform-sdk/dist/declarations/src/generated/models/message';
 import { Order } from '@commercetools/platform-sdk';
 import { ConfigService } from '@nestjs/config';
 import { Logger, Injectable } from '@nestjs/common';
@@ -11,8 +14,8 @@ import {
 } from '../../../providers/commercetools/custom-type/custom-type-definitions';
 
 @Injectable()
-export class OrderCreatedWithSettleActionProcessor extends AbstractEventProcessor {
-  private readonly PROCESSOR_NAME = 'OrderCreatedWithSettleAction';
+export class OrderUpdatedWithSettleActionProcessor extends AbstractEventProcessor {
+  private readonly PROCESSOR_NAME = 'OrderUpdatedWithSettleActionProcessor';
   public logger: Logger = new Logger(this.constructor.name);
   private order: Order;
 
@@ -25,11 +28,13 @@ export class OrderCreatedWithSettleActionProcessor extends AbstractEventProcesso
   }
 
   async isEventValid(): Promise<boolean> {
-    const orderCreatedMessage = this.message as unknown as OrderCreatedMessage;
+    const orderMessage = this.message as unknown as
+      | OrderCustomFieldAddedMessage
+      | OrderCustomFieldChangedMessage;
     return (
-      orderCreatedMessage.resource.typeId === 'order' &&
-      this.isValidMessageType(orderCreatedMessage.type) &&
-      (await this.isValidState(orderCreatedMessage)) &&
+      orderMessage.resource.typeId === 'order' &&
+      this.isValidMessageType(orderMessage.type) &&
+      (await this.isValidState(orderMessage)) &&
       !this.isEventDisabled(this.PROCESSOR_NAME)
     );
   }
@@ -37,18 +42,10 @@ export class OrderCreatedWithSettleActionProcessor extends AbstractEventProcesso
   async generateActions(): Promise<(() => any)[]> {
     const actions = [];
     actions.push(async () => {
-      const orderCreatedMessage = this
-        .message as unknown as OrderCreatedMessage;
-      let ctOrder;
-      if (orderCreatedMessage.order) {
-        ctOrder = orderCreatedMessage.order;
-      } else {
-        ctOrder = this.order;
-      }
       const updateActions =
-        await this.orderSettleService.settleTransactionFromOrder(ctOrder);
-      await this.commercetools.updateOrderById(ctOrder.id, {
-        version: ctOrder.version,
+        await this.orderSettleService.settleTransactionFromOrder(this.order);
+      await this.commercetools.updateOrderById(this.order.id, {
+        version: this.order.version,
         actions: updateActions,
       });
     });
@@ -56,28 +53,24 @@ export class OrderCreatedWithSettleActionProcessor extends AbstractEventProcesso
   }
 
   public async isValidState(
-    orderCreatedMessage: OrderCreatedMessage,
+    orderMessage: OrderCustomFieldAddedMessage | OrderCustomFieldChangedMessage,
   ): Promise<boolean> {
     let orderSettleAction;
     let orderSettledStatus;
-    if (orderCreatedMessage.order && orderCreatedMessage.order.custom?.fields) {
-      orderSettleAction =
-        orderCreatedMessage.order.custom?.fields[FIELD_EAGLEEYE_ACTION];
-      orderSettledStatus =
-        orderCreatedMessage.order.custom?.fields[FIELD_EAGLEEYE_SETTLED_STATUS];
-    } else {
+    if (
+      orderMessage.name === FIELD_EAGLEEYE_ACTION &&
+      orderMessage.value === 'SETTLE'
+    ) {
+      orderSettleAction = orderMessage.value;
       try {
         this.order = await this.commercetools.getOrderById(
           this.message.resource.id,
         );
-        if (this.order.custom?.fields) {
-          orderSettleAction = this.order.custom?.fields[FIELD_EAGLEEYE_ACTION];
-          orderSettledStatus =
-            this.order.custom?.fields[FIELD_EAGLEEYE_SETTLED_STATUS];
-        }
+        orderSettledStatus =
+          this.order.custom.fields[FIELD_EAGLEEYE_SETTLED_STATUS];
       } catch (err) {
         this.logger.warn(
-          `Failed to get order ${this.message.resource.id} from CT to check action/status`,
+          `Failed to get order ${this.message.resource.id} from CT to check settle action/status`,
           err,
         );
         return false;
@@ -90,6 +83,8 @@ export class OrderCreatedWithSettleActionProcessor extends AbstractEventProcesso
   }
 
   public isValidMessageType(type: string): boolean {
-    return Boolean(type === 'OrderCreated');
+    return Boolean(
+      type === 'OrderCustomFieldAdded' || type === 'OrderCustomFieldChanged',
+    );
   }
 }

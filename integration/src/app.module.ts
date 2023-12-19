@@ -29,6 +29,7 @@ import { OrderPaymentStateChangedProcessor } from './services/event-handler/even
 import { UnidentifiedCustomerMiddleware } from './common/middlewares/unidentified-customer/unidentified-customer.middleware';
 import { OrderCreatedWithPaidStateProcessor } from './services/event-handler/event-processor/order-created-with-paid-state.processor';
 import { OrderCreatedWithSettleActionProcessor } from './services/event-handler/event-processor/order-created-with-settle-action.processor';
+import { OrderUpdatedWithSettleActionProcessor } from './services/event-handler/event-processor/order-updated-with-settle-action.processor';
 import { ExtensionTypeMiddleware } from './common/middlewares/extension-type/extension-type.middleware';
 
 @Module({
@@ -68,19 +69,23 @@ import { ExtensionTypeMiddleware } from './common/middlewares/extension-type/ext
     OrderPaymentStateChangedProcessor,
     OrderCreatedWithPaidStateProcessor,
     OrderCreatedWithSettleActionProcessor,
+    OrderUpdatedWithSettleActionProcessor,
     {
       provide: 'EventProcessors',
       useFactory: (
         orderPaymentStateChanged,
+        orderUpdatedWithSettleAction,
         orderCreatedWithSettleAction,
         orderCreatedWithPaidState,
       ) => [
         orderPaymentStateChanged,
+        orderUpdatedWithSettleAction,
         orderCreatedWithSettleAction,
         orderCreatedWithPaidState,
       ],
       inject: [
         OrderPaymentStateChangedProcessor,
+        OrderUpdatedWithSettleActionProcessor,
         OrderCreatedWithSettleActionProcessor,
         OrderCreatedWithPaidStateProcessor,
       ],
