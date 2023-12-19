@@ -5,11 +5,14 @@ import { ConfigService } from '@nestjs/config';
 import { Logger, Injectable } from '@nestjs/common';
 import { Commercetools } from '../../../providers/commercetools/commercetools.provider';
 import { OrderSettleService } from '../../order-settle/order-settle.service';
-import { FIELD_EAGLEEYE_SETTLED_STATUS } from '../../../providers/commercetools/custom-type/custom-type-definitions';
+import {
+  FIELD_EAGLEEYE_SETTLED_STATUS,
+  FIELD_EAGLEEYE_ACTION,
+} from '../../../providers/commercetools/custom-type/custom-type-definitions';
 
 @Injectable()
-export class OrderCreatedProcessor extends AbstractEventProcessor {
-  private readonly PROCESSOR_NAME = 'OrderCreated';
+export class OrderCreatedWithSettleActionProcessor extends AbstractEventProcessor {
+  private readonly PROCESSOR_NAME = 'OrderCreatedWithSettleAction';
   public logger: Logger = new Logger(this.constructor.name);
   private order: Order;
 
@@ -42,17 +45,12 @@ export class OrderCreatedProcessor extends AbstractEventProcessor {
       } else {
         ctOrder = this.order;
       }
-      if (
-        ctOrder.custom.fields &&
-        ctOrder.custom.fields[FIELD_EAGLEEYE_SETTLED_STATUS] !== 'SETTLED'
-      ) {
-        const updateActions =
-          await this.orderSettleService.settleTransactionFromOrder(ctOrder);
-        await this.commercetools.updateOrderById(ctOrder.id, {
-          version: ctOrder.version,
-          actions: updateActions,
-        });
-      }
+      const updateActions =
+        await this.orderSettleService.settleTransactionFromOrder(ctOrder);
+      await this.commercetools.updateOrderById(ctOrder.id, {
+        version: ctOrder.version,
+        actions: updateActions,
+      });
     });
     return actions;
   }
@@ -60,24 +58,35 @@ export class OrderCreatedProcessor extends AbstractEventProcessor {
   public async isValidState(
     orderCreatedMessage: OrderCreatedMessage,
   ): Promise<boolean> {
-    let orderPaymentState;
-    if (orderCreatedMessage.order) {
-      orderPaymentState = orderCreatedMessage.order.paymentState;
+    let orderSettleAction;
+    let orderSettledStatus;
+    if (orderCreatedMessage.order && orderCreatedMessage.order.custom?.fields) {
+      orderSettleAction =
+        orderCreatedMessage.order.custom?.fields[FIELD_EAGLEEYE_ACTION];
+      orderSettledStatus =
+        orderCreatedMessage.order.custom?.fields[FIELD_EAGLEEYE_SETTLED_STATUS];
     } else {
       try {
         this.order = await this.commercetools.getOrderById(
           this.message.resource.id,
         );
-        orderPaymentState = this.order.paymentState;
+        if (this.order.custom?.fields) {
+          orderSettleAction = this.order.custom?.fields[FIELD_EAGLEEYE_ACTION];
+          orderSettledStatus =
+            this.order.custom?.fields[FIELD_EAGLEEYE_SETTLED_STATUS];
+        }
       } catch (err) {
         this.logger.warn(
-          `Failed to get order ${this.message.resource.id} from CT to check paymentState`,
+          `Failed to get order ${this.message.resource.id} from CT to check action/status`,
           err,
         );
         return false;
       }
     }
-    return Boolean(orderPaymentState === 'Paid');
+    return (
+      Boolean(orderSettleAction === 'SETTLE') &&
+      Boolean(orderSettledStatus !== 'SETTLED')
+    );
   }
 
   public isValidMessageType(type: string): boolean {

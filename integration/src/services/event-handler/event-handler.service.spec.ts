@@ -8,7 +8,8 @@ import { CircuitBreakerService } from '../../providers/circuit-breaker/circuit-b
 import { BASKET_STORE_SERVICE } from '../basket-store/basket-store.provider';
 import { OrderSettleService } from '../order-settle/order-settle.service';
 import { OrderPaymentStateChangedProcessor } from './event-processor/order-payment-state-changed.processor';
-import { OrderCreatedProcessor } from './event-processor/order-created.processor';
+import { OrderCreatedWithPaidStateProcessor } from './event-processor/order-created-with-paid-state.processor';
+import { OrderCreatedWithSettleActionProcessor } from './event-processor/order-created-with-settle-action.processor';
 
 describe('EventHandlerService', () => {
   let service: EventHandlerService;
@@ -57,14 +58,24 @@ describe('EventHandlerService', () => {
           },
         },
         OrderPaymentStateChangedProcessor,
-        OrderCreatedProcessor,
+        OrderCreatedWithPaidStateProcessor,
+        OrderCreatedWithSettleActionProcessor,
         {
           provide: 'EventProcessors',
-          useFactory: (orderPaymentStateChanged, orderCreatedProcessor) => [
+          useFactory: (
             orderPaymentStateChanged,
-            orderCreatedProcessor,
+            orderCreatedWithSettleAction,
+            orderCreatedWithPaidState,
+          ) => [
+            orderPaymentStateChanged,
+            orderCreatedWithSettleAction,
+            orderCreatedWithPaidState,
           ],
-          inject: [OrderPaymentStateChangedProcessor, OrderCreatedProcessor],
+          inject: [
+            OrderPaymentStateChangedProcessor,
+            OrderCreatedWithSettleActionProcessor,
+            OrderCreatedWithPaidStateProcessor,
+          ],
         },
       ],
     }).compile();
@@ -94,7 +105,7 @@ describe('EventHandlerService', () => {
       ]);
     });
 
-    it('should process the OrderCreated event and return action promises', async () => {
+    it('should process the OrderCreated (with "Paid" paymentState) event and return action promises', async () => {
       const message = {
         resource: {
           typeId: 'order',
@@ -106,6 +117,40 @@ describe('EventHandlerService', () => {
             id: 'cart-id',
           },
           paymentState: 'Paid',
+          custom: {
+            fields: {},
+          },
+        },
+        type: 'OrderCreated',
+        id: '123456',
+      };
+
+      const actionPromises = await service.processEvent(message as any);
+
+      expect(actionPromises.filter((p: any) => p.value)).toEqual([
+        {
+          status: 'fulfilled',
+          value: [expect.any(Function)],
+        },
+      ]);
+    });
+
+    it('should process the OrderCreated (with "SETTLE" action) event and return action promises', async () => {
+      const message = {
+        resource: {
+          typeId: 'order',
+          id: '123456',
+        },
+        order: {
+          id: '123456',
+          cart: {
+            id: 'cart-id',
+          },
+          custom: {
+            fields: {
+              'eagleeye-action': 'SETTLE',
+            },
+          },
         },
         type: 'OrderCreated',
         id: '123456',

@@ -28,7 +28,6 @@ describe('AppService', () => {
   let circuitBreakerService: CircuitBreakerService;
   let promotionService: PromotionService;
   let basketStoreService: jest.Mocked<BasketStoreService>;
-  let orderSettleService: OrderSettleService;
   let eventHandlerService: EventHandlerService;
 
   beforeEach(async () => {
@@ -96,7 +95,6 @@ describe('AppService', () => {
     );
     promotionService = module.get<PromotionService>(PromotionService);
     basketStoreService = module.get(BASKET_STORE_SERVICE);
-    orderSettleService = module.get(OrderSettleService);
     eventHandlerService = module.get(EventHandlerService);
   });
 
@@ -213,55 +211,6 @@ describe('AppService', () => {
     expect(response).toEqual(result);
     expect(basketStoreService.save).toBeCalledTimes(1);
     expect(basketStoreService.delete).toBeCalledTimes(0);
-  });
-
-  it('should handle order extension request', async () => {
-    const body: ExtensionInput = {
-      action: 'Update',
-      resource: {
-        typeId: 'order',
-        id: '123',
-        obj: {
-          custom: {
-            fields: {
-              'eagleeye-action': 'SETTLE',
-              'eagleeye-basketStore': 'CUSTOM_TYPE',
-              'eagleeye-basketUri': 'some/uri',
-            },
-          },
-          cart: {
-            id: 'cart-id',
-          },
-        } as any,
-      },
-    };
-    const updateActions = [
-      {
-        action: 'setCustomField',
-        name: 'eagleeye-action',
-      },
-      {
-        action: 'setCustomField',
-        name: 'eagleeye-basketStore',
-      },
-      {
-        action: 'setCustomField',
-        name: 'eagleeye-basketUri',
-      },
-      {
-        action: 'setCustomField',
-        name: 'eagleeye-settledStatus',
-        value: 'SETTLED',
-      },
-    ];
-    jest
-      .spyOn(orderSettleService, 'settleTransactionFromOrder')
-      .mockResolvedValue(updateActions as any);
-    const result = {
-      actions: updateActions,
-    };
-    const response = await service.handleExtensionRequest(body);
-    expect(response).toEqual(result);
   });
 
   it('should handle successful order subscription events', async () => {

@@ -27,7 +27,9 @@ import { EventHandlerService } from './services/event-handler/event-handler.serv
 import { OrderSettleService } from './services/order-settle/order-settle.service';
 import { OrderPaymentStateChangedProcessor } from './services/event-handler/event-processor/order-payment-state-changed.processor';
 import { UnidentifiedCustomerMiddleware } from './common/middlewares/unidentified-customer/unidentified-customer.middleware';
-import { OrderCreatedProcessor } from './services/event-handler/event-processor/order-created.processor';
+import { OrderCreatedWithPaidStateProcessor } from './services/event-handler/event-processor/order-created-with-paid-state.processor';
+import { OrderCreatedWithSettleActionProcessor } from './services/event-handler/event-processor/order-created-with-settle-action.processor';
+import { OrderUpdatedWithSettleActionProcessor } from './services/event-handler/event-processor/order-updated-with-settle-action.processor';
 import { ExtensionTypeMiddleware } from './common/middlewares/extension-type/extension-type.middleware';
 
 @Module({
@@ -65,14 +67,28 @@ import { ExtensionTypeMiddleware } from './common/middlewares/extension-type/ext
     EventHandlerService,
     OrderSettleService,
     OrderPaymentStateChangedProcessor,
-    OrderCreatedProcessor,
+    OrderCreatedWithPaidStateProcessor,
+    OrderCreatedWithSettleActionProcessor,
+    OrderUpdatedWithSettleActionProcessor,
     {
       provide: 'EventProcessors',
-      useFactory: (orderPaymentStateChanged, orderCreated) => [
+      useFactory: (
         orderPaymentStateChanged,
-        orderCreated,
+        orderUpdatedWithSettleAction,
+        orderCreatedWithSettleAction,
+        orderCreatedWithPaidState,
+      ) => [
+        orderPaymentStateChanged,
+        orderUpdatedWithSettleAction,
+        orderCreatedWithSettleAction,
+        orderCreatedWithPaidState,
       ],
-      inject: [OrderPaymentStateChangedProcessor, OrderCreatedProcessor],
+      inject: [
+        OrderPaymentStateChangedProcessor,
+        OrderUpdatedWithSettleActionProcessor,
+        OrderCreatedWithSettleActionProcessor,
+        OrderCreatedWithPaidStateProcessor,
+      ],
     },
   ],
 })

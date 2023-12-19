@@ -97,13 +97,13 @@ describe('OrderPaymentStateChangedProcessor', () => {
   });
 
   describe('isValidMessageType', () => {
-    it('should return true if the order payment state is valid"', () => {
+    it('should return true if the order message type is valid"', () => {
       const result = processor.isValidMessageType('OrderPaymentStateChanged');
 
       expect(result).toBe(true);
     });
 
-    it('should return false if the order message type state is invalid', () => {
+    it('should return false if the order message type is invalid', () => {
       const result = processor.isValidMessageType('OrderFakeMessage');
 
       expect(result).toBe(false);
