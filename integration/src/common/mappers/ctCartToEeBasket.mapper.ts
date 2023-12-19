@@ -239,8 +239,7 @@ export class CTCartToEEBasketMapper {
     const potentialVoucherCodes: string[] =
       cart.custom?.fields['eagleeye-potentialVoucherCodes'] || [];
     const examineTokens = this.mapVoucherCodesToCampaignTokens([
-      ...voucherCodes,
-      ...potentialVoucherCodes,
+      ...new Set([...voucherCodes, ...potentialVoucherCodes]),
     ]);
     const excludeUnidentifiedCustomers = this.configService.get<boolean>(
       'eagleEye.excludeUnidentifiedCustomers',

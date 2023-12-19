@@ -265,6 +265,58 @@ exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should not include ea
 }
 `;
 
+exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should not send to EE duplicated voucher codes when potentialVoucherCodes and voucherCodes contain the same voucher code 1`] = `
+{
+  "basket": {
+    "contents": [
+      {
+        "description": "Example Product",
+        "itemUnitCost": 300,
+        "itemUnitCount": 1,
+        "itemUnitMetric": "EACH",
+        "salesKey": "SALE",
+        "totalUnitCost": 300,
+        "totalUnitCostAfterDiscount": 300,
+        "upc": "SKU123",
+      },
+    ],
+    "summary": {
+      "redemptionChannel": "Online",
+      "totalBasketValue": 300,
+      "totalDiscountAmount": {
+        "general": null,
+        "promotions": 0,
+        "staff": null,
+      },
+      "totalItems": 1,
+    },
+    "type": "STANDARD",
+  },
+  "examine": [
+    {
+      "type": "TOKEN",
+      "value": "1234567890",
+    },
+  ],
+  "location": {
+    "incomingIdentifier": "outlet1",
+    "parentIncomingIdentifier": "banner1",
+  },
+  "lock": true,
+  "options": {
+    "adjustBasket": {
+      "enabled": true,
+      "includeOpenOffers": true,
+    },
+    "analyseBasket": {
+      "enabled": true,
+      "includeOpenOffers": true,
+    },
+  },
+  "reference": undefined,
+}
+`;
+
 exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should return the payload for /wallet/open 1`] = `
 {
   "basket": {
