@@ -61,6 +61,7 @@ describe('Settle EE transactions on Order messages (e2e)', () => {
             name: 'eagleeye-settledStatus',
             value: 'SETTLED',
           },
+          { action: 'setCustomField', name: 'eagleeye-action' },
           {
             action: 'setCustomField',
             name: 'eagleeye-basketStore',
@@ -124,6 +125,7 @@ describe('Settle EE transactions on Order messages (e2e)', () => {
             name: 'eagleeye-settledStatus',
             value: 'SETTLED',
           },
+          { action: 'setCustomField', name: 'eagleeye-action' },
           {
             action: 'setCustomField',
             name: 'eagleeye-basketStore',
