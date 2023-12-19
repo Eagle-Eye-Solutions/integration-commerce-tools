@@ -19,7 +19,7 @@ export class EventHandlerService {
   async processEvent(message: MessageDeliveryPayload) {
     this.logger.log(`Processing commercetools message ${message.id}`);
     this.logger.debug({
-      messsage: 'Message',
+      message: 'Message',
       context: EventHandlerService.name,
       messagePayload: message,
     });
