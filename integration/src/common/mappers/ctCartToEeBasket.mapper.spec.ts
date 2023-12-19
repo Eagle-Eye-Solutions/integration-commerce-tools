@@ -406,6 +406,36 @@ describe('CTCartToEEBasketMapper', () => {
       expect(payload).toMatchSnapshot();
     });
 
+    test('should not send to EE duplicated voucher codes when potentialVoucherCodes and voucherCodes contain the same voucher code', async () => {
+      jest
+        .spyOn(configService, 'get')
+        .mockReturnValueOnce(false)
+        .mockReturnValueOnce(shippingMethodMapMock)
+        .mockReturnValueOnce('outlet1')
+        .mockReturnValueOnce('banner1');
+
+      const cartWithCodes = {
+        ...cart,
+        custom: {
+          type: {
+            typeId: 'type',
+            id: '123456',
+          },
+          fields: {
+            'eagleeye-voucherCodes': ['1234567890'],
+            'eagleeye-potentialVoucherCodes': ['1234567890'],
+          },
+        },
+      };
+
+      const payload = await service.mapCartToWalletOpenPayload(
+        cartWithCodes,
+        false,
+      );
+
+      expect(payload).toMatchSnapshot();
+    });
+
     test('should include eagle eye identity if present in the cart', async () => {
       jest
         .spyOn(configService, 'get')
