@@ -17,13 +17,15 @@ export class EventHandlerService {
   ) {}
 
   async processEvent(message: MessageDeliveryPayload) {
-    this.logger.log(`Processing commercetools message ${message.id}`);
+    this.logger.log(
+      `Processing commercetools message type ${message.notificationType}, ID: ${message.resource.id}`,
+    );
     this.logger.debug({
       message: 'Message',
       context: EventHandlerService.name,
       messagePayload: message,
     });
-    const actionPromises = await Promise.allSettled(
+    return await Promise.allSettled(
       this.eventProcessors.map(async (eventProcessor) => {
         eventProcessor.setMessage(message);
         if (await eventProcessor.isEventValid()) {
@@ -31,8 +33,6 @@ export class EventHandlerService {
         }
       }),
     );
-
-    return actionPromises;
   }
 
   handleProcessedEventResponse(

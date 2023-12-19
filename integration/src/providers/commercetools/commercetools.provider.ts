@@ -170,6 +170,10 @@ export class Commercetools {
     orderId: string,
     body: { version: number; actions: OrderUpdateAction[] },
   ): Promise<Order> {
+    this.logger.log({
+      message: `Updating order with id ${orderId} and version: ${body.version} with actions`,
+      actions: body.actions,
+    });
     return (
       await this.getApiRoot()
         .orders()
