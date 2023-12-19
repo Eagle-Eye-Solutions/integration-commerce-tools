@@ -17,7 +17,8 @@ export class EventHandlerService {
   ) {}
 
   async processEvent(message: MessageDeliveryPayload) {
-    this.logger.log('Processing commercetools message');
+    this.logger.log(`Processing commercetools message ${message.id}`);
+    this.logger.debug({ messsage: 'Message', message });
     const actionPromises = await Promise.allSettled(
       this.eventProcessors.map(async (eventProcessor) => {
         await eventProcessor.setMessage(message);

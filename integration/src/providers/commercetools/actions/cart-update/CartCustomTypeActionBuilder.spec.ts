@@ -58,6 +58,7 @@ describe('CartCustomTypeActionBuilder', () => {
     const errors: CustomFieldError[] = [
       { type: 'EE_API_DISCONNECTED', message: 'message1' },
       { type: 'EE_API_TIMEOUT', message: 'message2' },
+      { type: 'EE_API_CUSTOMER_NF', message: 'customer not found' },
     ];
 
     const action = CartCustomTypeActionBuilder.setCustomFields({ errors });
@@ -101,6 +102,11 @@ describe('CartCustomTypeActionBuilder', () => {
       {
         action: 'setCustomField',
         name: 'eagleeye-settledStatus',
+        value: '',
+      },
+      {
+        action: 'setCustomField',
+        name: 'eagleeye-identityValue',
         value: '',
       },
     ]);
