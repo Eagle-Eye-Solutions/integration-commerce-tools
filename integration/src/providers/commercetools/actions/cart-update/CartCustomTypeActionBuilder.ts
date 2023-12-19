@@ -130,6 +130,7 @@ export class CartCustomTypeActionBuilder {
       actions.push({
         action: 'setCustomField',
         name: 'eagleeye-identityValue',
+        value: '',
       });
     }
     return actions;
