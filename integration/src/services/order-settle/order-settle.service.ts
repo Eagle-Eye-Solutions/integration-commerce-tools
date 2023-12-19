@@ -1,5 +1,4 @@
-import { Injectable, Inject, Logger } from '@nestjs/common';
-import { Commercetools } from '../../providers/commercetools/commercetools.provider';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { CTCartToEEBasketMapper } from '../../common/mappers/ctCartToEeBasket.mapper';
 import { CircuitBreakerIntercept } from '../../decorators/circuit-breaker-intercept/circuit-breaker-intercept.decorator';
 import { EagleEyeApiClient } from '../../providers/eagleeye/eagleeye.provider';
@@ -11,8 +10,8 @@ import {
   FIELD_EAGLEEYE_ACTION,
   FIELD_EAGLEEYE_BASKET_STORE,
   FIELD_EAGLEEYE_BASKET_URI,
-  FIELD_EAGLEEYE_SETTLED_STATUS,
   FIELD_EAGLEEYE_ERRORS,
+  FIELD_EAGLEEYE_SETTLED_STATUS,
 } from '../../providers/commercetools/custom-type/custom-type-definitions';
 import { CircuitBreakerService } from '../../providers/circuit-breaker/circuit-breaker.service';
 
@@ -21,7 +20,6 @@ export class OrderSettleService {
   private readonly logger = new Logger(OrderSettleService.name);
 
   constructor(
-    readonly commercetools: Commercetools,
     readonly cartToBasketMapper: CTCartToEEBasketMapper,
     readonly eagleEyeClient: EagleEyeApiClient,
     @Inject(BASKET_STORE_SERVICE)
