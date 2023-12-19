@@ -83,10 +83,15 @@ export class AppService {
 
       if (CartCustomTypeActionBuilder.checkResourceCustomType(resourceObj)) {
         actionBuilder.addAll(
-          CartCustomTypeActionBuilder.setCustomFields(errors, []),
+          CartCustomTypeActionBuilder.setCustomFields({
+            errors,
+            discountDescriptions: [],
+          }),
         );
       } else {
-        actionBuilder.add(CartCustomTypeActionBuilder.addCustomType(errors));
+        actionBuilder.add(
+          CartCustomTypeActionBuilder.addCustomType({ errors }),
+        );
       }
       // Discount removal should only be done for carts. This action is not valid for orders.
       if (body.resource.typeId === 'cart') {
@@ -150,21 +155,23 @@ export class AppService {
 
     if (CartCustomTypeActionBuilder.checkResourceCustomType(resourceObj)) {
       actionBuilder.addAll(
-        CartCustomTypeActionBuilder.setCustomFields(
-          basketDiscounts.errors,
-          [...basketDiscounts.discountDescriptions],
-          basketDiscounts.voucherCodes,
+        CartCustomTypeActionBuilder.setCustomFields({
+          errors: basketDiscounts.errors,
+          discountDescriptions: [...basketDiscounts.discountDescriptions],
+          voucherCodes: basketDiscounts.voucherCodes,
+          potentialVoucherCodes: basketDiscounts.potentialVoucherCodes,
           basketLocation,
-        ),
+        }),
       );
     } else {
       actionBuilder.add(
-        CartCustomTypeActionBuilder.addCustomType(
-          basketDiscounts.errors,
-          [...basketDiscounts.discountDescriptions],
-          basketDiscounts.voucherCodes,
+        CartCustomTypeActionBuilder.addCustomType({
+          errors: basketDiscounts.errors,
+          discountDescriptions: [...basketDiscounts.discountDescriptions],
+          voucherCodes: basketDiscounts.voucherCodes,
+          potentialVoucherCodes: basketDiscounts.potentialVoucherCodes,
           basketLocation,
-        ),
+        }),
       );
     }
     actionBuilder.add(

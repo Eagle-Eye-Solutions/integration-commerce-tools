@@ -15,6 +15,19 @@ export const SUCCESS_RESPONSE = {
             errorMessage: 'Voucher invalid: Failed to load token',
           },
         }),
+        JSON.stringify({
+          type: 'EE_API_TOKEN_PCEXNV',
+          message:
+            'Voucher invalid: identity required for points based offering',
+          context: {
+            value: 'invalid-code',
+            resourceType: null,
+            resourceId: null,
+            errorCode: 'PCEXNV',
+            errorMessage:
+              'Voucher invalid: identity required for points based offering',
+          },
+        }),
       ],
     },
     {
@@ -37,6 +50,11 @@ export const SUCCESS_RESPONSE = {
       action: 'setCustomField',
       name: 'eagleeye-voucherCodes',
       value: ['valid-code'],
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-potentialVoucherCodes',
+      value: ['invalid-code'],
     },
     { action: 'setCustomField', name: 'eagleeye-action', value: '' },
     {
@@ -130,6 +148,11 @@ export const ERROR_RESPONSE = {
     { action: 'setCustomField', name: 'eagleeye-basketStore', value: '' },
     { action: 'setCustomField', name: 'eagleeye-basketUri', value: '' },
     { action: 'setCustomField', name: 'eagleeye-voucherCodes', value: [] },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-potentialVoucherCodes',
+      value: [],
+    },
     { action: 'setCustomField', name: 'eagleeye-action', value: '' },
     {
       action: 'setCustomField',
@@ -157,6 +180,7 @@ export const CUSTOMER_NOT_FOUND_FETCHED_OPEN_PROMOTIONS_RESPONSE = {
         'eagleeye-basketUri':
           'custom-objects/eagleeye-cart/8be07418-04a0-49ba-b56f-2aa35d1027a4',
         'eagleeye-voucherCodes': [],
+        'eagleeye-potentialVoucherCodes': [],
         'eagleeye-action': '',
         'eagleeye-settledStatus': '',
         'eagleeye-identityValue': '',

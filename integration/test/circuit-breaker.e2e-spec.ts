@@ -177,6 +177,11 @@ describe('Circuit breaker (e2e)', () => {
             name: 'eagleeye-voucherCodes',
             value: [],
           },
+          {
+            action: 'setCustomField',
+            name: 'eagleeye-potentialVoucherCodes',
+            value: [],
+          },
           { action: 'setCustomField', name: 'eagleeye-action', value: '' },
           {
             action: 'setCustomField',

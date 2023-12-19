@@ -28,6 +28,7 @@ export class PromotionService {
     errors: CustomFieldError[];
     enrichedBasket: any;
     voucherCodes: string[];
+    potentialVoucherCodes: string[];
   }> {
     const discounts: DirectDiscountDraft[] = [];
     const discountDescriptions: DiscountDescription[] = [];
@@ -122,6 +123,11 @@ export class PromotionService {
         ?.filter((entry) => !entry.errorCode)
         .map((result) => result.value) || [];
 
+    const invalidTokens =
+      walletOpenResponse.data.examine
+        ?.filter((entry) => entry.errorCode === 'PCEXNV')
+        .map((result) => result.value) || [];
+
     if (walletOpenResponse.data?.analyseBasketResults?.discount?.length) {
       const descriptions =
         this.cartToBasketMapper.mapBasketDiscountsToDiscountDescriptions(
@@ -136,6 +142,7 @@ export class PromotionService {
       errors,
       enrichedBasket: walletOpenResponse.data?.analyseBasketResults?.basket,
       voucherCodes: validTokens,
+      potentialVoucherCodes: invalidTokens,
     };
   }
 

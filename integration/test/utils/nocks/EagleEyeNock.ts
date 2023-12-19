@@ -51,6 +51,10 @@ export const nockWalletOpen = async (
           type: 'TOKEN',
           value: 'valid-code',
         },
+        {
+          type: 'TOKEN',
+          value: 'invalid-code',
+        },
       ],
       options: {
         adjustBasket: {
@@ -146,6 +150,14 @@ export const nockWalletOpen = async (
             resourceId: null,
             errorCode: null,
             errorMessage: null,
+          },
+          {
+            value: 'invalid-code',
+            resourceType: null,
+            resourceId: null,
+            errorCode: 'PCEXNV',
+            errorMessage:
+              'Voucher invalid: identity required for points based offering',
           },
         ],
       },

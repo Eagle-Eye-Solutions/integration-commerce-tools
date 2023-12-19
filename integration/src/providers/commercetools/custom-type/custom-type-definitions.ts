@@ -107,5 +107,17 @@ export const ORDER_CUSTOM_FIELDS: TypeDraft = {
       },
       inputHint: 'SingleLine',
     },
+    {
+      name: 'eagleeye-potentialVoucherCodes',
+      label: {
+        en: 'eagleeye-potentialVoucherCodes',
+      },
+      required: false,
+      type: {
+        name: 'Set',
+        elementType: { name: 'String' },
+      },
+      inputHint: 'SingleLine',
+    },
   ],
 };

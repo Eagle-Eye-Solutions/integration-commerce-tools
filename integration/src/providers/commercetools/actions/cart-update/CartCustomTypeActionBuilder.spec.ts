@@ -17,21 +17,23 @@ describe('CartCustomTypeActionBuilder', () => {
       },
     ];
 
-    const appliedDiscounts: DiscountDescription[] = [
+    const discountDescriptions: DiscountDescription[] = [
       { description: 'disc1' },
       { description: 'disc2' },
     ];
     const voucherCodes = ['code1', 'code2'];
+    const potentialVoucherCodes = ['code3', 'code4'];
     const basketLocation: BasketLocation = {
       uri: 'path/to/basket',
       storeType: 'CUSTOM_TYPE',
     };
-    const action = CartCustomTypeActionBuilder.addCustomType(
+    const action = CartCustomTypeActionBuilder.addCustomType({
       errors,
-      appliedDiscounts,
+      discountDescriptions,
       voucherCodes,
+      potentialVoucherCodes,
       basketLocation,
-    );
+    });
 
     expect(action).toEqual({
       action: 'setCustomType',
@@ -45,6 +47,7 @@ describe('CartCustomTypeActionBuilder', () => {
         'eagleeye-basketStore': 'CUSTOM_TYPE',
         'eagleeye-basketUri': 'path/to/basket',
         'eagleeye-voucherCodes': ['code1', 'code2'],
+        'eagleeye-potentialVoucherCodes': ['code3', 'code4'],
         'eagleeye-action': '',
         'eagleeye-settledStatus': '',
       },
@@ -57,7 +60,7 @@ describe('CartCustomTypeActionBuilder', () => {
       { type: 'EE_API_TIMEOUT', message: 'message2' },
     ];
 
-    const action = CartCustomTypeActionBuilder.setCustomFields(errors);
+    const action = CartCustomTypeActionBuilder.setCustomFields({ errors });
 
     expect(action).toEqual([
       {
@@ -83,6 +86,11 @@ describe('CartCustomTypeActionBuilder', () => {
       {
         action: 'setCustomField',
         name: 'eagleeye-voucherCodes',
+        value: [],
+      },
+      {
+        action: 'setCustomField',
+        name: 'eagleeye-potentialVoucherCodes',
         value: [],
       },
       {

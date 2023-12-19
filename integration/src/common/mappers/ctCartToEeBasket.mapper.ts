@@ -234,7 +234,14 @@ export class CTCartToEEBasketMapper {
       'eagleEye.parentIncomingIdentifier',
     );
 
-    const voucherCodes: string[] = cart.custom?.fields['eagleeye-voucherCodes'];
+    const voucherCodes: string[] =
+      cart.custom?.fields['eagleeye-voucherCodes'] || [];
+    const potentialVoucherCodes: string[] =
+      cart.custom?.fields['eagleeye-potentialVoucherCodes'] || [];
+    const examineTokens = this.mapVoucherCodesToCampaignTokens([
+      ...voucherCodes,
+      ...potentialVoucherCodes,
+    ]);
     const excludeUnidentifiedCustomers = this.configService.get<boolean>(
       'eagleEye.excludeUnidentifiedCustomers',
     );
@@ -246,9 +253,7 @@ export class CTCartToEEBasketMapper {
         incomingIdentifier,
         ...(parentIncomingIdentifier && { parentIncomingIdentifier }),
       },
-      examine: voucherCodes?.length
-        ? this.mapVoucherCodesToCampaignTokens(voucherCodes)
-        : undefined,
+      examine: examineTokens?.length ? examineTokens : undefined,
       options: {
         adjustBasket: {
           includeOpenOffers: !excludeUnidentifiedCustomers,

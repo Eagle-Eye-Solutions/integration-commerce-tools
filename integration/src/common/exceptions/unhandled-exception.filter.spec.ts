@@ -42,12 +42,14 @@ describe('UnhandledExceptionsFilter', () => {
   it('should return a custom error message', () => {
     const error = new Error('Test error');
     const expectedActions = new CTActionsBuilder().add(
-      CartCustomTypeActionBuilder.addCustomType([
-        {
-          type: 'EE_PLUGIN_GENERIC_ERROR',
-          message: 'An unexpected error occured in the eagle eye plugin',
-        },
-      ]),
+      CartCustomTypeActionBuilder.addCustomType({
+        errors: [
+          {
+            type: 'EE_PLUGIN_GENERIC_ERROR',
+            message: 'An unexpected error occured in the eagle eye plugin',
+          },
+        ],
+      }),
     );
     filter.catch(error, mockArgumentsHost);
 
