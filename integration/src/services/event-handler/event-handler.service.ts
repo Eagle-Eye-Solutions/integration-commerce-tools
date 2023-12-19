@@ -25,7 +25,7 @@ export class EventHandlerService {
     });
     const actionPromises = await Promise.allSettled(
       this.eventProcessors.map(async (eventProcessor) => {
-        await eventProcessor.setMessage(message);
+        eventProcessor.setMessage(message);
         if (await eventProcessor.isEventValid()) {
           return eventProcessor.generateActions();
         }

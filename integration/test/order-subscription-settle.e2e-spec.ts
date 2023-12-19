@@ -85,17 +85,19 @@ describe('Settle EE transactions on Order messages (e2e)', () => {
     );
 
     app = await initAppModule();
+
+    const requestData = {
+      resource: {
+        typeId: 'order',
+        id: ORDER_FOR_SETTLE.resource.obj.id,
+      },
+      type: 'OrderPaymentStateChanged',
+      notificationType: 'Message',
+      paymentState: 'Paid',
+    };
     await request(app.getHttpServer())
       .post('/events')
-      .send({
-        resource: {
-          typeId: 'order',
-          id: ORDER_FOR_SETTLE.resource.obj.id,
-        },
-        type: 'OrderPaymentStateChanged',
-        notificationType: 'Message',
-        paymentState: 'Paid',
-      })
+      .send({ message: { data: Buffer.from(JSON.stringify(requestData)) } })
       .expect(201)
       .expect({ status: 'OK' });
 
@@ -149,20 +151,23 @@ describe('Settle EE transactions on Order messages (e2e)', () => {
     );
 
     app = await initAppModule();
+
+    const requestData = {
+      resource: {
+        typeId: 'order',
+        id: ORDER_FOR_SETTLE.resource.obj.id,
+      },
+      type: 'OrderCreated',
+      notificationType: 'Message',
+      order: {
+        ...ORDER_FOR_SETTLE.resource.obj,
+        paymentState: 'Paid',
+      },
+    };
     await request(app.getHttpServer())
       .post('/events')
-      .send({
-        resource: {
-          typeId: 'order',
-          id: ORDER_FOR_SETTLE.resource.obj.id,
-        },
-        type: 'OrderCreated',
-        notificationType: 'Message',
-        order: {
-          ...ORDER_FOR_SETTLE.resource.obj,
-          paymentState: 'Paid',
-        },
-      })
+      .send({ message: { data: Buffer.from(JSON.stringify(requestData)) } })
+
       .expect(201)
       .expect({ status: 'OK' });
 
