@@ -7,7 +7,7 @@ export class AppController {
 
   @Post('service')
   async handleExtensionRequest(@Body() body): Promise<any> {
-    return await this.appService.handleExtensionRequest(body);
+    return this.appService.handleExtensionRequest(body);
   }
 
   @Post('events')
@@ -17,6 +17,6 @@ export class AppController {
     if (body.message.data) {
       message = JSON.parse(Buffer.from(body.message.data, 'base64').toString());
     }
-    return await this.appService.handleSubscriptionEvents(message);
+    return this.appService.handleSubscriptionEvents(message);
   }
 }
