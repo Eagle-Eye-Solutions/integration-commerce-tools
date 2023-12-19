@@ -57,32 +57,5 @@ describe('ExtensionTypeMiddleware', () => {
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith(mockCTActionsBuilder);
     });
-
-    it('should respond with status 200 and empty actions result if the resource is an order without valid settle information', () => {
-      const mockCTActionsBuilder = new CTActionsBuilder().build();
-      jest
-        .spyOn(CTActionsBuilder.prototype, 'build')
-        .mockReturnValue(mockCTActionsBuilder);
-
-      req.body = {
-        resource: {
-          typeId: 'order',
-          obj: {
-            custom: {
-              fields: {
-                'eagleeye-action': 'RANDOM',
-                'eagleye-settledStatus': 'SETTLED',
-              },
-            },
-          },
-        },
-      };
-
-      middleware.use(req, res, next);
-
-      expect(next).not.toHaveBeenCalled();
-      expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith(mockCTActionsBuilder);
-    });
   });
 });

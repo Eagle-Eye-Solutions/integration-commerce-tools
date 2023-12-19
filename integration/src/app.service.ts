@@ -46,14 +46,7 @@ export class AppService {
 
     try {
       const actionBuilder = new CTActionsBuilder();
-      switch (body?.resource?.typeId) {
-        case 'cart':
-          await this.applyCartExtensionUpdates(actionBuilder, body);
-          break;
-        case 'order':
-          await this.applyOrderExtensionUpdates(actionBuilder, body);
-          break;
-      }
+      await this.applyCartExtensionUpdates(actionBuilder, body);
       const extensionActions = actionBuilder.build();
       this.logger.debug({
         message: `Returning ${extensionActions.actions.length} actions to commercetools`,
@@ -177,17 +170,6 @@ export class AppService {
     actionBuilder.add(
       CartDiscountActionBuilder.addDiscount([...basketDiscounts.discounts]),
     );
-  }
-
-  async applyOrderExtensionUpdates(
-    actionBuilder: CTActionsBuilder,
-    body: ExtensionInput,
-  ) {
-    const ctOrder = (body.resource as any).obj;
-    const actions =
-      await this.orderSettleService.settleTransactionFromOrder(ctOrder);
-
-    actionBuilder.addAll(actions);
   }
 
   private getErrorDetails(error: any): CustomFieldError {

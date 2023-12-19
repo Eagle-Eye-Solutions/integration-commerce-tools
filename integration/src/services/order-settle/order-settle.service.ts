@@ -1,7 +1,6 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import { Commercetools } from '../../providers/commercetools/commercetools.provider';
 import { CTCartToEEBasketMapper } from '../../common/mappers/ctCartToEeBasket.mapper';
-import { CircuitBreakerIntercept } from '../../decorators/circuit-breaker-intercept/circuit-breaker-intercept.decorator';
 import { EagleEyeApiClient } from '../../providers/eagleeye/eagleeye.provider';
 import { Order, OrderUpdateAction } from '@commercetools/platform-sdk';
 import { BASKET_STORE_SERVICE } from '../basket-store/basket-store.provider';
@@ -14,7 +13,6 @@ import {
   FIELD_EAGLEEYE_SETTLED_STATUS,
   FIELD_EAGLEEYE_ERRORS,
 } from '../../providers/commercetools/custom-type/custom-type-definitions';
-import { CircuitBreakerService } from '../../providers/circuit-breaker/circuit-breaker.service';
 
 @Injectable()
 export class OrderSettleService {
@@ -26,7 +24,6 @@ export class OrderSettleService {
     readonly eagleEyeClient: EagleEyeApiClient,
     @Inject(BASKET_STORE_SERVICE)
     private readonly basketStoreService: BasketStoreService,
-    private circuitBreakerService: CircuitBreakerService,
   ) {}
 
   async settleTransactionFromOrder(
@@ -100,7 +97,6 @@ export class OrderSettleService {
     return [];
   }
 
-  @CircuitBreakerIntercept()
   async walletSettleInvoke(method, args) {
     return await this.eagleEyeClient.wallet.invoke(method, args);
   }

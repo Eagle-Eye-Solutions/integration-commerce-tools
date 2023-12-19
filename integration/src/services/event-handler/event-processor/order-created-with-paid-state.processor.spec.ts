@@ -1,12 +1,12 @@
-import { OrderCreatedProcessor } from './order-created.processor';
+import { OrderCreatedWithPaidStateProcessor } from './order-created-with-paid-state.processor';
 import { ConfigService } from '@nestjs/config';
 import { Commercetools } from '../../../providers/commercetools/commercetools.provider';
 import { MessageDeliveryPayload } from '@commercetools/platform-sdk';
 import { EagleEyePluginException } from '../../../common/exceptions/eagle-eye-plugin.exception';
 import { OrderSettleService } from '../../order-settle/order-settle.service';
 
-describe('OrderCreatedProcessor', () => {
-  let processor: OrderCreatedProcessor;
+describe('OrderCreatedWithPaidStateProcessor', () => {
+  let processor: OrderCreatedWithPaidStateProcessor;
   let message: MessageDeliveryPayload;
   let configService: ConfigService;
   let commercetools: Commercetools;
@@ -25,7 +25,7 @@ describe('OrderCreatedProcessor', () => {
       settleTransactionFromOrder: jest.fn(),
     } as unknown as OrderSettleService;
 
-    processor = new OrderCreatedProcessor(
+    processor = new OrderCreatedWithPaidStateProcessor(
       configService,
       commercetools,
       orderSettleService,
@@ -45,7 +45,9 @@ describe('OrderCreatedProcessor', () => {
           id: 'cart-id',
         },
         custom: {
-          fields: {},
+          fields: {
+            'eagleeye-settledStatus': '',
+          },
         },
       };
       jest
@@ -99,7 +101,14 @@ describe('OrderCreatedProcessor', () => {
     it('should return true if the order payment state is "Paid"', async () => {
       const result = await processor.isValidState({
         resource: { id: 'some-id', typeId: 'order' },
-        order: { paymentState: 'Paid' },
+        order: {
+          paymentState: 'Paid',
+          custom: {
+            fields: {
+              'eagleeye-settledStatus': '',
+            },
+          },
+        },
       } as any);
 
       expect(result).toBe(true);
@@ -108,7 +117,14 @@ describe('OrderCreatedProcessor', () => {
     it('should return false if the order payment state is not "Paid"', async () => {
       const result = await processor.isValidState({
         resource: { id: 'some-id', typeId: 'order' },
-        order: { paymentState: 'OtherState' },
+        order: {
+          paymentState: 'OtherState',
+          custom: {
+            fields: {
+              'eagleeye-settledStatus': '',
+            },
+          },
+        },
       } as any);
 
       expect(result).toBe(false);
@@ -120,7 +136,9 @@ describe('OrderCreatedProcessor', () => {
           id: 'cart-id',
         },
         custom: {
-          fields: {},
+          fields: {
+            'eagleeye-settledStatus': '',
+          },
         },
         paymentState: 'Paid',
       };
