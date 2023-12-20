@@ -9,7 +9,6 @@ import { FIELD_EAGLEEYE_SETTLED_STATUS } from '../../../providers/commercetools/
 
 @Injectable()
 export class OrderCreatedWithPaidStateProcessor extends AbstractEventProcessor {
-  private readonly PROCESSOR_NAME = 'OrderCreatedWithPaidState';
   public logger: Logger = new Logger(this.constructor.name);
   private order: Order;
 
@@ -19,24 +18,34 @@ export class OrderCreatedWithPaidStateProcessor extends AbstractEventProcessor {
     private orderSettleService: OrderSettleService,
   ) {
     super(configService);
+    this.processorName = 'OrderCreatedWithPaidState';
   }
 
   async isEventValid(): Promise<boolean> {
     const orderCreatedMessage = this.message as unknown as OrderCreatedMessage;
-    return (
+    const isValid =
       orderCreatedMessage.resource.typeId === 'order' &&
       this.isValidMessageType(orderCreatedMessage.type) &&
       (await this.isValidState(orderCreatedMessage)) &&
-      !this.isEventDisabled(this.PROCESSOR_NAME)
+      !this.isEventDisabled();
+    this.logger.debug(
+      `${OrderCreatedWithPaidStateProcessor.name} ${
+        isValid ? 'IS' : 'NOT'
+      } valid for message with resource ID: ${this.message.resource.id}`,
     );
+    return isValid;
   }
 
   async generateActions(): Promise<(() => any)[]> {
+    this.logger.debug({
+      message: 'Generating actions',
+      context: OrderCreatedWithPaidStateProcessor.name,
+    });
     const actions = [];
     actions.push(async () => {
       const orderCreatedMessage = this
         .message as unknown as OrderCreatedMessage;
-      let ctOrder;
+      let ctOrder: Order;
       if (orderCreatedMessage.order) {
         ctOrder = orderCreatedMessage.order;
       } else {
