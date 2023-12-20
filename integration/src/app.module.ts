@@ -31,6 +31,8 @@ import { OrderCreatedWithPaidStateProcessor } from './services/event-handler/eve
 import { OrderCreatedWithSettleActionProcessor } from './services/event-handler/event-processor/order-created-with-settle-action.processor';
 import { OrderUpdatedWithSettleActionProcessor } from './services/event-handler/event-processor/order-updated-with-settle-action.processor';
 import { ExtensionTypeMiddleware } from './common/middlewares/extension-type/extension-type.middleware';
+import { CartTypeDefinition } from './providers/commercetools/custom-type/cart-type-definition';
+import { UnhandledExceptionsFilter } from './common/exceptions/unhandled-exception.filter';
 
 @Module({
   imports: [
@@ -66,6 +68,7 @@ import { ExtensionTypeMiddleware } from './common/middlewares/extension-type/ext
     BasketStoreServiceProvider,
     EventHandlerService,
     OrderSettleService,
+    UnhandledExceptionsFilter,
     OrderPaymentStateChangedProcessor,
     OrderCreatedWithPaidStateProcessor,
     OrderCreatedWithSettleActionProcessor,
@@ -89,6 +92,12 @@ import { ExtensionTypeMiddleware } from './common/middlewares/extension-type/ext
         OrderCreatedWithSettleActionProcessor,
         OrderCreatedWithPaidStateProcessor,
       ],
+    },
+    CartTypeDefinition,
+    {
+      provide: 'TypeDefinitions',
+      useFactory: (cartTypeDefinition) => [cartTypeDefinition],
+      inject: [CartTypeDefinition],
     },
   ],
 })

@@ -26,6 +26,9 @@ inputs:
   ct_scopes:
     description: 'commercetools API client scopes'
     required: true
+  ct_cart_type_key:
+    description: 'commercetools custom cart type key'
+    required: true
   ee_client_id:
     description: 'EagleEye API client id'
     required: true
@@ -85,7 +88,7 @@ runs:
       id: set_env_variables
       shell: bash
       run: |
-        echo 'standard_configurations=[{"key":"CTP_REGION","value":"${{ inputs.ct_region }}"},{"key":"CTP_PROJECT_KEY","value":"${{ inputs.ct_project_key }}"},{"key":"EE_POS_URL","value":"${{ inputs.ee_pos_url }}"},{"key":"SHIPPING_METHOD_MAP","value":"${{ inputs.shipping_method_map }}"},{"key":"EE_INCOMING_IDENTIFIER","value":"${{ inputs.ee_incoming_identifier }}"},{"key":"EE_EXCLUDE_UNIDENTIFIED_CUSTOMERS","value":"${{ inputs.ee_exclude_unidentified_customers }}"},{"key":"EE_PARENT_INCOMING_IDENTIFIER","value":"${{ inputs.ee_parent_incoming_identifier }}"},{"key":"CONFIG_OVERRIDE","value":"${{ inputs.config_override }}"},{"key":"ALWAYS_STORE_BASKET_IN_CUSTOM_OBJECT","value":"${{ inputs.always_store_basket_in_custom_object }}"},{"key":"EE_API_CLIENT_TIMEOUT","value":"${{ inputs.ee_api_client_timeout }}" },{"key":"CIRCUIT_BREAKER_TIMEOUT","value":"${{ inputs.circuit_breaker_timeout }}" },{"key":"CIRCUIT_BREAKER_RESET_TIMEOUT","value":"${{ inputs.circuit_breaker_reset_timeout }}" },{"key":"CIRCUIT_BREAKER_ERROR_THRESHOLD_PERCENTAGE","value":"${{ inputs.circuit_breaker_error_threshold_percentage }}" },{"key":"CIRCUIT_BREAKER_ENABLED","value":"${{ inputs.circuit_breaker_enabled }}" },{"key":"EE_USE_ITEM_SKU","value":"${{ inputs.ee_use_item_sku }}" }]' >> $GITHUB_ENV
+        echo 'standard_configurations=[{"key":"CTP_REGION","value":"${{ inputs.ct_region }}"},{"key":"CTP_PROJECT_KEY","value":"${{ inputs.ct_project_key }}"},{"key":"CT_CART_TYPE_KEY","value":"${{ inputs.ct_cart_type_key }}"},{"key":"EE_POS_URL","value":"${{ inputs.ee_pos_url }}"},{"key":"SHIPPING_METHOD_MAP","value":"${{ inputs.shipping_method_map }}"},{"key":"EE_INCOMING_IDENTIFIER","value":"${{ inputs.ee_incoming_identifier }}"},{"key":"EE_EXCLUDE_UNIDENTIFIED_CUSTOMERS","value":"${{ inputs.ee_exclude_unidentified_customers }}"},{"key":"EE_PARENT_INCOMING_IDENTIFIER","value":"${{ inputs.ee_parent_incoming_identifier }}"},{"key":"CONFIG_OVERRIDE","value":"${{ inputs.config_override }}"},{"key":"ALWAYS_STORE_BASKET_IN_CUSTOM_OBJECT","value":"${{ inputs.always_store_basket_in_custom_object }}"},{"key":"EE_API_CLIENT_TIMEOUT","value":"${{ inputs.ee_api_client_timeout }}" },{"key":"CIRCUIT_BREAKER_TIMEOUT","value":"${{ inputs.circuit_breaker_timeout }}" },{"key":"CIRCUIT_BREAKER_RESET_TIMEOUT","value":"${{ inputs.circuit_breaker_reset_timeout }}" },{"key":"CIRCUIT_BREAKER_ERROR_THRESHOLD_PERCENTAGE","value":"${{ inputs.circuit_breaker_error_threshold_percentage }}" },{"key":"CIRCUIT_BREAKER_ENABLED","value":"${{ inputs.circuit_breaker_enabled }}" },{"key":"EE_USE_ITEM_SKU","value":"${{ inputs.ee_use_item_sku }}" }]' >> $GITHUB_ENV
         echo 'secured_configurations=[{"key":"CTP_CLIENT_ID","value":"${{ inputs.ct_api_client_id }}"},{"key":"CTP_CLIENT_SECRET","value":"${{ inputs.ct_api_client_secret }}"},{"key":"CTP_SCOPE","value":"${{ inputs.ct_scopes }}"},{"key":"EE_CLIENT_ID","value":"${{ inputs.ee_client_id }}"},{"key":"EE_CLIENT_SECRET","value":"${{ inputs.ee_client_secret }}"}]' >> $GITHUB_ENV
     - name: Deploy Connector with new tag
       id: ct_deploy_connector

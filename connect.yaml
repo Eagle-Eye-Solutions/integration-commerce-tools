@@ -13,6 +13,9 @@ deployAs:
         - key: CTP_REGION
           description: Region where the commercetools Composable Commerce Project is hosted
           required: true
+        - key: CT_CART_TYPE_KEY
+          description: Commercetools custom cart type key
+          required: false
         - key: EE_POS_URL
           description: URL for the EagleEye API POS endpoints
           required: false
@@ -82,6 +85,9 @@ deployAs:
         - key: CTP_REGION
           description: Region where the commercetools Composable Commerce Project is hosted
           required: true
+        - key: CT_CART_TYPE_KEY
+          description: Commercetools custom cart type key
+          required: false
         - key: EE_POS_URL
           description: URL for the EagleEye API POS endpoints
           required: true

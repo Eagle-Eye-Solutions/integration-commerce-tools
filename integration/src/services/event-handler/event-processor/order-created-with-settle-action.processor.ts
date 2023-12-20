@@ -8,7 +8,7 @@ import { OrderSettleService } from '../../order-settle/order-settle.service';
 import {
   FIELD_EAGLEEYE_SETTLED_STATUS,
   FIELD_EAGLEEYE_ACTION,
-} from '../../../providers/commercetools/custom-type/custom-type-definitions';
+} from '../../../providers/commercetools/custom-type/cart-type-definition';
 
 @Injectable()
 export class OrderCreatedWithSettleActionProcessor extends AbstractEventProcessor {

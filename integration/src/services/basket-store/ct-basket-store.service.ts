@@ -9,7 +9,7 @@ import {
   FIELD_EAGLEEYE_ACTION,
   FIELD_EAGLEEYE_BASKET_STORE,
   FIELD_EAGLEEYE_BASKET_URI,
-} from '../../providers/commercetools/custom-type/custom-type-definitions';
+} from '../../providers/commercetools/custom-type/cart-type-definition';
 
 /**
  * Stores EagleEye basket in commercetools custom objects

@@ -11,7 +11,7 @@ import {
   FIELD_EAGLEEYE_BASKET_URI,
   FIELD_EAGLEEYE_ERRORS,
   FIELD_EAGLEEYE_SETTLED_STATUS,
-} from '../../providers/commercetools/custom-type/custom-type-definitions';
+} from '../../providers/commercetools/custom-type/cart-type-definition';
 
 @Injectable()
 export class OrderSettleService {

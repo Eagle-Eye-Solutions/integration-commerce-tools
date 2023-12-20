@@ -20,7 +20,7 @@ import { BASKET_STORE_SERVICE } from './services/basket-store/basket-store.provi
 import { EagleEyePluginException } from './common/exceptions/eagle-eye-plugin.exception';
 import { EventHandlerService } from './services/event-handler/event-handler.service';
 import { isFulfilled } from './common/helper/promise';
-import { OrderSettleService } from './services/order-settle/order-settle.service';
+import { CartTypeDefinition } from './providers/commercetools/custom-type/cart-type-definition';
 
 @Injectable()
 export class AppService {
@@ -31,7 +31,7 @@ export class AppService {
     @Inject(BASKET_STORE_SERVICE)
     private readonly basketStoreService: BasketStoreService,
     private eventHandlerService: EventHandlerService,
-    private orderSettleService: OrderSettleService,
+    private cartTypeDefinition: CartTypeDefinition,
   ) {}
 
   async handleExtensionRequest(body: ExtensionInput): Promise<{
@@ -83,7 +83,10 @@ export class AppService {
         );
       } else {
         actionBuilder.add(
-          CartCustomTypeActionBuilder.addCustomType({ errors }),
+          CartCustomTypeActionBuilder.addCustomType(
+            { errors },
+            this.cartTypeDefinition.getTypeKey(),
+          ),
         );
       }
       // Discount removal should only be done for carts. This action is not valid for orders.
@@ -158,13 +161,16 @@ export class AppService {
       );
     } else {
       actionBuilder.add(
-        CartCustomTypeActionBuilder.addCustomType({
-          errors: basketDiscounts.errors,
-          discountDescriptions: [...basketDiscounts.discountDescriptions],
-          voucherCodes: basketDiscounts.voucherCodes,
-          potentialVoucherCodes: basketDiscounts.potentialVoucherCodes,
-          basketLocation,
-        }),
+        CartCustomTypeActionBuilder.addCustomType(
+          {
+            errors: basketDiscounts.errors,
+            discountDescriptions: [...basketDiscounts.discountDescriptions],
+            voucherCodes: basketDiscounts.voucherCodes,
+            potentialVoucherCodes: basketDiscounts.potentialVoucherCodes,
+            basketLocation,
+          },
+          this.cartTypeDefinition.getTypeKey(),
+        ),
       );
     }
     actionBuilder.add(
