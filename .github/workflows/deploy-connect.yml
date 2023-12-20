@@ -119,6 +119,12 @@ jobs:
           ee_incoming_identifier: ${{ vars.EE_INCOMING_IDENTIFIER }}
           ee_parent_incoming_identifier: ${{ vars.EE_PARENT_INCOMING_IDENTIFIER }}
           ee_exclude_unidentified_customers: ${{ vars.EE_EXCLUDE_UNIDENTIFIED_CUSTOMERS }}
+          ee_use_item_sku: ${{ vars.EE_USE_ITEM_SKU }}
+          always_store_basket_in_custom_object: ${{ vars.ALWAYS_STORE_BASKET_IN_CUSTOM_OBJECT }}
+          circuit_breaker_timeout: ${{ vars.CIRCUIT_BREAKER_TIMEOUT }}
+          circuit_breaker_reset_timeout: ${{ vars.CIRCUIT_BREAKER_RESET_TIMEOUT }}
+          circuit_breaker_error_threshold_percentage: ${{ vars.CIRCUIT_BREAKER_ERROR_THRESHOLD_PERCENTAGE }}
+          circuit_breaker_enabled: ${{ vars.CIRCUIT_BREAKER_ENABLED }}
   e2e-tests:
     name: 'Running E2E tests'
     if: ${{ github.event.inputs.environment != 'staging' }}
