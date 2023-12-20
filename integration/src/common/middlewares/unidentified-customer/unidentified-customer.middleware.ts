@@ -13,13 +13,18 @@ export class UnidentifiedCustomerMiddleware implements NestMiddleware {
       req.body?.resource?.obj?.custom?.fields?.['eagleeye-identityValue'];
     const voucherCodes =
       req.body?.resource?.obj?.custom?.fields?.['eagleeye-voucherCodes'];
+    const potentialVoucherCodes =
+      req.body?.resource?.obj?.custom?.fields?.[
+        'eagleeye-potentialVoucherCodes'
+      ];
     const excludeUnidentifiedCustomers = this.configService.get<boolean>(
       'eagleEye.excludeUnidentifiedCustomers',
     );
     if (
       excludeUnidentifiedCustomers &&
       !identityValue &&
-      !voucherCodes?.length
+      !voucherCodes?.length &&
+      !potentialVoucherCodes?.length
     ) {
       this.logger.debug(`Ignoring request for unidentified customers`);
       return res.status(200).json(new CTActionsBuilder().build());
