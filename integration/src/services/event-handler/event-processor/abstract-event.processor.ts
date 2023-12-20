@@ -3,6 +3,8 @@ import { ConfigService } from '@nestjs/config';
 
 export abstract class AbstractEventProcessor {
   message: DeliveryPayload;
+  processorName: string;
+
   constructor(protected readonly configService: ConfigService) {}
 
   setMessage(message): AbstractEventProcessor {
@@ -14,9 +16,9 @@ export abstract class AbstractEventProcessor {
 
   abstract generateActions(): Promise<(() => any)[]>;
 
-  isEventDisabled(PROCESSOR_NAME: string): boolean {
+  isEventDisabled(): boolean {
     const disabledEvents =
       this.configService.get<string[]>('eventHandler.disabledEvents') ?? [];
-    return disabledEvents.includes(PROCESSOR_NAME);
+    return disabledEvents.includes(this.processorName);
   }
 }

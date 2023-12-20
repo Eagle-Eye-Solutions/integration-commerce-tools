@@ -15,7 +15,6 @@ import {
 
 @Injectable()
 export class OrderUpdatedWithSettleActionProcessor extends AbstractEventProcessor {
-  private readonly PROCESSOR_NAME = 'OrderUpdatedWithSettleActionProcessor';
   public logger: Logger = new Logger(this.constructor.name);
   private order: Order;
 
@@ -25,21 +24,31 @@ export class OrderUpdatedWithSettleActionProcessor extends AbstractEventProcesso
     private orderSettleService: OrderSettleService,
   ) {
     super(configService);
+    this.processorName = 'OrderUpdatedWithSettleActionProcessor';
   }
 
   async isEventValid(): Promise<boolean> {
     const orderMessage = this.message as unknown as
       | OrderCustomFieldAddedMessage
       | OrderCustomFieldChangedMessage;
-    return (
+    const isValid =
       orderMessage.resource.typeId === 'order' &&
       this.isValidMessageType(orderMessage.type) &&
       (await this.isValidState(orderMessage)) &&
-      !this.isEventDisabled(this.PROCESSOR_NAME)
+      !this.isEventDisabled();
+    this.logger.debug(
+      `${OrderUpdatedWithSettleActionProcessor.name} ${
+        isValid ? 'IS' : 'NOT'
+      } valid for message with resource ID: ${this.message.resource.id}`,
     );
+    return isValid;
   }
 
   async generateActions(): Promise<(() => any)[]> {
+    this.logger.debug({
+      message: 'Generating actions',
+      context: OrderUpdatedWithSettleActionProcessor.name,
+    });
     const actions = [];
     actions.push(async () => {
       const updateActions =

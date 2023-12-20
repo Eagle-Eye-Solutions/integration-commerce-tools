@@ -18,21 +18,40 @@ export class EventHandlerService {
 
   async processEvent(message: MessageDeliveryPayload) {
     this.logger.log(
-      `Processing commercetools message type ${message.notificationType}, ID: ${message.resource.id}`,
+      `Processing commercetools message type '${message.notificationType}', resource type '${message.resource.typeId}', ID: ${message.resource.id}`,
     );
     this.logger.debug({
-      message: 'Message',
+      message: 'Event message payload',
       context: EventHandlerService.name,
       messagePayload: message,
     });
+    const validProcessors = await this.filterValidProcessors(message);
+
     return await Promise.allSettled(
-      this.eventProcessors.map(async (eventProcessor) => {
+      validProcessors.map(async (eventProcessor) =>
+        eventProcessor.generateActions(),
+      ),
+    );
+  }
+
+  private async filterValidProcessors(message: MessageDeliveryPayload) {
+    const processorsValidity = await Promise.allSettled(
+      this.eventProcessors.map((eventProcessor) => {
         eventProcessor.setMessage(message);
-        if (await eventProcessor.isEventValid()) {
-          return eventProcessor.generateActions();
-        }
+        return eventProcessor.isEventValid();
       }),
     );
+    return this.eventProcessors.filter((eventProcessor, index) => {
+      const result = processorsValidity[index];
+      if (result.status === 'fulfilled') {
+        return result.value;
+      } else if (result.status === 'rejected') {
+        this.logger.error(
+          `Error evaluating the processor validity for ${eventProcessor.processorName}. ${result.reason}`,
+        );
+      }
+      return false;
+    });
   }
 
   handleProcessedEventResponse(
