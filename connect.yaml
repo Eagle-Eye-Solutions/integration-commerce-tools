@@ -34,11 +34,23 @@ deployAs:
         - key: EE_API_CLIENT_TIMEOUT
           description: Amount of time to wait before EE API calls timeout
           required: false
-        - key: USE_ITEM_SKU
+        - key: EE_USE_ITEM_SKU
           description: Wether to set item SKUs as "SKU" instead of "UPC" for EagleEye Baskets
           required: false
         - key: EE_EXCLUDE_UNIDENTIFIED_CUSTOMERS
           description: When set to true returns open offers only for identified customers
+          required: false
+        - key: CIRCUIT_BREAKER_TIMEOUT
+          description: The time in milliseconds that action should be allowed to execute before timing out
+          required: false
+        - key: CIRCUIT_BREAKER_RESET_TIMEOUT
+          description: The time in milliseconds to wait before setting the breaker to halfOpen state
+          required: false
+        - key: CIRCUIT_BREAKER_ERROR_THRESHOLD_PERCENTAGE
+          description: The error percentage at which to open the circuit and start short-circuiting requests to fallback
+          required: false
+        - key: CIRCUIT_BREAKER_ENABLED
+          description: Whether the circuit breaker functionality is enabled
           required: false
       securedConfiguration:
         - key: CTP_CLIENT_ID
@@ -91,11 +103,23 @@ deployAs:
         - key: EE_API_CLIENT_TIMEOUT
           description: Amount of time to wait before EE API calls timeout
           required: false
-        - key: USE_ITEM_SKU
+        - key: EE_USE_ITEM_SKU
           description: Wether to set item SKUs as "SKU" instead of "UPC" for EagleEye Baskets
           required: false
         - key: EE_EXCLUDE_UNIDENTIFIED_CUSTOMERS
           description: When set to true returns open offers only for identified customers
+          required: false
+        - key: CIRCUIT_BREAKER_TIMEOUT
+          description: The time in milliseconds that action should be allowed to execute before timing out
+          required: false
+        - key: CIRCUIT_BREAKER_RESET_TIMEOUT
+          description: The time in milliseconds to wait before setting the breaker to halfOpen state
+          required: false
+        - key: CIRCUIT_BREAKER_ERROR_THRESHOLD_PERCENTAGE
+          description: The error percentage at which to open the circuit and start short-circuiting requests to fallback
+          required: false
+        - key: CIRCUIT_BREAKER_ENABLED
+          description: Whether the circuit breaker functionality is enabled
           required: false
       securedConfiguration:
         - key: CTP_CLIENT_ID
