@@ -5,6 +5,7 @@
 ### Basic steps
 
 The project is currently setup with Node v20. To install dependencies just run:
+
 ```shell
 yarn install
 ```
@@ -13,6 +14,7 @@ Several environment variables are needed to get started. As a reference check/ma
 set the required variables.
 
 Then, to start the integration in watch mode run:
+
 ```shell
 yarn run start:dev
 ```
@@ -29,9 +31,9 @@ To do this, you just need to set the following environment variable:
 NGROK_ENABLED=true
 ```
 
-After that, start the plugin in .All cart creation/update actions will now be processed by your local environment. Keep in mind if you have
+After that, start the plugin in .All cart creation/update actions will now be processed by your local environment. Keep
+in mind if you have
 other extensions in your commercetools project, the order in which extensions are called is not guaranteed.
-
 
 ## Tests
 
@@ -64,8 +66,23 @@ Create a new API Client in
 commercetools https://mc.europe-west1.gcp.commercetools.com/eagleeye-connector-dev/settings/developer/api-clients, the
 Admin Client scope can be used for test environments.  
 Once created download the credentials by selecting **Postman** in the dropdown.  
-Import the downloaded file in postman, it will generate a new postman environment.  
-Import the postman collection available in this repository
+Import the downloaded file in Postman, it will generate a new postman environment.  
+Import the Postman collection available in this repository.
+Add the EagleEye variables to the Postman environment. The Postman environment should have all the following variables:
+
+| Variable         | Description                      |
+|------------------|----------------------------------|
+| client_id        | commercetools client id          |
+| client_secret    | commercetools client secret      |
+| auth_url         | commercetools Authentication URL |
+| host             | commercetools API URL            |
+| project-key      | commercetools project key        |
+| pos_url          | Eagle Eye POS URL                |
+| wallet_url       | Eagle Eye Wallet URL             |
+| schemeId         | Eagle Eye Scheme ID              |
+| ee_client_id     | Eagle Eye username               |
+| ee_client_secret | Eagle Eye password               |
+
 at `integration/src/test/e2e/postman/eagle-eye-e2e-tests.postman_collection.json`
 
 To run all tests select the collection in postman and click on the Run button.
