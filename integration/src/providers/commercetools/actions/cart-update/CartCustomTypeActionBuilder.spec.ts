@@ -4,8 +4,23 @@ import {
   DiscountDescription,
 } from './CartCustomTypeActionBuilder';
 import { BasketLocation } from '../../../../services/basket-store/basket-store.interface';
+import { CartTypeDefinition } from '../../../../providers/commercetools/custom-type/cart-type-definition';
+import { Test, TestingModule } from '@nestjs/testing';
+import { ConfigService } from '@nestjs/config';
 
 describe('CartCustomTypeActionBuilder', () => {
+  let cartTypeDefinition: CartTypeDefinition;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        CartTypeDefinition,
+        { provide: ConfigService, useValue: { get: jest.fn() } },
+      ],
+    }).compile();
+    cartTypeDefinition = module.get<CartTypeDefinition>(CartTypeDefinition);
+  });
+
   it('should build an addCustomType action', () => {
     const errors: CustomFieldError[] = [
       { type: 'BASKET_STORE_DELETE', message: 'message1' },
@@ -27,13 +42,16 @@ describe('CartCustomTypeActionBuilder', () => {
       uri: 'path/to/basket',
       storeType: 'CUSTOM_TYPE',
     };
-    const action = CartCustomTypeActionBuilder.addCustomType({
-      errors,
-      discountDescriptions,
-      voucherCodes,
-      potentialVoucherCodes,
-      basketLocation,
-    });
+    const action = CartCustomTypeActionBuilder.addCustomType(
+      {
+        errors,
+        discountDescriptions,
+        voucherCodes,
+        potentialVoucherCodes,
+        basketLocation,
+      },
+      cartTypeDefinition.getTypeKey(),
+    );
 
     expect(action).toEqual({
       action: 'setCustomType',
@@ -50,6 +68,47 @@ describe('CartCustomTypeActionBuilder', () => {
         'eagleeye-potentialVoucherCodes': ['code3', 'code4'],
         'eagleeye-action': '',
         'eagleeye-settledStatus': '',
+      },
+    });
+  });
+
+  it('should remove eagleeye-identityValue when there is a related error in eagleeye-errors', () => {
+    const errors: CustomFieldError[] = [
+      { type: 'EE_API_CUSTOMER_NF', message: 'message1' },
+    ];
+    const voucherCodes = [];
+    const potentialVoucherCodes = [];
+    const basketLocation: BasketLocation = {
+      uri: 'path/to/basket',
+      storeType: 'CUSTOM_TYPE',
+    };
+    const action = CartCustomTypeActionBuilder.addCustomType(
+      {
+        errors,
+        discountDescriptions: [],
+        voucherCodes,
+        potentialVoucherCodes,
+        basketLocation,
+      },
+      cartTypeDefinition.getTypeKey(),
+    );
+
+    expect(action).toEqual({
+      action: 'setCustomType',
+      type: {
+        typeId: 'type',
+        key: 'custom-cart-type',
+      },
+      fields: {
+        'eagleeye-errors': errors.map((error) => JSON.stringify(error)),
+        'eagleeye-appliedDiscounts': [],
+        'eagleeye-basketStore': 'CUSTOM_TYPE',
+        'eagleeye-basketUri': 'path/to/basket',
+        'eagleeye-voucherCodes': [],
+        'eagleeye-potentialVoucherCodes': [],
+        'eagleeye-action': '',
+        'eagleeye-settledStatus': '',
+        'eagleeye-identityValue': '',
       },
     });
   });

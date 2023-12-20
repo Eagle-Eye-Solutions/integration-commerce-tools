@@ -1,7 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CustomTypeService } from './custom-type.service';
 import { Commercetools } from '../commercetools.provider';
-import { TypeDraft } from '@commercetools/platform-sdk';
+import { CartTypeDefinition } from './cart-type-definition';
+import { ConfigService } from '@nestjs/config';
 
 describe('CustomTypeService', () => {
   let service: CustomTypeService;
@@ -41,6 +42,13 @@ describe('CustomTypeService', () => {
       providers: [
         CustomTypeService,
         { provide: Commercetools, useValue: mockCommercetools },
+        CartTypeDefinition,
+        {
+          provide: 'TypeDefinitions',
+          useFactory: (cartTypeDefinition) => [cartTypeDefinition],
+          inject: [CartTypeDefinition],
+        },
+        { provide: ConfigService, useValue: { get: jest.fn() } },
       ],
     }).compile();
 
@@ -50,60 +58,40 @@ describe('CustomTypeService', () => {
     ) as jest.Mocked<Commercetools>;
   });
 
-  it('should create cart type', async () => {
-    const typeDefinition: TypeDraft = {
-      resourceTypeIds: [],
-      key: 'cartType',
-      name: { en: 'Cart Type' },
-      description: { en: 'Description' },
-      fieldDefinitions: [],
-    };
-
-    getExecuteMock.mockResolvedValue({ body: { results: [] } });
+  it('should create cart type when not found', async () => {
+    getWithKeyExecuteMock.mockRejectedValue({ statusCode: 201, body: {} });
     postExecuteMock.mockResolvedValue({
       statusCode: 201,
-      body: typeDefinition,
+      body: {},
     });
 
-    const result = await service.create(typeDefinition);
+    const result = await service.createUpdateAllTypes();
 
-    expect(result).toEqual(typeDefinition);
-    expect(getExecuteMock).toHaveBeenCalled();
+    expect(result).toEqual(undefined);
+    expect(getWithKeyExecuteMock).toHaveBeenCalled();
+    expect(postExecuteMock).toHaveBeenCalled();
+  });
+
+  it('should throw error when cart type is not found and fails to be created', async () => {
+    getWithKeyExecuteMock.mockRejectedValue({ statusCode: 201, body: {} });
+    postExecuteMock.mockResolvedValue({
+      statusCode: 400,
+      body: {},
+    });
+
+    await expect(service.createUpdateAllTypes()).rejects.toThrow();
+    expect(getWithKeyExecuteMock).toHaveBeenCalled();
     expect(postExecuteMock).toHaveBeenCalled();
   });
 
   it('should update all cart types when at least one already exists', async () => {
-    const typeDefinition: TypeDraft = {
-      resourceTypeIds: [],
-      key: 'cartType',
-      name: { en: 'Cart Type' },
-      description: { en: 'Description' },
-      fieldDefinitions: [
-        {
-          name: 'eagleeye-fieldToBeAdded',
-          label: {
-            en: 'eagleeye-fieldToBeAdded',
-          },
-          type: {
-            name: 'Set',
-            elementType: { name: 'String' },
-          },
-          required: false,
-        },
-      ],
-    };
-
-    getExecuteMock.mockResolvedValue({
+    getWithKeyExecuteMock.mockResolvedValue({
       body: {
-        results: [
+        key: 'cartType',
+        version: 1,
+        fieldDefinitions: [
           {
-            key: 'cartType',
-            version: 1,
-            fieldDefinitions: [
-              {
-                name: 'eagleeye-fieldToBeRemoved',
-              },
-            ],
+            name: 'eagleeye-fieldToBeRemoved',
           },
         ],
       },
@@ -130,65 +118,43 @@ describe('CustomTypeService', () => {
     };
     postWithKeyExecuteMock.mockResolvedValue(updatedTypeMock);
 
-    const result = await service.create(typeDefinition);
+    const result = await service.createUpdateAllTypes();
 
-    expect(result).toEqual([updatedTypeMock.body]);
-    expect(getExecuteMock).toHaveBeenCalled();
+    expect(result).toEqual(undefined);
+    expect(getWithKeyExecuteMock).toHaveBeenCalled();
     expect(postWithKeyExecuteMock).toHaveBeenCalled();
   });
 
   it('should throw error when cart type creation fails', async () => {
-    const typeDefinition: TypeDraft = {
-      resourceTypeIds: [],
-      key: 'cartType',
-      name: { en: 'Cart Type' },
-      description: { en: 'Description' },
-      fieldDefinitions: [],
-    };
-
-    getExecuteMock.mockResolvedValue({ body: { results: [] } });
-    postExecuteMock.mockResolvedValue({
+    getWithKeyExecuteMock.mockResolvedValue({
+      body: {
+        key: 'cartType',
+        version: 1,
+        fieldDefinitions: [
+          {
+            name: 'eagleeye-fieldToBeRemoved',
+          },
+        ],
+      },
+    });
+    postWithKeyExecuteMock.mockResolvedValue({
       statusCode: 400,
-      body: typeDefinition,
+      body: {},
     });
 
-    await expect(service.create(typeDefinition)).rejects.toThrow();
-    expect(postExecuteMock).toHaveBeenCalled();
+    await expect(service.createUpdateAllTypes()).rejects.toThrow();
+    expect(postWithKeyExecuteMock).toHaveBeenCalled();
     expect(commercetools.getApiRoot).toHaveBeenCalled();
   });
 
   it('should throw error when cart type update fails', async () => {
-    const typeDefinition: TypeDraft = {
-      resourceTypeIds: [],
-      key: 'cartType',
-      name: { en: 'Cart Type' },
-      description: { en: 'Description' },
-      fieldDefinitions: [
-        {
-          name: 'eagleeye-fieldToBeAdded',
-          label: {
-            en: 'eagleeye-fieldToBeAdded',
-          },
-          type: {
-            name: 'Set',
-            elementType: { name: 'String' },
-          },
-          required: false,
-        },
-      ],
-    };
-
-    getExecuteMock.mockResolvedValue({
+    getWithKeyExecuteMock.mockResolvedValue({
       body: {
-        results: [
+        key: 'cartType',
+        version: 1,
+        fieldDefinitions: [
           {
-            key: 'cartType',
-            version: 1,
-            fieldDefinitions: [
-              {
-                name: 'eagleeye-fieldToBeRemoved',
-              },
-            ],
+            name: 'eagleeye-fieldToBeRemoved',
           },
         ],
       },
@@ -199,7 +165,7 @@ describe('CustomTypeService', () => {
       body: {},
     });
 
-    await expect(service.create(typeDefinition)).rejects.toThrow();
+    await expect(service.createUpdateAllTypes()).rejects.toThrow();
     expect(postWithKeyExecuteMock).toHaveBeenCalled();
     expect(commercetools.getApiRoot).toHaveBeenCalled();
   });

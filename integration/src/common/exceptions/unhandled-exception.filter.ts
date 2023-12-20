@@ -1,10 +1,4 @@
-import {
-  ArgumentsHost,
-  Catch,
-  ExceptionFilter,
-  Inject,
-  Logger,
-} from '@nestjs/common';
+import { ArgumentsHost, Catch, ExceptionFilter, Logger } from '@nestjs/common';
 import { CTActionsBuilder } from '../../providers/commercetools/actions/ActionsBuilder';
 import { Response } from 'express';
 import { CartCustomTypeActionBuilder } from '../../providers/commercetools/actions/cart-update/CartCustomTypeActionBuilder';

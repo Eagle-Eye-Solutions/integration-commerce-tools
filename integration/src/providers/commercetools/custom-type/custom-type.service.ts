@@ -21,7 +21,7 @@ export class CustomTypeService {
     private readonly typeDefinitions: Array<TypeDefinitionInterface>,
   ) {}
 
-  async createAllTypes(): Promise<any> {
+  async createUpdateAllTypes(): Promise<any> {
     const ctClient = this.commercetools.getApiRoot();
     for (const type of this.typeDefinitions) {
       this.logger.log(

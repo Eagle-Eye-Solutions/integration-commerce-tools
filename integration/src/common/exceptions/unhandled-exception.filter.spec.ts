@@ -3,14 +3,27 @@ import { ArgumentsHost } from '@nestjs/common';
 import { CTActionsBuilder } from '../../providers/commercetools/actions/ActionsBuilder';
 import { CartCustomTypeActionBuilder } from '../../providers/commercetools/actions/cart-update/CartCustomTypeActionBuilder';
 import { Response } from 'express';
+import { Test, TestingModule } from '@nestjs/testing';
+import { CartTypeDefinition } from '../../providers/commercetools/custom-type/cart-type-definition';
+import { ConfigService } from '@nestjs/config';
 
 describe('UnhandledExceptionsFilter', () => {
   let filter: UnhandledExceptionsFilter;
   let mockArgumentsHost: jest.Mocked<ArgumentsHost>;
   let mockResponse: jest.Mocked<Response>;
+  let cartTypeDefinition: CartTypeDefinition;
 
-  beforeEach(() => {
-    filter = new UnhandledExceptionsFilter();
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        UnhandledExceptionsFilter,
+        CartTypeDefinition,
+        { provide: ConfigService, useValue: { get: jest.fn() } },
+      ],
+    }).compile();
+    filter = module.get<UnhandledExceptionsFilter>(UnhandledExceptionsFilter);
+    cartTypeDefinition = module.get<CartTypeDefinition>(CartTypeDefinition);
+
     mockResponse = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn().mockReturnThis(),
@@ -42,14 +55,17 @@ describe('UnhandledExceptionsFilter', () => {
   it('should return a custom error message', () => {
     const error = new Error('Test error');
     const expectedActions = new CTActionsBuilder().add(
-      CartCustomTypeActionBuilder.addCustomType({
-        errors: [
-          {
-            type: 'EE_PLUGIN_GENERIC_ERROR',
-            message: 'An unexpected error occured in the eagle eye plugin',
-          },
-        ],
-      }),
+      CartCustomTypeActionBuilder.addCustomType(
+        {
+          errors: [
+            {
+              type: 'EE_PLUGIN_GENERIC_ERROR',
+              message: 'An unexpected error occured in the eagle eye plugin',
+            },
+          ],
+        },
+        cartTypeDefinition.getTypeKey(),
+      ),
     );
     filter.catch(error, mockArgumentsHost);
 

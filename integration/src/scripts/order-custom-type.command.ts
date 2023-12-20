@@ -15,7 +15,7 @@ export class OrderCustomTypeCommand extends CommandRunner {
 
   async run(): Promise<void> {
     try {
-      await this.customTypeService.createAllTypes();
+      await this.customTypeService.createUpdateAllTypes();
       this.logger.log('Created/Updated order custom type in commercetools');
     } catch (e) {
       this.logger.error('Error creating custom types in commercetools', e);
