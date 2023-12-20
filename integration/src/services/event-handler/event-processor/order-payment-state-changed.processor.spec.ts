@@ -18,7 +18,7 @@ describe('OrderPaymentStateChangedProcessor', () => {
         id: 'order-id',
       },
     } as MessageDeliveryPayload;
-    configService = {} as ConfigService;
+    configService = { get: jest.fn() } as unknown as ConfigService;
     commercetools = {
       getOrderById: jest.fn(),
       updateOrderById: jest.fn(),
@@ -33,7 +33,11 @@ describe('OrderPaymentStateChangedProcessor', () => {
       orderSettleService,
     );
     processor.setMessage(message);
-    processor.logger = { log: jest.fn(), error: jest.fn() } as any;
+    processor.logger = {
+      log: jest.fn(),
+      error: jest.fn(),
+      debug: jest.fn(),
+    } as any;
   });
 
   describe('generateActions', () => {
@@ -105,6 +109,23 @@ describe('OrderPaymentStateChangedProcessor', () => {
 
     it('should return false if the order message type is invalid', () => {
       const result = processor.isValidMessageType('OrderFakeMessage');
+
+      expect(result).toBe(false);
+    });
+  });
+
+  describe('isEventDisabled', () => {
+    it('should return true if the event processing is disabled in the env variable CTP_DISABLED_EVENTS"', () => {
+      jest
+        .spyOn(configService, 'get')
+        .mockReturnValue(['AnotherEvent', 'OrderPaymentStateChanged']);
+      const result = processor.isEventDisabled();
+
+      expect(result).toBe(true);
+    });
+    it('should return false if the event processing is not disabled in the env variable CTP_DISABLED_EVENTS"', () => {
+      jest.spyOn(configService, 'get').mockReturnValue(['AnotherEvent']);
+      const result = processor.isEventDisabled();
 
       expect(result).toBe(false);
     });

@@ -9,7 +9,6 @@ import { FIELD_EAGLEEYE_SETTLED_STATUS } from '../../../providers/commercetools/
 
 @Injectable()
 export class OrderPaymentStateChangedProcessor extends AbstractEventProcessor {
-  private readonly PROCESSOR_NAME = 'OrderPaymentStateChanged';
   public logger: Logger = new Logger(this.constructor.name);
 
   constructor(
@@ -18,20 +17,30 @@ export class OrderPaymentStateChangedProcessor extends AbstractEventProcessor {
     private orderSettleService: OrderSettleService,
   ) {
     super(configService);
+    this.processorName = 'OrderPaymentStateChanged';
   }
 
   async isEventValid(): Promise<boolean> {
     const orderPaymentStateChangedMessage = this
       .message as unknown as OrderPaymentStateChangedMessage;
-    return (
+    const isValid =
       orderPaymentStateChangedMessage.resource.typeId === 'order' &&
       this.isValidMessageType(orderPaymentStateChangedMessage.type) &&
       this.isValidState(orderPaymentStateChangedMessage.paymentState) &&
-      !this.isEventDisabled(this.PROCESSOR_NAME)
+      !this.isEventDisabled();
+    this.logger.debug(
+      `${OrderPaymentStateChangedProcessor.name} ${
+        isValid ? 'IS' : 'NOT'
+      } valid for message with resource ID: ${this.message.resource.id}`,
     );
+    return isValid;
   }
 
   async generateActions(): Promise<(() => any)[]> {
+    this.logger.debug({
+      message: 'Generating actions',
+      context: OrderPaymentStateChangedProcessor.name,
+    });
     const actions = [];
     actions.push(async () => {
       const ctOrder: Order = await this.commercetools.getOrderById(

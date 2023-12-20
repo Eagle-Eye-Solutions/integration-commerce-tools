@@ -38,6 +38,9 @@ const validationSchema = Joi.object({
     errorThresholdPercentage: Joi.number(),
     enabled: Joi.boolean(),
   },
+  eventHandler: {
+    disabledEvents: Joi.array<string>(),
+  },
 });
 
 export const parseShippingMethodMap = (): { key: string; upc: string }[] => {
@@ -93,6 +96,11 @@ export const defaultConfiguration = {
       parseInt(process.env.CIRCUIT_BREAKER_ERROR_THRESHOLD_PERCENTAGE, 10) ||
       undefined,
     enabled: parseBool(process.env.CIRCUIT_BREAKER_ENABLED, true),
+  },
+  eventHandler: {
+    disabledEvents: (process.env.CTP_DISABLED_EVENTS || '')
+      .split(',')
+      .map((item) => item.trim()),
   },
 };
 

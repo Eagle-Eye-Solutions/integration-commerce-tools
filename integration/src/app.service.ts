@@ -113,13 +113,13 @@ export class AppService {
     if (response.status != 'OK') {
       return response;
     }
-    const validRequests = await actionPromises
+    const validRequests = actionPromises
       .filter(isFulfilled)
       .map((done) => done.value)
       .filter((value) => value)
       .flat();
     const eagleeyeActionPromises = validRequests.map(async (actionPromise) =>
-      (await actionPromise)(),
+      actionPromise(),
     );
     const results = await Promise.allSettled(eagleeyeActionPromises);
     return this.eventHandlerService.handleProcessedEventResponse(
