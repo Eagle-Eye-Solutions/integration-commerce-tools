@@ -8,7 +8,12 @@ export const extensions = [
 export const subscriptions = [
   {
     resource: 'order',
-    types: ['OrderPaymentStateChanged', 'OrderCreated'],
+    types: [
+      'OrderPaymentStateChanged',
+      'OrderCreated',
+      'OrderCustomFieldAdded',
+      'OrderCustomFieldChanged',
+    ],
     changes: ['order'],
     key: 'connect-eagleeye-integration-order',
   },
