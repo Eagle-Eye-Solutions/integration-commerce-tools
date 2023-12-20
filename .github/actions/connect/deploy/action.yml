@@ -57,16 +57,13 @@ inputs:
     description: 'When set to true returns open offers only for identified customers'
     required: false
   always_store_basket_in_custom_object:
-    description: Wether to always create a custo object for EE basket after opening a wallet
+    description: Wether to always create a custom object for EE basket after opening a wallet
     required: false
   ee_api_client_timeout:
     description: Amount of time to wait before EE API calls timeout
     required: false
   ee_use_item_sku:
     description: Wether to set item SKUs as "SKU" instead of "UPC" for EagleEye Baskets
-    required: false
-  always_store_basket_in_custom_object:
-    description: When set to true the EagleEye enriched basked is saved every time the plugin calls the EagleEye API
     required: false
   circuit_breaker_timeout:
     description: The time in milliseconds that action should be allowed to execute before timing out
