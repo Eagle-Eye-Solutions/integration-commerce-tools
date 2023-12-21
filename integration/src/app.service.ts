@@ -137,10 +137,9 @@ export class AppService {
   ) {
     const resourceObj = (body?.resource as any)?.obj;
     const basketDiscounts = await this.promotionService.getDiscounts(
-      body.resource as CartReference, //checked in the ExtensionTypeMiddleware
+      body.resource as CartReference,
     );
 
-    //store basket
     let basketLocation = null;
     if (this.basketStoreService.isEnabled(body.resource as CartReference)) {
       basketLocation = await this.basketStoreService.save(

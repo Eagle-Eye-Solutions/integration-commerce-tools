@@ -8,7 +8,6 @@ export class ExtensionTypeMiddleware implements NestMiddleware {
   use(req: any, res: any, next: () => void) {
     const body = req.body;
     if (!this.supportedTypes.includes(body?.resource?.typeId)) {
-      //todo use logger
       console.log(
         `The received typeId '${
           body.resource.typeId

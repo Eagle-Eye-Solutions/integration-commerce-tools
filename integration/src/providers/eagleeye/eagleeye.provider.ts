@@ -6,7 +6,6 @@ import { EagleEyeApiException } from '../../common/exceptions/eagle-eye-api.exce
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom, retry } from 'rxjs';
 
-// TODO: move this with other types to a proper directory
 export type EagleEyeCredentials = {
   clientId: string;
   clientSecret: string;

@@ -48,7 +48,7 @@ export class CTCartToEEBasketMapper {
       totalUnitCostAfterDiscount:
         lineItem.price.value.centAmount * lineItem.quantity,
       totalUnitCost: lineItem.price.value.centAmount * lineItem.quantity,
-      description: lineItem.name[Object.keys(lineItem.name)[0]], // TODO: handle locales
+      description: lineItem.name[Object.keys(lineItem.name)[0]],
       itemUnitMetric: 'EACH',
       itemUnitCount: lineItem.quantity,
       salesKey: 'SALE',
@@ -79,7 +79,7 @@ export class CTCartToEEBasketMapper {
           ],
         },
         target: {
-          type: 'totalPrice' as any, // Casting to skip checks, totalPrice is a BETA feature
+          type: 'totalPrice' as any,
         },
       };
     });
@@ -173,7 +173,6 @@ export class CTCartToEEBasketMapper {
       'eagleEye.shippingMethodMap',
     );
     if (shippingMethodMap?.length && shippingInfo?.shippingMethod) {
-      // In case multi-shipping method needs to be supported
       const shippingIds = [shippingInfo.shippingMethod.id];
       const shippingMethod = await this.commercetools.getShippingMethods({
         queryArgs: {
@@ -189,7 +188,7 @@ export class CTCartToEEBasketMapper {
           itemUnitCost: shippingInfo.price.centAmount,
           totalUnitCostAfterDiscount: shippingInfo.price.centAmount,
           totalUnitCost: shippingInfo.price.centAmount,
-          description: shippingInfo.shippingMethodName, // TODO: handle locales, shippingMethod.localizedName
+          description: shippingInfo.shippingMethodName,
           itemUnitMetric: 'EACH',
           itemUnitCount: 1,
           salesKey: 'SALE',
@@ -298,7 +297,6 @@ export class CTCartToEEBasketMapper {
 
     const identity = order.custom?.fields['eagleeye-identityValue'];
 
-    // TODO: handle cases where store location is not custom object
     const enrichedBasket = (await this.basketStoreService.get(order.cart.id))
       .enrichedBasket;
 

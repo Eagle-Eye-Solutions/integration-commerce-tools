@@ -69,7 +69,6 @@ export class CtBasketStoreService implements BasketStoreService {
         'Error saving enriched basket',
       );
     }
-    //TODO handle exceptions with exception handler and add error to eagleeye-errors field
   }
 
   async get(ctCartId: string): Promise<any> {
@@ -92,7 +91,6 @@ export class CtBasketStoreService implements BasketStoreService {
         'Error getting enriched basket',
       );
     }
-    //TODO handle exceptions with exception handler and add error to eagleeye-errors field
   }
 
   async delete(ctCartId: string): Promise<void> {

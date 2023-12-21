@@ -110,7 +110,6 @@ export class CustomTypeService {
         actions: [...addFieldActions, ...removeFieldActions],
       },
     };
-    // });
 
     const response = await ctClient
       .types()

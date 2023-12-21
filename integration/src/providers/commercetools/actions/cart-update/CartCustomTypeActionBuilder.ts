@@ -75,7 +75,6 @@ export class CartCustomTypeActionBuilder {
     };
   };
 
-  // TODO: refactor to consider non-existant fields in resource. This is to avoid InvalidOperation error.
   static setCustomFields = (
     customFieldsObject: CustomFieldsObject,
   ): OrderUpdateAction[] => {
