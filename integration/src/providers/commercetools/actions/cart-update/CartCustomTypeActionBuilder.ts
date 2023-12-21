@@ -40,6 +40,7 @@ interface CustomFieldsObject {
 export class CartCustomTypeActionBuilder {
   static addCustomType = (
     customFieldsObject: CustomFieldsObject,
+    cartTypeKey: string,
   ): OrderUpdateAction => {
     const customFields = {
       'eagleeye-errors': customFieldsObject.errors.map((error) =>
@@ -68,13 +69,12 @@ export class CartCustomTypeActionBuilder {
       action: 'setCustomType',
       type: {
         typeId: 'type',
-        key: 'custom-cart-type',
+        key: cartTypeKey,
       },
       fields: customFields,
     };
   };
 
-  // TODO: refactor to consider non-existant fields in resource. This is to avoid InvalidOperation error.
   static setCustomFields = (
     customFieldsObject: CustomFieldsObject,
   ): OrderUpdateAction[] => {

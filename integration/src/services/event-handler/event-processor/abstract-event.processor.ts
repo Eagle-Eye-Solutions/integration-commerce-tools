@@ -5,7 +5,7 @@ export abstract class AbstractEventProcessor {
   message: DeliveryPayload;
   processorName: string;
 
-  constructor(protected readonly configService: ConfigService) {}
+  protected constructor(protected readonly configService: ConfigService) {}
 
   setMessage(message): AbstractEventProcessor {
     this.message = message;

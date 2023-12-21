@@ -12,7 +12,6 @@ export class AppController {
 
   @Post('events')
   async handleSubscriptionEvents(@Body() body): Promise<any> {
-    //handling Pub/Sub events
     let message = body;
     if (body?.message?.data) {
       message = JSON.parse(Buffer.from(body.message.data, 'base64').toString());

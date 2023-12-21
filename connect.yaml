@@ -13,11 +13,14 @@ deployAs:
         - key: CTP_REGION
           description: Region where the commercetools Composable Commerce Project is hosted
           required: true
+        - key: CT_CART_TYPE_KEY
+          description: Commercetools custom cart type key
+          required: false
         - key: EE_POS_URL
           description: URL for the EagleEye API POS endpoints
           required: false
         - key: SHIPPING_METHOD_MAP
-          description: Stringified JSON array for mapping shipping methods to EE UPCs
+          description: Stringified and escaped JSON array for mapping shipping methods to EE UPCs
           required: false
         - key: CONFIG_OVERRIDE
           description: Stringified and escaped JSON to override all integration configurations
@@ -51,6 +54,9 @@ deployAs:
           required: false
         - key: CIRCUIT_BREAKER_ENABLED
           description: Whether the circuit breaker functionality is enabled
+          required: false
+        - key: CTP_DISABLED_EVENTS
+          description: Escaped string of comma separated events to ignore when processing incoming messages
           required: false
       securedConfiguration:
         - key: CTP_CLIENT_ID
@@ -82,11 +88,14 @@ deployAs:
         - key: CTP_REGION
           description: Region where the commercetools Composable Commerce Project is hosted
           required: true
+        - key: CT_CART_TYPE_KEY
+          description: Commercetools custom cart type key
+          required: false
         - key: EE_POS_URL
           description: URL for the EagleEye API POS endpoints
-          required: true
+          required: false
         - key: SHIPPING_METHOD_MAP
-          description: Stringified JSON array for mapping shipping methods to EE UPCs
+          description: Stringified and escaped JSON array for mapping shipping methods to EE UPCs
           required: false
         - key: CONFIG_OVERRIDE
           description: Stringified and escaped JSON to override all integration configurations
@@ -120,6 +129,9 @@ deployAs:
           required: false
         - key: CIRCUIT_BREAKER_ENABLED
           description: Whether the circuit breaker functionality is enabled
+          required: false
+        - key: CTP_DISABLED_EVENTS
+          description: Escaped string of comma separated events to ignore when processing incoming messages
           required: false
       securedConfiguration:
         - key: CTP_CLIENT_ID

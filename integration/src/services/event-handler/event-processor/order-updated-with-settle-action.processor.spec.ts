@@ -4,7 +4,7 @@ import { Commercetools } from '../../../providers/commercetools/commercetools.pr
 import { MessageDeliveryPayload } from '@commercetools/platform-sdk';
 import { EagleEyePluginException } from '../../../common/exceptions/eagle-eye-plugin.exception';
 import { OrderSettleService } from '../../order-settle/order-settle.service';
-import { FIELD_EAGLEEYE_ACTION } from '../../../providers/commercetools/custom-type/custom-type-definitions';
+import { FIELD_EAGLEEYE_ACTION } from '../../../providers/commercetools/custom-type/cart-type-definition';
 
 describe('OrderUpdatedWithSettleActionProcessor', () => {
   let processor: OrderUpdatedWithSettleActionProcessor;

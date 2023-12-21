@@ -9,7 +9,7 @@ import {
   FIELD_EAGLEEYE_ACTION,
   FIELD_EAGLEEYE_BASKET_STORE,
   FIELD_EAGLEEYE_BASKET_URI,
-} from '../../providers/commercetools/custom-type/custom-type-definitions';
+} from '../../providers/commercetools/custom-type/cart-type-definition';
 
 /**
  * Stores EagleEye basket in commercetools custom objects
@@ -69,7 +69,6 @@ export class CtBasketStoreService implements BasketStoreService {
         'Error saving enriched basket',
       );
     }
-    //TODO handle exceptions with exception handler and add error to eagleeye-errors field
   }
 
   async get(ctCartId: string): Promise<any> {
@@ -92,7 +91,6 @@ export class CtBasketStoreService implements BasketStoreService {
         'Error getting enriched basket',
       );
     }
-    //TODO handle exceptions with exception handler and add error to eagleeye-errors field
   }
 
   async delete(ctCartId: string): Promise<void> {

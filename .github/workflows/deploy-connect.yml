@@ -104,15 +104,16 @@ jobs:
           version: ${{ fromJSON(needs.ct-request-previewable.outputs.connector).version }}
           access_token: ${{ needs.ct-authorize.outputs.access_token }}
           is_previewable: ${{ fromJSON(needs.ct-request-previewable.outputs.connector).isPreviewable }}
+          connect_env: ${{ github.event.inputs.environment }}
+          connector_key: ${{ github.event.inputs.connector_key }}
           ct_api_client_id: ${{ secrets.CT_CLIENT_ID }}
           ct_api_client_secret: ${{ secrets.CT_CLIENT_SECRET }}
           ct_region: ${{ vars.CT_REGION }}
           ct_project_key: ${{ vars.CT_PROJECT_KEY }}
           ct_scopes: ${{ vars.CT_SCOPES }}
+          ct_cart_type_key: ${{ vars.CT_CART_TYPE_KEY }}
           ee_client_id: ${{ secrets.EE_CLIENT_ID }}
           ee_client_secret: ${{ secrets.EE_CLIENT_SECRET }}
-          connect_env: ${{ github.event.inputs.environment }}
-          connector_key: ${{ github.event.inputs.connector_key }}
           config_override: ${{ github.event.inputs.config_override }}
           ee_pos_url: ${{ vars.EE_POS_URL }}
           shipping_method_map: ${{ vars.SHIPPING_METHOD_MAP }}
@@ -120,11 +121,13 @@ jobs:
           ee_parent_incoming_identifier: ${{ vars.EE_PARENT_INCOMING_IDENTIFIER }}
           ee_exclude_unidentified_customers: ${{ vars.EE_EXCLUDE_UNIDENTIFIED_CUSTOMERS }}
           ee_use_item_sku: ${{ vars.EE_USE_ITEM_SKU }}
+          ee_api_client_timeout: ${{ vars.EE_API_CLIENT_TIMEOUT }}
           always_store_basket_in_custom_object: ${{ vars.ALWAYS_STORE_BASKET_IN_CUSTOM_OBJECT }}
           circuit_breaker_timeout: ${{ vars.CIRCUIT_BREAKER_TIMEOUT }}
           circuit_breaker_reset_timeout: ${{ vars.CIRCUIT_BREAKER_RESET_TIMEOUT }}
           circuit_breaker_error_threshold_percentage: ${{ vars.CIRCUIT_BREAKER_ERROR_THRESHOLD_PERCENTAGE }}
           circuit_breaker_enabled: ${{ vars.CIRCUIT_BREAKER_ENABLED }}
+          ctp_disabled_events: ${{ vars.CTP_DISABLED_EVENTS }}
   e2e-tests:
     name: 'Running E2E tests'
     if: ${{ github.event.inputs.environment != 'staging' }}

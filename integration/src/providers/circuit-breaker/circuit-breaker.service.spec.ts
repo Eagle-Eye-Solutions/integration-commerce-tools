@@ -125,7 +125,7 @@ describe('CircuitBreakerService', () => {
     };
     circuitBreakerState.loadState.mockResolvedValue(initialState);
 
-    await service.onModuleInit(); // Call onModuleInit manually
+    await service.onModuleInit();
 
     jest.spyOn(service['circuit'], 'toJSON').mockReturnValue(initialState);
     await service.saveState();

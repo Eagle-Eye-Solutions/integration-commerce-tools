@@ -5,7 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { Logger, Injectable } from '@nestjs/common';
 import { Commercetools } from '../../../providers/commercetools/commercetools.provider';
 import { OrderSettleService } from '../../order-settle/order-settle.service';
-import { FIELD_EAGLEEYE_SETTLED_STATUS } from '../../../providers/commercetools/custom-type/custom-type-definitions';
+import { FIELD_EAGLEEYE_SETTLED_STATUS } from '../../../providers/commercetools/custom-type/cart-type-definition';
 
 @Injectable()
 export class OrderPaymentStateChangedProcessor extends AbstractEventProcessor {

@@ -10,14 +10,10 @@ export function CircuitBreakerIntercept() {
     propertyKey: string,
     descriptor: PropertyDescriptor,
   ) {
-    // const originalMethod = descriptor.value;
-
     descriptor.value = async function (...args: any[]) {
-      // Service injection
       circuitBreakerService(target, 'circuitBreaker');
       const circuitBreaker: CircuitBreakerService = this.circuitBreakerService;
 
-      // Modify the arguments or perform any other actions
       try {
         const result = await circuitBreaker.fire(...args);
         logger.log({
@@ -29,9 +25,6 @@ export function CircuitBreakerIntercept() {
         logger.error('Error calling the circuit breaker API', error);
         throw error;
       }
-
-      // Call the original method
-      // return originalMethod.apply(this, args);
     };
 
     return descriptor;

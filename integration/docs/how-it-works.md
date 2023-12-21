@@ -6,7 +6,7 @@
 
 The cart extension has enabled by default a circuit breaker functionality, all calls to EagleEye wallet APIs are tracked
 and if the response times are consistently too slow for a period of time or failing with some error code, the plugin
-stops sending requests to EagleEye and add the error details in the returned commercetools cart custom fields.
+stops sending requests to EagleEye and adds the error details in the returned commercetools cart custom fields.
 
 The following snippet shows an example timeout error. The details of the error are available in the `custom` field of
 the commercetools `Cart`.
@@ -30,7 +30,7 @@ the commercetools `Cart`.
 
 To configure the circuit breaker parameters check the [configuration](installation.md#configuration) section.
 
-Any other error in the plugin will also be added to the `errors` field in the `Cart`. E.g.:
+Any other errors in the plugin will also be added to the `errors` field in the `Cart`. E.g.:
 
 ```json
 {
@@ -51,8 +51,20 @@ Any other error in the plugin will also be added to the `errors` field in the `C
 
 ## Settle
 
-TODO Explain why is required to settle
+When performing cart creation/updates (like changing line item quantities, or adding voucher codes) a transaction is created/updated in AIR, tied to said cart by using it's `id` as a reference. This transaction "locks" certain things related to it, like voucher codes (so they cannot be used multiple times concurrently).
+
+This transaction is later "settled", when an order `paymentState` changes to "Paid" or when specifically asked to by setting the custom field `eagleeye-action` to `"SETTLE"`. This confirms the transaction in EagleEye AIR so the customer can redeem their rewards (like discounts or loyalty points).
+
+As long as the custom field `eagleeye-settledStatus` for a given order is not `"SETTLED"` and a saved basket exists, then settle can be performed by:
+- Creating/Updating orders with `eagleeye-action` custom field and value `"SETTLE"`.
+- Creating/Updating orders with `order.paymentState` set to `"Paid"`.
+
+In all of these cases, the transaction will be settled asynchronously using [Subscriptions](https://docs.commercetools.com/api/projects/subscriptions).
 
 ### Storing Eagle-Eye enriched basket
 
-TODO Explain how/when to store the eriched basket (configuration options / eagleeye-action)
+When anything related to this transaction happens, a copy of the "basket" (cart) processed by AIR is saved (by default using Custom Objects, see section below). This basket is saved whenever a cart changes, then it's later checked and sent to AIR when settling the transaction.
+
+If this functionality is disabled using the environment variable `ALWAYS_STORE_BASKET_IN_CUSTOM_OBJECT` set to `false`, then you will need to update the cart with the custom field `eagleeye-action` set to `SAVE_BASKET` for it to be stored manually.
+
+Currently the only way to save baskets is using commercetools' Custom Objects, but the code in a way that allows creating a custom `BasketStoreService` implementing the same interface but storing data in a place of your choosing.

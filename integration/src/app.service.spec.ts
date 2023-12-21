@@ -16,6 +16,7 @@ import { EagleEyeApiClient } from './providers/eagleeye/eagleeye.provider';
 import { CTCartToEEBasketMapper } from './common/mappers/ctCartToEeBasket.mapper';
 import { Commercetools } from './providers/commercetools/commercetools.provider';
 import { OrderSettleService } from './services/order-settle/order-settle.service';
+import { CartTypeDefinition } from './providers/commercetools/custom-type/cart-type-definition';
 
 class CircuitBreakerError extends Error {
   constructor(public code: string) {
@@ -85,6 +86,12 @@ describe('AppService', () => {
           useValue: {
             settleTransactionFromOrder: jest.fn(),
           },
+        },
+        CartTypeDefinition,
+        {
+          provide: 'TypeDefinitions',
+          useFactory: (cartTypeDefinition) => [cartTypeDefinition],
+          inject: [CartTypeDefinition],
         },
       ],
     }).compile();
