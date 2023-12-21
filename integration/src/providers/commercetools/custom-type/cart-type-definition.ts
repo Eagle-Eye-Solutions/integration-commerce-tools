@@ -17,7 +17,7 @@ export class CartTypeDefinition implements TypeDefinitionInterface {
 
   getTypeKey(): string {
     return (
-      this.configService.get<string>('commercetools.cartTypeKey') ?? TYPE_CART
+      this.configService.get<string>('commercetools.cartTypeKey') || TYPE_CART
     );
   }
 

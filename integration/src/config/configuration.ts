@@ -19,7 +19,7 @@ const validationSchema = Joi.object({
     clientId: Joi.string().required(),
     clientSecret: Joi.string().required(),
     scope: Joi.array<string>(),
-    cartTypeKey: Joi.string(),
+    cartTypeKey: Joi.string().allow(''),
   }),
   eagleEye: Joi.object({
     clientId: Joi.string().required(),
@@ -70,7 +70,7 @@ export const defaultConfiguration = {
     clientId: process.env.CTP_CLIENT_ID,
     clientSecret: process.env.CTP_CLIENT_SECRET,
     scope: (process.env.CTP_SCOPE || '').split(' '),
-    cartTypeKey: process.env.CT_CART_TYPE_KEY,
+    cartTypeKey: process.env.CT_CART_TYPE_KEY || '',
   },
   eagleEye: {
     clientId: process.env.EE_CLIENT_ID,
