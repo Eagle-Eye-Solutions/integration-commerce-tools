@@ -43,7 +43,7 @@ describe('Exclude unidentified customers (e2e)', () => {
     const recalculateCart = JSON.parse(JSON.stringify(RECALCULATE_CART));
     delete recalculateCart.resource.obj.custom.fields;
     await request(app.getHttpServer())
-      .post('/service')
+      .post('/cart/service')
       .send(recalculateCart)
       .expect(200)
       .expect({

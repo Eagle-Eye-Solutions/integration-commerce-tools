@@ -1,16 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PromotionService } from './promotions.service';
+import { PromotionService } from './promotion.service';
 import { Commercetools } from '../../providers/commercetools/commercetools.provider';
 import { EagleEyeApiClient } from '../../providers/eagleeye/eagleeye.provider';
 import { ConfigService } from '@nestjs/config';
 import { CTCartToEEBasketMapper } from '../../common/mappers/ctCartToEeBasket.mapper';
 import { Logger } from '@nestjs/common';
-import { CircuitBreakerService } from '../../providers/circuit-breaker/circuit-breaker.service';
 import { BASKET_STORE_SERVICE } from '../basket-store/basket-store.provider';
 
 describe('PromotionService', () => {
   let service: PromotionService;
-  let circuitBreakerService: CircuitBreakerService;
   let configService: ConfigService;
   let commercetools: Commercetools;
   const walletOpenMock = jest.fn();
@@ -52,7 +50,6 @@ describe('PromotionService', () => {
           },
         },
         CTCartToEEBasketMapper,
-        { provide: CircuitBreakerService, useValue: { fire: jest.fn() } },
         Logger,
         {
           provide: BASKET_STORE_SERVICE,
@@ -67,9 +64,6 @@ describe('PromotionService', () => {
     }).compile();
 
     service = module.get<PromotionService>(PromotionService);
-    circuitBreakerService = module.get<CircuitBreakerService>(
-      CircuitBreakerService,
-    );
     configService = module.get<ConfigService>(ConfigService);
     commercetools = module.get<Commercetools>(Commercetools);
   });
@@ -154,14 +148,8 @@ describe('PromotionService', () => {
         },
       };
 
-      const cbFireMock = jest
-        .spyOn(circuitBreakerService, 'fire')
-        .mockResolvedValue({ status: 200, data: walletOpenResponse });
-
       jest
         .spyOn(configService, 'get')
-        .mockReturnValueOnce(false)
-        .mockReturnValueOnce(false)
         .mockReturnValueOnce(shippingMethodMapMock)
         .mockReturnValueOnce('outlet1')
         .mockReturnValueOnce('banner1')
@@ -171,9 +159,11 @@ describe('PromotionService', () => {
         .spyOn(commercetools, 'getShippingMethods')
         .mockResolvedValueOnce([{ key: 'standard-key' }] as any);
 
-      const result = await service.getDiscounts(cartReference as any);
+      const result = await service.getDiscounts(
+        { status: 200, data: walletOpenResponse },
+        cartReference as any,
+      );
 
-      expect(cbFireMock).toHaveBeenCalled();
       expect(result).toEqual({
         discounts: service.cartToBasketMapper
           .mapAdjustedBasketToCartDirectDiscounts(
@@ -205,17 +195,15 @@ describe('PromotionService', () => {
         },
       };
 
-      const cbFireMock = jest
-        .spyOn(circuitBreakerService, 'fire')
-        .mockResolvedValue({ status: 200, data: walletOpenResponse });
-
       jest
         .spyOn(configService, 'get')
         .mockReturnValueOnce(shippingMethodMapMock);
 
-      const result = await service.getDiscounts(cartReference as any);
+      const result = await service.getDiscounts(
+        { status: 200, data: walletOpenResponse },
+        cartReference as any,
+      );
 
-      expect(cbFireMock).toHaveBeenCalled();
       expect(result).toEqual({
         discounts: [],
         enrichedBasket: undefined,
@@ -276,17 +264,15 @@ describe('PromotionService', () => {
         ],
       };
 
-      const cbFireMock = jest
-        .spyOn(circuitBreakerService, 'fire')
-        .mockResolvedValue({ status: 200, data: walletOpenResponse });
-
       jest
         .spyOn(configService, 'get')
         .mockReturnValueOnce(shippingMethodMapMock);
 
-      const result = await service.getDiscounts(cartReference as any);
+      const result = await service.getDiscounts(
+        { status: 200, data: walletOpenResponse },
+        cartReference as any,
+      );
 
-      expect(cbFireMock).toHaveBeenCalled();
       expect(result).toEqual({
         discounts: [],
         discountDescriptions: [],
@@ -320,182 +306,6 @@ describe('PromotionService', () => {
         voucherCodes: ['valid-code'],
         potentialVoucherCodes: ['invalid-code'],
       });
-    });
-
-    it('should add identity not found error when provided by the EE API', async () => {
-      const cartReference = {
-        id: 'cartId',
-        obj: {
-          ...cartWithoutItems,
-          custom: {
-            type: {
-              typeId: 'type',
-              id: 'some-id',
-            },
-            fields: {
-              'eagleeye-identityValue': '1234590',
-            },
-          },
-        },
-      };
-      const walletOpenResponse = {
-        analyseBasketResults: {
-          basket: {
-            summary: {
-              totalDiscountAmount: {
-                promotions: 10,
-              },
-              adjustmentResults: [
-                {
-                  value: 10,
-                },
-              ],
-            },
-            contents: [
-              {
-                upc: 'SKU123',
-                adjustmentResults: [
-                  {
-                    totalDiscountAmount: 10,
-                  },
-                ],
-              },
-            ],
-          },
-          discount: [
-            {
-              campaignName: 'Example Discount',
-            },
-          ],
-        },
-      };
-
-      const cbFireMock = jest
-        .spyOn(circuitBreakerService, 'fire')
-        .mockRejectedValueOnce({ type: 'EE_IDENTITY_NOT_FOUND' })
-        .mockResolvedValueOnce({ status: 200, data: walletOpenResponse });
-
-      jest
-        .spyOn(configService, 'get')
-        .mockReturnValueOnce(shippingMethodMapMock);
-
-      const result = await service.getDiscounts(cartReference as any);
-      expect(cbFireMock).toHaveBeenCalled();
-      expect(result).toEqual({
-        discounts: [
-          {
-            value: {
-              type: 'absolute',
-              money: [
-                {
-                  centAmount: 10,
-                  currencyCode: 'USD',
-                  type: 'centPrecision',
-                  fractionDigits: 2,
-                },
-              ],
-            },
-            target: { type: 'totalPrice' },
-          },
-        ],
-        discountDescriptions: [{ description: 'Example Discount' }],
-        errors: [
-          {
-            type: 'EE_API_CUSTOMER_NF',
-            message: '1234590 - Customer identity not found',
-            context: { type: 'EE_IDENTITY_NOT_FOUND' },
-          },
-        ],
-        voucherCodes: [],
-        potentialVoucherCodes: [],
-        enrichedBasket: {
-          summary: {
-            totalDiscountAmount: { promotions: 10 },
-            adjustmentResults: [{ value: 10 }],
-          },
-          contents: [
-            { upc: 'SKU123', adjustmentResults: [{ totalDiscountAmount: 10 }] },
-          ],
-        },
-      });
-    });
-
-    it('should throw error when received any other error apart from identity not found during the wallet open call', async () => {
-      const cartReference = {
-        id: 'cartId',
-        obj: {
-          ...cartWithoutItems,
-          custom: {
-            type: {
-              typeId: 'type',
-              id: 'some-id',
-            },
-            fields: {
-              'eagleeye-identityValue': '1234590',
-            },
-          },
-        },
-      };
-
-      const cbFireMock = jest
-        .spyOn(circuitBreakerService, 'fire')
-        .mockRejectedValue({ type: 'EE_NOT_IDENTITY_NOT_FOUND_ERROR' });
-
-      jest
-        .spyOn(configService, 'get')
-        .mockReturnValueOnce(shippingMethodMapMock);
-
-      let expectFlag: boolean = false;
-      try {
-        await service.getDiscounts(cartReference as any);
-      } catch (error) {
-        expectFlag = true;
-      }
-      expect(cbFireMock).toHaveBeenCalled();
-      expect(expectFlag).toBeTruthy;
-    });
-
-    it('should throw error when 2nd wallet open call returns an error as well in the identity not found scenario', async () => {
-      const cartReference = {
-        id: 'cartId',
-        obj: {
-          ...cartWithoutItems,
-          custom: {
-            type: {
-              typeId: 'type',
-              id: 'some-id',
-            },
-            fields: {
-              'eagleeye-identityValue': '1234590',
-            },
-          },
-        },
-      };
-
-      const cbFireMock = jest
-        .spyOn(circuitBreakerService, 'fire')
-        .mockImplementationOnce(() => {
-          throw {
-            type: 'EE_IDENTITY_NOT_FOUND',
-          };
-        })
-        .mockImplementationOnce(() => {
-          throw new Error();
-        });
-
-      jest
-        .spyOn(configService, 'get')
-        .mockReturnValueOnce(shippingMethodMapMock);
-
-      let expectFlag: boolean = false;
-      try {
-        await service.getDiscounts(cartReference as any);
-      } catch (error) {
-        expectFlag = true;
-      }
-
-      expect(cbFireMock).toHaveBeenCalled();
-      expect(expectFlag).toBeTruthy;
     });
   });
 
@@ -812,8 +622,11 @@ describe('PromotionService', () => {
       const result = await service.getBasketDiscountDescriptions(
         walletOpenResponse.analyseBasketResults.discount,
       );
+      const resulNoDiscount =
+        await service.getBasketDiscountDescriptions(undefined);
 
       expect(result).toEqual([]);
+      expect(resulNoDiscount).toEqual([]);
     });
   });
 });

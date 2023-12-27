@@ -90,7 +90,7 @@ export abstract class EagleEyeSdkObject implements BreakableApi {
       if (err.response.status === 404) {
         throw new EagleEyeApiException(
           'EE_IDENTITY_NOT_FOUND',
-          'The customer identity doesnt exist in EE AIR Platform',
+          "The customer identity doesn't exist in EE AIR Platform",
         );
       }
       throw new EagleEyeApiException(

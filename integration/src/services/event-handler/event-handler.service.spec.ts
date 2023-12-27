@@ -10,10 +10,13 @@ import { OrderSettleService } from '../order-settle/order-settle.service';
 import { OrderPaymentStateChangedProcessor } from './event-processor/order-payment-state-changed.processor';
 import { OrderCreatedWithPaidStateProcessor } from './event-processor/order-created-with-paid-state.processor';
 import { OrderCreatedWithSettleActionProcessor } from './event-processor/order-created-with-settle-action.processor';
+import { FIELD_EAGLEEYE_ACTION } from '../../providers/commercetools/custom-type/cart-type-definition';
+import { OrderUpdatedWithSettleActionProcessor } from './event-processor/order-updated-with-settle-action.processor';
 
 describe('EventHandlerService', () => {
   let service: EventHandlerService;
   const walletOpenMock = jest.fn();
+  let commercetools: Commercetools;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -60,27 +63,32 @@ describe('EventHandlerService', () => {
         OrderPaymentStateChangedProcessor,
         OrderCreatedWithPaidStateProcessor,
         OrderCreatedWithSettleActionProcessor,
+        OrderUpdatedWithSettleActionProcessor,
         {
           provide: 'EventProcessors',
           useFactory: (
             orderPaymentStateChanged,
             orderCreatedWithSettleAction,
             orderCreatedWithPaidState,
+            orderUpdatedWithSettleAction,
           ) => [
             orderPaymentStateChanged,
             orderCreatedWithSettleAction,
             orderCreatedWithPaidState,
+            orderUpdatedWithSettleAction,
           ],
           inject: [
             OrderPaymentStateChangedProcessor,
             OrderCreatedWithSettleActionProcessor,
             OrderCreatedWithPaidStateProcessor,
+            OrderUpdatedWithSettleActionProcessor,
           ],
         },
       ],
     }).compile();
 
     service = module.get<EventHandlerService>(EventHandlerService);
+    commercetools = module.get<Commercetools>(Commercetools);
   });
 
   describe('processEvent', () => {
@@ -155,6 +163,42 @@ describe('EventHandlerService', () => {
         type: 'OrderCreated',
         id: '123456',
       };
+
+      const actionPromises = await service.processEvent(message as any);
+
+      expect(actionPromises.filter((p: any) => p.value)).toEqual([
+        {
+          status: 'fulfilled',
+          value: [expect.any(Function)],
+        },
+      ]);
+    });
+
+    it('should process the OrderCustomFieldAdded (with "SETTLE" action) event and return action promises', async () => {
+      const message = {
+        resource: {
+          typeId: 'order',
+          id: '123456',
+        },
+        name: FIELD_EAGLEEYE_ACTION,
+        value: 'SETTLE',
+        type: 'OrderCustomFieldAdded',
+        id: '123456',
+      };
+      const ctOrder = {
+        cart: {
+          id: 'cart-id',
+        },
+        custom: {
+          fields: {
+            'eagleeye-action': 'SETTLE',
+            'eagleeye-settledStatus': '',
+          },
+        },
+      };
+      jest
+        .spyOn(commercetools, 'getOrderById')
+        .mockResolvedValue(ctOrder as any);
 
       const actionPromises = await service.processEvent(message as any);
 

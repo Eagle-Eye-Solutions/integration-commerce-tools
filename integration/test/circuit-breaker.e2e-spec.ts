@@ -83,38 +83,38 @@ describe('Circuit breaker (e2e)', () => {
     );
     app = await initAppModule();
     await request(app.getHttpServer())
-      .post('/service')
+      .post('/cart/service')
       .send(RECALCULATE_CART)
       .expect(201)
       .expect(SUCCESS_RESPONSE);
     await request(app.getHttpServer())
-      .post('/service')
+      .post('/cart/service')
       .send(RECALCULATE_CART)
       .expect(201)
       .expect(SUCCESS_RESPONSE);
     await request(app.getHttpServer())
-      .post('/service')
+      .post('/cart/service')
       .send(RECALCULATE_CART)
       .expect(201)
       .expect(SUCCESS_RESPONSE);
     await request(app.getHttpServer())
-      .post('/service')
+      .post('/cart/service')
       .send(RECALCULATE_CART)
       .expect(201)
       .expect(ERROR_RESPONSE);
     await request(app.getHttpServer())
-      .post('/service')
+      .post('/cart/service')
       .send(RECALCULATE_CART)
       .expect(201)
       .expect(ERROR_RESPONSE);
     await request(app.getHttpServer())
-      .post('/service')
+      .post('/cart/service')
       .send(RECALCULATE_CART)
       .expect(201)
       .expect(ERROR_RESPONSE);
     // open circuit and save circuit state to CT custom object
     await request(app.getHttpServer())
-      .post('/service')
+      .post('/cart/service')
       .send(RECALCULATE_CART)
       .expect(201)
       .expect(ERROR_RESPONSE);
@@ -145,7 +145,7 @@ describe('Circuit breaker (e2e)', () => {
     app = await initAppModule();
 
     await request(app.getHttpServer())
-      .post('/service')
+      .post('/cart/service')
       .send(RECALCULATE_CART)
       .expect(201)
       .expect({

@@ -1,22 +1,19 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AppService } from './app.service';
-import { CircuitBreakerService } from './providers/circuit-breaker/circuit-breaker.service';
-import {
-  ExtensionInput,
-  OrderPaymentStateChangedMessage,
-} from '@commercetools/platform-sdk';
-import { EagleEyeApiException } from './common/exceptions/eagle-eye-api.exception';
-import { PromotionService } from './services/promotions/promotions.service';
-import { BASKET_STORE_SERVICE } from './services/basket-store/basket-store.provider';
-import { BasketStoreService } from './services/basket-store/basket-store.interface';
-import { EagleEyePluginException } from './common/exceptions/eagle-eye-plugin.exception';
-import { EventHandlerService } from './services/event-handler/event-handler.service';
+import { CartExtensionService } from './cart-extension.service';
+import { CircuitBreakerService } from '../../providers/circuit-breaker/circuit-breaker.service';
+import { ExtensionInput } from '@commercetools/platform-sdk';
+import { EagleEyeApiException } from '../../common/exceptions/eagle-eye-api.exception';
+import { PromotionService } from '../../services/promotion/promotion.service';
+import { BASKET_STORE_SERVICE } from '../../services/basket-store/basket-store.provider';
+import { BasketStoreService } from '../../services/basket-store/basket-store.interface';
+import { EagleEyePluginException } from '../../common/exceptions/eagle-eye-plugin.exception';
 import { ConfigService } from '@nestjs/config';
-import { EagleEyeApiClient } from './providers/eagleeye/eagleeye.provider';
-import { CTCartToEEBasketMapper } from './common/mappers/ctCartToEeBasket.mapper';
-import { Commercetools } from './providers/commercetools/commercetools.provider';
-import { OrderSettleService } from './services/order-settle/order-settle.service';
-import { CartTypeDefinition } from './providers/commercetools/custom-type/cart-type-definition';
+import { EagleEyeApiClient } from '../../providers/eagleeye/eagleeye.provider';
+import { CTCartToEEBasketMapper } from '../../common/mappers/ctCartToEeBasket.mapper';
+import { Commercetools } from '../../providers/commercetools/commercetools.provider';
+import { OrderSettleService } from '../../services/order-settle/order-settle.service';
+import { CartTypeDefinition } from '../../providers/commercetools/custom-type/cart-type-definition';
+import { LoyaltyService } from '../../services/loyalty/loyalty.service';
 
 class CircuitBreakerError extends Error {
   constructor(public code: string) {
@@ -24,17 +21,16 @@ class CircuitBreakerError extends Error {
   }
 }
 
-describe('AppService', () => {
-  let service: AppService;
+describe('CartExtensionService', () => {
+  let service: CartExtensionService;
   let circuitBreakerService: CircuitBreakerService;
   let promotionService: PromotionService;
   let basketStoreService: jest.Mocked<BasketStoreService>;
-  let eventHandlerService: EventHandlerService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        AppService,
+        CartExtensionService,
         { provide: CircuitBreakerService, useValue: { fire: jest.fn() } },
         {
           provide: PromotionService,
@@ -45,19 +41,18 @@ describe('AppService', () => {
           },
         },
         {
+          provide: LoyaltyService,
+          useValue: {
+            getEarnAndCredits: jest.fn(),
+          },
+        },
+        {
           provide: BASKET_STORE_SERVICE,
           useValue: {
             save: jest.fn(),
             get: jest.fn(),
             delete: jest.fn(),
             isEnabled: jest.fn(),
-          },
-        },
-        {
-          provide: EventHandlerService,
-          useValue: {
-            processEvent: jest.fn(),
-            handleProcessedEventResponse: jest.fn(),
           },
         },
         {
@@ -96,13 +91,12 @@ describe('AppService', () => {
       ],
     }).compile();
 
-    service = module.get<AppService>(AppService);
+    service = module.get<CartExtensionService>(CartExtensionService);
     circuitBreakerService = module.get<CircuitBreakerService>(
       CircuitBreakerService,
     );
     promotionService = module.get<PromotionService>(PromotionService);
     basketStoreService = module.get(BASKET_STORE_SERVICE);
-    eventHandlerService = module.get(EventHandlerService);
   });
 
   it('should be defined', () => {
@@ -115,7 +109,9 @@ describe('AppService', () => {
       resource: {
         typeId: 'cart',
         id: '123',
-        obj: {} as any,
+        obj: {
+          lineItems: [],
+        } as any,
       },
     };
     const discountDrafts = [
@@ -213,57 +209,14 @@ describe('AppService', () => {
         },
       ],
     };
-    jest.spyOn(circuitBreakerService, 'fire').mockResolvedValue({});
-    const response = await service.handleExtensionRequest(body);
+    jest.spyOn(circuitBreakerService, 'fire').mockResolvedValue({
+      status: 200,
+      data: {},
+    });
+    const response = await service.handleCartExtensionRequest(body);
     expect(response).toEqual(result);
     expect(basketStoreService.save).toBeCalledTimes(1);
     expect(basketStoreService.delete).toBeCalledTimes(0);
-  });
-
-  it('should handle successful order subscription events', async () => {
-    const body = {
-      resource: {
-        typeId: 'order',
-        id: 'order-id',
-      },
-      type: 'OrderPaymentStateChanged',
-      paymentState: 'Paid',
-    } as unknown as OrderPaymentStateChangedMessage;
-    jest.spyOn(eventHandlerService, 'processEvent').mockResolvedValueOnce([
-      {
-        status: 'fulfilled',
-        value: [() => {}],
-      },
-    ]);
-    const result = { status: 'OK' };
-    jest
-      .spyOn(eventHandlerService, 'handleProcessedEventResponse')
-      .mockReturnValue(result as any);
-    const response = await service.handleSubscriptionEvents(body as any);
-    expect(response).toEqual(result);
-  });
-
-  it('should handle failed order subscription events', async () => {
-    const body = {
-      resource: {
-        typeId: 'order',
-        id: 'order-id',
-      },
-      type: 'OrderPaymentStateChanged',
-      paymentState: 'Paid',
-    } as unknown as OrderPaymentStateChangedMessage;
-    jest.spyOn(eventHandlerService, 'processEvent').mockResolvedValueOnce([
-      {
-        status: 'rejected',
-        reason: {},
-      },
-    ]);
-    const result = { status: '4xx' };
-    jest
-      .spyOn(eventHandlerService, 'handleProcessedEventResponse')
-      .mockReturnValue(result as any);
-    const response = await service.handleSubscriptionEvents(body as any);
-    expect(response).toEqual(result);
   });
 
   it('should not store the enriched basket if that option is not enabled', async () => {
@@ -272,7 +225,9 @@ describe('AppService', () => {
       resource: {
         typeId: 'cart',
         id: '123',
-        obj: {} as any,
+        obj: {
+          lineItems: [],
+        } as any,
       },
     };
     const discountDrafts = [
@@ -327,8 +282,11 @@ describe('AppService', () => {
         },
       ],
     };
-    jest.spyOn(circuitBreakerService, 'fire').mockResolvedValue({});
-    const response = await service.handleExtensionRequest(body);
+    jest.spyOn(circuitBreakerService, 'fire').mockResolvedValue({
+      status: 200,
+      data: {},
+    });
+    const response = await service.handleCartExtensionRequest(body);
     expect(response).toEqual(result);
     expect(basketStoreService.save).toBeCalledTimes(0);
     expect(basketStoreService.delete).toBeCalledTimes(0);
@@ -340,7 +298,9 @@ describe('AppService', () => {
       resource: {
         typeId: 'cart',
         id: '123',
-        obj: {} as any,
+        obj: {
+          lineItems: [],
+        } as any,
       },
     };
     const discountDrafts = [];
@@ -392,8 +352,11 @@ describe('AppService', () => {
         },
       ],
     };
-    jest.spyOn(circuitBreakerService, 'fire').mockResolvedValue({});
-    const response = await service.handleExtensionRequest(body);
+    jest.spyOn(circuitBreakerService, 'fire').mockResolvedValue({
+      status: 200,
+      data: {},
+    });
+    const response = await service.handleCartExtensionRequest(body);
     expect(response).toEqual(result);
     expect(basketStoreService.save).toBeCalledTimes(1);
     expect(basketStoreService.delete).toBeCalledTimes(0);
@@ -402,7 +365,13 @@ describe('AppService', () => {
   it('should return EE_API_UNAVAILABLE error in the cart custom type when the API request to EagleEye fails', async () => {
     const body: ExtensionInput = {
       action: 'Update',
-      resource: { typeId: 'cart', id: '123', obj: {} as any },
+      resource: {
+        typeId: 'cart',
+        id: '123',
+        obj: {
+          lineItems: [],
+        } as any,
+      },
     };
     const error = new EagleEyeApiException(
       'EE_API_UNAVAILABLE',
@@ -410,7 +379,8 @@ describe('AppService', () => {
     );
     jest.spyOn(basketStoreService, 'isEnabled').mockReturnValue(true);
     jest.spyOn(promotionService, 'getDiscounts').mockRejectedValue(error);
-    const response = await service.handleExtensionRequest(body);
+    jest.spyOn(circuitBreakerService, 'fire').mockRejectedValue(error);
+    const response = await service.handleCartExtensionRequest(body);
     expect(response).toEqual({
       actions: [
         {
@@ -418,6 +388,251 @@ describe('AppService', () => {
           fields: {
             'eagleeye-errors': [
               '{"type":"EE_API_UNAVAILABLE","message":"The eagle eye API is unavailable, the cart promotions and loyalty points are NOT updated"}',
+            ],
+            'eagleeye-appliedDiscounts': [],
+            'eagleeye-basketStore': undefined,
+            'eagleeye-basketUri': undefined,
+            'eagleeye-voucherCodes': [],
+            'eagleeye-potentialVoucherCodes': [],
+            'eagleeye-action': '',
+            'eagleeye-settledStatus': '',
+          },
+          type: {
+            key: 'custom-cart-type',
+            typeId: 'type',
+          },
+        },
+        {
+          action: 'setDirectDiscounts',
+          discounts: [],
+        },
+      ],
+    });
+    expect(response.actions).toHaveLength(2);
+
+    expect(basketStoreService.save).toBeCalledTimes(0);
+    expect(basketStoreService.delete).toBeCalledTimes(1);
+  });
+
+  it('should return EE_IDENTITY_NOT_FOUND error custom type when identityValue is not found in EE and retry without it', async () => {
+    const body: ExtensionInput = {
+      action: 'Update',
+      resource: {
+        typeId: 'cart',
+        id: '123',
+        obj: {
+          lineItems: [],
+          custom: {
+            fields: {
+              'eagleeye-identityValue': 'non_existant_identity',
+            },
+          },
+        } as any,
+      },
+    };
+    const error = new EagleEyeApiException(
+      'EE_IDENTITY_NOT_FOUND',
+      "The customer identity doesn't exist in EE AIR Platform",
+    );
+    jest.spyOn(basketStoreService, 'isEnabled').mockReturnValue(true);
+    jest
+      .spyOn(circuitBreakerService, 'fire')
+      .mockRejectedValueOnce(error)
+      .mockResolvedValueOnce({
+        status: 200,
+        data: {},
+      });
+    const discountDrafts = [
+      {
+        target: {
+          type: 'totalPrice',
+        },
+        value: {
+          money: [
+            {
+              centAmount: 100,
+              currencyCode: 'GBP',
+              fractionDigits: 2,
+              type: 'centPrecision',
+            },
+          ],
+          type: 'absolute',
+        },
+      },
+      {
+        target: {
+          predicate: 'sku="SKU123"',
+          type: 'lineItems',
+        },
+        value: {
+          money: [
+            {
+              centAmount: 100,
+              currencyCode: 'GBP',
+              fractionDigits: 2,
+              type: 'centPrecision',
+            },
+          ],
+          type: 'absolute',
+        },
+      },
+      {
+        target: {
+          type: 'shipping',
+        },
+        value: {
+          money: [
+            {
+              centAmount: 10,
+              currencyCode: 'GBP',
+              fractionDigits: 2,
+              type: 'centPrecision',
+            },
+          ],
+          type: 'absolute',
+        },
+      },
+    ];
+    const discountDescriptions = [
+      {
+        description: 'Example Discount',
+      },
+      {
+        description: 'Example Item Discount',
+      },
+      {
+        description: 'Example Shipping Discount',
+      },
+    ];
+    jest.spyOn(promotionService, 'getDiscounts').mockResolvedValueOnce({
+      discounts: discountDrafts,
+      discountDescriptions,
+      errors: [],
+    } as any);
+    const response = await service.handleCartExtensionRequest(body);
+    expect(response).toEqual({
+      actions: [
+        {
+          action: 'setCustomType',
+          type: {
+            typeId: 'type',
+            key: 'custom-cart-type',
+          },
+          fields: {
+            'eagleeye-errors': [
+              JSON.stringify({
+                type: 'EE_API_CUSTOMER_NF',
+                message: 'non_existant_identity - Customer identity not found',
+                context: {
+                  type: 'EE_IDENTITY_NOT_FOUND',
+                },
+              }),
+            ],
+            'eagleeye-basketStore': undefined,
+            'eagleeye-basketUri': undefined,
+            'eagleeye-identityValue': '',
+            'eagleeye-appliedDiscounts': [
+              'Example Discount',
+              'Example Item Discount',
+              'Example Shipping Discount',
+            ],
+            'eagleeye-voucherCodes': [],
+            'eagleeye-potentialVoucherCodes': [],
+            'eagleeye-action': '',
+            'eagleeye-settledStatus': '',
+          },
+        },
+        {
+          action: 'setDirectDiscounts',
+          discounts: [
+            {
+              target: {
+                type: 'totalPrice',
+              },
+              value: {
+                money: [
+                  {
+                    centAmount: 100,
+                    currencyCode: 'GBP',
+                    fractionDigits: 2,
+                    type: 'centPrecision',
+                  },
+                ],
+                type: 'absolute',
+              },
+            },
+            {
+              target: {
+                predicate: 'sku="SKU123"',
+                type: 'lineItems',
+              },
+              value: {
+                money: [
+                  {
+                    centAmount: 100,
+                    currencyCode: 'GBP',
+                    fractionDigits: 2,
+                    type: 'centPrecision',
+                  },
+                ],
+                type: 'absolute',
+              },
+            },
+            {
+              target: {
+                type: 'shipping',
+              },
+              value: {
+                money: [
+                  {
+                    centAmount: 10,
+                    currencyCode: 'GBP',
+                    fractionDigits: 2,
+                    type: 'centPrecision',
+                  },
+                ],
+                type: 'absolute',
+              },
+            },
+          ],
+        },
+      ],
+    });
+    expect(response.actions).toHaveLength(2);
+    expect(basketStoreService.save).toBeCalledTimes(1);
+    expect(basketStoreService.delete).toBeCalledTimes(0);
+  });
+
+  it('should throw error when the API request to EagleEye fails with any other error after retry', async () => {
+    const body: ExtensionInput = {
+      action: 'Update',
+      resource: {
+        typeId: 'cart',
+        id: '123',
+        obj: {
+          lineItems: [],
+        } as any,
+      },
+    };
+    const error = new EagleEyeApiException(
+      'EE_IDENTITY_NOT_FOUND',
+      "The customer identity doesn't exist in EE AIR Platform",
+    );
+    const unexpectedError = { type: 'EE_NOT_IDENTITY_NOT_FOUND_ERROR' };
+    jest.spyOn(basketStoreService, 'isEnabled').mockReturnValue(true);
+    jest.spyOn(promotionService, 'getDiscounts').mockRejectedValue(error);
+    jest
+      .spyOn(circuitBreakerService, 'fire')
+      .mockRejectedValueOnce(error)
+      .mockRejectedValueOnce(unexpectedError);
+    const response = await service.handleCartExtensionRequest(body);
+    expect(response).toEqual({
+      actions: [
+        {
+          action: 'setCustomType',
+          fields: {
+            'eagleeye-errors': [
+              '{"type":"EE_API_GENERIC_ERROR","message":"Unexpected error with getting the promotions and loyalty points"}',
             ],
             'eagleeye-appliedDiscounts': [],
             'eagleeye-basketStore': undefined,
@@ -455,7 +670,11 @@ describe('AppService', () => {
     );
     jest.spyOn(basketStoreService, 'isEnabled').mockReturnValue(false);
     jest.spyOn(promotionService, 'getDiscounts').mockRejectedValue(error);
-    const response = await service.handleExtensionRequest(body);
+    jest.spyOn(circuitBreakerService, 'fire').mockResolvedValue({
+      status: 200,
+      data: {},
+    });
+    const response = await service.handleCartExtensionRequest(body);
     expect(response.actions).toHaveLength(2);
 
     expect(basketStoreService.save).toBeCalledTimes(0);
@@ -465,12 +684,19 @@ describe('AppService', () => {
   it('should return EE_API_CIRCUIT_OPEN error in the cart custom type when the circuit breaker is open', async () => {
     const body: ExtensionInput = {
       action: 'Update',
-      resource: { typeId: 'cart', id: '123', obj: {} as any },
+      resource: {
+        typeId: 'cart',
+        id: '123',
+        obj: {
+          lineItems: [],
+        } as any,
+      },
     };
     const error = new CircuitBreakerError('EOPENBREAKER');
     jest.spyOn(promotionService, 'getDiscounts').mockRejectedValue(error);
     jest.spyOn(basketStoreService, 'isEnabled').mockReturnValue(true);
-    const response = await service.handleExtensionRequest(body);
+    jest.spyOn(circuitBreakerService, 'fire').mockRejectedValue(error);
+    const response = await service.handleCartExtensionRequest(body);
     expect(response.actions).toHaveLength(2);
     expect(response).toEqual({
       actions: [
@@ -512,7 +738,11 @@ describe('AppService', () => {
     const error = new Error('SOME_OTHER_ERROR');
     jest.spyOn(basketStoreService, 'isEnabled').mockReturnValue(true);
     jest.spyOn(promotionService, 'getDiscounts').mockRejectedValue(error);
-    const response = await service.handleExtensionRequest(body);
+    jest.spyOn(circuitBreakerService, 'fire').mockResolvedValue({
+      status: 200,
+      data: {},
+    });
+    const response = await service.handleCartExtensionRequest(body);
     expect(response.actions).toHaveLength(2);
     expect(response).toEqual({
       actions: [
@@ -562,7 +792,11 @@ describe('AppService', () => {
         ),
       );
     jest.spyOn(promotionService, 'getDiscounts').mockRejectedValue(error);
-    const response = await service.handleExtensionRequest(body);
+    jest.spyOn(circuitBreakerService, 'fire').mockResolvedValue({
+      status: 200,
+      data: {},
+    });
+    const response = await service.handleCartExtensionRequest(body);
     expect(response.actions).toHaveLength(2);
     expect(response).toEqual({
       actions: [

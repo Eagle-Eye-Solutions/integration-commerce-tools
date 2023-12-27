@@ -1,7 +1,7 @@
 deployAs:
   - name: integration
     applicationType: service
-    endpoint: /service
+    endpoint: /cart/service
     scripts:
       postDeploy: npm install && npm run build && npm run connector:post-deploy:service
       preUndeploy: npm install && npm run build && npm run connector:pre-undeploy:service
