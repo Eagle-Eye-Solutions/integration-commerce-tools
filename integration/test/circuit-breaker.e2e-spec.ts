@@ -188,6 +188,11 @@ describe('Circuit breaker (e2e)', () => {
             name: 'eagleeye-settledStatus',
             value: '',
           },
+          {
+            action: 'setCustomField',
+            name: 'eagleeye-loyaltyEarnAndCredits',
+            value: '',
+          },
           { action: 'setDirectDiscounts', discounts: [] },
         ],
       });

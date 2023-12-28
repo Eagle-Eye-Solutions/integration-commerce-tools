@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import {
   Cart,
   CartReference,
@@ -12,7 +12,6 @@ import {
 
 @Injectable()
 export class PromotionService {
-  private readonly logger = new Logger(PromotionService.name);
   constructor(readonly cartToBasketMapper: CTCartToEEBasketMapper) {}
 
   async getDiscounts(

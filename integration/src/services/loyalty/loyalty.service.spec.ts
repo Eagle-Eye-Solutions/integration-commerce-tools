@@ -1,18 +1,146 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import { LoyaltyService } from './loyalty.service';
+import { CTCartToEEBasketMapper } from '../../common/mappers/ctCartToEeBasket.mapper';
 
 describe('LoyaltyService', () => {
-  let service: LoyaltyService;
+  let loyaltyService: LoyaltyService;
+  let cartToBasketMapper: CTCartToEEBasketMapper;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [LoyaltyService],
+    const moduleRef = await Test.createTestingModule({
+      providers: [
+        LoyaltyService,
+        {
+          provide: CTCartToEEBasketMapper,
+          useValue: {
+            mapAdjustedBasketToBasketEarn: jest.fn(),
+          },
+        },
+      ],
     }).compile();
 
-    service = module.get<LoyaltyService>(LoyaltyService);
+    loyaltyService = moduleRef.get<LoyaltyService>(LoyaltyService);
+    cartToBasketMapper = moduleRef.get<CTCartToEEBasketMapper>(
+      CTCartToEEBasketMapper,
+    );
   });
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
+  describe('getEarnAndCredits', () => {
+    it('should return default earnAndCredits object if no points are adjudicated', async () => {
+      const walletOpenResponse = {
+        data: {
+          analyseBasketResults: {
+            basket: {
+              summary: {
+                adjudicationResults: [],
+              },
+            },
+          },
+        },
+      };
+
+      const result = await loyaltyService.getEarnAndCredits(walletOpenResponse);
+
+      expect(result).toEqual({
+        earn: {
+          basket: {
+            balance: 0,
+            offers: [],
+          },
+        },
+        credit: {
+          basket: {
+            balance: 0,
+            offers: [],
+          },
+          items: {
+            balance: 0,
+            offers: [],
+          },
+        },
+      });
+    });
+
+    it('should return the proper earn if points are adjudicated', async () => {
+      const basket = {
+        summary: {
+          adjudicationResults: [
+            {
+              resourceType: 'SCHEME',
+              resourceId: '1653843',
+              instanceId: '1653843-1',
+              success: null,
+              type: 'earn',
+              value: null,
+              balances: {
+                current: 400,
+              },
+            },
+          ],
+        },
+      };
+      const walletOpenResponse = {
+        data: {
+          analyseBasketResults: {
+            basket,
+          },
+        },
+      };
+
+      const getBasketLevelEarnSpy = jest.spyOn(
+        loyaltyService,
+        'getBasketLevelEarn',
+      );
+
+      await loyaltyService.getEarnAndCredits(walletOpenResponse);
+
+      expect(getBasketLevelEarnSpy).toHaveBeenCalledWith(basket);
+    });
+  });
+
+  describe('getBasketLevelEarn', () => {
+    it('should return baseEarn if adjudicationResults exist', () => {
+      const basket = {
+        summary: {
+          adjudicationResults: [
+            {
+              resourceType: 'SCHEME',
+              resourceId: '1653843',
+              instanceId: '1653843-1',
+              success: null,
+              type: 'earn',
+              value: null,
+              balances: {
+                current: 400,
+              },
+            },
+          ],
+        },
+      };
+
+      const baseEarn = {
+        balance: 100,
+        offers: [],
+      };
+      jest
+        .spyOn(cartToBasketMapper, 'mapAdjustedBasketToBasketEarn')
+        .mockReturnValue(baseEarn);
+
+      const result = loyaltyService.getBasketLevelEarn(basket);
+
+      expect(result).toEqual(baseEarn);
+    });
+
+    it('should return default data if adjudicationResults do not exist', () => {
+      const basket = {
+        summary: {
+          adjudicationResults: [],
+        },
+      };
+
+      const result = loyaltyService.getBasketLevelEarn(basket);
+
+      expect(result).toEqual({ balance: 0, offers: [] });
+    });
   });
 });

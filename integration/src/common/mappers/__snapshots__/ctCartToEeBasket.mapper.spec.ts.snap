@@ -1,5 +1,12 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`CTCartToEEBasketMapper mapAdjustedBasketToBasketEarn should return the mapped basket earn 1`] = `
+{
+  "balance": 400,
+  "offers": [],
+}
+`;
+
 exports[`CTCartToEEBasketMapper mapAdjustedBasketToCartDirectDiscounts should return the direct discount draft 1`] = `[]`;
 
 exports[`CTCartToEEBasketMapper mapAdjustedBasketToItemDirectDiscounts should not return the direct discount drafts if there are no adjustmentResults 1`] = `[]`;

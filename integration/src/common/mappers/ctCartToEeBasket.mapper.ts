@@ -11,6 +11,7 @@ import { ConfigService } from '@nestjs/config';
 import { Commercetools } from '../../providers/commercetools/commercetools.provider';
 import { BasketStoreService } from '../../services/basket-store/basket-store.interface';
 import { BASKET_STORE_SERVICE } from '../../services/basket-store/basket-store.provider';
+import { LoyaltyBalanceObject } from '../../types/loyalty-earn-credits.type';
 
 export type BasketItem = {
   itemUnitCost: number;
@@ -314,5 +315,16 @@ export class CTCartToEEBasketMapper {
       },
       basket: enrichedBasket,
     };
+  }
+
+  mapAdjustedBasketToBasketEarn(basket): LoyaltyBalanceObject {
+    const basketEarn = { balance: 0, offers: [] };
+    const basketEarnResult = basket.summary.adjudicationResults.find(
+      (result) => result.type === 'earn',
+    );
+    if (basketEarnResult) {
+      basketEarn.balance = basketEarnResult.balances.current;
+    }
+    return basketEarn;
   }
 }

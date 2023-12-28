@@ -26,6 +26,7 @@ describe('CartExtensionService', () => {
   let circuitBreakerService: CircuitBreakerService;
   let promotionService: PromotionService;
   let basketStoreService: jest.Mocked<BasketStoreService>;
+  let loyaltyService: LoyaltyService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -97,6 +98,7 @@ describe('CartExtensionService', () => {
     );
     promotionService = module.get<PromotionService>(PromotionService);
     basketStoreService = module.get(BASKET_STORE_SERVICE);
+    loyaltyService = module.get<LoyaltyService>(LoyaltyService);
   });
 
   it('should be defined', () => {
@@ -176,12 +178,33 @@ describe('CartExtensionService', () => {
         description: 'Example Shipping Discount',
       },
     ];
+    const loyaltyEarnAndCredits = {
+      earn: {
+        basket: {
+          balance: 400,
+          offers: [],
+        },
+      },
+      credit: {
+        basket: {
+          balance: 0,
+          offers: [],
+        },
+        items: {
+          balance: 0,
+          offers: [],
+        },
+      },
+    };
     jest.spyOn(promotionService, 'getDiscounts').mockResolvedValueOnce({
       discounts: discountDrafts,
       discountDescriptions,
       errors: [],
     } as any);
     jest.spyOn(basketStoreService, 'isEnabled').mockReturnValue(true);
+    jest
+      .spyOn(loyaltyService, 'getEarnAndCredits')
+      .mockResolvedValueOnce(loyaltyEarnAndCredits);
     const result = {
       actions: [
         {
@@ -197,6 +220,9 @@ describe('CartExtensionService', () => {
             'eagleeye-potentialVoucherCodes': [],
             'eagleeye-action': '',
             'eagleeye-settledStatus': '',
+            'eagleeye-loyaltyEarnAndCredits': JSON.stringify(
+              loyaltyEarnAndCredits,
+            ),
           },
           type: {
             key: 'custom-cart-type',
@@ -270,6 +296,7 @@ describe('CartExtensionService', () => {
             'eagleeye-potentialVoucherCodes': [],
             'eagleeye-action': '',
             'eagleeye-settledStatus': '',
+            'eagleeye-loyaltyEarnAndCredits': '',
           },
           type: {
             key: 'custom-cart-type',
@@ -340,6 +367,7 @@ describe('CartExtensionService', () => {
             'eagleeye-potentialVoucherCodes': [],
             'eagleeye-action': '',
             'eagleeye-settledStatus': '',
+            'eagleeye-loyaltyEarnAndCredits': '',
           },
           type: {
             key: 'custom-cart-type',
@@ -396,6 +424,7 @@ describe('CartExtensionService', () => {
             'eagleeye-potentialVoucherCodes': [],
             'eagleeye-action': '',
             'eagleeye-settledStatus': '',
+            'eagleeye-loyaltyEarnAndCredits': '',
           },
           type: {
             key: 'custom-cart-type',
@@ -540,6 +569,7 @@ describe('CartExtensionService', () => {
             'eagleeye-potentialVoucherCodes': [],
             'eagleeye-action': '',
             'eagleeye-settledStatus': '',
+            'eagleeye-loyaltyEarnAndCredits': '',
           },
         },
         {
@@ -641,6 +671,7 @@ describe('CartExtensionService', () => {
             'eagleeye-potentialVoucherCodes': [],
             'eagleeye-action': '',
             'eagleeye-settledStatus': '',
+            'eagleeye-loyaltyEarnAndCredits': '',
           },
           type: {
             key: 'custom-cart-type',
@@ -713,6 +744,7 @@ describe('CartExtensionService', () => {
             'eagleeye-potentialVoucherCodes': [],
             'eagleeye-action': '',
             'eagleeye-settledStatus': '',
+            'eagleeye-loyaltyEarnAndCredits': '',
           },
           type: {
             key: 'custom-cart-type',
@@ -759,6 +791,7 @@ describe('CartExtensionService', () => {
             'eagleeye-potentialVoucherCodes': [],
             'eagleeye-action': '',
             'eagleeye-settledStatus': '',
+            'eagleeye-loyaltyEarnAndCredits': '',
           },
           type: {
             key: 'custom-cart-type',
@@ -813,6 +846,7 @@ describe('CartExtensionService', () => {
             'eagleeye-potentialVoucherCodes': [],
             'eagleeye-action': '',
             'eagleeye-settledStatus': '',
+            'eagleeye-loyaltyEarnAndCredits': '',
           },
           type: {
             key: 'custom-cart-type',

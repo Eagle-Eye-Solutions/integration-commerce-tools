@@ -118,9 +118,9 @@ export class CartExtensionService {
       walletOpenResponse.payload,
       cartReference,
     );
-    // Temporary disable until real implementation is added.
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const loyaltyEarnAndCredits = await this.loyaltyService.getEarnAndCredits();
+    const loyaltyEarnAndCredits = await this.loyaltyService.getEarnAndCredits(
+      walletOpenResponse.payload,
+    );
 
     let basketLocation = null;
     if (this.basketStoreService.isEnabled(cartReference as CartReference)) {
@@ -138,6 +138,7 @@ export class CartExtensionService {
           voucherCodes: basketDiscounts.voucherCodes,
           potentialVoucherCodes: basketDiscounts.potentialVoucherCodes,
           basketLocation,
+          loyaltyEarnAndCredits,
         }),
       );
     } else {
@@ -149,6 +150,7 @@ export class CartExtensionService {
             voucherCodes: basketDiscounts.voucherCodes,
             potentialVoucherCodes: basketDiscounts.potentialVoucherCodes,
             basketLocation,
+            loyaltyEarnAndCredits,
           },
           this.cartTypeDefinition.getTypeKey(),
         ),

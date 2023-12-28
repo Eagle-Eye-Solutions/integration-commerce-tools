@@ -63,6 +63,12 @@ export const SUCCESS_RESPONSE = {
       value: '',
     },
     {
+      action: 'setCustomField',
+      name: 'eagleeye-loyaltyEarnAndCredits',
+      value:
+        '{"earn":{"basket":{"balance":0,"offers":[]}},"credit":{"basket":{"balance":0,"offers":[]},"items":{"balance":0,"offers":[]}}}',
+    },
+    {
       action: 'setDirectDiscounts',
       discounts: [
         {
@@ -159,6 +165,11 @@ export const ERROR_RESPONSE = {
       name: 'eagleeye-settledStatus',
       value: '',
     },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-loyaltyEarnAndCredits',
+      value: '',
+    },
     { action: 'setDirectDiscounts', discounts: [] },
   ],
 };
@@ -183,6 +194,8 @@ export const CUSTOMER_NOT_FOUND_FETCHED_OPEN_PROMOTIONS_RESPONSE = {
         'eagleeye-potentialVoucherCodes': [],
         'eagleeye-action': '',
         'eagleeye-settledStatus': '',
+        'eagleeye-loyaltyEarnAndCredits':
+          '{"earn":{"basket":{"balance":0,"offers":[]}},"credit":{"basket":{"balance":0,"offers":[]},"items":{"balance":0,"offers":[]}}}',
         'eagleeye-identityValue': '',
       },
     },
