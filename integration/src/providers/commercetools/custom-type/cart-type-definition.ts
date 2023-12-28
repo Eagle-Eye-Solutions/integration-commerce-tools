@@ -9,7 +9,8 @@ export const FIELD_EAGLEEYE_BASKET_STORE = 'eagleeye-basketStore';
 export const FIELD_EAGLEEYE_BASKET_URI = 'eagleeye-basketUri';
 export const FIELD_EAGLEEYE_SETTLED_STATUS = 'eagleeye-settledStatus';
 export const FIELD_EAGLEEYE_APPLIED_DISCOUNTS = 'eagleeye-appliedDiscounts';
-export const FIELD_EAGLEEYE_LOYALTY_EARN_CREDITS = 'eagleeye-appliedDiscounts';
+export const FIELD_EAGLEEYE_LOYALTY_EARN_CREDITS =
+  'eagleeye-loyaltyEarnAndCredits';
 export const TYPE_CART = 'custom-cart-type';
 
 @Injectable()
