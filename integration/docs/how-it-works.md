@@ -49,6 +49,41 @@ Any other errors in the plugin will also be added to the `errors` field in the `
 }
 ```
 
+## Loyalty Points
+
+Loyalty points processing is enabled by default. Points will always be calculated by EagleEye when a campaign is available and then this data is processed to be stored in your cart as a custom field.
+
+Currently this custom field is called `eagleeye-loyaltyEarnAndCredits` and you can expect its value to be a stringified JSON with the following format:
+```json
+{
+   "earn":{
+      "basket":{
+         "balance":0,
+         "offers":[]
+      }
+   },
+   "credit":{
+      "basket":{
+         "balance":100,
+         "offers":[{
+            "name":"Example Offer",
+            "amount":100
+         }]
+      },
+      "items":{
+         "balance":0,
+         "offers":[]
+      }
+   }
+}
+```
+
+Where the main two properties are `earn` and `credit`, and each of them may have `basket` or `balance` objects. Each of these maybe contain `balance` (total amount of earn/credit for that object) and offers (array of object with the name of the offer and the sum of each redeemed instance of said offer).
+
+In cases where an offer applies more than once, it will show up with `(x<times>)` in its name. E.g: `"Example Offer (x2)`, with amount `200` if it were to apply twice.
+
+WIP/TODO
+
 ## Settle
 
 When performing cart creation/updates (like changing line item quantities, or adding voucher codes) a transaction is created/updated in AIR, tied to said cart by using it's `id` as a reference. This transaction "locks" certain things related to it, like voucher codes (so they cannot be used multiple times concurrently).
