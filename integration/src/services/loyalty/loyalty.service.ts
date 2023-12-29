@@ -37,6 +37,10 @@ export class LoyaltyService {
       earnAndCredits.earn.basket = this.getBasketLevelEarn(
         walletOpenResponse.data.analyseBasketResults.basket,
       );
+      earnAndCredits.credit.basket = this.getBasketLevelCredits(
+        walletOpenResponse.data.analyseBasketResults.basket,
+        walletOpenResponse.data.accounts,
+      );
     }
     return earnAndCredits;
   }
@@ -49,6 +53,22 @@ export class LoyaltyService {
       const baseEarn =
         this.cartToBasketMapper.mapAdjustedBasketToBasketEarn(basket);
       return baseEarn;
+    }
+
+    return { balance: 0, offers: [] };
+  }
+
+  getBasketLevelCredits(basket, accounts): LoyaltyBalanceObject {
+    if (
+      basket.summary.adjudicationResults &&
+      basket.summary.adjudicationResults.length
+    ) {
+      const basketCredits =
+        this.cartToBasketMapper.mapAdjustedBasketToBasketCredits(
+          basket,
+          accounts,
+        );
+      return basketCredits;
     }
 
     return { balance: 0, offers: [] };

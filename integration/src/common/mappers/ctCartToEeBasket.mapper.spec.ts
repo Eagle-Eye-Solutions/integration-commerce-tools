@@ -554,4 +554,87 @@ describe('CTCartToEEBasketMapper', () => {
       expect(basketContents).toMatchSnapshot();
     });
   });
+
+  describe('mapAdjustedBasketToBasketCredits', () => {
+    it('should return the mapped basket earn', () => {
+      const basket = {
+        summary: {
+          adjudicationResults: [
+            {
+              resourceType: 'SCHEME',
+              resourceId: '1653843',
+              instanceId: '1653843-1',
+              success: null,
+              type: 'credit',
+              value: null,
+              balances: {
+                current: 400,
+              },
+            },
+          ],
+        },
+      };
+      const accounts = [
+        {
+          campaign: {
+            campaignId: '1653843',
+            campaignName: 'Test Campaign',
+          },
+        },
+      ];
+
+      const basketContents = service.mapAdjustedBasketToBasketCredits(
+        basket,
+        accounts,
+      );
+
+      expect(basketContents).toMatchSnapshot();
+    });
+
+    it("should return deduplicated results when there's more than one credit instance per campaign", () => {
+      const basket = {
+        summary: {
+          adjudicationResults: [
+            {
+              resourceType: 'SCHEME',
+              resourceId: '1653843',
+              instanceId: '1653843-1',
+              success: null,
+              type: 'credit',
+              value: null,
+              balances: {
+                current: 400,
+              },
+            },
+            {
+              resourceType: 'SCHEME',
+              resourceId: '1653843',
+              instanceId: '1653843-2',
+              success: null,
+              type: 'credit',
+              value: null,
+              balances: {
+                current: 400,
+              },
+            },
+          ],
+        },
+      };
+      const accounts = [
+        {
+          campaign: {
+            campaignId: '1653843',
+            campaignName: 'Test Campaign',
+          },
+        },
+      ];
+
+      const basketContents = service.mapAdjustedBasketToBasketCredits(
+        basket,
+        accounts,
+      );
+
+      expect(basketContents).toMatchSnapshot();
+    });
+  });
 });

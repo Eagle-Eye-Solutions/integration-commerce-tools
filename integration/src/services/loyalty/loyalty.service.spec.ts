@@ -14,6 +14,7 @@ describe('LoyaltyService', () => {
           provide: CTCartToEEBasketMapper,
           useValue: {
             mapAdjustedBasketToBasketEarn: jest.fn(),
+            mapAdjustedBasketToBasketCredits: jest.fn(),
           },
         },
       ],
@@ -139,6 +140,66 @@ describe('LoyaltyService', () => {
       };
 
       const result = loyaltyService.getBasketLevelEarn(basket);
+
+      expect(result).toEqual({ balance: 0, offers: [] });
+    });
+  });
+
+  describe('getBasketLevelCredits', () => {
+    it('should return credits if present and adjudicationResults exist', () => {
+      const basket = {
+        summary: {
+          adjudicationResults: [
+            {
+              resourceType: 'SCHEME',
+              resourceId: '1653843',
+              instanceId: '1653843-1',
+              success: null,
+              type: 'credit',
+              value: null,
+              balances: {
+                current: 400,
+              },
+            },
+          ],
+        },
+      };
+      const accounts = [
+        {
+          campaign: {
+            campaignId: '1653843',
+            campaignName: 'Test Campaign',
+          },
+        },
+      ];
+
+      const credits = {
+        balance: 400,
+        offers: [
+          {
+            name: 'Test Campaign',
+            amount: 400,
+          },
+        ],
+      };
+      jest
+        .spyOn(cartToBasketMapper, 'mapAdjustedBasketToBasketCredits')
+        .mockReturnValue(credits);
+
+      const result = loyaltyService.getBasketLevelCredits(basket, accounts);
+
+      expect(result).toEqual(credits);
+    });
+
+    it('should return default data if adjudicationResults do not exist', () => {
+      const basket = {
+        summary: {
+          adjudicationResults: [],
+        },
+      };
+      const accounts = [];
+
+      const result = loyaltyService.getBasketLevelCredits(basket, accounts);
 
       expect(result).toEqual({ balance: 0, offers: [] });
     });
