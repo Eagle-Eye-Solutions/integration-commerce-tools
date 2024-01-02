@@ -2,9 +2,18 @@
 
 ## Local setup
 
+Required software:
+
+- Node.js v16+ [official download](https://nodejs.org/en/download), [nvm](https://github.com/nvm-sh/nvm)
+- [yarn](https://classic.yarnpkg.com/lang/en/docs/install/#mac-stable)
+
 ### Basic steps
 
-The project is currently setup with Node v20. To install dependencies just run:
+Clone the repository.
+
+Change directory to `/integration`
+
+Install the dependencies:
 
 ```shell
 yarn install
@@ -22,18 +31,46 @@ yarn run start:dev
 With this the integration is ready to receive requests in the port of your choosing (or port `8080`, which is
 the default).
 
-### Testing the local environment as an extension
+Send a POST request to `localhost:8080/service` with the sample body:
 
-The integration can automatically create an extension which reaches your local environment using `ngrok`.
-To do this, you just need to set the following environment variable:
+```json
+{
+  "action": "Update",
+  "resource": {
+    "id": "22f9f9v6-6v80-43b9-894f-19122l19f049",
+    "obj": {
+      "type": "Cart",
+      "version": ...
+      // *********************
+      // all other cart fields
+      // *********************
+    },
+    "typeId": "cart"
+  }
+}
+```
+
+### Connect the local to a commercetools project
+
+The integration can automatically create an extension in commercetools which reaches your local environment
+using `ngrok`.
+To do this, you need to set the following environment variable:
 
 ```shell
 NGROK_ENABLED=true
 ```
 
-After that, start the plugin in .All cart creation/update actions will now be processed by your local environment. Keep
-in mind if you have
-other extensions in your commercetools project, the order in which extensions are called is not guaranteed.
+After that, start the plugin. All cart create/update actions will now be processed by your local environment. Keep
+in mind if you have other extensions in your commercetools project, the order in which extensions are called is not
+guaranteed.
+
+It is possible to set a trigger condition using the environment variable `DEBUG_EXTENSION_TRIGGER_CONDITION` so that the
+local extension will be triggered only when the condition is met.
+E.g.:
+
+```shell
+DEBUG_EXTENSION_TRIGGER_CONDITION='customerEmail is defined and customerEmail="developer-email@eagleeye.com"'
+```
 
 ## Tests
 
