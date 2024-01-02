@@ -1,10 +1,25 @@
 # integration-commerce-tools
 
-Repository for holding the Eagle Eye Air -> Commerce tools plugin code
+`integration-commerce-tools` provides an integration between Eagle Eye Air and commercetools.
+The integration is available to install with commercetools connect or can be customized and hosted on a different
+provider.
+
+## Supported features
+
+* Promotions
+* Voucher codes
+* Settling of the transaction
 
 ## Overview
 
-TODO
+This repository provides a single Node JS application that can be deployed as an Extension module or a Subscription
+module.
+
+![alt text](integration/docs/images/ee-ct-integration-components.png "Integration components")
+
+* The Extension module is triggered on cart updates and adds to the cart promotions
+* The Subscription module is triggered when the order is updated and handles the settling of the transaction in Eagle
+  Eye
 
 ## Plugin Installation
 

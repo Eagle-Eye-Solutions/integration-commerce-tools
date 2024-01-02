@@ -6,26 +6,39 @@ This plugin is a Node.js application that can be deployed in different ways and 
 
 This plugin is certified and available to install via commercetools Connect.
 
-For detailed instructions on how to deploy this plugin under Connect, head over to their[official documentation](https://docs.commercetools.com/connect/getting-started#deploy-a-connector). Here's a summary of the required steps to deploy in production:
+For detailed instructions on how to deploy this plugin under Connect, head over to
+their[official documentation](https://docs.commercetools.com/connect/getting-started#deploy-a-connector). Here's a
+summary of the required steps to deploy in production:
 
-- Search for the connector (searching for "eagleeye" should be enough). Take note of properties like `id`/`key` and `version`. Also look at the configuration variables (also available below in this document). 
+- Search for the connector (searching for "eagleeye" should be enough). Take note of properties like `id`/`key`
+  and `version`. Also look at the configuration variables (also available below in this document).
 - Prepare your payload to request a deployment based on the previous step.
 - Request a deployment.
 - Monitor the deployment process by getting the deployment details by `id`/`key`.
 
 For this plugin, the connector provides two applications:
+
 - a `service` type, which is synchronous, handles cart creation/updates and "opens" transactions/saves EagleEye baskets.
 - an `event` type, which is asynchronous, handles order creation/updates and "settles"/confirms transactions.
 
-After these steps are completed successfully, your connector should be ready to use. Don't worry about needing to setup subscriptions/extensions, there's a default configuration for them and it's applied automatically by Connect using their post-deploy/pre-undeploy [scripts](https://docs.commercetools.com/connect/convert-existing-integration#adding-automation-scripts).
+After these steps are completed successfully, your connector should be ready to use. Don't worry about needing to setup
+subscriptions/extensions, there's a default configuration for them and it's applied automatically by Connect using their
+post-deploy/pre-undeploy [scripts](https://docs.commercetools.com/connect/convert-existing-integration#adding-automation-scripts).
 
-Customizing/deploying a version of the connector with code changes requires creating/publishing your own (can be private). Check [this documentation](https://docs.commercetools.com/connect/development) for more details.
+Customizing/deploying a version of the connector with code changes requires creating/publishing your own (can be
+private). Check [this documentation](https://docs.commercetools.com/connect/development) for more details.
 
 ## Other deployment strategies
 
-Since this plugin is just your standard Node.js application, it can be deployed to many different services/platforms/hardware setups. This plugin is also stateless by default, only saving/checking certain states directly in commercetools as [Custom Objects](https://docs.commercetools.com/api/projects/custom-objects).
+Since this plugin is just your standard Node.js application, it can be deployed to many different
+services/platforms/hardware setups. This plugin is also stateless by default, only saving/checking certain states
+directly in commercetools as [Custom Objects](https://docs.commercetools.com/api/projects/custom-objects).
 
-A very basic Dockerfile is provided in the repository, but feel free to make your own or run through other methods like `pm2`, GCP CloudRun or any other (some additional code changes might be needed).
+A very basic Dockerfile is provided in the repository, but feel free to make your own or run through other methods
+like `pm2`, GCP CloudRun or any other (some additional code changes might be needed).
+
+The commercetools configuration, that is automatically done using CT connect, should be done manually when using a
+different hosting strategy by running the `connector:post-deploy:*` and `connector:pre-undeploy:*` scripts.
 
 ## Configuration
 
@@ -54,5 +67,13 @@ environment variables, refer to the specific deployment documentation for furthe
 | CIRCUIT_BREAKER_ERROR_THRESHOLD_PERCENTAGE | 🚫       | 50                                  | The error percentage at which to open the circuit and start short-circuiting requests to fallback                                                                                                                                                                                                                                                                                                                      |
 | CTP_DISABLED_EVENTS                        | 🚫       |                                     | Comma separated names of event processor to be disabled. Allowed values are: `OrderCreatedWithPaidState`, `OrderCreatedWithSettleAction`, `OrderPaymentStateChanged`, `OrderUpdatedWithSettleActionProcessor`                                                                                                                                                                                                          |
 | CT_CART_TYPE_KEY                           | 🚫       | custom-cart-type                    | Allows to change the custom cart type key. Useful if there is already another custom cart type used in the commercetools project                                                                                                                                                                                                                                                                                       |
-| SHIPPING_METHOD_MAP                       | 🚫       | `[]`                                    | Stringified and escaped JSON array for mapping shipping methods to EE UPCs. Used to apply shipping discounts defined as product discounts in EagleEye. Example: `[{\"key\":\"my-shipping-method-key\",\"upc\":\"my-ee-upc\"}]`                                                                                                                                                                                                                                                                                                                                                           |
-| CONFIG_OVERRIDE                       | 🚫       |                                     | Stringified and escaped JSON to override any amount of configuration properties. The provided object will be merged with your default configuration based on environment variables. Example: `{\"commercetools\": { \"region\": \"us-central1.gcp\"}}`                                                                                                                                                                                                                                                                                                                                                           |
+| SHIPPING_METHOD_MAP                        | 🚫       | `[]`                                | Stringified and escaped JSON array for mapping shipping methods to EE UPCs. Used to apply shipping discounts defined as product discounts in EagleEye. Example: `[{\"key\":\"my-shipping-method-key\",\"upc\":\"my-ee-upc\"}]`                                                                                                                                                                                         |
+| CONFIG_OVERRIDE                            | 🚫       |                                     | Stringified and escaped JSON to override any amount of configuration properties. The provided object will be merged with your default configuration based on environment variables. Example: `{\"commercetools\": { \"region\": \"us-central1.gcp\"}}`                                                                                                                                                                 |
+
+## Interaction with other extensions
+
+If an API call triggers multiple API Extensions, they will be called in parallel. Their responses will be merged, but
+without a guaranteed order. For example if the EagleEye plugin is installed together with an extension to calculate
+taxes, the latter should run after promotions are calculated. In this case a different solution should be adopted to
+guardantee the ordering.
+See [commercetools documetation](https://docs.commercetools.com/api/projects/api-extensions#multiple-api-extensions-in-a-single-api-call). 
