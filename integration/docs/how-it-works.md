@@ -1,19 +1,19 @@
 # How it works
 
-The EagleEye commerceools integration is composed of two parts, a syncronous module that integrates with
-commercetools using an [Extension](https://docs.commercetools.com/api/projects/api-extensions) and an asyncronous
+The EagleEye commerceools integration is composed of two parts, a synchronous module that integrates with
+commercetools using an [Extension](https://docs.commercetools.com/api/projects/api-extensions) and an asynchronous
 module that uses commercetools [Subscriptions](https://docs.commercetools.com/api/projects/subscriptions).     
-The syncronous Extension module is triggered on cart updates, sends the cart status to EagleEye and returns the
+The synchronous Extension module is triggered on cart updates, sends the cart status to EagleEye and returns the
 applicable promotions and loyalty points. Promotions are applied to the cart using
 commercetools [Direct Discounts](https://docs.commercetools.com/api/projects/carts#directdiscountdraft).
 Additional promotion information and loyalty points are added to the commercetools
 cart [custom fields](https://docs.commercetools.com/api/projects/custom-fields).  
-The asyncronous Subscription module is triggered when an order is marked as *Paid* this would Settle the transaction
+The asynchronous Subscription module is triggered when an order is marked as *Paid* this would Settle the transaction
 in EagleEye, see the [Settle](#subscription-module) section for more info.
 
 ## Extension Module
 
-When an API request is sent to update the cart in commercetools a syncronous request is sent to the EagleEye
+When an API request is sent to update the cart in commercetools a synchronous request is sent to the EagleEye
 endpoint `connect/wallet/open` with the data from the commercetools cart to get the available promotions.  
 The response is mapped to commercetools direct discounts that can apply to:
 
