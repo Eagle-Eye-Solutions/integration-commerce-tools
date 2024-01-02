@@ -5,7 +5,6 @@ import {
   RequestMethod,
 } from '@nestjs/common';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { Commercetools } from './providers/commercetools/commercetools.provider';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { configuration, validateConfiguration } from './config/configuration';
@@ -16,7 +15,7 @@ import { EagleEyeApiCircuitBreakerProvider } from './providers/circuit-breaker/c
 import { CircuitBreakerSateServiceProvider } from './providers/circuit-breaker/interfaces/circuit-breaker-state.provider';
 import { OrderCustomTypeCommand } from './scripts/order-custom-type.command';
 import { HttpModule } from '@nestjs/axios';
-import { PromotionService } from './services/promotions/promotions.service';
+import { PromotionService } from './services/promotion/promotion.service';
 import { EagleEyeApiClient } from './providers/eagleeye/eagleeye.provider';
 import { WinstonModule } from 'nest-winston';
 import { loggerConfig } from './config/logger.config';
@@ -33,6 +32,9 @@ import { OrderUpdatedWithSettleActionProcessor } from './services/event-handler/
 import { ExtensionTypeMiddleware } from './common/middlewares/extension-type/extension-type.middleware';
 import { CartTypeDefinition } from './providers/commercetools/custom-type/cart-type-definition';
 import { UnhandledExceptionsFilter } from './common/exceptions/unhandled-exception.filter';
+import { CartExtensionService } from './services/cart-extension/cart-extension.service';
+import { OrderSubscriptionService } from './services/order-subscription/order-subscription.service';
+import { LoyaltyService } from './services/loyalty/loyalty.service';
 
 @Module({
   imports: [
@@ -53,7 +55,8 @@ import { UnhandledExceptionsFilter } from './common/exceptions/unhandled-excepti
   ],
   controllers: [AppController],
   providers: [
-    AppService,
+    CartExtensionService,
+    OrderSubscriptionService,
     Commercetools,
     CircuitBreakerService,
     EagleEyeApiCircuitBreakerProvider,
@@ -62,6 +65,7 @@ import { UnhandledExceptionsFilter } from './common/exceptions/unhandled-excepti
     CustomTypeService,
     OrderCustomTypeCommand,
     PromotionService,
+    LoyaltyService,
     EagleEyeApiClient,
     CTCartToEEBasketMapper,
     ExtensionLocalService,
@@ -105,6 +109,6 @@ export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): any {
     consumer
       .apply(ExtensionTypeMiddleware, UnidentifiedCustomerMiddleware)
-      .forRoutes({ path: 'service', method: RequestMethod.POST });
+      .forRoutes({ path: '/cart/service', method: RequestMethod.POST });
   }
 }

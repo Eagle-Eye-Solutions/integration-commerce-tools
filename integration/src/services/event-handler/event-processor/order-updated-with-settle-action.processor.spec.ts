@@ -151,6 +151,21 @@ describe('OrderUpdatedWithSettleActionProcessor', () => {
 
       expect(result).toBe(false);
     });
+
+    it('should return false if the commercetools request fails', async () => {
+      jest
+        .spyOn(commercetools, 'getOrderById')
+        .mockRejectedValue(
+          new Error('Failed to get Order from CT (settle-action isValidState)'),
+        );
+      const result = await processor.isValidState({
+        resource: { id: 'some-id', typeId: 'order' },
+        name: FIELD_EAGLEEYE_ACTION,
+        value: 'SETTLE',
+      } as any);
+
+      expect(result).toBe(false);
+    });
   });
 
   describe('isValidMessageType', () => {

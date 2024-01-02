@@ -1,13 +1,17 @@
 import { Controller, Post, Body } from '@nestjs/common';
-import { AppService } from './app.service';
+import { CartExtensionService } from './services/cart-extension/cart-extension.service';
+import { OrderSubscriptionService } from './services/order-subscription/order-subscription.service';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(
+    private readonly cartExtensionService: CartExtensionService,
+    private readonly orderSubscriptionService: OrderSubscriptionService,
+  ) {}
 
-  @Post('service')
+  @Post('/cart/service')
   async handleExtensionRequest(@Body() body): Promise<any> {
-    return this.appService.handleExtensionRequest(body);
+    return this.cartExtensionService.handleCartExtensionRequest(body);
   }
 
   @Post('events')
@@ -16,6 +20,6 @@ export class AppController {
     if (body?.message?.data) {
       message = JSON.parse(Buffer.from(body.message.data, 'base64').toString());
     }
-    return this.appService.handleSubscriptionEvents(message);
+    return this.orderSubscriptionService.handleOrderSubscriptionEvents(message);
   }
 }

@@ -35,7 +35,7 @@ export class CTCartToEEBasketMapper {
 
   mapCartLineItemsToBasketContent(lineItems: LineItem[]) {
     let basketContents = [];
-    const mappedLineItems = lineItems.map((item) => {
+    const mappedLineItems = lineItems?.map((item) => {
       return this.mapLineItemToBasketItem(item);
     });
     basketContents = basketContents.concat(mappedLineItems);
@@ -214,7 +214,9 @@ export class CTCartToEEBasketMapper {
   async mapCartToWalletOpenPayload(cart: Cart, includeIdentity: boolean) {
     let identity;
     if (includeIdentity) {
-      identity = cart.custom?.fields['eagleeye-identityValue'];
+      identity = cart.custom?.fields
+        ? cart.custom?.fields['eagleeye-identityValue']
+        : undefined;
     }
 
     const basketContents = [
@@ -233,10 +235,12 @@ export class CTCartToEEBasketMapper {
       'eagleEye.parentIncomingIdentifier',
     );
 
-    const voucherCodes: string[] =
-      cart.custom?.fields['eagleeye-voucherCodes'] || [];
-    const potentialVoucherCodes: string[] =
-      cart.custom?.fields['eagleeye-potentialVoucherCodes'] || [];
+    const voucherCodes: string[] = cart.custom?.fields
+      ? cart.custom?.fields['eagleeye-voucherCodes'] || []
+      : [];
+    const potentialVoucherCodes: string[] = cart.custom?.fields
+      ? cart.custom?.fields['eagleeye-potentialVoucherCodes'] || []
+      : [];
     const examineTokens = this.mapVoucherCodesToCampaignTokens([
       ...new Set([...voucherCodes, ...potentialVoucherCodes]),
     ]);
@@ -271,12 +275,12 @@ export class CTCartToEEBasketMapper {
             staff: null,
             promotions: 0,
           },
-          totalItems: cart.lineItems.reduce(
+          totalItems: cart.lineItems?.reduce(
             (acc, lineItem) => lineItem.quantity + acc,
             0,
           ),
           totalBasketValue:
-            cart.lineItems.reduce(
+            cart.lineItems?.reduce(
               (acc, lineItem) =>
                 lineItem.price.value.centAmount * lineItem.quantity + acc,
               0,
