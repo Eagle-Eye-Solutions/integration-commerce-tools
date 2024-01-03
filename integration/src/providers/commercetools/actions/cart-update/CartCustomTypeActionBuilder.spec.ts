@@ -45,17 +45,17 @@ describe('CartCustomTypeActionBuilder', () => {
     const loyaltyEarnAndCredits = {
       earn: {
         basket: {
-          balance: 400,
+          total: 400,
           offers: [],
         },
       },
       credit: {
         basket: {
-          balance: 0,
+          total: 0,
           offers: [],
         },
         items: {
-          balance: 0,
+          total: 0,
           offers: [],
         },
       },

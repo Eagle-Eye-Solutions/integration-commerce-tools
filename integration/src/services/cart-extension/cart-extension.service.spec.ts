@@ -14,6 +14,7 @@ import { Commercetools } from '../../providers/commercetools/commercetools.provi
 import { OrderSettleService } from '../../services/order-settle/order-settle.service';
 import { CartTypeDefinition } from '../../providers/commercetools/custom-type/cart-type-definition';
 import { LoyaltyService } from '../../services/loyalty/loyalty.service';
+import { LineItemTypeDefinition } from '../../providers/commercetools/custom-type/line-item-type-definition';
 
 class CircuitBreakerError extends Error {
   constructor(public code: string) {
@@ -27,6 +28,24 @@ describe('CartExtensionService', () => {
   let promotionService: PromotionService;
   let basketStoreService: jest.Mocked<BasketStoreService>;
   let loyaltyService: LoyaltyService;
+
+  const loyaltyEarnAndCredits = {
+    earn: {
+      basket: {
+        total: 0,
+      },
+    },
+    credit: {
+      basket: {
+        total: 0,
+        offers: [],
+      },
+      items: {
+        total: 0,
+        offers: [],
+      },
+    },
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -84,10 +103,14 @@ describe('CartExtensionService', () => {
           },
         },
         CartTypeDefinition,
+        LineItemTypeDefinition,
         {
           provide: 'TypeDefinitions',
-          useFactory: (cartTypeDefinition) => [cartTypeDefinition],
-          inject: [CartTypeDefinition],
+          useFactory: (cartTypeDefinition, lineItemTypeDefinition) => [
+            cartTypeDefinition,
+            lineItemTypeDefinition,
+          ],
+          inject: [CartTypeDefinition, LineItemTypeDefinition],
         },
       ],
     }).compile();
@@ -112,7 +135,23 @@ describe('CartExtensionService', () => {
         typeId: 'cart',
         id: '123',
         obj: {
-          lineItems: [],
+          lineItems: [
+            {
+              id: '123456',
+              variant: {
+                sku: '123456',
+              },
+              price: {
+                value: {
+                  centAmount: 100,
+                },
+              },
+              quantity: 2,
+              name: {
+                en: 'Example Item',
+              },
+            },
+          ],
         } as any,
       },
     };
@@ -178,30 +217,42 @@ describe('CartExtensionService', () => {
         description: 'Example Shipping Discount',
       },
     ];
-    const loyaltyEarnAndCredits = {
-      earn: {
-        basket: {
-          balance: 400,
-          offers: [],
-        },
-      },
-      credit: {
-        basket: {
-          balance: 0,
-          offers: [],
-        },
-        items: {
-          balance: 0,
-          offers: [],
-        },
-      },
-    };
     jest.spyOn(promotionService, 'getDiscounts').mockResolvedValueOnce({
       discounts: discountDrafts,
       discountDescriptions,
       errors: [],
     } as any);
     jest.spyOn(basketStoreService, 'isEnabled').mockReturnValue(true);
+    const loyaltyEarnAndCredits = {
+      earn: {
+        basket: {
+          total: 400,
+        },
+      },
+      credit: {
+        basket: {
+          total: 200,
+          offers: [
+            {
+              name: 'Test Campaign',
+              amount: 200,
+              timesRedeemed: 1,
+            },
+          ],
+        },
+        items: {
+          total: 200,
+          offers: [
+            {
+              name: 'Test Campaign 2 (x2)',
+              amount: 100,
+              timesRedeemed: 2,
+              sku: '123456',
+            },
+          ],
+        },
+      },
+    };
     jest
       .spyOn(loyaltyService, 'getEarnAndCredits')
       .mockResolvedValueOnce(loyaltyEarnAndCredits);
@@ -220,12 +271,25 @@ describe('CartExtensionService', () => {
             'eagleeye-potentialVoucherCodes': [],
             'eagleeye-action': '',
             'eagleeye-settledStatus': '',
-            'eagleeye-loyaltyEarnAndCredits': JSON.stringify(
-              loyaltyEarnAndCredits,
-            ),
+            'eagleeye-loyaltyEarnAndCredits': JSON.stringify({
+              earn: loyaltyEarnAndCredits.earn,
+              credit: { basket: loyaltyEarnAndCredits.credit.basket },
+            }),
           },
           type: {
             key: 'custom-cart-type',
+            typeId: 'type',
+          },
+        },
+        {
+          action: 'setLineItemCustomType',
+          fields: {
+            'eagleeye-loyaltyCredits':
+              '{"total":200,"offers":[{"name":"Test Campaign 2 (x2)","amount":100,"timesRedeemed":2,"sku":"123456"}]}',
+          },
+          lineItemId: '123456',
+          type: {
+            key: 'custom-line-item-type',
             typeId: 'type',
           },
         },
@@ -281,6 +345,9 @@ describe('CartExtensionService', () => {
       errors: [],
     } as any);
     jest.spyOn(basketStoreService, 'isEnabled').mockReturnValue(false);
+    jest
+      .spyOn(loyaltyService, 'getEarnAndCredits')
+      .mockResolvedValueOnce(loyaltyEarnAndCredits);
     const result = {
       actions: [
         {
@@ -296,7 +363,10 @@ describe('CartExtensionService', () => {
             'eagleeye-potentialVoucherCodes': [],
             'eagleeye-action': '',
             'eagleeye-settledStatus': '',
-            'eagleeye-loyaltyEarnAndCredits': '',
+            'eagleeye-loyaltyEarnAndCredits': JSON.stringify({
+              earn: loyaltyEarnAndCredits.earn,
+              credit: { basket: loyaltyEarnAndCredits.credit.basket },
+            }),
           },
           type: {
             key: 'custom-cart-type',
@@ -352,6 +422,9 @@ describe('CartExtensionService', () => {
       errors,
       voucherCodes: ['valid-token'],
     } as any);
+    jest
+      .spyOn(loyaltyService, 'getEarnAndCredits')
+      .mockResolvedValueOnce(loyaltyEarnAndCredits);
     const result = {
       actions: [
         {
@@ -367,7 +440,10 @@ describe('CartExtensionService', () => {
             'eagleeye-potentialVoucherCodes': [],
             'eagleeye-action': '',
             'eagleeye-settledStatus': '',
-            'eagleeye-loyaltyEarnAndCredits': '',
+            'eagleeye-loyaltyEarnAndCredits': JSON.stringify({
+              earn: loyaltyEarnAndCredits.earn,
+              credit: { basket: loyaltyEarnAndCredits.credit.basket },
+            }),
           },
           type: {
             key: 'custom-cart-type',
@@ -538,6 +614,9 @@ describe('CartExtensionService', () => {
       discountDescriptions,
       errors: [],
     } as any);
+    jest
+      .spyOn(loyaltyService, 'getEarnAndCredits')
+      .mockResolvedValueOnce(loyaltyEarnAndCredits);
     const response = await service.handleCartExtensionRequest(body);
     expect(response).toEqual({
       actions: [
@@ -569,7 +648,10 @@ describe('CartExtensionService', () => {
             'eagleeye-potentialVoucherCodes': [],
             'eagleeye-action': '',
             'eagleeye-settledStatus': '',
-            'eagleeye-loyaltyEarnAndCredits': '',
+            'eagleeye-loyaltyEarnAndCredits': JSON.stringify({
+              earn: loyaltyEarnAndCredits.earn,
+              credit: { basket: loyaltyEarnAndCredits.credit.basket },
+            }),
           },
         },
         {
@@ -693,7 +775,13 @@ describe('CartExtensionService', () => {
   it('should not try to delete the enriched basket when the feature is not enabled and the EE API fails', async () => {
     const body: ExtensionInput = {
       action: 'Update',
-      resource: { typeId: 'cart', id: '123', obj: {} as any },
+      resource: {
+        typeId: 'cart',
+        id: '123',
+        obj: {
+          lineItems: [],
+        } as any,
+      },
     };
     const error = new EagleEyeApiException(
       'EE_API_UNAVAILABLE',
@@ -765,7 +853,7 @@ describe('CartExtensionService', () => {
   it('should return EE_API_GENERIC_ERROR error in the cart custom type when any other error is thrown', async () => {
     const body: ExtensionInput = {
       action: 'Update',
-      resource: { typeId: 'cart', id: '123', obj: {} as any },
+      resource: { typeId: 'cart', id: '123', obj: { lineItems: [] } as any },
     };
     const error = new Error('SOME_OTHER_ERROR');
     jest.spyOn(basketStoreService, 'isEnabled').mockReturnValue(true);
@@ -812,7 +900,7 @@ describe('CartExtensionService', () => {
   it('should add the BASKET_DELETE error message to the errors list if fails to delete the saved basked following another error', async () => {
     const body: ExtensionInput = {
       action: 'Update',
-      resource: { typeId: 'cart', id: '123', obj: {} as any },
+      resource: { typeId: 'cart', id: '123', obj: { lineItems: [] } as any },
     };
     const error = new Error('SOME_OTHER_ERROR');
     jest.spyOn(basketStoreService, 'isEnabled').mockReturnValue(true);

@@ -193,6 +193,28 @@ describe('Circuit breaker (e2e)', () => {
             name: 'eagleeye-loyaltyEarnAndCredits',
             value: '',
           },
+          {
+            action: 'setLineItemCustomType',
+            lineItemId: '3fce711d-e891-4005-be7f-bf3c999ccc7d',
+            type: {
+              typeId: 'type',
+              key: 'custom-line-item-type',
+            },
+            fields: {
+              'eagleeye-loyaltyCredits': '',
+            },
+          },
+          {
+            action: 'setLineItemCustomType',
+            lineItemId: '2d313f50-e3ec-4c17-ac14-9fb6f4d75665',
+            type: {
+              typeId: 'type',
+              key: 'custom-line-item-type',
+            },
+            fields: {
+              'eagleeye-loyaltyCredits': '',
+            },
+          },
           { action: 'setDirectDiscounts', discounts: [] },
         ],
       });

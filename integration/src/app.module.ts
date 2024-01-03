@@ -31,6 +31,7 @@ import { OrderCreatedWithSettleActionProcessor } from './services/event-handler/
 import { OrderUpdatedWithSettleActionProcessor } from './services/event-handler/event-processor/order-updated-with-settle-action.processor';
 import { ExtensionTypeMiddleware } from './common/middlewares/extension-type/extension-type.middleware';
 import { CartTypeDefinition } from './providers/commercetools/custom-type/cart-type-definition';
+import { LineItemTypeDefinition } from './providers/commercetools/custom-type/line-item-type-definition';
 import { UnhandledExceptionsFilter } from './common/exceptions/unhandled-exception.filter';
 import { CartExtensionService } from './services/cart-extension/cart-extension.service';
 import { OrderSubscriptionService } from './services/order-subscription/order-subscription.service';
@@ -98,10 +99,14 @@ import { LoyaltyService } from './services/loyalty/loyalty.service';
       ],
     },
     CartTypeDefinition,
+    LineItemTypeDefinition,
     {
       provide: 'TypeDefinitions',
-      useFactory: (cartTypeDefinition) => [cartTypeDefinition],
-      inject: [CartTypeDefinition],
+      useFactory: (cartTypeDefinition, lineItemTypeDefinition) => [
+        cartTypeDefinition,
+        lineItemTypeDefinition,
+      ],
+      inject: [CartTypeDefinition, LineItemTypeDefinition],
     },
   ],
 })

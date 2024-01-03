@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { CTCartToEEBasketMapper } from '../../common/mappers/ctCartToEeBasket.mapper';
 import {
-  LoyaltyBalanceObject,
+  LoyaltyBreakdownObject,
+  LoyaltyTotalObject,
   LoyaltyEarnAndCredits,
 } from '../../types/loyalty-earn-credits.type';
 
@@ -15,17 +16,16 @@ export class LoyaltyService {
     const earnAndCredits = {
       earn: {
         basket: {
-          balance: 0,
-          offers: [],
+          total: 0,
         },
       },
       credit: {
         basket: {
-          balance: 0,
+          total: 0,
           offers: [],
         },
         items: {
-          balance: 0,
+          total: 0,
           offers: [],
         },
       },
@@ -42,10 +42,20 @@ export class LoyaltyService {
         walletOpenResponse.data.accounts,
       );
     }
+    if (
+      walletOpenResponse.data?.analyseBasketResults?.basket?.contents?.find(
+        (item) => item.adjudicationResults,
+      )
+    ) {
+      earnAndCredits.credit.items = this.getItemLevelCredits(
+        walletOpenResponse.data.analyseBasketResults.basket,
+        walletOpenResponse.data.accounts,
+      );
+    }
     return earnAndCredits;
   }
 
-  getBasketLevelEarn(basket): LoyaltyBalanceObject {
+  getBasketLevelEarn(basket): LoyaltyTotalObject {
     if (
       basket.summary.adjudicationResults &&
       basket.summary.adjudicationResults.length
@@ -55,10 +65,10 @@ export class LoyaltyService {
       return baseEarn;
     }
 
-    return { balance: 0, offers: [] };
+    return { total: 0 };
   }
 
-  getBasketLevelCredits(basket, accounts): LoyaltyBalanceObject {
+  getBasketLevelCredits(basket, accounts): LoyaltyBreakdownObject {
     if (
       basket.summary.adjudicationResults &&
       basket.summary.adjudicationResults.length
@@ -71,6 +81,22 @@ export class LoyaltyService {
       return basketCredits;
     }
 
-    return { balance: 0, offers: [] };
+    return { total: 0, offers: [] };
+  }
+
+  getItemLevelCredits(basket, accounts): LoyaltyBreakdownObject {
+    const anyItemCredits = basket.contents.find(
+      (item) => item.adjudicationResults,
+    )?.adjudicationResults;
+    if (anyItemCredits && anyItemCredits.length) {
+      const itemCredits =
+        this.cartToBasketMapper.mapAdjustedBasketToItemCredits(
+          basket,
+          accounts,
+        );
+      return itemCredits;
+    }
+
+    return { total: 0, offers: [] };
   }
 }

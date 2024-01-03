@@ -23,6 +23,8 @@ import { CTCartToEEBasketMapper } from '../../common/mappers/ctCartToEeBasket.ma
 import { CircuitBreakerIntercept } from '../../decorators/circuit-breaker-intercept/circuit-breaker-intercept.decorator';
 import { CircuitBreakerService } from '../../providers/circuit-breaker/circuit-breaker.service';
 import { LoyaltyService } from '../../services/loyalty/loyalty.service';
+import { LineItemCustomTypeActionBuilder } from '../../providers/commercetools/actions/cart-update/LineItemCustomTypeActionBuilder';
+import { LineItemTypeDefinition } from '../../providers/commercetools/custom-type/line-item-type-definition';
 
 @Injectable()
 export class CartExtensionService {
@@ -33,6 +35,7 @@ export class CartExtensionService {
     @Inject(BASKET_STORE_SERVICE)
     private readonly basketStoreService: BasketStoreService,
     private cartTypeDefinition: CartTypeDefinition,
+    private lineItemTypeDefinition: LineItemTypeDefinition,
     readonly cartToBasketMapper: CTCartToEEBasketMapper,
     readonly circuitBreakerService: CircuitBreakerService,
     private loyaltyService: LoyaltyService,
@@ -79,19 +82,37 @@ export class CartExtensionService {
       const actionBuilder = new CTActionsBuilder();
 
       if (CartCustomTypeActionBuilder.checkResourceCustomType(cart)) {
-        actionBuilder.addAll(
-          CartCustomTypeActionBuilder.setCustomFields({
+        actionBuilder.addAll([
+          ...CartCustomTypeActionBuilder.setCustomFields({
             errors,
             discountDescriptions: [],
           }),
-        );
+          ...LineItemCustomTypeActionBuilder.setCustomFields(
+            {},
+            cart.lineItems.filter((lineItem) => lineItem.custom?.type),
+          ),
+          ...LineItemCustomTypeActionBuilder.addCustomType(
+            {},
+            cart.lineItems.filter((lineItem) => !lineItem.custom?.type),
+            this.lineItemTypeDefinition.getTypeKey(),
+          ),
+        ]);
       } else {
-        actionBuilder.add(
+        actionBuilder.addAll([
           CartCustomTypeActionBuilder.addCustomType(
             { errors },
             this.cartTypeDefinition.getTypeKey(),
           ),
-        );
+          ...LineItemCustomTypeActionBuilder.setCustomFields(
+            {},
+            cart.lineItems.filter((lineItem) => lineItem.custom?.type),
+          ),
+          ...LineItemCustomTypeActionBuilder.addCustomType(
+            {},
+            cart.lineItems.filter((lineItem) => !lineItem.custom?.type),
+            this.lineItemTypeDefinition.getTypeKey(),
+          ),
+        ]);
       }
       // Discount removal should only be done for carts. This action is not valid for orders.
       if (body.resource.typeId === 'cart') {
@@ -131,18 +152,25 @@ export class CartExtensionService {
     }
 
     if (CartCustomTypeActionBuilder.checkResourceCustomType(resourceObj)) {
-      actionBuilder.addAll(
-        CartCustomTypeActionBuilder.setCustomFields({
+      actionBuilder.addAll([
+        ...CartCustomTypeActionBuilder.setCustomFields({
           errors: [...walletOpenResponse.errors, ...basketDiscounts.errors],
           discountDescriptions: [...basketDiscounts.discountDescriptions],
           voucherCodes: basketDiscounts.voucherCodes,
           potentialVoucherCodes: basketDiscounts.potentialVoucherCodes,
           basketLocation,
-          loyaltyEarnAndCredits,
+          loyaltyEarnAndCredits: {
+            earn: loyaltyEarnAndCredits.earn,
+            credit: { basket: loyaltyEarnAndCredits.credit.basket },
+          },
         }),
-      );
+        ...LineItemCustomTypeActionBuilder.setCustomFields(
+          { loyaltyCredits: loyaltyEarnAndCredits.credit.items },
+          resourceObj.lineItems,
+        ),
+      ]);
     } else {
-      actionBuilder.add(
+      actionBuilder.addAll([
         CartCustomTypeActionBuilder.addCustomType(
           {
             errors: [...walletOpenResponse.errors, ...basketDiscounts.errors],
@@ -150,11 +178,19 @@ export class CartExtensionService {
             voucherCodes: basketDiscounts.voucherCodes,
             potentialVoucherCodes: basketDiscounts.potentialVoucherCodes,
             basketLocation,
-            loyaltyEarnAndCredits,
+            loyaltyEarnAndCredits: {
+              earn: loyaltyEarnAndCredits.earn,
+              credit: { basket: loyaltyEarnAndCredits.credit.basket },
+            },
           },
           this.cartTypeDefinition.getTypeKey(),
         ),
-      );
+        ...LineItemCustomTypeActionBuilder.addCustomType(
+          { loyaltyCredits: loyaltyEarnAndCredits.credit.items },
+          resourceObj.lineItems,
+          this.lineItemTypeDefinition.getTypeKey(),
+        ),
+      ]);
     }
     actionBuilder.add(
       CartDiscountActionBuilder.addDiscount([...basketDiscounts.discounts]),
