@@ -63,6 +63,12 @@ export const SUCCESS_RESPONSE = {
       value: '',
     },
     {
+      action: 'setCustomField',
+      name: 'eagleeye-loyaltyEarnAndCredits',
+      value:
+        '{"earn":{"basket":{"balance":0,"offers":[]}},"credit":{"basket":{"balance":0,"offers":[]},"items":{"balance":0,"offers":[]}}}',
+    },
+    {
       action: 'setDirectDiscounts',
       discounts: [
         {
@@ -135,6 +141,108 @@ export const SUCCESS_RESPONSE = {
   ],
 };
 
+export const LOYALTY_SUCCESS_RESPONSE = {
+  actions: [
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-errors',
+      value: [],
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-appliedDiscounts',
+      value: ['Example Discount'],
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-basketStore',
+      value: 'CUSTOM_TYPE',
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-basketUri',
+      value:
+        'custom-objects/eagleeye-cart/8be07418-04a0-49ba-b56f-2aa35d1027a4',
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-voucherCodes',
+      value: [],
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-potentialVoucherCodes',
+      value: [],
+    },
+    { action: 'setCustomField', name: 'eagleeye-action', value: '' },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-settledStatus',
+      value: '',
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-loyaltyEarnAndCredits',
+      value:
+        '{"earn":{"basket":{"balance":400,"offers":[]}},"credit":{"basket":{"balance":400,"offers":[{"name":"100pts for every £1 spent on the basket","amount":400}]},"items":{"balance":0,"offers":[]}}}',
+    },
+    {
+      action: 'setDirectDiscounts',
+      discounts: [
+        {
+          value: {
+            type: 'absolute',
+            money: [
+              {
+                centAmount: 200,
+                currencyCode: 'GBP',
+                type: 'centPrecision',
+                fractionDigits: 2,
+              },
+            ],
+          },
+          target: {
+            type: 'totalPrice',
+          },
+        },
+        {
+          value: {
+            type: 'absolute',
+            money: [
+              {
+                centAmount: 100,
+                currencyCode: 'GBP',
+                type: 'centPrecision',
+                fractionDigits: 2,
+              },
+            ],
+          },
+          target: {
+            type: 'lineItems',
+            predicate: 'sku="245865"',
+          },
+        },
+        {
+          value: {
+            type: 'absolute',
+            money: [
+              {
+                centAmount: 250,
+                currencyCode: 'GBP',
+                type: 'centPrecision',
+                fractionDigits: 2,
+              },
+            ],
+          },
+          target: {
+            type: 'shipping',
+          },
+        },
+      ],
+    },
+  ],
+};
+
 export const ERROR_RESPONSE = {
   actions: [
     {
@@ -157,6 +265,11 @@ export const ERROR_RESPONSE = {
     {
       action: 'setCustomField',
       name: 'eagleeye-settledStatus',
+      value: '',
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-loyaltyEarnAndCredits',
       value: '',
     },
     { action: 'setDirectDiscounts', discounts: [] },
@@ -183,6 +296,8 @@ export const CUSTOMER_NOT_FOUND_FETCHED_OPEN_PROMOTIONS_RESPONSE = {
         'eagleeye-potentialVoucherCodes': [],
         'eagleeye-action': '',
         'eagleeye-settledStatus': '',
+        'eagleeye-loyaltyEarnAndCredits':
+          '{"earn":{"basket":{"balance":0,"offers":[]}},"credit":{"basket":{"balance":0,"offers":[]},"items":{"balance":0,"offers":[]}}}',
         'eagleeye-identityValue': '',
       },
     },

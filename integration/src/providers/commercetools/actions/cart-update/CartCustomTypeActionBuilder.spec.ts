@@ -42,6 +42,24 @@ describe('CartCustomTypeActionBuilder', () => {
       uri: 'path/to/basket',
       storeType: 'CUSTOM_TYPE',
     };
+    const loyaltyEarnAndCredits = {
+      earn: {
+        basket: {
+          balance: 400,
+          offers: [],
+        },
+      },
+      credit: {
+        basket: {
+          balance: 0,
+          offers: [],
+        },
+        items: {
+          balance: 0,
+          offers: [],
+        },
+      },
+    };
     const action = CartCustomTypeActionBuilder.addCustomType(
       {
         errors,
@@ -49,6 +67,7 @@ describe('CartCustomTypeActionBuilder', () => {
         voucherCodes,
         potentialVoucherCodes,
         basketLocation,
+        loyaltyEarnAndCredits,
       },
       cartTypeDefinition.getTypeKey(),
     );
@@ -68,6 +87,7 @@ describe('CartCustomTypeActionBuilder', () => {
         'eagleeye-potentialVoucherCodes': ['code3', 'code4'],
         'eagleeye-action': '',
         'eagleeye-settledStatus': '',
+        'eagleeye-loyaltyEarnAndCredits': JSON.stringify(loyaltyEarnAndCredits),
       },
     });
   });
@@ -109,6 +129,7 @@ describe('CartCustomTypeActionBuilder', () => {
         'eagleeye-action': '',
         'eagleeye-settledStatus': '',
         'eagleeye-identityValue': '',
+        'eagleeye-loyaltyEarnAndCredits': '',
       },
     });
   });
@@ -161,6 +182,11 @@ describe('CartCustomTypeActionBuilder', () => {
       {
         action: 'setCustomField',
         name: 'eagleeye-settledStatus',
+        value: '',
+      },
+      {
+        action: 'setCustomField',
+        name: 'eagleeye-loyaltyEarnAndCredits',
         value: '',
       },
       {

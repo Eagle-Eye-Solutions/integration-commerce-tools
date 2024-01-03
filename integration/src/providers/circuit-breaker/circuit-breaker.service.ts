@@ -49,12 +49,12 @@ export class CircuitBreakerService implements OnModuleInit {
     !this.circuit.enabled
       ? this.logger.warn('Circuit breaker is DISABLED')
       : this.circuit.opened
-      ? this.logger.error(
-          `Initialized circuit breaker. The circuit is OPEN! Requests are NOT sent to '${this.breakableApi.invoke.name}'`,
-        )
-      : this.logger.log(
-          `Initialized circuit breaker. The circuit is closed all requests are sent to '${this.breakableApi.invoke.name}'`,
-        );
+        ? this.logger.error(
+            `Initialized circuit breaker. The circuit is OPEN! Requests are NOT sent to '${this.breakableApi.invoke.name}'`,
+          )
+        : this.logger.log(
+            `Initialized circuit breaker. The circuit is closed all requests are sent to '${this.breakableApi.invoke.name}'`,
+          );
 
     // Event listeners
     /* istanbul ignore next */

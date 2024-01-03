@@ -165,6 +165,234 @@ export const nockWalletOpen = async (
     );
 };
 
+export const nockWalletOpenWithLoyalty = async (
+  cart,
+  times = 1,
+  responseCode = 200,
+  delayConnection = 0,
+) => {
+  const configService = new ScriptConfigService();
+  const commercetools = new Commercetools(configService as any);
+  const customObjectService = new CustomObjectService(commercetools);
+  const basketStoreService = new CtBasketStoreService(
+    customObjectService,
+    configService as any,
+  );
+  const basketMapper = new CTCartToEEBasketMapper(
+    configService as any,
+    commercetools,
+    basketStoreService,
+  );
+  const basketContents = [
+    ...basketMapper.mapCartLineItemsToBasketContent(cart.lineItems),
+  ];
+  const shippingDiscountItem =
+    await basketMapper.mapShippingMethodSkusToBasketItems(cart.shippingInfo);
+  if (shippingDiscountItem.upc) {
+    basketContents.push(shippingDiscountItem);
+  }
+  return nock('https://pos.sandbox.uk.eagleeye.com:443', {
+    encodedQueryParams: true,
+  })
+    .post('/connect/wallet/open', {
+      reference: cart.id,
+      lock: true,
+      location: {
+        incomingIdentifier: 'outlet1',
+        parentIncomingIdentifier: 'banner1',
+      },
+      examine: [
+        {
+          type: 'TOKEN',
+          value: '123456',
+        },
+        {
+          type: 'TOKEN',
+          value: 'valid-code',
+        },
+        {
+          type: 'TOKEN',
+          value: 'invalid-code',
+        },
+      ],
+      options: {
+        adjustBasket: {
+          includeOpenOffers: true,
+          enabled: true,
+        },
+        analyseBasket: {
+          includeOpenOffers: true,
+          enabled: true,
+        },
+      },
+      basket: {
+        type: 'STANDARD',
+        summary: {
+          redemptionChannel: 'Online',
+          totalDiscountAmount: {
+            general: null,
+            staff: null,
+            promotions: 0,
+          },
+          totalItems: getTotalItemCount(cart),
+          totalBasketValue: getTotalBasketValue(cart),
+        },
+        contents: basketContents,
+      },
+    })
+    .times(times)
+    .delayConnection(delayConnection)
+    .reply(
+      responseCode,
+      {
+        wallet: null,
+        identity: null,
+        accounts: [
+          {
+            accountId: '2817854971',
+            walletId: '170189945',
+            campaignId: '1762318',
+            campaign: {
+              campaignId: 1762318,
+              campaignTypeId: 111,
+              campaignMode: 'RESTRICTED',
+              campaignName: '100pts for every £1 spent on the basket',
+              accountTypeId: 1,
+              startDate: '2023-12-11T00:00:00+00:00',
+              endDate: '2030-12-31T23:59:00+00:00',
+              status: 'ACTIVE',
+              sequenceKey: null,
+              reference: '001762318',
+              relationships: [],
+              dateCreated: '2023-12-11T09:28:55+00:00',
+              lastUpdated: '2023-12-11T09:28:55+00:00',
+            },
+          },
+          {
+            accountId: '2817854972',
+            walletId: '170189945',
+            campaignId: '1653843',
+            campaign: {
+              campaignId: 1653843,
+              campaignTypeId: 7,
+              campaignMode: 'OPEN',
+              campaignName: 'Retail Points',
+              accountTypeId: 7,
+              startDate: '2023-01-01T00:00:00+00:00',
+              endDate: '9999-12-30T23:59:00+00:00',
+              status: 'ACTIVE',
+              sequenceKey: null,
+              reference: 'RETAILPOINTS',
+              relationships: [],
+              dateCreated: '2023-09-04T08:20:31+00:00',
+              lastUpdated: '2023-10-04T16:13:35+00:00',
+            },
+          },
+        ],
+        additionalEntities: null,
+        walletTransactions: [],
+        accountTransactions: [],
+        analyseBasketResults: {
+          basket: {
+            type: 'STANDARD',
+            summary: {
+              redemptionChannel: 'Online',
+              totalDiscountAmount: {
+                general: null,
+                staff: null,
+                promotions: 300,
+              },
+              totalItems: getTotalItemCount(cart),
+              totalBasketValue: getTotalBasketValue(cart),
+              adjustmentResults: [{ value: 200 }],
+              adjudicationResults: [
+                {
+                  resourceType: 'SCHEME',
+                  resourceId: '1653843',
+                  instanceId: '1653843-1',
+                  success: null,
+                  type: 'earn',
+                  value: null,
+                  balances: {
+                    current: 400,
+                  },
+                  isRefundable: true,
+                  isUnredeemable: false,
+                  relatedAccountIds: [],
+                  targetedAccountId: '2817854972',
+                  targetedWalletId: '170189945',
+                  totalMatchingUnits: null,
+                  playOrderPosition: 3,
+                },
+                {
+                  resourceType: 'CAMPAIGN',
+                  resourceId: '1762318',
+                  instanceId: '1762318-1',
+                  success: null,
+                  type: 'redeem',
+                  value: 400,
+                  balances: null,
+                  isRefundable: true,
+                  isUnredeemable: false,
+                  relatedAccountIds: ['2817854971'],
+                  targetedAccountId: '2817854971',
+                  targetedWalletId: '170189945',
+                  totalMatchingUnits: null,
+                  playOrderPosition: 4,
+                  totalRewardUnits: 1,
+                },
+                {
+                  resourceType: 'CAMPAIGN',
+                  resourceId: '1762318',
+                  instanceId: '1762318-1',
+                  success: null,
+                  type: 'credit',
+                  value: null,
+                  balances: {
+                    current: 400,
+                  },
+                  isRefundable: true,
+                  isUnredeemable: false,
+                  relatedAccountIds: ['2817854971'],
+                  targetedAccountId: '2817854972',
+                  targetedWalletId: '170189945',
+                  totalMatchingUnits: null,
+                  playOrderPosition: 4,
+                },
+              ],
+            },
+            contents: [
+              {
+                upc: '245865',
+                adjustmentResults: [
+                  {
+                    totalDiscountAmount: 100,
+                  },
+                ],
+              },
+              {
+                upc: '245879',
+                adjustmentResults: [
+                  {
+                    totalDiscountAmount: 250,
+                  },
+                ],
+              },
+            ],
+          },
+          discount: [
+            {
+              campaignName: 'Example Discount',
+            },
+          ],
+        },
+        basketAdjudicationResult: null,
+        spendAdjudicationResults: null,
+      },
+      [],
+    );
+};
+
 export const nockWalletSettle = async (
   cart,
   times = 1,

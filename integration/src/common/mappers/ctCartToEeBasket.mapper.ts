@@ -11,6 +11,7 @@ import { ConfigService } from '@nestjs/config';
 import { Commercetools } from '../../providers/commercetools/commercetools.provider';
 import { BasketStoreService } from '../../services/basket-store/basket-store.interface';
 import { BASKET_STORE_SERVICE } from '../../services/basket-store/basket-store.provider';
+import { LoyaltyBalanceObject } from '../../types/loyalty-earn-credits.type';
 
 export type BasketItem = {
   itemUnitCost: number;
@@ -314,5 +315,67 @@ export class CTCartToEEBasketMapper {
       },
       basket: enrichedBasket,
     };
+  }
+
+  mapAdjustedBasketToBasketEarn(basket): LoyaltyBalanceObject {
+    const basketEarn = { balance: 0, offers: [] };
+    const basketEarnResult = basket.summary.adjudicationResults.find(
+      (result) => result.type === 'earn',
+    );
+    if (basketEarnResult) {
+      basketEarn.balance = basketEarnResult.balances.current;
+    }
+    return basketEarn;
+  }
+
+  mapAdjustedBasketToBasketCredits(basket, accounts): LoyaltyBalanceObject {
+    const basketCredits = { balance: 0, offers: [] };
+    const basketCreditsResult = basket.summary.adjudicationResults.filter(
+      (result) => result.type === 'credit',
+    );
+    if (basketCreditsResult.length) {
+      basketCredits.balance = basketCreditsResult.reduce(
+        (acc, result) => result.balances.current + acc,
+        0,
+      );
+      basketCredits.offers = this.deduplicateCreditOffers(
+        basketCreditsResult.map((result) => {
+          return {
+            name: accounts.find(
+              (account) =>
+                String(account.campaign.campaignId) ===
+                String(result.resourceId),
+            ).campaign.campaignName,
+            amount: result.balances.current,
+          };
+        }),
+      );
+    }
+    return basketCredits;
+  }
+
+  private deduplicateCreditOffers(offers: any[]) {
+    const offerCount: { [key: string]: number } = {};
+
+    offers.forEach((offer) => {
+      offerCount[offer.name] = (offerCount[offer.name] || 0) + 1;
+    });
+
+    return Array.from(
+      new Set(
+        offers.map((offer) => {
+          const count = offerCount[offer.name];
+
+          if (count > 1) {
+            return JSON.stringify({
+              name: `${offer.name} (x${count})`,
+              amount: offer.amount,
+            });
+          } else {
+            return JSON.stringify(offer);
+          }
+        }),
+      ),
+    ).map((offer) => JSON.parse(offer));
   }
 }

@@ -40,42 +40,45 @@ export const nockDeleteCustomObject = (
     .reply(200, response, []);
 };
 
-export const nockPostEnrichedBasketCustomObject = () => {
+export const nockPostEnrichedBasketCustomObject = (body?: any) => {
   return nock('https://api.europe-west1.gcp.commercetools.com:443', {
     encodedQueryParams: true,
   })
     .persist()
-    .post(`/${process.env.CTP_PROJECT_KEY}/custom-objects`, {
-      key: '8be07418-04a0-49ba-b56f-2aa35d1027a4',
-      container: 'eagleeye-cart',
-      value: {
-        enrichedBasket: {
-          type: 'STANDARD',
-          summary: {
-            redemptionChannel: 'Online',
-            totalDiscountAmount: {
-              general: null,
-              staff: null,
-              promotions: 300,
+    .post(
+      `/${process.env.CTP_PROJECT_KEY}/custom-objects`,
+      body || {
+        key: '8be07418-04a0-49ba-b56f-2aa35d1027a4',
+        container: 'eagleeye-cart',
+        value: {
+          enrichedBasket: {
+            type: 'STANDARD',
+            summary: {
+              redemptionChannel: 'Online',
+              totalDiscountAmount: {
+                general: null,
+                staff: null,
+                promotions: 300,
+              },
+              totalItems: 7,
+              totalBasketValue: 6138,
+              adjustmentResults: [{ value: 200 }, { value: 500 }],
             },
-            totalItems: 7,
-            totalBasketValue: 6138,
-            adjustmentResults: [{ value: 200 }, { value: 500 }],
+            contents: [
+              {
+                upc: '245865',
+                adjustmentResults: [{ totalDiscountAmount: 100 }],
+              },
+              {
+                upc: '245879',
+                adjustmentResults: [{ totalDiscountAmount: 250 }],
+              },
+            ],
           },
-          contents: [
-            {
-              upc: '245865',
-              adjustmentResults: [{ totalDiscountAmount: 100 }],
-            },
-            {
-              upc: '245879',
-              adjustmentResults: [{ totalDiscountAmount: 250 }],
-            },
-          ],
+          cart: { typeId: 'cart', id: '8be07418-04a0-49ba-b56f-2aa35d1027a4' },
         },
-        cart: { typeId: 'cart', id: '8be07418-04a0-49ba-b56f-2aa35d1027a4' },
       },
-    })
+    )
     .reply(
       200,
       {

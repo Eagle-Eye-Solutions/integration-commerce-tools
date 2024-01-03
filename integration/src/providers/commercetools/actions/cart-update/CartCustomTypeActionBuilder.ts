@@ -7,6 +7,7 @@ import {
 import { EEApiErrorType } from '../../../../common/exceptions/eagle-eye-api.exception';
 import { PluginErrorType } from '../../../../common/exceptions/eagle-eye-plugin.exception';
 import { BasketLocation } from '../../../../services/basket-store/basket-store.interface';
+import { LoyaltyEarnAndCredits } from '../../../../types/loyalty-earn-credits.type';
 
 export type CustomFieldError = {
   type:
@@ -35,6 +36,7 @@ interface CustomFieldsObject {
   basketLocation?: BasketLocation;
   action?: string;
   settledStatus?: string;
+  loyaltyEarnAndCredits?: LoyaltyEarnAndCredits;
 }
 
 export class CartCustomTypeActionBuilder {
@@ -56,6 +58,8 @@ export class CartCustomTypeActionBuilder {
         customFieldsObject.potentialVoucherCodes || [],
       'eagleeye-action': customFieldsObject.action || '',
       'eagleeye-settledStatus': customFieldsObject.settledStatus || '',
+      'eagleeye-loyaltyEarnAndCredits':
+        JSON.stringify(customFieldsObject.loyaltyEarnAndCredits) || '',
     };
     // If an identity was not found, it should be removed.
     // Otherwise it will be used when calling settle.
@@ -120,6 +124,11 @@ export class CartCustomTypeActionBuilder {
         action: 'setCustomField',
         name: 'eagleeye-settledStatus',
         value: customFieldsObject.settledStatus || '',
+      },
+      {
+        action: 'setCustomField',
+        name: 'eagleeye-loyaltyEarnAndCredits',
+        value: JSON.stringify(customFieldsObject.loyaltyEarnAndCredits) || '',
       },
     ];
     // If an identity was not found, it should be removed.

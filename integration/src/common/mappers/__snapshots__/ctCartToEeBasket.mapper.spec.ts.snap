@@ -1,5 +1,36 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`CTCartToEEBasketMapper mapAdjustedBasketToBasketCredits should return deduplicated results when there's more than one credit instance per campaign 1`] = `
+{
+  "balance": 800,
+  "offers": [
+    {
+      "amount": 400,
+      "name": "Test Campaign (x2)",
+    },
+  ],
+}
+`;
+
+exports[`CTCartToEEBasketMapper mapAdjustedBasketToBasketCredits should return the mapped basket earn 1`] = `
+{
+  "balance": 400,
+  "offers": [
+    {
+      "amount": 400,
+      "name": "Test Campaign",
+    },
+  ],
+}
+`;
+
+exports[`CTCartToEEBasketMapper mapAdjustedBasketToBasketEarn should return the mapped basket earn 1`] = `
+{
+  "balance": 400,
+  "offers": [],
+}
+`;
+
 exports[`CTCartToEEBasketMapper mapAdjustedBasketToCartDirectDiscounts should return the direct discount draft 1`] = `[]`;
 
 exports[`CTCartToEEBasketMapper mapAdjustedBasketToItemDirectDiscounts should not return the direct discount drafts if there are no adjustmentResults 1`] = `[]`;
