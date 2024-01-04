@@ -26,14 +26,14 @@ the frontend to show to the customer the name of the promotion/s applied.
 
 ### Data mapping
 
-The data mapping between commertools cart and EagleEye API involves several fields, to see the latest version of the
+The data mapping between commercetools cart and EagleEye API involves several fields, to see the latest version of the
 mapping refer to
 the [CTCartToEEBasketMapper](https://github.com/Eagle-Eye-Solutions/integration-commerce-tools/blob/master/integration/src/common/mappers/ctCartToEeBasket.mapper.ts)
 class.
 
 ### Vouchers
 
-To apply one or more voucher codes update the cart with the field `eagleeye-voucherCodes`:
+To apply one or more voucher codes create the cart with the field `eagleeye-voucherCodes`:
 
 ```json
 {
@@ -52,10 +52,17 @@ To apply one or more voucher codes update the cart with the field `eagleeye-vouc
 }
 ```
 
-The plugin removes from `eagleeye-voucherCodes` the invalid voucher code (e.g. non existent voucher
+To add a voucher code to an existing cart use the action `setCustomType` or `setCustomField`, it's the frontend
+responsibility to check whether the custom type is set to the cart or not.
+
+The plugin removes from `eagleeye-voucherCodes` the invalid voucher code (e.g. non-existent voucher
 codes), leaves untouched the valid ones and move to `eagleeye-potentialVoucherCodes` the voucher codes that cannot be
 applied because some condition is not satisfied (e.g. min quantity required). Each time the commercetools cart is
 updated all potential voucher codes are automatically retried.
+
+When `EE_EXCLUDE_UNIDENTIFIED_CUSTOMERS` is set to `true` the integration will only evaluate vouchers when the customer
+is identified. The frontend should not allow the submission of a voucher in this scenario as the voucher will be added
+to the field `eagleeye-voucherCodes` but it will not be evaluated by the integration.
 
 ### Identified customers
 
@@ -66,36 +73,44 @@ EagleEye to get all the open promotions (no identity value is passed).
 
 ## Loyalty Points
 
-Loyalty points processing is enabled by default. Points will always be calculated by EagleEye when a campaign is available and then this data is processed to be stored in your cart as a custom field.
+Loyalty points processing is enabled by default. Points will always be calculated by EagleEye when a campaign is
+available and then this data is processed to be stored in your cart as a custom field.
 
-Currently this custom field is called `eagleeye-loyaltyEarnAndCredits` and you can expect its value to be a stringified JSON with the following format:
+Currently, this custom field is called `eagleeye-loyaltyEarnAndCredits` and you can expect its value to be a stringified
+JSON with the following format:
+
 ```json
 {
-   "earn":{
-      "basket":{
-         "balance":0,
-         "offers":[]
-      }
-   },
-   "credit":{
-      "basket":{
-         "balance":100,
-         "offers":[{
-            "name":"Example Offer",
-            "amount":100
-         }]
-      },
-      "items":{
-         "balance":0,
-         "offers":[]
-      }
-   }
+  "earn": {
+    "basket": {
+      "balance": 0,
+      "offers": []
+    }
+  },
+  "credit": {
+    "basket": {
+      "balance": 100,
+      "offers": [
+        {
+          "name": "Example Offer",
+          "amount": 100
+        }
+      ]
+    },
+    "items": {
+      "balance": 0,
+      "offers": []
+    }
+  }
 }
 ```
 
-Where the main two properties are `earn` and `credit`, and each of them may have `basket` or `balance` objects. Each of these maybe contain `balance` (total amount of earn/credit for that object) and offers (array of object with the name of the offer and the sum of each redeemed instance of said offer).
+Where the main two properties are `earn` and `credit`, and each of them may have `basket` or `balance` objects. Each of
+these may contain `balance` (total amount of earn/credit for that object) and offers (array of objects with the name of
+the offer and the sum of each redeemed instance of said offer).
 
-In cases where an offer applies more than once, it will show up with `(x<times>)` in its name. E.g: `"Example Offer (x2)`, with amount `200` if it were to apply twice.
+In cases where an offer applies more than once, it will show up with `(x<times>)` in its name.
+E.g: `"Example Offer (x2)`, with amount `200` if it were to apply twice.
 
 WIP/TODO
 
