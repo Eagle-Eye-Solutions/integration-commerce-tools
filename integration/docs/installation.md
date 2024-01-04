@@ -11,7 +11,7 @@ their[official documentation](https://docs.commercetools.com/connect/getting-sta
 summary of the required steps to deploy in production:
 
 - Search for the connector (searching for "eagleeye" should be enough). Take note of properties like `id`/`key`
-  and `version`. Also look at the configuration variables (also available below in this document).
+  and `version`. Also, look at the configuration variables (also available below in this document).
 - Prepare your payload to request a deployment based on the previous step.
 - Request a deployment.
 - Monitor the deployment process by getting the deployment details by `id`/`key`.
@@ -37,12 +37,12 @@ directly in commercetools as [Custom Objects](https://docs.commercetools.com/api
 A very basic Dockerfile is provided in the repository, but feel free to make your own or run through other methods
 like `pm2`, GCP CloudRun or any other (some additional code changes might be needed).
 
-The commercetools configuration, that is automatically done using CT connect, should be done manually when using a
+The commercetools configuration, which is automatically done using CT connect, should be done manually when using a
 different hosting strategy by running the `connector:post-deploy:*` and `connector:pre-undeploy:*` scripts.
 
 ## Configuration
 
-The plugin can be configured via environment variables. Each deployment strategy has a different way to define
+The plugin can be configured via environment variables. Each deployment strategy has a different way of defining
 environment variables, refer to the specific deployment documentation for further information.
 
 | Variable                                   | Required | Default                             | Description                                                                                                                                                                                                                                                                                                                                                                                                            |
@@ -72,8 +72,8 @@ environment variables, refer to the specific deployment documentation for furthe
 
 ## Interaction with other extensions
 
-If an API call triggers multiple API Extensions, they will be called in parallel. Their responses will be merged, but
-without a guaranteed order. For example if the EagleEye plugin is installed together with an extension to calculate
-taxes, the latter should run after promotions are calculated. In this case a different solution should be adopted to
-guardantee the ordering.
-See [commercetools documetation](https://docs.commercetools.com/api/projects/api-extensions#multiple-api-extensions-in-a-single-api-call). 
+If an API call triggers multiple API Extensions, they will be called in parallel. Their responses will be merged but
+without a guaranteed order. For example, if the EagleEye plugin is installed together with an extension to calculate
+taxes, the latter should run after promotions are calculated. In this case, a different solution should be adopted to
+guarantee the ordering.
+See [commercetools documentation](https://docs.commercetools.com/api/projects/api-extensions#multiple-api-extensions-in-a-single-api-call). 
