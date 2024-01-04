@@ -166,7 +166,12 @@ export class CartExtensionService {
         }),
         ...LineItemCustomTypeActionBuilder.setCustomFields(
           { loyaltyCredits: loyaltyEarnAndCredits.credit.items },
-          resourceObj.lineItems,
+          resourceObj.lineItems.filter((lineItem) => lineItem.custom?.type),
+        ),
+        ...LineItemCustomTypeActionBuilder.addCustomType(
+          { loyaltyCredits: loyaltyEarnAndCredits.credit.items },
+          resourceObj.lineItems.filter((lineItem) => !lineItem.custom?.type),
+          this.lineItemTypeDefinition.getTypeKey(),
         ),
       ]);
     } else {
@@ -185,9 +190,13 @@ export class CartExtensionService {
           },
           this.cartTypeDefinition.getTypeKey(),
         ),
+        ...LineItemCustomTypeActionBuilder.setCustomFields(
+          { loyaltyCredits: loyaltyEarnAndCredits.credit.items },
+          resourceObj.lineItems.filter((lineItem) => lineItem.custom?.type),
+        ),
         ...LineItemCustomTypeActionBuilder.addCustomType(
           { loyaltyCredits: loyaltyEarnAndCredits.credit.items },
-          resourceObj.lineItems,
+          resourceObj.lineItems.filter((lineItem) => !lineItem.custom?.type),
           this.lineItemTypeDefinition.getTypeKey(),
         ),
       ]);

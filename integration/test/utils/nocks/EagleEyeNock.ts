@@ -369,6 +369,15 @@ export const nockWalletOpenWithLoyalty = async (
                     totalDiscountAmount: 100,
                   },
                 ],
+                adjudicationResults: [
+                  {
+                    type: 'credit',
+                    resourceId: '1653843',
+                    balances: {
+                      current: 100,
+                    },
+                  },
+                ],
               },
               {
                 upc: '245879',
