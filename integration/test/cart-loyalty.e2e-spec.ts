@@ -125,6 +125,15 @@ describe('Cart Loyalty processing (e2e)', () => {
               {
                 upc: '245865',
                 adjustmentResults: [{ totalDiscountAmount: 100 }],
+                adjudicationResults: [
+                  {
+                    type: 'credit',
+                    resourceId: '1653843',
+                    balances: {
+                      current: 100,
+                    },
+                  },
+                ],
               },
               {
                 upc: '245879',

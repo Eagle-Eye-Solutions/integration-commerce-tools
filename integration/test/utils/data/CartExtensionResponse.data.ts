@@ -69,18 +69,27 @@ export const SUCCESS_RESPONSE = {
         '{"earn":{"basket":{"total":0}},"credit":{"basket":{"total":0,"offers":[]}}}',
     },
     {
-      action: 'setLineItemCustomField',
+      action: 'setLineItemCustomType',
       lineItemId: '3fce711d-e891-4005-be7f-bf3c999ccc7d',
-      name: 'eagleeye-loyaltyCredits',
-      value: '',
+      type: {
+        typeId: 'type',
+        key: 'custom-line-item-type',
+      },
+      fields: {
+        'eagleeye-loyaltyCredits': '',
+      },
     },
     {
-      action: 'setLineItemCustomField',
+      action: 'setLineItemCustomType',
       lineItemId: '2d313f50-e3ec-4c17-ac14-9fb6f4d75665',
-      name: 'eagleeye-loyaltyCredits',
-      value: '',
+      type: {
+        typeId: 'type',
+        key: 'custom-line-item-type',
+      },
+      fields: {
+        'eagleeye-loyaltyCredits': '',
+      },
     },
-
     {
       action: 'setDirectDiscounts',
       discounts: [
@@ -200,18 +209,26 @@ export const LOYALTY_SUCCESS_RESPONSE = {
         '{"earn":{"basket":{"total":400,"offers":[]}},"credit":{"basket":{"total":400,"offers":[{"name":"100pts for every £1 spent on the basket","amount":400,"timesRedeemed":1}]}}}',
     },
     {
-      action: 'setLineItemCustomField',
+      action: 'setLineItemCustomType',
       lineItemId: '3fce711d-e891-4005-be7f-bf3c999ccc7d',
-      name: 'eagleeye-loyaltyCredits',
-      value: '',
+      type: {
+        typeId: 'type',
+        key: 'custom-line-item-type',
+      },
+      fields: {
+        'eagleeye-loyaltyCredits':
+          '{"total":100,"offers":[{"name":"Retail Points","amount":100,"sku":"245865","timesRedeemed":1}]}',
+      },
     },
     {
-      action: 'setLineItemCustomField',
+      action: 'setLineItemCustomType',
       lineItemId: '2d313f50-e3ec-4c17-ac14-9fb6f4d75665',
-      name: 'eagleeye-loyaltyCredits',
-      value: '',
+      type: {
+        typeId: 'type',
+        key: 'custom-line-item-type',
+      },
+      fields: {},
     },
-
     {
       action: 'setDirectDiscounts',
       discounts: [
