@@ -2,36 +2,66 @@
 
 exports[`CTCartToEEBasketMapper mapAdjustedBasketToBasketCredits should return deduplicated results when there's more than one credit instance per campaign 1`] = `
 {
-  "balance": 800,
   "offers": [
     {
       "amount": 400,
       "name": "Test Campaign (x2)",
+      "timesRedeemed": 2,
     },
   ],
+  "total": 800,
 }
 `;
 
-exports[`CTCartToEEBasketMapper mapAdjustedBasketToBasketCredits should return the mapped basket earn 1`] = `
+exports[`CTCartToEEBasketMapper mapAdjustedBasketToBasketCredits should return the mapped basket credits 1`] = `
 {
-  "balance": 400,
   "offers": [
     {
       "amount": 400,
       "name": "Test Campaign",
+      "timesRedeemed": 1,
     },
   ],
+  "total": 400,
 }
 `;
 
 exports[`CTCartToEEBasketMapper mapAdjustedBasketToBasketEarn should return the mapped basket earn 1`] = `
 {
-  "balance": 400,
   "offers": [],
+  "total": 400,
 }
 `;
 
 exports[`CTCartToEEBasketMapper mapAdjustedBasketToCartDirectDiscounts should return the direct discount draft 1`] = `[]`;
+
+exports[`CTCartToEEBasketMapper mapAdjustedBasketToItemCredits should return deduplicated results when there's more than one credit instance per campaign 1`] = `
+{
+  "offers": [
+    {
+      "amount": 400,
+      "name": "Test Campaign (x2)",
+      "sku": "123456",
+      "timesRedeemed": 2,
+    },
+  ],
+  "total": 800,
+}
+`;
+
+exports[`CTCartToEEBasketMapper mapAdjustedBasketToItemCredits should return the mapped item credits 1`] = `
+{
+  "offers": [
+    {
+      "amount": 400,
+      "name": "Test Campaign",
+      "sku": "123456",
+      "timesRedeemed": 1,
+    },
+  ],
+  "total": 400,
+}
+`;
 
 exports[`CTCartToEEBasketMapper mapAdjustedBasketToItemDirectDiscounts should not return the direct discount drafts if there are no adjustmentResults 1`] = `[]`;
 

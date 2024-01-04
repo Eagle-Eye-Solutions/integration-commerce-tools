@@ -11,7 +11,10 @@ import { ConfigService } from '@nestjs/config';
 import { Commercetools } from '../../providers/commercetools/commercetools.provider';
 import { BasketStoreService } from '../../services/basket-store/basket-store.interface';
 import { BASKET_STORE_SERVICE } from '../../services/basket-store/basket-store.provider';
-import { LoyaltyBalanceObject } from '../../types/loyalty-earn-credits.type';
+import {
+  LoyaltyBreakdownObject,
+  LoyaltyTotalObject,
+} from '../../types/loyalty-earn-credits.type';
 
 export type BasketItem = {
   itemUnitCost: number;
@@ -317,29 +320,62 @@ export class CTCartToEEBasketMapper {
     };
   }
 
-  mapAdjustedBasketToBasketEarn(basket): LoyaltyBalanceObject {
-    const basketEarn = { balance: 0, offers: [] };
+  mapAdjustedBasketToBasketEarn(basket): LoyaltyTotalObject {
+    const basketEarn = { total: 0, offers: [] };
     const basketEarnResult = basket.summary.adjudicationResults.find(
       (result) => result.type === 'earn',
     );
     if (basketEarnResult) {
-      basketEarn.balance = basketEarnResult.balances.current;
+      basketEarn.total = basketEarnResult.balances.current;
     }
     return basketEarn;
   }
 
-  mapAdjustedBasketToBasketCredits(basket, accounts): LoyaltyBalanceObject {
-    const basketCredits = { balance: 0, offers: [] };
+  mapAdjustedBasketToBasketCredits(basket, accounts): LoyaltyBreakdownObject {
+    const basketCredits = { total: 0, offers: [] };
     const basketCreditsResult = basket.summary.adjudicationResults.filter(
       (result) => result.type === 'credit',
     );
     if (basketCreditsResult.length) {
-      basketCredits.balance = basketCreditsResult.reduce(
+      basketCredits.total = basketCreditsResult.reduce(
         (acc, result) => result.balances.current + acc,
         0,
       );
-      basketCredits.offers = this.deduplicateCreditOffers(
-        basketCreditsResult.map((result) => {
+      basketCredits.offers = this.getCreditOffers(
+        basketCreditsResult,
+        accounts,
+      );
+    }
+    return basketCredits;
+  }
+
+  mapAdjustedBasketToItemCredits(basket, accounts): LoyaltyBreakdownObject {
+    const itemCredits = { total: 0, offers: [] };
+    const itemCreditsResult = basket.contents
+      .filter((item) => item.adjudicationResults)
+      .map((item) =>
+        item.adjudicationResults.map((result) => ({
+          ...result,
+          sku: item.upc || item.sku,
+        })),
+      )
+      .flat()
+      .filter((result) => result.type === 'credit');
+    if (itemCreditsResult.length) {
+      itemCredits.total = itemCreditsResult.reduce(
+        (acc, result) => result.balances.current + acc,
+        0,
+      );
+      itemCredits.offers = this.getCreditOffers(itemCreditsResult, accounts);
+    }
+    return itemCredits;
+  }
+
+  private getCreditOffers(creditsResult, accounts): any[] {
+    return this.deduplicateCreditOffers(
+      creditsResult
+        .filter((result) => result.balances.current)
+        .map((result) => {
           return {
             name: accounts.find(
               (account) =>
@@ -347,11 +383,10 @@ export class CTCartToEEBasketMapper {
                 String(result.resourceId),
             ).campaign.campaignName,
             amount: result.balances.current,
+            sku: result.sku,
           };
         }),
-      );
-    }
-    return basketCredits;
+    );
   }
 
   private deduplicateCreditOffers(offers: any[]) {
@@ -370,9 +405,11 @@ export class CTCartToEEBasketMapper {
             return JSON.stringify({
               name: `${offer.name} (x${count})`,
               amount: offer.amount,
+              sku: offer.sku,
+              timesRedeemed: count,
             });
           } else {
-            return JSON.stringify(offer);
+            return JSON.stringify({ ...offer, timesRedeemed: 1 });
           }
         }),
       ),

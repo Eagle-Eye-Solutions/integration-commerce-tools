@@ -25,7 +25,11 @@ export class CustomTypeService {
     const ctClient = this.commercetools.getApiRoot();
     for (const type of this.typeDefinitions) {
       this.logger.log(
-        `Creating/Updating order custom type with key: ${type.getTypeKey()}`,
+        `Creating/Updating "${type
+          .getTypeDraft()
+          .resourceTypeIds.join(
+            ',',
+          )}" custom type with key: ${type.getTypeKey()}`,
       );
       await this.createUpdateType(type.getTypeDraft(), ctClient);
     }

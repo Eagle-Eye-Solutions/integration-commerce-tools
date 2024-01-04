@@ -66,8 +66,21 @@ export const SUCCESS_RESPONSE = {
       action: 'setCustomField',
       name: 'eagleeye-loyaltyEarnAndCredits',
       value:
-        '{"earn":{"basket":{"balance":0,"offers":[]}},"credit":{"basket":{"balance":0,"offers":[]},"items":{"balance":0,"offers":[]}}}',
+        '{"earn":{"basket":{"total":0}},"credit":{"basket":{"total":0,"offers":[]}}}',
     },
+    {
+      action: 'setLineItemCustomField',
+      lineItemId: '3fce711d-e891-4005-be7f-bf3c999ccc7d',
+      name: 'eagleeye-loyaltyCredits',
+      value: '',
+    },
+    {
+      action: 'setLineItemCustomField',
+      lineItemId: '2d313f50-e3ec-4c17-ac14-9fb6f4d75665',
+      name: 'eagleeye-loyaltyCredits',
+      value: '',
+    },
+
     {
       action: 'setDirectDiscounts',
       discounts: [
@@ -184,8 +197,21 @@ export const LOYALTY_SUCCESS_RESPONSE = {
       action: 'setCustomField',
       name: 'eagleeye-loyaltyEarnAndCredits',
       value:
-        '{"earn":{"basket":{"balance":400,"offers":[]}},"credit":{"basket":{"balance":400,"offers":[{"name":"100pts for every £1 spent on the basket","amount":400}]},"items":{"balance":0,"offers":[]}}}',
+        '{"earn":{"basket":{"total":400,"offers":[]}},"credit":{"basket":{"total":400,"offers":[{"name":"100pts for every £1 spent on the basket","amount":400,"timesRedeemed":1}]}}}',
     },
+    {
+      action: 'setLineItemCustomField',
+      lineItemId: '3fce711d-e891-4005-be7f-bf3c999ccc7d',
+      name: 'eagleeye-loyaltyCredits',
+      value: '',
+    },
+    {
+      action: 'setLineItemCustomField',
+      lineItemId: '2d313f50-e3ec-4c17-ac14-9fb6f4d75665',
+      name: 'eagleeye-loyaltyCredits',
+      value: '',
+    },
+
     {
       action: 'setDirectDiscounts',
       discounts: [
@@ -272,6 +298,28 @@ export const ERROR_RESPONSE = {
       name: 'eagleeye-loyaltyEarnAndCredits',
       value: '',
     },
+    {
+      action: 'setLineItemCustomType',
+      lineItemId: '3fce711d-e891-4005-be7f-bf3c999ccc7d',
+      type: {
+        typeId: 'type',
+        key: 'custom-line-item-type',
+      },
+      fields: {
+        'eagleeye-loyaltyCredits': '',
+      },
+    },
+    {
+      action: 'setLineItemCustomType',
+      lineItemId: '2d313f50-e3ec-4c17-ac14-9fb6f4d75665',
+      type: {
+        typeId: 'type',
+        key: 'custom-line-item-type',
+      },
+      fields: {
+        'eagleeye-loyaltyCredits': '',
+      },
+    },
     { action: 'setDirectDiscounts', discounts: [] },
   ],
 };
@@ -297,10 +345,33 @@ export const CUSTOMER_NOT_FOUND_FETCHED_OPEN_PROMOTIONS_RESPONSE = {
         'eagleeye-action': '',
         'eagleeye-settledStatus': '',
         'eagleeye-loyaltyEarnAndCredits':
-          '{"earn":{"basket":{"balance":0,"offers":[]}},"credit":{"basket":{"balance":0,"offers":[]},"items":{"balance":0,"offers":[]}}}',
+          '{"earn":{"basket":{"total":0}},"credit":{"basket":{"total":0,"offers":[]}}}',
         'eagleeye-identityValue': '',
       },
     },
+    {
+      action: 'setLineItemCustomType',
+      lineItemId: '3fce711d-e891-4005-be7f-bf3c999ccc7d',
+      type: {
+        typeId: 'type',
+        key: 'custom-line-item-type',
+      },
+      fields: {
+        'eagleeye-loyaltyCredits': '',
+      },
+    },
+    {
+      action: 'setLineItemCustomType',
+      lineItemId: '2d313f50-e3ec-4c17-ac14-9fb6f4d75665',
+      type: {
+        typeId: 'type',
+        key: 'custom-line-item-type',
+      },
+      fields: {
+        'eagleeye-loyaltyCredits': '',
+      },
+    },
+
     {
       action: 'setDirectDiscounts',
       discounts: [
