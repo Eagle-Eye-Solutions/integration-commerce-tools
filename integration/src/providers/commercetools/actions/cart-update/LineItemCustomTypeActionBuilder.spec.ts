@@ -1,6 +1,7 @@
 import { BaseResource, LineItem } from '@commercetools/platform-sdk';
 import { LoyaltyBreakdownObject } from '../../../../types/loyalty-earn-credits.type';
 import { LineItemCustomTypeActionBuilder } from './LineItemCustomTypeActionBuilder';
+import { FIELD_EAGLEEYE_LOYALTY_CREDITS } from '../../custom-type/line-item-type-definition';
 
 interface CustomFieldsObject {
   loyaltyCredits?: LoyaltyBreakdownObject;
@@ -38,7 +39,7 @@ describe('LineItemCustomTypeActionBuilder', () => {
           key: 'custom-line-item-type',
         },
         fields: {
-          'eagleeye-loyaltyCredits': JSON.stringify({
+          [FIELD_EAGLEEYE_LOYALTY_CREDITS]: JSON.stringify({
             total: 20,
             offers: [{ sku: 'sku1', amount: 10, timesRedeemed: 2 }],
           }),
@@ -52,7 +53,7 @@ describe('LineItemCustomTypeActionBuilder', () => {
           key: 'custom-line-item-type',
         },
         fields: {
-          'eagleeye-loyaltyCredits': JSON.stringify({
+          [FIELD_EAGLEEYE_LOYALTY_CREDITS]: JSON.stringify({
             total: 60,
             offers: [{ sku: 'sku2', amount: 20, timesRedeemed: 3 }],
           }),
@@ -85,7 +86,7 @@ describe('LineItemCustomTypeActionBuilder', () => {
       {
         action: 'setLineItemCustomField',
         lineItemId: 'lineItemId1',
-        name: 'eagleeye-loyaltyCredits',
+        name: FIELD_EAGLEEYE_LOYALTY_CREDITS,
         value: JSON.stringify({
           total: 20,
           offers: [{ sku: 'sku1', amount: 10, timesRedeemed: 2 }],
@@ -94,7 +95,7 @@ describe('LineItemCustomTypeActionBuilder', () => {
       {
         action: 'setLineItemCustomField',
         lineItemId: 'lineItemId2',
-        name: 'eagleeye-loyaltyCredits',
+        name: FIELD_EAGLEEYE_LOYALTY_CREDITS,
         value: JSON.stringify({
           total: 60,
           offers: [{ sku: 'sku2', amount: 20, timesRedeemed: 3 }],

@@ -14,7 +14,10 @@ import { Commercetools } from '../../providers/commercetools/commercetools.provi
 import { OrderSettleService } from '../../services/order-settle/order-settle.service';
 import { CartTypeDefinition } from '../../providers/commercetools/custom-type/cart-type-definition';
 import { LoyaltyService } from '../../services/loyalty/loyalty.service';
-import { LineItemTypeDefinition } from '../../providers/commercetools/custom-type/line-item-type-definition';
+import {
+  FIELD_EAGLEEYE_LOYALTY_CREDITS,
+  LineItemTypeDefinition,
+} from '../../providers/commercetools/custom-type/line-item-type-definition';
 
 class CircuitBreakerError extends Error {
   constructor(public code: string) {
@@ -284,7 +287,7 @@ describe('CartExtensionService', () => {
         {
           action: 'setLineItemCustomType',
           fields: {
-            'eagleeye-loyaltyCredits':
+            [FIELD_EAGLEEYE_LOYALTY_CREDITS]:
               '{"total":200,"offers":[{"name":"Test Campaign 2 (x2)","amount":100,"timesRedeemed":2,"sku":"123456"}]}',
           },
           lineItemId: '123456',

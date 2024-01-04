@@ -6,6 +6,7 @@ import {
   LineItem,
 } from '@commercetools/platform-sdk';
 import { LoyaltyBreakdownObject } from '../../../../types/loyalty-earn-credits.type';
+import { FIELD_EAGLEEYE_LOYALTY_CREDITS } from '../../custom-type/line-item-type-definition';
 
 interface CustomFieldsObject {
   loyaltyCredits?: LoyaltyBreakdownObject;
@@ -31,13 +32,13 @@ export class LineItemCustomTypeActionBuilder {
             (acc, offer) => offer.amount * offer.timesRedeemed + acc,
             0,
           );
-          customFields['eagleeye-loyaltyCredits'] = JSON.stringify({
+          customFields[FIELD_EAGLEEYE_LOYALTY_CREDITS] = JSON.stringify({
             total: lineItemCreditTotal,
             offers: lineItemCreditOffers,
           });
         }
       } else {
-        customFields['eagleeye-loyaltyCredits'] = '';
+        customFields[FIELD_EAGLEEYE_LOYALTY_CREDITS] = '';
       }
 
       actions.push({
@@ -73,7 +74,7 @@ export class LineItemCustomTypeActionBuilder {
           actions.push({
             action: 'setLineItemCustomField',
             lineItemId: lineItem.id,
-            name: 'eagleeye-loyaltyCredits',
+            name: FIELD_EAGLEEYE_LOYALTY_CREDITS,
             value: JSON.stringify({
               total: lineItemCreditTotal,
               offers: lineItemCreditOffers,
@@ -84,7 +85,7 @@ export class LineItemCustomTypeActionBuilder {
         actions.push({
           action: 'setLineItemCustomField',
           lineItemId: lineItem.id,
-          name: 'eagleeye-loyaltyCredits',
+          name: FIELD_EAGLEEYE_LOYALTY_CREDITS,
           value: '',
         });
       }
