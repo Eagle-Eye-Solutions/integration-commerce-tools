@@ -26,7 +26,7 @@ export class LineItemTypeDefinition implements TypeDefinitionInterface {
       description: {
         en: 'Eagle Eye custom type',
       },
-      resourceTypeIds: ['order'],
+      resourceTypeIds: ['line-item'],
       fieldDefinitions: [
         {
           name: FIELD_EAGLEEYE_LOYALTY_CREDITS,
