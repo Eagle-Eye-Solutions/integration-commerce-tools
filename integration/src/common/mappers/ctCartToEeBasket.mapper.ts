@@ -352,6 +352,7 @@ export class CTCartToEEBasketMapper {
   mapAdjustedBasketToItemCredits(basket, accounts): LoyaltyBreakdownObject {
     const itemCredits = { total: 0, offers: [] };
     const itemCreditsResult = basket.contents
+      .filter((item) => item.adjudicationResults)
       .map((item) =>
         item.adjudicationResults.map((result) => ({
           ...result,
