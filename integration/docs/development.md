@@ -4,7 +4,7 @@
 
 Required software:
 
-- Node.js v16+ [official download](https://nodejs.org/en/download), [nvm](https://github.com/nvm-sh/nvm)
+- Node.js v18+ [official download](https://nodejs.org/en/download), [nvm](https://github.com/nvm-sh/nvm)
 - [yarn](https://classic.yarnpkg.com/lang/en/docs/install/#mac-stable)
 
 ### Basic steps
