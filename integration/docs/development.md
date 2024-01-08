@@ -54,7 +54,11 @@ Send a POST request to `localhost:8080/service` with the sample body:
 
 The integration can automatically create an extension in commercetools which reaches your local environment
 using `ngrok`.
-To do this, you need to set the following environment variable:
+Install `ngrok` at [https://ngrok.com/download](https://ngrok.com/download), register an ngrok account and
+generate your auth token.
+Add authtoken: `ngrok config add-authtoken <token>`
+
+Set the following environment variable in your local `integration/.env` file:
 
 ```shell
 NGROK_ENABLED=true
@@ -71,6 +75,10 @@ E.g.:
 ```shell
 DEBUG_EXTENSION_TRIGGER_CONDITION='customerEmail is defined and customerEmail="developer-email@eagleeye.com"'
 ```
+
+When multiple developers are working at the same time, it is possible to change the key of the debug extension in
+commercetools by setting the environment variable `DEBUG_EXTENSION_KEY` that should follow the
+pattern `^[A-Za-z0-9_-]+$`
 
 ## Tests
 
