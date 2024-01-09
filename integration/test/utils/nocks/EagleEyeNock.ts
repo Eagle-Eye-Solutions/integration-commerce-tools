@@ -1,10 +1,10 @@
 import * as nock from 'nock';
 import { CTCartToEEBasketMapper } from '../../../src/common/mappers/ctCartToEeBasket.mapper';
 
-import { Commercetools } from '../../../src/providers/commercetools/commercetools.provider';
-import { ScriptConfigService } from '../../../src/config/configuration';
-import { CtBasketStoreService } from '../../../src/services/basket-store/ct-basket-store.service';
-import { CustomObjectService } from '../../../src/providers/commercetools/custom-object/custom-object.service';
+import { Commercetools } from '../../../src/common/providers/commercetools/commercetools.provider';
+import { ScriptConfigService } from '../../../src/common/config/configuration';
+import { CtBasketStoreService } from '../../../src/common/services/basket-store/ct-basket-store.service';
+import { CustomObjectService } from '../../../src/common/providers/commercetools/custom-object/custom-object.service';
 
 export const nockWalletOpen = async (
   cart,

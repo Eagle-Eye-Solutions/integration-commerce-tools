@@ -1,5 +1,5 @@
 import { Test } from '@nestjs/testing';
-import { CTActionsBuilder } from '../../../providers/commercetools/actions/ActionsBuilder';
+import { CTActionsBuilder } from '../../providers/commercetools/actions/ActionsBuilder';
 import { ExtensionTypeMiddleware } from './extension-type.middleware';
 
 describe('ExtensionTypeMiddleware', () => {

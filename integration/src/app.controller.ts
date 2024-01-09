@@ -1,6 +1,6 @@
 import { Controller, Post, Body } from '@nestjs/common';
-import { CartExtensionService } from './services/cart-extension/cart-extension.service';
-import { OrderSubscriptionService } from './services/order-subscription/order-subscription.service';
+import { CartExtensionService } from './common/services/cart-extension/cart-extension.service';
+import { OrderSubscriptionService } from './common/services/order-subscription/order-subscription.service';
 
 @Controller()
 export class AppController {

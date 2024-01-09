@@ -5,37 +5,100 @@ import {
   RequestMethod,
 } from '@nestjs/common';
 import { AppController } from './app.controller';
-import { Commercetools } from './providers/commercetools/commercetools.provider';
+import { Commercetools } from './common/providers/commercetools/commercetools.provider';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { configuration, validateConfiguration } from './config/configuration';
-import { CircuitBreakerService } from './providers/circuit-breaker/circuit-breaker.service';
-import { CustomObjectService } from './providers/commercetools/custom-object/custom-object.service';
-import { CustomTypeService } from './providers/commercetools/custom-type/custom-type.service';
-import { EagleEyeApiCircuitBreakerProvider } from './providers/circuit-breaker/circuit-breaker.provider';
-import { CircuitBreakerSateServiceProvider } from './providers/circuit-breaker/interfaces/circuit-breaker-state.provider';
-import { OrderCustomTypeCommand } from './scripts/order-custom-type.command';
+import {
+  configuration,
+  validateConfiguration,
+} from './common/config/configuration';
+import { CircuitBreakerService } from './common/providers/circuit-breaker/circuit-breaker.service';
+import { CustomObjectService } from './common/providers/commercetools/custom-object/custom-object.service';
+import { CustomTypeService } from './common/providers/commercetools/custom-type/custom-type.service';
+import { SubscriptionService } from './common/providers/commercetools/subscription/subscription.service';
+import { ExtensionService } from './common/providers/commercetools/extension/extension.service';
+import { EagleEyeApiCircuitBreakerProvider } from './common/providers/circuit-breaker/circuit-breaker.provider';
+import { CircuitBreakerSateServiceProvider } from './common/providers/circuit-breaker/interfaces/circuit-breaker-state.provider';
+import { CustomTypeCommand } from './scripts/custom-type.command';
+import { SubscriptionsCommand } from './scripts/subscriptions.command';
+import { ExtensionsCommand } from './scripts/extensions.command';
 import { HttpModule } from '@nestjs/axios';
-import { PromotionService } from './services/promotion/promotion.service';
-import { EagleEyeApiClient } from './providers/eagleeye/eagleeye.provider';
+import { EagleEyeApiClient } from './common/providers/eagleeye/eagleeye.provider';
 import { WinstonModule } from 'nest-winston';
-import { loggerConfig } from './config/logger.config';
+import { loggerConfig } from './common/config/logger.config';
 import { CTCartToEEBasketMapper } from './common/mappers/ctCartToEeBasket.mapper';
-import { ExtensionLocalService } from './services/commercetools/extension-local.service';
-import { BasketStoreServiceProvider } from './services/basket-store/basket-store.provider';
-import { EventHandlerService } from './services/event-handler/event-handler.service';
-import { OrderSettleService } from './services/order-settle/order-settle.service';
-import { OrderPaymentStateChangedProcessor } from './services/event-handler/event-processor/order-payment-state-changed.processor';
+import { ExtensionLocalService } from './common/services/commercetools/extension-local.service';
+import { BasketStoreServiceProvider } from './common/services/basket-store/basket-store.provider';
+import { EventHandlerService } from './common/services/event-handler/event-handler.service';
+import { OrderPaymentStateChangedProcessor } from './common/services/event-handler/event-processor/order-payment-state-changed.processor';
 import { UnidentifiedCustomerMiddleware } from './common/middlewares/unidentified-customer/unidentified-customer.middleware';
-import { OrderCreatedWithPaidStateProcessor } from './services/event-handler/event-processor/order-created-with-paid-state.processor';
-import { OrderCreatedWithSettleActionProcessor } from './services/event-handler/event-processor/order-created-with-settle-action.processor';
-import { OrderUpdatedWithSettleActionProcessor } from './services/event-handler/event-processor/order-updated-with-settle-action.processor';
+import { OrderCreatedWithPaidStateProcessor } from './common/services/event-handler/event-processor/order-created-with-paid-state.processor';
+import { OrderCreatedWithSettleActionProcessor } from './common/services/event-handler/event-processor/order-created-with-settle-action.processor';
+import { OrderUpdatedWithSettleActionProcessor } from './common/services/event-handler/event-processor/order-updated-with-settle-action.processor';
 import { ExtensionTypeMiddleware } from './common/middlewares/extension-type/extension-type.middleware';
-import { CartTypeDefinition } from './providers/commercetools/custom-type/cart-type-definition';
-import { LineItemTypeDefinition } from './providers/commercetools/custom-type/line-item-type-definition';
+import { CartTypeDefinition } from './common/providers/commercetools/custom-type/cart-type-definition';
+import { LineItemTypeDefinition } from './common/providers/commercetools/custom-type/line-item-type-definition';
 import { UnhandledExceptionsFilter } from './common/exceptions/unhandled-exception.filter';
-import { CartExtensionService } from './services/cart-extension/cart-extension.service';
-import { OrderSubscriptionService } from './services/order-subscription/order-subscription.service';
-import { LoyaltyService } from './services/loyalty/loyalty.service';
+import { CartExtensionService } from './common/services/cart-extension/cart-extension.service';
+import { OrderSubscriptionService } from './common/services/order-subscription/order-subscription.service';
+import { PromotionModule } from './promotion/promotion.module';
+import { LoyaltyModule } from './loyalty/loyalty.module';
+import { SettleModule } from './settle/settle.module';
+
+const providers = [
+  CartExtensionService,
+  OrderSubscriptionService,
+  Commercetools,
+  CircuitBreakerService,
+  EagleEyeApiCircuitBreakerProvider,
+  CircuitBreakerSateServiceProvider,
+  CustomObjectService,
+  CustomTypeService,
+  SubscriptionService,
+  ExtensionService,
+  CustomTypeCommand,
+  SubscriptionsCommand,
+  ExtensionsCommand,
+  EagleEyeApiClient,
+  CTCartToEEBasketMapper,
+  ExtensionLocalService,
+  BasketStoreServiceProvider,
+  EventHandlerService,
+  UnhandledExceptionsFilter,
+  OrderPaymentStateChangedProcessor,
+  OrderCreatedWithPaidStateProcessor,
+  OrderCreatedWithSettleActionProcessor,
+  OrderUpdatedWithSettleActionProcessor,
+  {
+    provide: 'EventProcessors',
+    useFactory: (
+      orderPaymentStateChanged,
+      orderUpdatedWithSettleAction,
+      orderCreatedWithSettleAction,
+      orderCreatedWithPaidState,
+    ) => [
+      orderPaymentStateChanged,
+      orderUpdatedWithSettleAction,
+      orderCreatedWithSettleAction,
+      orderCreatedWithPaidState,
+    ],
+    inject: [
+      OrderPaymentStateChangedProcessor,
+      OrderUpdatedWithSettleActionProcessor,
+      OrderCreatedWithSettleActionProcessor,
+      OrderCreatedWithPaidStateProcessor,
+    ],
+  },
+  CartTypeDefinition,
+  LineItemTypeDefinition,
+  {
+    provide: 'TypeDefinitions',
+    useFactory: (cartTypeDefinition, lineItemTypeDefinition) => [
+      cartTypeDefinition,
+      lineItemTypeDefinition,
+    ],
+    inject: [CartTypeDefinition, LineItemTypeDefinition],
+  },
+];
 
 @Module({
   imports: [
@@ -53,62 +116,13 @@ import { LoyaltyService } from './services/loyalty/loyalty.service';
       inject: [ConfigService],
     }),
     WinstonModule.forRoot(loggerConfig),
+    PromotionModule,
+    LoyaltyModule,
+    SettleModule,
   ],
   controllers: [AppController],
-  providers: [
-    CartExtensionService,
-    OrderSubscriptionService,
-    Commercetools,
-    CircuitBreakerService,
-    EagleEyeApiCircuitBreakerProvider,
-    CircuitBreakerSateServiceProvider,
-    CustomObjectService,
-    CustomTypeService,
-    OrderCustomTypeCommand,
-    PromotionService,
-    LoyaltyService,
-    EagleEyeApiClient,
-    CTCartToEEBasketMapper,
-    ExtensionLocalService,
-    BasketStoreServiceProvider,
-    EventHandlerService,
-    OrderSettleService,
-    UnhandledExceptionsFilter,
-    OrderPaymentStateChangedProcessor,
-    OrderCreatedWithPaidStateProcessor,
-    OrderCreatedWithSettleActionProcessor,
-    OrderUpdatedWithSettleActionProcessor,
-    {
-      provide: 'EventProcessors',
-      useFactory: (
-        orderPaymentStateChanged,
-        orderUpdatedWithSettleAction,
-        orderCreatedWithSettleAction,
-        orderCreatedWithPaidState,
-      ) => [
-        orderPaymentStateChanged,
-        orderUpdatedWithSettleAction,
-        orderCreatedWithSettleAction,
-        orderCreatedWithPaidState,
-      ],
-      inject: [
-        OrderPaymentStateChangedProcessor,
-        OrderUpdatedWithSettleActionProcessor,
-        OrderCreatedWithSettleActionProcessor,
-        OrderCreatedWithPaidStateProcessor,
-      ],
-    },
-    CartTypeDefinition,
-    LineItemTypeDefinition,
-    {
-      provide: 'TypeDefinitions',
-      useFactory: (cartTypeDefinition, lineItemTypeDefinition) => [
-        cartTypeDefinition,
-        lineItemTypeDefinition,
-      ],
-      inject: [CartTypeDefinition, LineItemTypeDefinition],
-    },
-  ],
+  providers: providers,
+  exports: providers,
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): any {
