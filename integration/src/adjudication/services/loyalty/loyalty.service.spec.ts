@@ -1,17 +1,17 @@
 import { Test } from '@nestjs/testing';
 import { LoyaltyService } from './loyalty.service';
-import { CTCartToEEBasketMapper } from '../../../common/mappers/ctCartToEeBasket.mapper';
+import { LoyaltyMapper } from '../../../common/mappers/loyalty.mapper';
 
 describe('LoyaltyService', () => {
   let loyaltyService: LoyaltyService;
-  let cartToBasketMapper: CTCartToEEBasketMapper;
+  let loyaltyMapper: LoyaltyMapper;
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
       providers: [
         LoyaltyService,
         {
-          provide: CTCartToEEBasketMapper,
+          provide: LoyaltyMapper,
           useValue: {
             mapAdjustedBasketToBasketEarn: jest.fn(),
             mapAdjustedBasketToBasketCredits: jest.fn(),
@@ -22,9 +22,7 @@ describe('LoyaltyService', () => {
     }).compile();
 
     loyaltyService = moduleRef.get<LoyaltyService>(LoyaltyService);
-    cartToBasketMapper = moduleRef.get<CTCartToEEBasketMapper>(
-      CTCartToEEBasketMapper,
-    );
+    loyaltyMapper = moduleRef.get<LoyaltyMapper>(LoyaltyMapper);
   });
 
   describe('getEarnAndCredits', () => {
@@ -129,7 +127,7 @@ describe('LoyaltyService', () => {
         total: 400,
       };
       jest
-        .spyOn(cartToBasketMapper, 'mapAdjustedBasketToBasketEarn')
+        .spyOn(loyaltyMapper, 'mapAdjustedBasketToBasketEarn')
         .mockReturnValue(basketEarn);
       const basketCredits = {
         total: 400,
@@ -141,7 +139,7 @@ describe('LoyaltyService', () => {
         ],
       };
       jest
-        .spyOn(cartToBasketMapper, 'mapAdjustedBasketToBasketCredits')
+        .spyOn(loyaltyMapper, 'mapAdjustedBasketToBasketCredits')
         .mockReturnValue(basketCredits);
       const itemCredits = {
         total: 400,
@@ -153,7 +151,7 @@ describe('LoyaltyService', () => {
         ],
       };
       jest
-        .spyOn(cartToBasketMapper, 'mapAdjustedBasketToItemCredits')
+        .spyOn(loyaltyMapper, 'mapAdjustedBasketToItemCredits')
         .mockReturnValue(itemCredits);
 
       const result = await loyaltyService.getEarnAndCredits(walletOpenResponse);
@@ -212,7 +210,7 @@ describe('LoyaltyService', () => {
         total: 100,
       };
       jest
-        .spyOn(cartToBasketMapper, 'mapAdjustedBasketToBasketEarn')
+        .spyOn(loyaltyMapper, 'mapAdjustedBasketToBasketEarn')
         .mockReturnValue(baseEarn);
 
       const result = loyaltyService.getBasketLevelEarn(basket);
@@ -271,7 +269,7 @@ describe('LoyaltyService', () => {
         ],
       };
       jest
-        .spyOn(cartToBasketMapper, 'mapAdjustedBasketToBasketCredits')
+        .spyOn(loyaltyMapper, 'mapAdjustedBasketToBasketCredits')
         .mockReturnValue(credits);
 
       const result = loyaltyService.getBasketLevelCredits(basket, accounts);
@@ -333,7 +331,7 @@ describe('LoyaltyService', () => {
         ],
       };
       jest
-        .spyOn(cartToBasketMapper, 'mapAdjustedBasketToItemCredits')
+        .spyOn(loyaltyMapper, 'mapAdjustedBasketToItemCredits')
         .mockReturnValue(credits);
 
       const result = loyaltyService.getItemLevelCredits(basket, accounts);

@@ -5,7 +5,7 @@ import {
   TypeReference,
   LineItem,
 } from '@commercetools/platform-sdk';
-import { LoyaltyBreakdownObject } from '../../../../../loyalty/types/loyalty-earn-credits.type';
+import { LoyaltyBreakdownObject } from '../../../../../adjudication/types/loyalty-earn-credits.type';
 import { FIELD_EAGLEEYE_LOYALTY_CREDITS } from '../../custom-type/line-item-type-definition';
 
 interface CustomFieldsObject {

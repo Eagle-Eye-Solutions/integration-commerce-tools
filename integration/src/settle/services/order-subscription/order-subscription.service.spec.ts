@@ -4,7 +4,7 @@ import { OrderPaymentStateChangedMessage } from '@commercetools/platform-sdk';
 import { EventHandlerService } from '../../services/event-handler/event-handler.service';
 import { ConfigService } from '@nestjs/config';
 import { EagleEyeApiClient } from '../../../common/providers/eagleeye/eagleeye.provider';
-import { CTCartToEEBasketMapper } from '../../../common/mappers/ctCartToEeBasket.mapper';
+import { SettleMapper } from '../../../common/mappers/settle.mapper';
 import { Commercetools } from '../../../common/providers/commercetools/commercetools.provider';
 import { OrderSettleService } from '../../../settle/services/order-settle/order-settle.service';
 import { BASKET_STORE_SERVICE } from '../../../common/services/basket-store/basket-store.provider';
@@ -47,7 +47,7 @@ describe('OrderSubscriptionService', () => {
             },
           },
         },
-        CTCartToEEBasketMapper,
+        SettleMapper,
         {
           provide: Commercetools,
           useValue: {

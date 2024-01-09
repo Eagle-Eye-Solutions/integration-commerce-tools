@@ -1,15 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CTCartToEEBasketMapper } from './ctCartToEeBasket.mapper';
+import { AdjudicationMapper } from './adjudication.mapper';
 import { Commercetools } from '../providers/commercetools/commercetools.provider';
 import { ConfigService } from '@nestjs/config';
 import { BASKET_STORE_SERVICE } from '../services/basket-store/basket-store.provider';
-import { BasketStoreService } from '../services/basket-store/basket-store.interface';
 
-describe('CTCartToEEBasketMapper', () => {
-  let service: CTCartToEEBasketMapper;
+describe('AdjudicationMapper', () => {
+  let service: AdjudicationMapper;
   let configService: ConfigService;
   let commercetools: Commercetools;
-  let basketStoreService: jest.Mocked<BasketStoreService>;
 
   const cart: any = {
     lineItems: [
@@ -49,7 +47,7 @@ describe('CTCartToEEBasketMapper', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        CTCartToEEBasketMapper,
+        AdjudicationMapper,
         {
           provide: Commercetools,
           useValue: {
@@ -75,10 +73,9 @@ describe('CTCartToEEBasketMapper', () => {
       ],
     }).compile();
 
-    service = module.get<CTCartToEEBasketMapper>(CTCartToEEBasketMapper);
+    service = module.get<AdjudicationMapper>(AdjudicationMapper);
     configService = module.get<ConfigService>(ConfigService);
     commercetools = module.get<Commercetools>(Commercetools);
-    basketStoreService = module.get(BASKET_STORE_SERVICE);
     jest.spyOn(configService, 'get').mockReturnValueOnce(shippingMethodMapMock);
     jest.resetAllMocks();
   });
@@ -303,67 +300,7 @@ describe('CTCartToEEBasketMapper', () => {
 
       expect(payload).toMatchSnapshot();
     });
-  });
 
-  describe('mapOrderToWalletSettlePayload', () => {
-    it('should return the payload for /wallet/settle', async () => {
-      jest
-        .spyOn(configService, 'get')
-        .mockReturnValueOnce('outlet1')
-        .mockReturnValueOnce('banner1');
-
-      jest.spyOn(basketStoreService, 'get').mockResolvedValueOnce({
-        enrichedBasket: {
-          contents: [],
-        },
-      });
-
-      const payload = await service.mapOrderToWalletSettlePayload({
-        id: '123456',
-        cart: {
-          typeId: 'cart',
-          id: '12345678',
-        },
-        custom: {
-          fields: {},
-        },
-      } as any);
-
-      expect(payload).toMatchSnapshot();
-    });
-  });
-
-  describe('mapOrderToWalletSettlePayload', () => {
-    it('should include eagleeye-identityValue for /wallet/settle when available', async () => {
-      jest
-        .spyOn(configService, 'get')
-        .mockReturnValueOnce('outlet1')
-        .mockReturnValueOnce('banner1');
-
-      jest.spyOn(basketStoreService, 'get').mockResolvedValueOnce({
-        enrichedBasket: {
-          contents: [],
-        },
-      });
-
-      const payload = await service.mapOrderToWalletSettlePayload({
-        id: '123456',
-        cart: {
-          typeId: 'cart',
-          id: '12345678',
-        },
-        custom: {
-          fields: {
-            'eagleeye-identityValue': 'some-identity',
-          },
-        },
-      } as any);
-
-      expect(payload).toMatchSnapshot();
-    });
-  });
-
-  describe('mapCartToWalletOpenPayload', () => {
     it('should include voucher codes (tokens) if present in the cart', async () => {
       jest
         .spyOn(configService, 'get')
@@ -526,204 +463,6 @@ describe('CTCartToEEBasketMapper', () => {
       const payload = await service.mapCartToWalletOpenPayload(cart, false);
 
       expect(payload).toMatchSnapshot();
-    });
-  });
-
-  describe('mapAdjustedBasketToBasketEarn', () => {
-    it('should return the mapped basket earn', () => {
-      const basket = {
-        summary: {
-          adjudicationResults: [
-            {
-              resourceType: 'SCHEME',
-              resourceId: '1653843',
-              instanceId: '1653843-1',
-              success: null,
-              type: 'earn',
-              value: null,
-              balances: {
-                current: 400,
-              },
-            },
-          ],
-        },
-      };
-
-      const basketContents = service.mapAdjustedBasketToBasketEarn(basket);
-
-      expect(basketContents).toMatchSnapshot();
-    });
-  });
-
-  describe('mapAdjustedBasketToBasketCredits', () => {
-    it('should return the mapped basket credits', () => {
-      const basket = {
-        summary: {
-          adjudicationResults: [
-            {
-              resourceType: 'SCHEME',
-              resourceId: '1653843',
-              instanceId: '1653843-1',
-              success: null,
-              type: 'credit',
-              value: null,
-              balances: {
-                current: 400,
-              },
-            },
-          ],
-        },
-      };
-      const accounts = [
-        {
-          campaign: {
-            campaignId: '1653843',
-            campaignName: 'Test Campaign',
-          },
-        },
-      ];
-
-      const basketContents = service.mapAdjustedBasketToBasketCredits(
-        basket,
-        accounts,
-      );
-
-      expect(basketContents).toMatchSnapshot();
-    });
-
-    it("should return deduplicated results when there's more than one credit instance per campaign", () => {
-      const basket = {
-        summary: {
-          adjudicationResults: [
-            {
-              resourceType: 'SCHEME',
-              resourceId: '1653843',
-              instanceId: '1653843-1',
-              success: null,
-              type: 'credit',
-              value: null,
-              balances: {
-                current: 400,
-              },
-            },
-            {
-              resourceType: 'SCHEME',
-              resourceId: '1653843',
-              instanceId: '1653843-2',
-              success: null,
-              type: 'credit',
-              value: null,
-              balances: {
-                current: 400,
-              },
-            },
-          ],
-        },
-      };
-      const accounts = [
-        {
-          campaign: {
-            campaignId: '1653843',
-            campaignName: 'Test Campaign',
-          },
-        },
-      ];
-
-      const basketContents = service.mapAdjustedBasketToBasketCredits(
-        basket,
-        accounts,
-      );
-
-      expect(basketContents).toMatchSnapshot();
-    });
-  });
-
-  describe('mapAdjustedBasketToItemCredits', () => {
-    it('should return the mapped item credits', () => {
-      const basket = {
-        contents: [
-          {
-            upc: '123456',
-            adjudicationResults: [
-              {
-                resourceType: 'SCHEME',
-                resourceId: '1653843',
-                instanceId: '1653843-1',
-                success: null,
-                type: 'credit',
-                value: null,
-                balances: {
-                  current: 400,
-                },
-              },
-            ],
-          },
-        ],
-      };
-      const accounts = [
-        {
-          campaign: {
-            campaignId: '1653843',
-            campaignName: 'Test Campaign',
-          },
-        },
-      ];
-
-      const basketContents = service.mapAdjustedBasketToItemCredits(
-        basket,
-        accounts,
-      );
-
-      expect(basketContents).toMatchSnapshot();
-    });
-
-    it("should return deduplicated results when there's more than one credit instance per campaign", () => {
-      const basket = {
-        contents: [
-          {
-            upc: '123456',
-            adjudicationResults: [
-              {
-                resourceType: 'SCHEME',
-                resourceId: '1653843',
-                instanceId: '1653843-1',
-                success: null,
-                type: 'credit',
-                value: null,
-                balances: {
-                  current: 400,
-                },
-              },
-              {
-                resourceType: 'SCHEME',
-                resourceId: '1653843',
-                instanceId: '1653843-2',
-                success: null,
-                type: 'credit',
-                value: null,
-                balances: {
-                  current: 400,
-                },
-              },
-            ],
-          },
-        ],
-      };
-      const accounts = [
-        {
-          campaign: {
-            campaignId: '1653843',
-            campaignName: 'Test Campaign',
-          },
-        },
-      ];
-
-      const basketContents = service.mapAdjustedBasketToItemCredits(
-        basket,
-        accounts,
-      );
-
-      expect(basketContents).toMatchSnapshot();
     });
   });
 });

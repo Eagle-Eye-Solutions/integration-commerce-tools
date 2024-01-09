@@ -4,7 +4,7 @@ import {
   CartReference,
   DirectDiscountDraft,
 } from '@commercetools/platform-sdk';
-import { CTCartToEEBasketMapper } from '../../../common/mappers/ctCartToEeBasket.mapper';
+import { AdjudicationMapper } from '../../../common/mappers/adjudication.mapper';
 import {
   CustomFieldError,
   DiscountDescription,
@@ -12,7 +12,7 @@ import {
 
 @Injectable()
 export class PromotionService {
-  constructor(readonly cartToBasketMapper: CTCartToEEBasketMapper) {}
+  constructor(readonly adjudicationMapper: AdjudicationMapper) {}
 
   async getDiscounts(
     walletOpenResponse: any,
@@ -73,7 +73,7 @@ export class PromotionService {
 
     if (walletOpenResponse.data?.analyseBasketResults?.discount?.length) {
       const descriptions =
-        this.cartToBasketMapper.mapBasketDiscountsToDiscountDescriptions(
+        this.adjudicationMapper.mapBasketDiscountsToDiscountDescriptions(
           walletOpenResponse.data?.analyseBasketResults?.discount,
         );
       discountDescriptions.push(...descriptions);
@@ -95,7 +95,7 @@ export class PromotionService {
     let discountDescriptions: DiscountDescription[] = [];
     if (discounts?.length) {
       const descriptions =
-        this.cartToBasketMapper.mapBasketDiscountsToDiscountDescriptions(
+        this.adjudicationMapper.mapBasketDiscountsToDiscountDescriptions(
           discounts,
         );
       discountDescriptions = discountDescriptions.concat(descriptions);
@@ -112,7 +112,7 @@ export class PromotionService {
       basket.summary?.adjustmentResults?.length
     ) {
       const cartDiscounts =
-        this.cartToBasketMapper.mapAdjustedBasketToCartDirectDiscounts(
+        this.adjudicationMapper.mapAdjustedBasketToCartDirectDiscounts(
           basket,
           cart,
         );
@@ -131,7 +131,7 @@ export class PromotionService {
       basket.contents?.length
     ) {
       const itemDiscounts =
-        this.cartToBasketMapper.mapAdjustedBasketToItemDirectDiscounts(
+        this.adjudicationMapper.mapAdjustedBasketToItemDirectDiscounts(
           basket,
           cart,
         );
@@ -150,7 +150,7 @@ export class PromotionService {
       basket.contents?.length
     ) {
       const shippingDiscounts =
-        this.cartToBasketMapper.mapAdjustedBasketToShippingDirectDiscounts(
+        this.adjudicationMapper.mapAdjustedBasketToShippingDirectDiscounts(
           basket,
           cart,
         );

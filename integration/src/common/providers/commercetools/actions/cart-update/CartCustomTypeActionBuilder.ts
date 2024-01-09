@@ -7,7 +7,7 @@ import {
 import { EEApiErrorType } from '../../../../exceptions/eagle-eye-api.exception';
 import { PluginErrorType } from '../../../../exceptions/eagle-eye-plugin.exception';
 import { BasketLocation } from '../../../../services/basket-store/basket-store.interface';
-import { LoyaltyEarnAndCredits } from '../../../../../loyalty/types/loyalty-earn-credits.type';
+import { LoyaltyEarnAndCredits } from '../../../../../adjudication/types/loyalty-earn-credits.type';
 
 export type CustomFieldError = {
   type:

@@ -2,29 +2,29 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import {
   CartCustomTypeActionBuilder,
   CustomFieldError,
-} from '../../providers/commercetools/actions/cart-update/CartCustomTypeActionBuilder';
+} from '../../../common/providers/commercetools/actions/cart-update/CartCustomTypeActionBuilder';
 import { EagleEyeApiException } from '../../../common/exceptions/eagle-eye-api.exception';
 import {
   ActionsSupported,
   CTActionsBuilder,
-} from '../../providers/commercetools/actions/ActionsBuilder';
-import { CartDiscountActionBuilder } from '../../providers/commercetools/actions/cart-update/CartDiscountActionBuilder';
-import { PromotionService } from '../../../promotion/services/promotion/promotion.service';
+} from '../../../common/providers/commercetools/actions/ActionsBuilder';
+import { CartDiscountActionBuilder } from '../../../common/providers/commercetools/actions/cart-update/CartDiscountActionBuilder';
+import { PromotionService } from '../promotion/promotion.service';
 import {
   Cart,
   CartReference,
   ExtensionInput,
 } from '@commercetools/platform-sdk';
-import { BasketStoreService } from '../../services/basket-store/basket-store.interface';
-import { BASKET_STORE_SERVICE } from '../../services/basket-store/basket-store.provider';
-import { EagleEyePluginException } from '../../exceptions/eagle-eye-plugin.exception';
-import { CartTypeDefinition } from '../../providers/commercetools/custom-type/cart-type-definition';
-import { CTCartToEEBasketMapper } from '../../mappers/ctCartToEeBasket.mapper';
-import { CircuitBreakerIntercept } from '../../decorators/circuit-breaker-intercept/circuit-breaker-intercept.decorator';
-import { CircuitBreakerService } from '../../providers/circuit-breaker/circuit-breaker.service';
-import { LoyaltyService } from '../../../loyalty/services/loyalty/loyalty.service';
-import { LineItemCustomTypeActionBuilder } from '../../providers/commercetools/actions/cart-update/LineItemCustomTypeActionBuilder';
-import { LineItemTypeDefinition } from '../../providers/commercetools/custom-type/line-item-type-definition';
+import { BasketStoreService } from '../../../common/services/basket-store/basket-store.interface';
+import { BASKET_STORE_SERVICE } from '../../../common/services/basket-store/basket-store.provider';
+import { EagleEyePluginException } from '../../../common/exceptions/eagle-eye-plugin.exception';
+import { CartTypeDefinition } from '../../../common/providers/commercetools/custom-type/cart-type-definition';
+import { AdjudicationMapper } from '../../../common/mappers/adjudication.mapper';
+import { CircuitBreakerIntercept } from '../../../common/decorators/circuit-breaker-intercept/circuit-breaker-intercept.decorator';
+import { CircuitBreakerService } from '../../../common/providers/circuit-breaker/circuit-breaker.service';
+import { LoyaltyService } from '../loyalty/loyalty.service';
+import { LineItemCustomTypeActionBuilder } from '../../../common/providers/commercetools/actions/cart-update/LineItemCustomTypeActionBuilder';
+import { LineItemTypeDefinition } from '../../../common/providers/commercetools/custom-type/line-item-type-definition';
 
 @Injectable()
 export class CartExtensionService {
@@ -36,7 +36,7 @@ export class CartExtensionService {
     private readonly basketStoreService: BasketStoreService,
     private cartTypeDefinition: CartTypeDefinition,
     private lineItemTypeDefinition: LineItemTypeDefinition,
-    readonly cartToBasketMapper: CTCartToEEBasketMapper,
+    readonly adjudicationMapper: AdjudicationMapper,
     readonly circuitBreakerService: CircuitBreakerService,
     private loyaltyService: LoyaltyService,
   ) {}
@@ -236,7 +236,7 @@ export class CartExtensionService {
     const errors = [];
     try {
       eeWalletOpenRequest =
-        await this.cartToBasketMapper.mapCartToWalletOpenPayload(
+        await this.adjudicationMapper.mapCartToWalletOpenPayload(
           cartReference.obj,
           true,
         );
@@ -264,7 +264,7 @@ export class CartExtensionService {
             'Attempting to fetch open promotions without identity',
           );
           eeWalletOpenRequest =
-            await this.cartToBasketMapper.mapCartToWalletOpenPayload(
+            await this.adjudicationMapper.mapCartToWalletOpenPayload(
               cartReference.obj,
               false,
             );

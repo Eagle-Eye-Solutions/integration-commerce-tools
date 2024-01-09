@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CTCartToEEBasketMapper } from '../../../common/mappers/ctCartToEeBasket.mapper';
+import { LoyaltyMapper } from '../../../common/mappers/loyalty.mapper';
 import {
   LoyaltyBreakdownObject,
   LoyaltyTotalObject,
@@ -8,7 +8,7 @@ import {
 
 @Injectable()
 export class LoyaltyService {
-  constructor(readonly cartToBasketMapper: CTCartToEEBasketMapper) {}
+  constructor(readonly loyaltyMapper: LoyaltyMapper) {}
 
   async getEarnAndCredits(
     walletOpenResponse: any,
@@ -60,8 +60,7 @@ export class LoyaltyService {
       basket.summary.adjudicationResults &&
       basket.summary.adjudicationResults.length
     ) {
-      const baseEarn =
-        this.cartToBasketMapper.mapAdjustedBasketToBasketEarn(basket);
+      const baseEarn = this.loyaltyMapper.mapAdjustedBasketToBasketEarn(basket);
       return baseEarn;
     }
 
@@ -73,11 +72,10 @@ export class LoyaltyService {
       basket.summary.adjudicationResults &&
       basket.summary.adjudicationResults.length
     ) {
-      const basketCredits =
-        this.cartToBasketMapper.mapAdjustedBasketToBasketCredits(
-          basket,
-          accounts,
-        );
+      const basketCredits = this.loyaltyMapper.mapAdjustedBasketToBasketCredits(
+        basket,
+        accounts,
+      );
       return basketCredits;
     }
 
@@ -89,11 +87,10 @@ export class LoyaltyService {
       (item) => item.adjudicationResults,
     )?.adjudicationResults;
     if (anyItemCredits && anyItemCredits.length) {
-      const itemCredits =
-        this.cartToBasketMapper.mapAdjustedBasketToItemCredits(
-          basket,
-          accounts,
-        );
+      const itemCredits = this.loyaltyMapper.mapAdjustedBasketToItemCredits(
+        basket,
+        accounts,
+      );
       return itemCredits;
     }
 
