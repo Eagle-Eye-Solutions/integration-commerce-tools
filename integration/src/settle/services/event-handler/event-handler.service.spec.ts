@@ -1,16 +1,16 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { EventHandlerService } from './event-handler.service';
-import { Commercetools } from '../../providers/commercetools/commercetools.provider';
-import { EagleEyeApiClient } from '../../providers/eagleeye/eagleeye.provider';
-import { CTCartToEEBasketMapper } from '../../mappers/ctCartToEeBasket.mapper';
+import { Commercetools } from '../../../common/providers/commercetools/commercetools.provider';
+import { EagleEyeApiClient } from '../../../common/providers/eagleeye/eagleeye.provider';
+import { CTCartToEEBasketMapper } from '../../../common/mappers/ctCartToEeBasket.mapper';
 import { ConfigService } from '@nestjs/config';
-import { CircuitBreakerService } from '../../providers/circuit-breaker/circuit-breaker.service';
-import { BASKET_STORE_SERVICE } from '../basket-store/basket-store.provider';
+import { CircuitBreakerService } from '../../../common/providers/circuit-breaker/circuit-breaker.service';
+import { BASKET_STORE_SERVICE } from '../../../common/services/basket-store/basket-store.provider';
 import { OrderSettleService } from '../../../settle/services/order-settle/order-settle.service';
 import { OrderPaymentStateChangedProcessor } from './event-processor/order-payment-state-changed.processor';
 import { OrderCreatedWithPaidStateProcessor } from './event-processor/order-created-with-paid-state.processor';
 import { OrderCreatedWithSettleActionProcessor } from './event-processor/order-created-with-settle-action.processor';
-import { FIELD_EAGLEEYE_ACTION } from '../../providers/commercetools/custom-type/cart-type-definition';
+import { FIELD_EAGLEEYE_ACTION } from '../../../common/providers/commercetools/custom-type/cart-type-definition';
 import { OrderUpdatedWithSettleActionProcessor } from './event-processor/order-updated-with-settle-action.processor';
 
 describe('EventHandlerService', () => {

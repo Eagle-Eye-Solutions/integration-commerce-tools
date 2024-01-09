@@ -1,10 +1,10 @@
 import { OrderUpdatedWithSettleActionProcessor } from './order-updated-with-settle-action.processor';
 import { ConfigService } from '@nestjs/config';
-import { Commercetools } from '../../../providers/commercetools/commercetools.provider';
+import { Commercetools } from '../../../../common/providers/commercetools/commercetools.provider';
 import { MessageDeliveryPayload } from '@commercetools/platform-sdk';
-import { EagleEyePluginException } from '../../../exceptions/eagle-eye-plugin.exception';
+import { EagleEyePluginException } from '../../../../common/exceptions/eagle-eye-plugin.exception';
 import { OrderSettleService } from '../../../../settle/services/order-settle/order-settle.service';
-import { FIELD_EAGLEEYE_ACTION } from '../../../providers/commercetools/custom-type/cart-type-definition';
+import { FIELD_EAGLEEYE_ACTION } from '../../../../common/providers/commercetools/custom-type/cart-type-definition';
 
 describe('OrderUpdatedWithSettleActionProcessor', () => {
   let processor: OrderUpdatedWithSettleActionProcessor;

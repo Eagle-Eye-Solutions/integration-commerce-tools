@@ -1,5 +1,5 @@
 import { Logger } from '@nestjs/common';
-import { SubscriptionService } from '../common/providers/commercetools/subscription/subscription.service';
+import { SubscriptionService } from '../settle/services/subscription/subscription.service';
 import { Command, CommandRunner, Option } from 'nest-commander';
 
 @Command({

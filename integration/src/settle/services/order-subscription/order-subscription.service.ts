@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { MessageDeliveryPayload } from '@commercetools/platform-sdk';
 import { EventHandlerService } from '../../services/event-handler/event-handler.service';
-import { isFulfilled } from '../../helper/promise';
+import { isFulfilled } from '../../../common/helper/promise';
 
 @Injectable()
 export class OrderSubscriptionService {

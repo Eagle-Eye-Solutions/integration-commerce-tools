@@ -1,12 +1,12 @@
-import { OrderCreatedWithSettleActionProcessor } from './order-created-with-settle-action.processor';
+import { OrderCreatedWithPaidStateProcessor } from './order-created-with-paid-state.processor';
 import { ConfigService } from '@nestjs/config';
-import { Commercetools } from '../../../providers/commercetools/commercetools.provider';
+import { Commercetools } from '../../../../common/providers/commercetools/commercetools.provider';
 import { MessageDeliveryPayload } from '@commercetools/platform-sdk';
-import { EagleEyePluginException } from '../../../exceptions/eagle-eye-plugin.exception';
-import { OrderSettleService } from '../../../../settle/services/order-settle/order-settle.service';
+import { EagleEyePluginException } from '../../../../common/exceptions/eagle-eye-plugin.exception';
+import { OrderSettleService } from '../../../../settle/services//order-settle/order-settle.service';
 
-describe('OrderCreatedWithSettleActionProcessor', () => {
-  let processor: OrderCreatedWithSettleActionProcessor;
+describe('OrderCreatedWithPaidStateProcessor', () => {
+  let processor: OrderCreatedWithPaidStateProcessor;
   let message: MessageDeliveryPayload;
   let configService: ConfigService;
   let commercetools: Commercetools;
@@ -25,7 +25,7 @@ describe('OrderCreatedWithSettleActionProcessor', () => {
       settleTransactionFromOrder: jest.fn(),
     } as unknown as OrderSettleService;
 
-    processor = new OrderCreatedWithSettleActionProcessor(
+    processor = new OrderCreatedWithPaidStateProcessor(
       configService,
       commercetools,
       orderSettleService,
@@ -47,7 +47,6 @@ describe('OrderCreatedWithSettleActionProcessor', () => {
         },
         custom: {
           fields: {
-            'eagleeye-action': 'SETTLE',
             'eagleeye-settledStatus': '',
           },
         },
@@ -100,13 +99,13 @@ describe('OrderCreatedWithSettleActionProcessor', () => {
   });
 
   describe('isValidState', () => {
-    it('should return true if the order action is settle and settledStatus is not "SETTLED"', async () => {
+    it('should return true if the order payment state is "Paid"', async () => {
       const result = await processor.isValidState({
         resource: { id: 'some-id', typeId: 'order' },
         order: {
+          paymentState: 'Paid',
           custom: {
             fields: {
-              'eagleeye-action': 'SETTLE',
               'eagleeye-settledStatus': '',
             },
           },
@@ -116,14 +115,14 @@ describe('OrderCreatedWithSettleActionProcessor', () => {
       expect(result).toBe(true);
     });
 
-    it('should return false if the order payment state does not fulfill the conditions', async () => {
+    it('should return false if the order payment state is not "Paid"', async () => {
       const result = await processor.isValidState({
         resource: { id: 'some-id', typeId: 'order' },
         order: {
+          paymentState: 'OtherState',
           custom: {
             fields: {
-              'eagleeye-action': 'SETTLE',
-              'eagleeye-settledStatus': 'SETTLED',
+              'eagleeye-settledStatus': '',
             },
           },
         },
@@ -132,17 +131,17 @@ describe('OrderCreatedWithSettleActionProcessor', () => {
       expect(result).toBe(false);
     });
 
-    it('should get the order from commercetools to check conditions if missing from the message', async () => {
+    it('should get the order from commercetools to check paymentState if missing from the message', async () => {
       const ctOrder = {
         cart: {
           id: 'cart-id',
         },
         custom: {
           fields: {
-            'eagleeye-action': 'SETTLE',
             'eagleeye-settledStatus': '',
           },
         },
+        paymentState: 'Paid',
       };
       jest
         .spyOn(commercetools, 'getOrderById')

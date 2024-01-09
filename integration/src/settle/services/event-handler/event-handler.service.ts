@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { MessageDeliveryPayload } from '@commercetools/platform-sdk';
-import { isFulfilled, isRejected } from '../../helper/promise';
+import { isFulfilled, isRejected } from '../../../common/helper/promise';
 import { AbstractEventProcessor } from './event-processor/abstract-event.processor';
 
 type ProcessingResult = {

@@ -3,9 +3,9 @@ import { OrderPaymentStateChangedMessage } from '@commercetools/platform-sdk/dis
 import { PaymentState, Order } from '@commercetools/platform-sdk';
 import { ConfigService } from '@nestjs/config';
 import { Logger, Injectable } from '@nestjs/common';
-import { Commercetools } from '../../../providers/commercetools/commercetools.provider';
+import { Commercetools } from '../../../../common/providers/commercetools/commercetools.provider';
 import { OrderSettleService } from '../../../../settle/services/order-settle/order-settle.service';
-import { FIELD_EAGLEEYE_SETTLED_STATUS } from '../../../providers/commercetools/custom-type/cart-type-definition';
+import { FIELD_EAGLEEYE_SETTLED_STATUS } from '../../../../common/providers/commercetools/custom-type/cart-type-definition';
 
 @Injectable()
 export class OrderPaymentStateChangedProcessor extends AbstractEventProcessor {
