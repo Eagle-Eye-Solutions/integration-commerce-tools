@@ -1,7 +1,7 @@
 import { AppController } from './app.controller';
 import { TestBed } from '@automock/jest';
-import { CartExtensionService } from './services/cart-extension/cart-extension.service';
-import { OrderSubscriptionService } from './services/order-subscription/order-subscription.service';
+import { CartExtensionService } from './common/services/cart-extension/cart-extension.service';
+import { OrderSubscriptionService } from './common/services/order-subscription/order-subscription.service';
 
 describe('AppController', () => {
   let appController: AppController;

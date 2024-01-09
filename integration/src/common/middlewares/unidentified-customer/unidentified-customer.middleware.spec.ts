@@ -2,7 +2,7 @@ import { UnidentifiedCustomerMiddleware } from './unidentified-customer.middlewa
 
 import { Test } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
-import { CTActionsBuilder } from '../../../providers/commercetools/actions/ActionsBuilder';
+import { CTActionsBuilder } from '../../providers/commercetools/actions/ActionsBuilder';
 
 describe('UnidentifiedCustomerMiddleware', () => {
   let middleware: UnidentifiedCustomerMiddleware;

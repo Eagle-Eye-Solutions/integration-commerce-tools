@@ -6,15 +6,15 @@ import {
   ShippingInfo,
   Order,
 } from '@commercetools/platform-sdk';
-import { DiscountDescription } from '../../providers/commercetools/actions/cart-update/CartCustomTypeActionBuilder';
+import { DiscountDescription } from '../providers/commercetools/actions/cart-update/CartCustomTypeActionBuilder';
 import { ConfigService } from '@nestjs/config';
-import { Commercetools } from '../../providers/commercetools/commercetools.provider';
-import { BasketStoreService } from '../../services/basket-store/basket-store.interface';
-import { BASKET_STORE_SERVICE } from '../../services/basket-store/basket-store.provider';
+import { Commercetools } from '../providers/commercetools/commercetools.provider';
+import { BasketStoreService } from '../services/basket-store/basket-store.interface';
+import { BASKET_STORE_SERVICE } from '../services/basket-store/basket-store.provider';
 import {
   LoyaltyBreakdownObject,
   LoyaltyTotalObject,
-} from '../../types/loyalty-earn-credits.type';
+} from '../../loyalty/types/loyalty-earn-credits.type';
 
 export type BasketItem = {
   itemUnitCost: number;

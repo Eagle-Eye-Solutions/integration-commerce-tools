@@ -1,10 +1,10 @@
 import { UnhandledExceptionsFilter } from './unhandled-exception.filter';
 import { ArgumentsHost } from '@nestjs/common';
-import { CTActionsBuilder } from '../../providers/commercetools/actions/ActionsBuilder';
-import { CartCustomTypeActionBuilder } from '../../providers/commercetools/actions/cart-update/CartCustomTypeActionBuilder';
+import { CTActionsBuilder } from '../providers/commercetools/actions/ActionsBuilder';
+import { CartCustomTypeActionBuilder } from '../providers/commercetools/actions/cart-update/CartCustomTypeActionBuilder';
 import { Response } from 'express';
 import { Test, TestingModule } from '@nestjs/testing';
-import { CartTypeDefinition } from '../../providers/commercetools/custom-type/cart-type-definition';
+import { CartTypeDefinition } from '../providers/commercetools/custom-type/cart-type-definition';
 import { ConfigService } from '@nestjs/config';
 
 describe('UnhandledExceptionsFilter', () => {

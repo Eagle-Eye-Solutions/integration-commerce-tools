@@ -1,5 +1,5 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
-import { CTActionsBuilder } from '../../../providers/commercetools/actions/ActionsBuilder';
+import { CTActionsBuilder } from '../../providers/commercetools/actions/ActionsBuilder';
 
 @Injectable()
 export class ExtensionTypeMiddleware implements NestMiddleware {
