@@ -3,15 +3,12 @@ import { OrderCreatedMessage } from '@commercetools/platform-sdk/dist/declaratio
 import { Order } from '@commercetools/platform-sdk';
 import { ConfigService } from '@nestjs/config';
 import { Logger, Injectable } from '@nestjs/common';
-import { Commercetools } from '../../../providers/commercetools/commercetools.provider';
+import { Commercetools } from '../../../../common/providers/commercetools/commercetools.provider';
 import { OrderSettleService } from '../../../../settle/services/order-settle/order-settle.service';
-import {
-  FIELD_EAGLEEYE_SETTLED_STATUS,
-  FIELD_EAGLEEYE_ACTION,
-} from '../../../providers/commercetools/custom-type/cart-type-definition';
+import { FIELD_EAGLEEYE_SETTLED_STATUS } from '../../../../common/providers/commercetools/custom-type/cart-type-definition';
 
 @Injectable()
-export class OrderCreatedWithSettleActionProcessor extends AbstractEventProcessor {
+export class OrderCreatedWithPaidStateProcessor extends AbstractEventProcessor {
   public logger: Logger = new Logger(this.constructor.name);
   private order: Order;
 
@@ -21,7 +18,7 @@ export class OrderCreatedWithSettleActionProcessor extends AbstractEventProcesso
     private orderSettleService: OrderSettleService,
   ) {
     super(configService);
-    this.processorName = 'OrderCreatedWithSettleAction';
+    this.processorName = 'OrderCreatedWithPaidState';
   }
 
   async isEventValid(): Promise<boolean> {
@@ -32,7 +29,7 @@ export class OrderCreatedWithSettleActionProcessor extends AbstractEventProcesso
       (await this.isValidState(orderCreatedMessage)) &&
       !this.isEventDisabled();
     this.logger.debug(
-      `${OrderCreatedWithSettleActionProcessor.name} ${
+      `${OrderCreatedWithPaidStateProcessor.name} ${
         isValid ? 'IS' : 'NOT'
       } valid for message with resource ID: ${this.message.resource.id}`,
     );
@@ -41,8 +38,8 @@ export class OrderCreatedWithSettleActionProcessor extends AbstractEventProcesso
 
   async generateActions(): Promise<(() => any)[]> {
     this.logger.debug({
-      message: `Generating actions for ${OrderCreatedWithSettleActionProcessor.name}`,
-      context: OrderCreatedWithSettleActionProcessor.name,
+      message: 'Generating actions',
+      context: OrderCreatedWithPaidStateProcessor.name,
     });
     const actions = [];
     actions.push(async () => {
@@ -67,11 +64,10 @@ export class OrderCreatedWithSettleActionProcessor extends AbstractEventProcesso
   public async isValidState(
     orderCreatedMessage: OrderCreatedMessage,
   ): Promise<boolean> {
-    let orderSettleAction;
+    let orderPaymentState;
     let orderSettledStatus;
     if (orderCreatedMessage.order && orderCreatedMessage.order.custom?.fields) {
-      orderSettleAction =
-        orderCreatedMessage.order.custom?.fields[FIELD_EAGLEEYE_ACTION];
+      orderPaymentState = orderCreatedMessage.order.paymentState;
       orderSettledStatus =
         orderCreatedMessage.order.custom?.fields[FIELD_EAGLEEYE_SETTLED_STATUS];
     } else {
@@ -79,21 +75,21 @@ export class OrderCreatedWithSettleActionProcessor extends AbstractEventProcesso
         this.order = await this.commercetools.getOrderById(
           this.message.resource.id,
         );
+        orderPaymentState = this.order.paymentState;
         if (this.order.custom?.fields) {
-          orderSettleAction = this.order.custom?.fields[FIELD_EAGLEEYE_ACTION];
           orderSettledStatus =
             this.order.custom?.fields[FIELD_EAGLEEYE_SETTLED_STATUS];
         }
       } catch (err) {
         this.logger.warn(
-          `Failed to get order ${this.message.resource.id} from CT to check action/status`,
+          `Failed to get order ${this.message.resource.id} from CT to check paymentState`,
           err,
         );
         return false;
       }
     }
     return (
-      Boolean(orderSettleAction === 'SETTLE') &&
+      Boolean(orderPaymentState === 'Paid') &&
       Boolean(orderSettledStatus !== 'SETTLED')
     );
   }

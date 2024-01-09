@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Commercetools } from '../commercetools.provider';
+import { Commercetools } from '../../../common/providers/commercetools/commercetools.provider';
 import { Subscription } from '@commercetools/platform-sdk';
-import { subscriptions } from '../../../constants/commercetools';
+import { subscriptions } from '../../../common/constants/commercetools';
 
 @Injectable()
 export class SubscriptionService {

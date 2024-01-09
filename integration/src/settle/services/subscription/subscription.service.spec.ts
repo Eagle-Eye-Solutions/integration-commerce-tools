@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { Logger } from '@nestjs/common';
 import { SubscriptionService } from './subscription.service';
-import { Commercetools } from '../commercetools.provider';
-import { subscriptions } from '../../../constants/commercetools';
+import { Commercetools } from '../../../common/providers/commercetools/commercetools.provider';
+import { subscriptions } from '../../../common/constants/commercetools';
 
 describe('SubscriptionService', () => {
   let service: SubscriptionService;

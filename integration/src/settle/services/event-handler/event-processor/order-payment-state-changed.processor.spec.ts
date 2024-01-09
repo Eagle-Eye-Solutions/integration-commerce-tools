@@ -1,8 +1,8 @@
 import { OrderPaymentStateChangedProcessor } from './order-payment-state-changed.processor';
 import { ConfigService } from '@nestjs/config';
-import { Commercetools } from '../../../providers/commercetools/commercetools.provider';
+import { Commercetools } from '../../../../common/providers/commercetools/commercetools.provider';
 import { MessageDeliveryPayload } from '@commercetools/platform-sdk';
-import { EagleEyePluginException } from '../../../exceptions/eagle-eye-plugin.exception';
+import { EagleEyePluginException } from '../../../../common/exceptions/eagle-eye-plugin.exception';
 import { OrderSettleService } from '../../../../settle/services/order-settle/order-settle.service';
 
 describe('OrderPaymentStateChangedProcessor', () => {
