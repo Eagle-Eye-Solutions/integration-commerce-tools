@@ -1,0 +1,62 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`LoyaltyMapper mapAdjustedBasketToBasketCredits should return deduplicated results when there's more than one credit instance per campaign 1`] = `
+{
+  "offers": [
+    {
+      "amount": 400,
+      "name": "Test Campaign (x2)",
+      "timesRedeemed": 2,
+    },
+  ],
+  "total": 800,
+}
+`;
+
+exports[`LoyaltyMapper mapAdjustedBasketToBasketCredits should return the mapped basket credits 1`] = `
+{
+  "offers": [
+    {
+      "amount": 400,
+      "name": "Test Campaign",
+      "timesRedeemed": 1,
+    },
+  ],
+  "total": 400,
+}
+`;
+
+exports[`LoyaltyMapper mapAdjustedBasketToBasketEarn should return the mapped basket earn 1`] = `
+{
+  "offers": [],
+  "total": 400,
+}
+`;
+
+exports[`LoyaltyMapper mapAdjustedBasketToItemCredits should return deduplicated results when there's more than one credit instance per campaign 1`] = `
+{
+  "offers": [
+    {
+      "amount": 400,
+      "name": "Test Campaign (x2)",
+      "sku": "123456",
+      "timesRedeemed": 2,
+    },
+  ],
+  "total": 800,
+}
+`;
+
+exports[`LoyaltyMapper mapAdjustedBasketToItemCredits should return the mapped item credits 1`] = `
+{
+  "offers": [
+    {
+      "amount": 400,
+      "name": "Test Campaign",
+      "sku": "123456",
+      "timesRedeemed": 1,
+    },
+  ],
+  "total": 400,
+}
+`;

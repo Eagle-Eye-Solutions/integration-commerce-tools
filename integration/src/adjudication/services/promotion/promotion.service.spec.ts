@@ -3,7 +3,7 @@ import { PromotionService } from './promotion.service';
 import { Commercetools } from '../../../common/providers/commercetools/commercetools.provider';
 import { EagleEyeApiClient } from '../../../common/providers/eagleeye/eagleeye.provider';
 import { ConfigService } from '@nestjs/config';
-import { CTCartToEEBasketMapper } from '../../../common/mappers/ctCartToEeBasket.mapper';
+import { AdjudicationMapper } from '../../../common/mappers/adjudication.mapper';
 import { Logger } from '@nestjs/common';
 import { BASKET_STORE_SERVICE } from '../../../common/services/basket-store/basket-store.provider';
 
@@ -49,7 +49,7 @@ describe('PromotionService', () => {
             get: jest.fn(),
           },
         },
-        CTCartToEEBasketMapper,
+        AdjudicationMapper,
         Logger,
         {
           provide: BASKET_STORE_SERVICE,
@@ -165,19 +165,19 @@ describe('PromotionService', () => {
       );
 
       expect(result).toEqual({
-        discounts: service.cartToBasketMapper
+        discounts: service.adjudicationMapper
           .mapAdjustedBasketToCartDirectDiscounts(
             walletOpenResponse.analyseBasketResults.basket,
             cart as any,
           )
           .concat(
-            service.cartToBasketMapper.mapAdjustedBasketToItemDirectDiscounts(
+            service.adjudicationMapper.mapAdjustedBasketToItemDirectDiscounts(
               walletOpenResponse.analyseBasketResults.basket,
               cart as any,
             ),
           ),
         discountDescriptions:
-          service.cartToBasketMapper.mapBasketDiscountsToDiscountDescriptions(
+          service.adjudicationMapper.mapBasketDiscountsToDiscountDescriptions(
             walletOpenResponse.analyseBasketResults.discount,
           ),
         errors: [],

@@ -1,23 +1,23 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CartExtensionService } from './cart-extension.service';
-import { CircuitBreakerService } from '../../providers/circuit-breaker/circuit-breaker.service';
+import { CircuitBreakerService } from '../../../common/providers/circuit-breaker/circuit-breaker.service';
 import { ExtensionInput } from '@commercetools/platform-sdk';
-import { EagleEyeApiException } from '../../exceptions/eagle-eye-api.exception';
-import { PromotionService } from '../../../promotion/services/promotion/promotion.service';
-import { BASKET_STORE_SERVICE } from '../../services/basket-store/basket-store.provider';
-import { BasketStoreService } from '../../services/basket-store/basket-store.interface';
-import { EagleEyePluginException } from '../../exceptions/eagle-eye-plugin.exception';
+import { EagleEyeApiException } from '../../../common/exceptions/eagle-eye-api.exception';
+import { PromotionService } from '../promotion/promotion.service';
+import { BASKET_STORE_SERVICE } from '../../../common/services/basket-store/basket-store.provider';
+import { BasketStoreService } from '../../../common/services/basket-store/basket-store.interface';
+import { EagleEyePluginException } from '../../../common/exceptions/eagle-eye-plugin.exception';
 import { ConfigService } from '@nestjs/config';
-import { EagleEyeApiClient } from '../../providers/eagleeye/eagleeye.provider';
-import { CTCartToEEBasketMapper } from '../../mappers/ctCartToEeBasket.mapper';
-import { Commercetools } from '../../providers/commercetools/commercetools.provider';
+import { EagleEyeApiClient } from '../../../common/providers/eagleeye/eagleeye.provider';
+import { AdjudicationMapper } from '../../../common/mappers/adjudication.mapper';
+import { Commercetools } from '../../../common/providers/commercetools/commercetools.provider';
 import { OrderSettleService } from '../../../settle/services/order-settle/order-settle.service';
-import { CartTypeDefinition } from '../../providers/commercetools/custom-type/cart-type-definition';
-import { LoyaltyService } from '../../../loyalty/services/loyalty/loyalty.service';
+import { CartTypeDefinition } from '../../../common/providers/commercetools/custom-type/cart-type-definition';
+import { LoyaltyService } from '../loyalty/loyalty.service';
 import {
   FIELD_EAGLEEYE_LOYALTY_CREDITS,
   LineItemTypeDefinition,
-} from '../../providers/commercetools/custom-type/line-item-type-definition';
+} from '../../../common/providers/commercetools/custom-type/line-item-type-definition';
 
 class CircuitBreakerError extends Error {
   constructor(public code: string) {
@@ -92,7 +92,7 @@ describe('CartExtensionService', () => {
             },
           },
         },
-        CTCartToEEBasketMapper,
+        AdjudicationMapper,
         {
           provide: Commercetools,
           useValue: {

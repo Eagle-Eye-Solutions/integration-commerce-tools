@@ -1,71 +1,10 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`CTCartToEEBasketMapper mapAdjustedBasketToBasketCredits should return deduplicated results when there's more than one credit instance per campaign 1`] = `
-{
-  "offers": [
-    {
-      "amount": 400,
-      "name": "Test Campaign (x2)",
-      "timesRedeemed": 2,
-    },
-  ],
-  "total": 800,
-}
-`;
+exports[`AdjudicationMapper mapAdjustedBasketToCartDirectDiscounts should return the direct discount draft 1`] = `[]`;
 
-exports[`CTCartToEEBasketMapper mapAdjustedBasketToBasketCredits should return the mapped basket credits 1`] = `
-{
-  "offers": [
-    {
-      "amount": 400,
-      "name": "Test Campaign",
-      "timesRedeemed": 1,
-    },
-  ],
-  "total": 400,
-}
-`;
+exports[`AdjudicationMapper mapAdjustedBasketToItemDirectDiscounts should not return the direct discount drafts if there are no adjustmentResults 1`] = `[]`;
 
-exports[`CTCartToEEBasketMapper mapAdjustedBasketToBasketEarn should return the mapped basket earn 1`] = `
-{
-  "offers": [],
-  "total": 400,
-}
-`;
-
-exports[`CTCartToEEBasketMapper mapAdjustedBasketToCartDirectDiscounts should return the direct discount draft 1`] = `[]`;
-
-exports[`CTCartToEEBasketMapper mapAdjustedBasketToItemCredits should return deduplicated results when there's more than one credit instance per campaign 1`] = `
-{
-  "offers": [
-    {
-      "amount": 400,
-      "name": "Test Campaign (x2)",
-      "sku": "123456",
-      "timesRedeemed": 2,
-    },
-  ],
-  "total": 800,
-}
-`;
-
-exports[`CTCartToEEBasketMapper mapAdjustedBasketToItemCredits should return the mapped item credits 1`] = `
-{
-  "offers": [
-    {
-      "amount": 400,
-      "name": "Test Campaign",
-      "sku": "123456",
-      "timesRedeemed": 1,
-    },
-  ],
-  "total": 400,
-}
-`;
-
-exports[`CTCartToEEBasketMapper mapAdjustedBasketToItemDirectDiscounts should not return the direct discount drafts if there are no adjustmentResults 1`] = `[]`;
-
-exports[`CTCartToEEBasketMapper mapAdjustedBasketToItemDirectDiscounts should return the direct discount drafts 1`] = `
+exports[`AdjudicationMapper mapAdjustedBasketToItemDirectDiscounts should return the direct discount drafts 1`] = `
 [
   {
     "target": {
@@ -87,9 +26,9 @@ exports[`CTCartToEEBasketMapper mapAdjustedBasketToItemDirectDiscounts should re
 ]
 `;
 
-exports[`CTCartToEEBasketMapper mapAdjustedBasketToShippingDirectDiscounts should not return the direct discount drafts if there are no adjustmentResults 1`] = `[]`;
+exports[`AdjudicationMapper mapAdjustedBasketToShippingDirectDiscounts should not return the direct discount drafts if there are no adjustmentResults 1`] = `[]`;
 
-exports[`CTCartToEEBasketMapper mapAdjustedBasketToShippingDirectDiscounts should return the direct discount drafts 1`] = `
+exports[`AdjudicationMapper mapAdjustedBasketToShippingDirectDiscounts should return the direct discount drafts 1`] = `
 [
   {
     "target": {
@@ -110,7 +49,7 @@ exports[`CTCartToEEBasketMapper mapAdjustedBasketToShippingDirectDiscounts shoul
 ]
 `;
 
-exports[`CTCartToEEBasketMapper mapCartLineItemsToBasketContent should return the mapped line items 1`] = `
+exports[`AdjudicationMapper mapCartLineItemsToBasketContent should return the mapped line items 1`] = `
 [
   {
     "description": "Product 1",
@@ -125,7 +64,7 @@ exports[`CTCartToEEBasketMapper mapCartLineItemsToBasketContent should return th
 ]
 `;
 
-exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should include eagle eye identity if present in the cart 1`] = `
+exports[`AdjudicationMapper mapCartToWalletOpenPayload should include eagle eye identity if present in the cart 1`] = `
 {
   "basket": {
     "contents": [
@@ -176,7 +115,7 @@ exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should include eagle 
 }
 `;
 
-exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should include potential voucher codes (old invalid tokens) if present in the cart 1`] = `
+exports[`AdjudicationMapper mapCartToWalletOpenPayload should include potential voucher codes (old invalid tokens) if present in the cart 1`] = `
 {
   "basket": {
     "contents": [
@@ -228,7 +167,7 @@ exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should include potent
 }
 `;
 
-exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should include voucher codes (tokens) if present in the cart 1`] = `
+exports[`AdjudicationMapper mapCartToWalletOpenPayload should include voucher codes (tokens) if present in the cart 1`] = `
 {
   "basket": {
     "contents": [
@@ -280,7 +219,7 @@ exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should include vouche
 }
 `;
 
-exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should not include eagle eye identity if not present in the cart but the instruction is to include identity 1`] = `
+exports[`AdjudicationMapper mapCartToWalletOpenPayload should not include eagle eye identity if not present in the cart but the instruction is to include identity 1`] = `
 {
   "basket": {
     "contents": [
@@ -326,7 +265,7 @@ exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should not include ea
 }
 `;
 
-exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should not send to EE duplicated voucher codes when potentialVoucherCodes and voucherCodes contain the same voucher code 1`] = `
+exports[`AdjudicationMapper mapCartToWalletOpenPayload should not send to EE duplicated voucher codes when potentialVoucherCodes and voucherCodes contain the same voucher code 1`] = `
 {
   "basket": {
     "contents": [
@@ -378,7 +317,7 @@ exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should not send to EE
 }
 `;
 
-exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should return the payload for /wallet/open 1`] = `
+exports[`AdjudicationMapper mapCartToWalletOpenPayload should return the payload for /wallet/open 1`] = `
 {
   "basket": {
     "contents": [
@@ -425,7 +364,7 @@ exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should return the pay
 }
 `;
 
-exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should return the payload for /wallet/open, with sku instead of upc when 'useItemSku' is set to true 1`] = `
+exports[`AdjudicationMapper mapCartToWalletOpenPayload should return the payload for /wallet/open, with sku instead of upc when 'useItemSku' is set to true 1`] = `
 {
   "basket": {
     "contents": [
@@ -471,7 +410,7 @@ exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should return the pay
 }
 `;
 
-exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should return the payload for /wallet/open, without the optional parentIncomingIdentifier when not set in the configuration 1`] = `
+exports[`AdjudicationMapper mapCartToWalletOpenPayload should return the payload for /wallet/open, without the optional parentIncomingIdentifier when not set in the configuration 1`] = `
 {
   "basket": {
     "contents": [
@@ -517,38 +456,7 @@ exports[`CTCartToEEBasketMapper mapCartToWalletOpenPayload should return the pay
 }
 `;
 
-exports[`CTCartToEEBasketMapper mapOrderToWalletSettlePayload should include eagleeye-identityValue for /wallet/settle when available 1`] = `
-{
-  "basket": {
-    "contents": [],
-  },
-  "identity": {
-    "identityValue": "some-identity",
-  },
-  "location": {
-    "incomingIdentifier": "outlet1",
-    "parentIncomingIdentifier": "banner1",
-  },
-  "mode": "ACTIVE",
-  "reference": "12345678",
-}
-`;
-
-exports[`CTCartToEEBasketMapper mapOrderToWalletSettlePayload should return the payload for /wallet/settle 1`] = `
-{
-  "basket": {
-    "contents": [],
-  },
-  "location": {
-    "incomingIdentifier": "outlet1",
-    "parentIncomingIdentifier": "banner1",
-  },
-  "mode": "ACTIVE",
-  "reference": "12345678",
-}
-`;
-
-exports[`CTCartToEEBasketMapper mapShippingMethodSkusToBasketItems should return the mapped custom basket items 1`] = `
+exports[`AdjudicationMapper mapShippingMethodSkusToBasketItems should return the mapped custom basket items 1`] = `
 {
   "description": "Example Shipping Discount",
   "itemUnitCost": 300,
@@ -561,9 +469,9 @@ exports[`CTCartToEEBasketMapper mapShippingMethodSkusToBasketItems should return
 }
 `;
 
-exports[`CTCartToEEBasketMapper mapVoucherCodesToCampaignTokens should ignore empty string vouchers 1`] = `[]`;
+exports[`AdjudicationMapper mapVoucherCodesToCampaignTokens should ignore empty string vouchers 1`] = `[]`;
 
-exports[`CTCartToEEBasketMapper mapVoucherCodesToCampaignTokens should return an array of tokens to be examined 1`] = `
+exports[`AdjudicationMapper mapVoucherCodesToCampaignTokens should return an array of tokens to be examined 1`] = `
 [
   {
     "type": "TOKEN",

@@ -1,14 +1,14 @@
-import { AppController } from './app.controller';
+import { AdjudicationController } from './adjudication.controller';
 import { TestBed } from '@automock/jest';
-import { CartExtensionService } from './common/services/cart-extension/cart-extension.service';
+import { CartExtensionService } from '../services/cart-extension/cart-extension.service';
 
-describe('AppController', () => {
-  let appController: AppController;
+describe('AdjudicationController', () => {
+  let adjudicationController: AdjudicationController;
   let cartExtensionService: jest.Mocked<CartExtensionService>;
 
   beforeEach(async () => {
-    const { unit, unitRef } = TestBed.create(AppController).compile();
-    appController = unit;
+    const { unit, unitRef } = TestBed.create(AdjudicationController).compile();
+    adjudicationController = unit;
     cartExtensionService =
       unitRef.get<CartExtensionService>(CartExtensionService);
   });
@@ -18,7 +18,7 @@ describe('AppController', () => {
       cartExtensionService.handleCartExtensionRequest.mockReturnValueOnce({
         actions: [],
       } as any);
-      expect(await appController.handleExtensionRequest({})).toEqual({
+      expect(await adjudicationController.handleExtensionRequest({})).toEqual({
         actions: [],
       });
     });

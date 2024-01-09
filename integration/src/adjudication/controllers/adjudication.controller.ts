@@ -1,8 +1,8 @@
 import { Controller, Post, Body } from '@nestjs/common';
-import { CartExtensionService } from './common/services/cart-extension/cart-extension.service';
+import { CartExtensionService } from '../services/cart-extension/cart-extension.service';
 
 @Controller()
-export class AppController {
+export class AdjudicationController {
   constructor(private readonly cartExtensionService: CartExtensionService) {}
 
   @Post('/cart/service')

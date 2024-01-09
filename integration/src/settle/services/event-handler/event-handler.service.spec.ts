@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { EventHandlerService } from './event-handler.service';
 import { Commercetools } from '../../../common/providers/commercetools/commercetools.provider';
 import { EagleEyeApiClient } from '../../../common/providers/eagleeye/eagleeye.provider';
-import { CTCartToEEBasketMapper } from '../../../common/mappers/ctCartToEeBasket.mapper';
+import { SettleMapper } from '../../../common/mappers/settle.mapper';
 import { ConfigService } from '@nestjs/config';
 import { CircuitBreakerService } from '../../../common/providers/circuit-breaker/circuit-breaker.service';
 import { BASKET_STORE_SERVICE } from '../../../common/services/basket-store/basket-store.provider';
@@ -44,7 +44,7 @@ describe('EventHandlerService', () => {
           },
         },
         { provide: CircuitBreakerService, useValue: { fire: jest.fn() } },
-        CTCartToEEBasketMapper,
+        SettleMapper,
         {
           provide: BASKET_STORE_SERVICE,
           useValue: {

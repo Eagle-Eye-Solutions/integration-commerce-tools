@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { CTCartToEEBasketMapper } from '../../../common/mappers/ctCartToEeBasket.mapper';
+import { SettleMapper } from '../../../common/mappers/settle.mapper';
 import { EagleEyeApiClient } from '../../../common/providers/eagleeye/eagleeye.provider';
 import { Order, OrderUpdateAction } from '@commercetools/platform-sdk';
 import { BASKET_STORE_SERVICE } from '../../../common/services/basket-store/basket-store.provider';
@@ -18,7 +18,7 @@ export class OrderSettleService {
   private readonly logger = new Logger(OrderSettleService.name);
 
   constructor(
-    readonly cartToBasketMapper: CTCartToEEBasketMapper,
+    readonly settleMapper: SettleMapper,
     readonly eagleEyeClient: EagleEyeApiClient,
     @Inject(BASKET_STORE_SERVICE)
     private readonly basketStoreService: BasketStoreService,
@@ -34,7 +34,7 @@ export class OrderSettleService {
     if (this.basketStoreService.hasSavedBasket(ctOrder)) {
       const walletSettleResponse = await this.walletSettleInvoke(
         'settle',
-        await this.cartToBasketMapper.mapOrderToWalletSettlePayload(ctOrder),
+        await this.settleMapper.mapOrderToWalletSettlePayload(ctOrder),
       );
       try {
         this.logger.log(

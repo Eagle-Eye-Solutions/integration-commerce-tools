@@ -1,6 +1,5 @@
-import { Module, NestModule, forwardRef } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { OrderSettleService } from './services/order-settle/order-settle.service';
-import { AppModule } from '../app.module';
 import { SettleController } from './controllers/settle.controller';
 import { SubscriptionsCommand } from '../scripts/subscriptions.command';
 import { SubscriptionService } from './services/subscription/subscription.service';
@@ -12,7 +11,7 @@ import { OrderUpdatedWithSettleActionProcessor } from './services/event-handler/
 import { OrderSubscriptionService } from './services/order-subscription/order-subscription.service';
 
 @Module({
-  imports: [forwardRef(() => AppModule)],
+  imports: [],
   controllers: [SettleController],
   providers: [
     OrderSettleService,
@@ -47,6 +46,4 @@ import { OrderSubscriptionService } from './services/order-subscription/order-su
   ],
   exports: [],
 })
-export class SettleModule implements NestModule {
-  configure(): any {}
-}
+export class SettleModule {}
