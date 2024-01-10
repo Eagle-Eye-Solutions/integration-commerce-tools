@@ -50,7 +50,7 @@ Send a POST request to `localhost:8080/service` with the sample body:
 }
 ```
 
-### Connect the local to a commercetools project
+### Connect the local development environemnt to a commercetools project
 
 The integration can automatically create an extension in commercetools which reaches your local environment
 using `ngrok`.

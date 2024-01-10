@@ -13,23 +13,24 @@ in EagleEye, see the [Settle](#subscription-module) section for more info.
 
 ## Extension Module
 
+### Promotions
+
 When an API request is sent to update the cart in commercetools a synchronous request is sent to the EagleEye
 endpoint `connect/wallet/open` with the data from the commercetools cart to get the available promotions.  
-The response is mapped to commercetools direct discounts that can apply to:
+The response is mapped to commercetools Direct Discounts that can apply to:
 
 - total price
 - line items
 - shipping cost
 
+By using commercetools direct discounts the cart prices are automatically updated and very little customisations should
+be required in the frontend.
+
 All the applied promotion descriptions are added to the cart custom field `eagleeye-appliedDiscounts` and can be used on
 the frontend to show to the customer the name of the promotion/s applied.
 
-### Data mapping
-
-The data mapping between commercetools cart and EagleEye API involves several fields, to see the latest version of the
-mapping refer to
-the [CTCartToEEBasketMapper](https://github.com/Eagle-Eye-Solutions/integration-commerce-tools/blob/master/integration/src/common/mappers/ctCartToEeBasket.mapper.ts)
-class.
+The Eagle Eye AIR account should be preloaded with the product SKUs/UPCs that have to match the commercetools
+product `key` in order to enable line item promotions.
 
 ### Vouchers
 
@@ -66,12 +67,12 @@ to the field `eagleeye-voucherCodes` but it will not be evaluated by the integra
 
 ### Identified customers
 
-Some EagleEye promotions are only available for identified customers. To send the customer identified to EagleEye is
-required to pass a custom field in the cart called `eagleeye-identityValue`. The plugin will request all promotions
+Some EagleEye promotions are only available for identified customers. To send the customer identity to EagleEye is
+required to add to the cart the custom field `eagleeye-identityValue`. The plugin will request all promotions
 available for the identity value provided. If the identity value is not recognized by EagleEye a new request is sent to
 EagleEye to get all the open promotions (no identity value is passed).
 
-## Loyalty Points
+### Loyalty Points
 
 Loyalty points processing is enabled by default. Points will always be calculated by EagleEye when a campaign is
 available and then this data is processed to be stored in your cart as a custom field.
@@ -114,52 +115,14 @@ E.g: `"Example Offer (x2)`, with amount `200` if it were to apply twice.
 
 WIP/TODO
 
-## Subscription module
+### Data mapping
 
-When performing cart creation/updates (like changing line item quantities, or adding voucher codes) a transaction is
-created/updated in AIR, tied to said cart by using it's `id` as a reference. This transaction "locks" certain things
-related to it, like voucher codes (so they cannot be used multiple times concurrently).
+The data mapping between commercetools cart and EagleEye API involves several fields, to see the latest version of the
+mapping refer to
+the [CTCartToEEBasketMapper](https://github.com/Eagle-Eye-Solutions/integration-commerce-tools/blob/master/integration/src/common/mappers/ctCartToEeBasket.mapper.ts)
+class.
 
-This transaction is later "settled", when an order `paymentState` changes to "Paid" or when specifically asked to by
-setting the custom field `eagleeye-action` to `SETTLE`. This confirms the transaction in EagleEye AIR so the customer
-can redeem their rewards (like discounts or loyalty points).
-
-As long as the custom field `eagleeye-settledStatus` for a given order is not `"SETTLED"` and a saved basket exists,
-then settle can be performed in one of the following ways:
-
-1. Creating/Updating orders with `eagleeye-action` custom field and value `"SETTLE"`.
-2. Creating/Updating orders with `order.paymentState` set to `"Paid"`.
-
-In all of these cases, the transaction will be settled asynchronously
-using [Subscriptions](https://docs.commercetools.com/api/projects/subscriptions).
-
-> **_NOTE:_** Is not possible to settle carts, only orders can be settled.
-
-### Storing Eagle-Eye enriched basket
-
-When anything related to this transaction happens, a copy of the "enriched basket" (cart) processed by AIR is saved (by
-default using Custom Objects, see section below).
-This basket is auto-saved whenever a cart changes, then it's later checked and sent to AIR when settling the
-transaction.
-
-Saving the EagleEye enriched basket in the custom objects slightly increase the response time, the auto-saving
-functionality can be disabled using the environment variable `ALWAYS_STORE_BASKET_IN_CUSTOM_OBJECT` set
-to `false`, then you will need to update the cart with the custom field `eagleeye-action` set to `SAVE_BASKET` for it to
-be stored manually. Ideally the enriched basket should be stored before the order is placed.
-
-The cart custom fields `eagleeye-basketStore` and `eagleeye-basketUri` are also populated so that can be used when
-settling the transaction to know where the enriched basked is saved. The `basketStore` field is an enumeration with the
-name of the data store used (only CUSTOM_TYPE is currently supported). The `basketUri` field is used to identify the
-enriched basked in the store, when using custom objects as store it holds the path to the custom object,
-e.g.: `custom-objects/eagleeye-cart/edcdd99f-c682-4d82-advd-37029c6fs8bv`.
-
-Currently the only way to save baskets is using commercetools' Custom Objects, but the code allows to easily change the
-store by creating a custom `BasketStoreService` implementing the same interface but storing data in a place of your
-choosing.
-
-## Error handling
-
-### Extension module
+### Error handling
 
 The extension module has enabled by default a circuit breaker functionality, all calls to EagleEye wallet APIs are
 tracked and if the response times are consistently too slow for a period of time or failing with some error code, the
@@ -205,3 +168,52 @@ Any other errors in the plugin will also be added to the Cart custom field `eagl
   }
 }
 ```
+
+## Subscription module
+
+When performing cart creation/updates (like changing line item quantities, or adding voucher codes) a transaction is
+created/updated in AIR, tied to said cart by using it's `id` as a reference. This transaction "locks" certain things
+related to it, like voucher codes (so they cannot be used multiple times concurrently).
+
+This transaction is later "settled", when an order `paymentState` changes to "Paid" or when specifically asked to by
+setting the custom field `eagleeye-action` to `SETTLE`. This confirms the transaction in EagleEye AIR so the customer
+can redeem their rewards (like discounts or loyalty points).
+
+As long as the custom field `eagleeye-settledStatus` for a given order is not `"SETTLED"` and a saved basket exists,
+then settle can be performed in one of the following ways:
+
+1. Creating/Updating orders with `eagleeye-action` custom field and value `"SETTLE"`.
+2. Creating/Updating orders with `order.paymentState` set to `"Paid"`.
+
+In all of these cases, the transaction will be settled asynchronously
+using [Subscriptions](https://docs.commercetools.com/api/projects/subscriptions).
+
+> **_NOTE:_** Is not possible to settle carts, only orders can be settled.
+
+### Storing Eagle-Eye enriched basket
+
+When anything related to this transaction happens, a copy of the "enriched basket" (cart) processed by AIR is saved (by
+default using Custom Objects, see section below).
+This basket is auto-saved whenever a cart changes, then it's later checked and sent to AIR when settling the
+transaction.
+
+Saving the EagleEye enriched basket in the custom objects slightly increase the response time, the auto-saving
+functionality can be disabled using the environment variable `ALWAYS_STORE_BASKET_IN_CUSTOM_OBJECT` set
+to `false`, then you will need to update the cart with the custom field `eagleeye-action` set to `SAVE_BASKET` for it to
+be stored manually. Ideally the enriched basket should be stored before the order is placed.
+
+The cart custom fields `eagleeye-basketStore` and `eagleeye-basketUri` are also populated so that can be used when
+settling the transaction to know where the enriched basked is saved. The `basketStore` field is an enumeration with the
+name of the data store used (only CUSTOM_TYPE is currently supported). The `basketUri` field is used to identify the
+enriched basked in the store, when using custom objects as store it holds the path to the custom object,
+e.g.: `custom-objects/eagleeye-cart/edcdd99f-c682-4d82-advd-37029c6fs8bv`.
+
+Currently the only way to save baskets is using commercetools' Custom Objects, but the code allows to easily change the
+store by creating a custom `BasketStoreService` implementing the same interface but storing data in a place of your
+choosing.
+
+### Error handling
+
+If the module fails to process the incoming order message it will return an error code so that the message is not
+acknowledge and stays on the message queue for reprocessing. The error details will be added to the order custom
+field `eagleeye-errors` and the `eagleeye-settledStatus` will not be set to `SETTLED`.
