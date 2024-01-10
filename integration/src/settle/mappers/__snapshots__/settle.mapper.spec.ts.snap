@@ -1,0 +1,32 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CTCartToEEBasketMapper mapOrderToWalletSettlePayload should include eagleeye-identityValue for /wallet/settle when available 1`] = `
+{
+  "basket": {
+    "contents": [],
+  },
+  "identity": {
+    "identityValue": "some-identity",
+  },
+  "location": {
+    "incomingIdentifier": "outlet1",
+    "parentIncomingIdentifier": "banner1",
+  },
+  "mode": "ACTIVE",
+  "reference": "12345678",
+}
+`;
+
+exports[`CTCartToEEBasketMapper mapOrderToWalletSettlePayload should return the payload for /wallet/settle 1`] = `
+{
+  "basket": {
+    "contents": [],
+  },
+  "location": {
+    "incomingIdentifier": "outlet1",
+    "parentIncomingIdentifier": "banner1",
+  },
+  "mode": "ACTIVE",
+  "reference": "12345678",
+}
+`;

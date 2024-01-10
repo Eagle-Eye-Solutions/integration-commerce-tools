@@ -1,5 +1,5 @@
 import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
-import { CTActionsBuilder } from '../../../providers/commercetools/actions/ActionsBuilder';
+import { CTActionsBuilder } from '../../providers/commercetools/actions/ActionsBuilder';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()

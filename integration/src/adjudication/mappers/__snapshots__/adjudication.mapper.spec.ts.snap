@@ -1,0 +1,481 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AdjudicationMapper mapAdjustedBasketToCartDirectDiscounts should return the direct discount draft 1`] = `[]`;
+
+exports[`AdjudicationMapper mapAdjustedBasketToItemDirectDiscounts should not return the direct discount drafts if there are no adjustmentResults 1`] = `[]`;
+
+exports[`AdjudicationMapper mapAdjustedBasketToItemDirectDiscounts should return the direct discount drafts 1`] = `
+[
+  {
+    "target": {
+      "predicate": "sku="SKU123"",
+      "type": "lineItems",
+    },
+    "value": {
+      "money": [
+        {
+          "centAmount": 10,
+          "currencyCode": "USD",
+          "fractionDigits": 2,
+          "type": "centPrecision",
+        },
+      ],
+      "type": "absolute",
+    },
+  },
+]
+`;
+
+exports[`AdjudicationMapper mapAdjustedBasketToShippingDirectDiscounts should not return the direct discount drafts if there are no adjustmentResults 1`] = `[]`;
+
+exports[`AdjudicationMapper mapAdjustedBasketToShippingDirectDiscounts should return the direct discount drafts 1`] = `
+[
+  {
+    "target": {
+      "type": "shipping",
+    },
+    "value": {
+      "money": [
+        {
+          "centAmount": 10,
+          "currencyCode": "USD",
+          "fractionDigits": 2,
+          "type": "centPrecision",
+        },
+      ],
+      "type": "absolute",
+    },
+  },
+]
+`;
+
+exports[`AdjudicationMapper mapCartLineItemsToBasketContent should return the mapped line items 1`] = `
+[
+  {
+    "description": "Product 1",
+    "itemUnitCost": 1000,
+    "itemUnitCount": 2,
+    "itemUnitMetric": "EACH",
+    "salesKey": "SALE",
+    "totalUnitCost": 2000,
+    "totalUnitCostAfterDiscount": 2000,
+    "upc": "SKU123",
+  },
+]
+`;
+
+exports[`AdjudicationMapper mapCartToWalletOpenPayload should include eagle eye identity if present in the cart 1`] = `
+{
+  "basket": {
+    "contents": [
+      {
+        "description": "Example Product",
+        "itemUnitCost": 300,
+        "itemUnitCount": 1,
+        "itemUnitMetric": "EACH",
+        "salesKey": "SALE",
+        "sku": "SKU123",
+        "totalUnitCost": 300,
+        "totalUnitCostAfterDiscount": 300,
+      },
+    ],
+    "summary": {
+      "redemptionChannel": "Online",
+      "totalBasketValue": 300,
+      "totalDiscountAmount": {
+        "general": null,
+        "promotions": 0,
+        "staff": null,
+      },
+      "totalItems": 1,
+    },
+    "type": "STANDARD",
+  },
+  "examine": undefined,
+  "identity": {
+    "identityValue": [
+      "12345678",
+    ],
+  },
+  "location": {
+    "incomingIdentifier": undefined,
+  },
+  "lock": true,
+  "options": {
+    "adjustBasket": {
+      "enabled": true,
+      "includeOpenOffers": true,
+    },
+    "analyseBasket": {
+      "enabled": true,
+      "includeOpenOffers": true,
+    },
+  },
+  "reference": undefined,
+}
+`;
+
+exports[`AdjudicationMapper mapCartToWalletOpenPayload should include potential voucher codes (old invalid tokens) if present in the cart 1`] = `
+{
+  "basket": {
+    "contents": [
+      {
+        "description": "Example Product",
+        "itemUnitCost": 300,
+        "itemUnitCount": 1,
+        "itemUnitMetric": "EACH",
+        "salesKey": "SALE",
+        "totalUnitCost": 300,
+        "totalUnitCostAfterDiscount": 300,
+        "upc": "SKU123",
+      },
+    ],
+    "summary": {
+      "redemptionChannel": "Online",
+      "totalBasketValue": 300,
+      "totalDiscountAmount": {
+        "general": null,
+        "promotions": 0,
+        "staff": null,
+      },
+      "totalItems": 1,
+    },
+    "type": "STANDARD",
+  },
+  "examine": [
+    {
+      "type": "TOKEN",
+      "value": "1234567890",
+    },
+  ],
+  "location": {
+    "incomingIdentifier": "outlet1",
+    "parentIncomingIdentifier": "banner1",
+  },
+  "lock": true,
+  "options": {
+    "adjustBasket": {
+      "enabled": true,
+      "includeOpenOffers": true,
+    },
+    "analyseBasket": {
+      "enabled": true,
+      "includeOpenOffers": true,
+    },
+  },
+  "reference": undefined,
+}
+`;
+
+exports[`AdjudicationMapper mapCartToWalletOpenPayload should include voucher codes (tokens) if present in the cart 1`] = `
+{
+  "basket": {
+    "contents": [
+      {
+        "description": "Example Product",
+        "itemUnitCost": 300,
+        "itemUnitCount": 1,
+        "itemUnitMetric": "EACH",
+        "salesKey": "SALE",
+        "totalUnitCost": 300,
+        "totalUnitCostAfterDiscount": 300,
+        "upc": "SKU123",
+      },
+    ],
+    "summary": {
+      "redemptionChannel": "Online",
+      "totalBasketValue": 300,
+      "totalDiscountAmount": {
+        "general": null,
+        "promotions": 0,
+        "staff": null,
+      },
+      "totalItems": 1,
+    },
+    "type": "STANDARD",
+  },
+  "examine": [
+    {
+      "type": "TOKEN",
+      "value": "12345678",
+    },
+  ],
+  "location": {
+    "incomingIdentifier": "outlet1",
+    "parentIncomingIdentifier": "banner1",
+  },
+  "lock": true,
+  "options": {
+    "adjustBasket": {
+      "enabled": true,
+      "includeOpenOffers": true,
+    },
+    "analyseBasket": {
+      "enabled": true,
+      "includeOpenOffers": true,
+    },
+  },
+  "reference": undefined,
+}
+`;
+
+exports[`AdjudicationMapper mapCartToWalletOpenPayload should not include eagle eye identity if not present in the cart but the instruction is to include identity 1`] = `
+{
+  "basket": {
+    "contents": [
+      {
+        "description": "Example Product",
+        "itemUnitCost": 300,
+        "itemUnitCount": 1,
+        "itemUnitMetric": "EACH",
+        "salesKey": "SALE",
+        "sku": "SKU123",
+        "totalUnitCost": 300,
+        "totalUnitCostAfterDiscount": 300,
+      },
+    ],
+    "summary": {
+      "redemptionChannel": "Online",
+      "totalBasketValue": 300,
+      "totalDiscountAmount": {
+        "general": null,
+        "promotions": 0,
+        "staff": null,
+      },
+      "totalItems": 1,
+    },
+    "type": "STANDARD",
+  },
+  "examine": undefined,
+  "location": {
+    "incomingIdentifier": undefined,
+  },
+  "lock": true,
+  "options": {
+    "adjustBasket": {
+      "enabled": true,
+      "includeOpenOffers": true,
+    },
+    "analyseBasket": {
+      "enabled": true,
+      "includeOpenOffers": true,
+    },
+  },
+  "reference": undefined,
+}
+`;
+
+exports[`AdjudicationMapper mapCartToWalletOpenPayload should not send to EE duplicated voucher codes when potentialVoucherCodes and voucherCodes contain the same voucher code 1`] = `
+{
+  "basket": {
+    "contents": [
+      {
+        "description": "Example Product",
+        "itemUnitCost": 300,
+        "itemUnitCount": 1,
+        "itemUnitMetric": "EACH",
+        "salesKey": "SALE",
+        "totalUnitCost": 300,
+        "totalUnitCostAfterDiscount": 300,
+        "upc": "SKU123",
+      },
+    ],
+    "summary": {
+      "redemptionChannel": "Online",
+      "totalBasketValue": 300,
+      "totalDiscountAmount": {
+        "general": null,
+        "promotions": 0,
+        "staff": null,
+      },
+      "totalItems": 1,
+    },
+    "type": "STANDARD",
+  },
+  "examine": [
+    {
+      "type": "TOKEN",
+      "value": "1234567890",
+    },
+  ],
+  "location": {
+    "incomingIdentifier": "outlet1",
+    "parentIncomingIdentifier": "banner1",
+  },
+  "lock": true,
+  "options": {
+    "adjustBasket": {
+      "enabled": true,
+      "includeOpenOffers": true,
+    },
+    "analyseBasket": {
+      "enabled": true,
+      "includeOpenOffers": true,
+    },
+  },
+  "reference": undefined,
+}
+`;
+
+exports[`AdjudicationMapper mapCartToWalletOpenPayload should return the payload for /wallet/open 1`] = `
+{
+  "basket": {
+    "contents": [
+      {
+        "description": "Example Product",
+        "itemUnitCost": 300,
+        "itemUnitCount": 1,
+        "itemUnitMetric": "EACH",
+        "salesKey": "SALE",
+        "totalUnitCost": 300,
+        "totalUnitCostAfterDiscount": 300,
+        "upc": "SKU123",
+      },
+    ],
+    "summary": {
+      "redemptionChannel": "Online",
+      "totalBasketValue": 300,
+      "totalDiscountAmount": {
+        "general": null,
+        "promotions": 0,
+        "staff": null,
+      },
+      "totalItems": 1,
+    },
+    "type": "STANDARD",
+  },
+  "examine": undefined,
+  "location": {
+    "incomingIdentifier": "outlet1",
+    "parentIncomingIdentifier": "banner1",
+  },
+  "lock": true,
+  "options": {
+    "adjustBasket": {
+      "enabled": true,
+      "includeOpenOffers": true,
+    },
+    "analyseBasket": {
+      "enabled": true,
+      "includeOpenOffers": true,
+    },
+  },
+  "reference": undefined,
+}
+`;
+
+exports[`AdjudicationMapper mapCartToWalletOpenPayload should return the payload for /wallet/open, with sku instead of upc when 'useItemSku' is set to true 1`] = `
+{
+  "basket": {
+    "contents": [
+      {
+        "description": "Example Product",
+        "itemUnitCost": 300,
+        "itemUnitCount": 1,
+        "itemUnitMetric": "EACH",
+        "salesKey": "SALE",
+        "sku": "SKU123",
+        "totalUnitCost": 300,
+        "totalUnitCostAfterDiscount": 300,
+      },
+    ],
+    "summary": {
+      "redemptionChannel": "Online",
+      "totalBasketValue": 300,
+      "totalDiscountAmount": {
+        "general": null,
+        "promotions": 0,
+        "staff": null,
+      },
+      "totalItems": 1,
+    },
+    "type": "STANDARD",
+  },
+  "examine": undefined,
+  "location": {
+    "incomingIdentifier": "outlet1",
+  },
+  "lock": true,
+  "options": {
+    "adjustBasket": {
+      "enabled": true,
+      "includeOpenOffers": true,
+    },
+    "analyseBasket": {
+      "enabled": true,
+      "includeOpenOffers": true,
+    },
+  },
+  "reference": undefined,
+}
+`;
+
+exports[`AdjudicationMapper mapCartToWalletOpenPayload should return the payload for /wallet/open, without the optional parentIncomingIdentifier when not set in the configuration 1`] = `
+{
+  "basket": {
+    "contents": [
+      {
+        "description": "Example Product",
+        "itemUnitCost": 300,
+        "itemUnitCount": 1,
+        "itemUnitMetric": "EACH",
+        "salesKey": "SALE",
+        "totalUnitCost": 300,
+        "totalUnitCostAfterDiscount": 300,
+        "upc": "SKU123",
+      },
+    ],
+    "summary": {
+      "redemptionChannel": "Online",
+      "totalBasketValue": 300,
+      "totalDiscountAmount": {
+        "general": null,
+        "promotions": 0,
+        "staff": null,
+      },
+      "totalItems": 1,
+    },
+    "type": "STANDARD",
+  },
+  "examine": undefined,
+  "location": {
+    "incomingIdentifier": "outlet1",
+  },
+  "lock": true,
+  "options": {
+    "adjustBasket": {
+      "enabled": true,
+      "includeOpenOffers": true,
+    },
+    "analyseBasket": {
+      "enabled": true,
+      "includeOpenOffers": true,
+    },
+  },
+  "reference": undefined,
+}
+`;
+
+exports[`AdjudicationMapper mapShippingMethodSkusToBasketItems should return the mapped custom basket items 1`] = `
+{
+  "description": "Example Shipping Discount",
+  "itemUnitCost": 300,
+  "itemUnitCount": 1,
+  "itemUnitMetric": "EACH",
+  "salesKey": "SALE",
+  "totalUnitCost": 300,
+  "totalUnitCostAfterDiscount": 300,
+  "upc": "245879",
+}
+`;
+
+exports[`AdjudicationMapper mapVoucherCodesToCampaignTokens should ignore empty string vouchers 1`] = `[]`;
+
+exports[`AdjudicationMapper mapVoucherCodesToCampaignTokens should return an array of tokens to be examined 1`] = `
+[
+  {
+    "type": "TOKEN",
+    "value": "12345678",
+  },
+]
+`;
