@@ -9,7 +9,7 @@ import { BasketStoreService } from '../../../common/services/basket-store/basket
 import { EagleEyePluginException } from '../../../common/exceptions/eagle-eye-plugin.exception';
 import { ConfigService } from '@nestjs/config';
 import { EagleEyeApiClient } from '../../../common/providers/eagleeye/eagleeye.provider';
-import { AdjudicationMapper } from '../../../common/mappers/adjudication.mapper';
+import { AdjudicationMapper } from '../../mappers/adjudication.mapper';
 import { Commercetools } from '../../../common/providers/commercetools/commercetools.provider';
 import { OrderSettleService } from '../../../settle/services/order-settle/order-settle.service';
 import { CartTypeDefinition } from '../../../common/providers/commercetools/custom-type/cart-type-definition';

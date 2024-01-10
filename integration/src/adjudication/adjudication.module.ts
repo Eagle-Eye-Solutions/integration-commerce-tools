@@ -13,6 +13,8 @@ import { ExtensionLocalService } from '../common/services/commercetools/extensio
 import { PromotionService } from './services/promotion/promotion.service';
 import { LoyaltyService } from './services/loyalty/loyalty.service';
 import { AdjudicationController } from './controllers/adjudication.controller';
+import { AdjudicationMapper } from './mappers/adjudication.mapper';
+import { LoyaltyMapper } from './mappers/loyalty.mapper';
 
 const providers = [
   CartExtensionService,
@@ -21,6 +23,8 @@ const providers = [
   ExtensionLocalService,
   PromotionService,
   LoyaltyService,
+  AdjudicationMapper,
+  LoyaltyMapper,
 ];
 
 @Module({

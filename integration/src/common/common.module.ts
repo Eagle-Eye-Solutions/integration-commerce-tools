@@ -12,9 +12,6 @@ import { HttpModule } from '@nestjs/axios';
 import { EagleEyeApiClient } from './providers/eagleeye/eagleeye.provider';
 import { WinstonModule } from 'nest-winston';
 import { loggerConfig } from './config/logger.config';
-import { AdjudicationMapper } from './mappers/adjudication.mapper';
-import { LoyaltyMapper } from './mappers/loyalty.mapper';
-import { SettleMapper } from './mappers/settle.mapper';
 import { BasketStoreServiceProvider } from './services/basket-store/basket-store.provider';
 import { UnhandledExceptionsFilter } from './exceptions/unhandled-exception.filter';
 import { CartTypeDefinition } from './providers/commercetools/custom-type/cart-type-definition';
@@ -29,9 +26,6 @@ const providers = [
   CustomTypeService,
   CustomTypeCommand,
   EagleEyeApiClient,
-  AdjudicationMapper,
-  LoyaltyMapper,
-  SettleMapper,
   BasketStoreServiceProvider,
   UnhandledExceptionsFilter,
   CartTypeDefinition,

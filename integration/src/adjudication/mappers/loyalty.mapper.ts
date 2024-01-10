@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import {
   LoyaltyBreakdownObject,
   LoyaltyTotalObject,
-} from '../../adjudication/types/loyalty-earn-credits.type';
+} from '../types/loyalty-earn-credits.type';
 
 @Injectable()
 export class LoyaltyMapper {

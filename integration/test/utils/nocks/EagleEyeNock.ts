@@ -1,5 +1,5 @@
 import * as nock from 'nock';
-import { AdjudicationMapper } from '../../../src/common/mappers/adjudication.mapper';
+import { AdjudicationMapper } from '../../../src/adjudication/mappers/adjudication.mapper';
 import { Commercetools } from '../../../src/common/providers/commercetools/commercetools.provider';
 import { ScriptConfigService } from '../../../src/common/config/configuration';
 import { CtBasketStoreService } from '../../../src/common/services/basket-store/ct-basket-store.service';

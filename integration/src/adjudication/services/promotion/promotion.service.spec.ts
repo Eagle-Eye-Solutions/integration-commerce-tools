@@ -3,7 +3,7 @@ import { PromotionService } from './promotion.service';
 import { Commercetools } from '../../../common/providers/commercetools/commercetools.provider';
 import { EagleEyeApiClient } from '../../../common/providers/eagleeye/eagleeye.provider';
 import { ConfigService } from '@nestjs/config';
-import { AdjudicationMapper } from '../../../common/mappers/adjudication.mapper';
+import { AdjudicationMapper } from '../../mappers/adjudication.mapper';
 import { Logger } from '@nestjs/common';
 import { BASKET_STORE_SERVICE } from '../../../common/services/basket-store/basket-store.provider';
 

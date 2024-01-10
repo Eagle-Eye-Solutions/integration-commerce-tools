@@ -1,8 +1,8 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { Order } from '@commercetools/platform-sdk';
 import { ConfigService } from '@nestjs/config';
-import { BasketStoreService } from '../services/basket-store/basket-store.interface';
-import { BASKET_STORE_SERVICE } from '../services/basket-store/basket-store.provider';
+import { BasketStoreService } from '../../common/services/basket-store/basket-store.interface';
+import { BASKET_STORE_SERVICE } from '../../common/services/basket-store/basket-store.provider';
 
 @Injectable()
 export class SettleMapper {

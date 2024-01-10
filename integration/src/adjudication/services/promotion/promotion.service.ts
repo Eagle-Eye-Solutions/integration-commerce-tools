@@ -4,7 +4,7 @@ import {
   CartReference,
   DirectDiscountDraft,
 } from '@commercetools/platform-sdk';
-import { AdjudicationMapper } from '../../../common/mappers/adjudication.mapper';
+import { AdjudicationMapper } from '../../mappers/adjudication.mapper';
 import {
   CustomFieldError,
   DiscountDescription,
