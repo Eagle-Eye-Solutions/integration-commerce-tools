@@ -1,12 +1,44 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`CTCartToEEBasketMapper mapAdjustedBasketToBasketCredits should process the continuity campain fulfilled results and update the mapped basket credits 1`] = `
+{
+  "offers": [
+    {
+      "amount": 500,
+      "name": "500 points for spending over £10 in three transactions",
+      "timesRedeemed": 1,
+      "totalTransactionCount": 3,
+      "transactionCount": 3,
+      "type": "FULFILLED",
+    },
+  ],
+  "total": 500,
+}
+`;
+
+exports[`CTCartToEEBasketMapper mapAdjustedBasketToBasketCredits should process the continuity campain in_progress results and update the mapped basket credits 1`] = `
+{
+  "offers": [
+    {
+      "amount": 0,
+      "name": "500 points for spending over £10 in three transactions",
+      "timesRedeemed": 1,
+      "totalTransactionCount": 3,
+      "transactionCount": 2,
+      "type": "IN_PROGRESS",
+    },
+  ],
+  "total": 0,
+}
+`;
+
 exports[`CTCartToEEBasketMapper mapAdjustedBasketToBasketCredits should return deduplicated results when there's more than one credit instance per campaign 1`] = `
 {
   "offers": [
     {
       "amount": 400,
-      "name": "Test Campaign (x2)",
-      "timesRedeemed": 2,
+      "name": "Test Campaign",
+      "timesRedeemed": 1,
     },
   ],
   "total": 800,
@@ -35,14 +67,48 @@ exports[`CTCartToEEBasketMapper mapAdjustedBasketToBasketEarn should return the 
 
 exports[`CTCartToEEBasketMapper mapAdjustedBasketToCartDirectDiscounts should return the direct discount draft 1`] = `[]`;
 
+exports[`CTCartToEEBasketMapper mapAdjustedBasketToItemCredits should process the continuity campain fulfilled results and update the mapped item credits 1`] = `
+{
+  "offers": [
+    {
+      "amount": 500,
+      "name": "500 points for spending £10 on bears (UPC: 245896)",
+      "sku": "245896",
+      "timesRedeemed": 1,
+      "totalSpend": 1000,
+      "totalTransactionSpend": 1000,
+      "type": "FULFILLED",
+    },
+  ],
+  "total": 500,
+}
+`;
+
+exports[`CTCartToEEBasketMapper mapAdjustedBasketToItemCredits should process the continuity campain in_progress results and update the mapped item credits 1`] = `
+{
+  "offers": [
+    {
+      "amount": 0,
+      "name": "500 points for spending £10 on bears (UPC: 245896)",
+      "sku": "245896",
+      "timesRedeemed": 1,
+      "totalSpend": 800,
+      "totalTransactionSpend": 1000,
+      "type": "IN_PROGRESS",
+    },
+  ],
+  "total": 0,
+}
+`;
+
 exports[`CTCartToEEBasketMapper mapAdjustedBasketToItemCredits should return deduplicated results when there's more than one credit instance per campaign 1`] = `
 {
   "offers": [
     {
       "amount": 400,
-      "name": "Test Campaign (x2)",
+      "name": "Test Campaign",
       "sku": "123456",
-      "timesRedeemed": 2,
+      "timesRedeemed": 1,
     },
   ],
   "total": 800,

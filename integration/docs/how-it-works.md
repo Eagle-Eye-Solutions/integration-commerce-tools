@@ -88,14 +88,13 @@ JSON with the following format:
       "offers": [
         {
           "name": "Example Offer",
-          "amount": 100
+          "amount": 100,
+          "type": "IN_PROGRESS",
+          "currentTransactions": 2,
+          "totalTransactionCount": 3
         }
       ]
     },
-    "items": {
-      "balance": 0,
-      "offers": []
-    }
   }
 }
 ```

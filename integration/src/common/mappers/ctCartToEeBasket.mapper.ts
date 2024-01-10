@@ -12,7 +12,9 @@ import { Commercetools } from '../../providers/commercetools/commercetools.provi
 import { BasketStoreService } from '../../services/basket-store/basket-store.interface';
 import { BASKET_STORE_SERVICE } from '../../services/basket-store/basket-store.provider';
 import {
+  LOYALTY_CREDIT_TYPE,
   LoyaltyBreakdownObject,
+  LoyaltyOfferBreakdown,
   LoyaltyTotalObject,
 } from '../../types/loyalty-earn-credits.type';
 
@@ -333,16 +335,17 @@ export class CTCartToEEBasketMapper {
 
   mapAdjustedBasketToBasketCredits(basket, accounts): LoyaltyBreakdownObject {
     const basketCredits = { total: 0, offers: [] };
-    const basketCreditsResult = basket.summary.adjudicationResults.filter(
+    const basketCreditResults = basket.summary.adjudicationResults.filter(
       (result) => result.type === 'credit',
     );
-    if (basketCreditsResult.length) {
-      basketCredits.total = basketCreditsResult.reduce(
-        (acc, result) => result.balances.current + acc,
+    if (basketCreditResults.length) {
+      basketCredits.total = basketCreditResults.reduce(
+        (acc, result) =>
+          result.balances.current ? result.balances.current + acc : acc,
         0,
       );
       basketCredits.offers = this.getCreditOffers(
-        basketCreditsResult,
+        basketCreditResults,
         accounts,
       );
     }
@@ -351,7 +354,7 @@ export class CTCartToEEBasketMapper {
 
   mapAdjustedBasketToItemCredits(basket, accounts): LoyaltyBreakdownObject {
     const itemCredits = { total: 0, offers: [] };
-    const itemCreditsResult = basket.contents
+    const itemCreditResults = basket.contents
       .filter((item) => item.adjudicationResults)
       .map((item) =>
         item.adjudicationResults.map((result) => ({
@@ -361,32 +364,39 @@ export class CTCartToEEBasketMapper {
       )
       .flat()
       .filter((result) => result.type === 'credit');
-    if (itemCreditsResult.length) {
-      itemCredits.total = itemCreditsResult.reduce(
-        (acc, result) => result.balances.current + acc,
+    if (itemCreditResults.length) {
+      itemCredits.total = itemCreditResults.reduce(
+        (acc, result) =>
+          result.balances.current ? result.balances.current + acc : acc,
         0,
       );
-      itemCredits.offers = this.getCreditOffers(itemCreditsResult, accounts);
+      itemCredits.offers = this.getCreditOffers(itemCreditResults, accounts);
     }
     return itemCredits;
   }
 
-  private getCreditOffers(creditsResult, accounts): any[] {
-    return this.deduplicateCreditOffers(
-      creditsResult
-        .filter((result) => result.balances.current)
-        .map((result) => {
-          return {
-            name: accounts.find(
-              (account) =>
-                String(account.campaign.campaignId) ===
-                String(result.resourceId),
-            ).campaign.campaignName,
-            amount: result.balances.current,
-            sku: result.sku,
-          };
-        }),
-    );
+  private getCreditOffers(creditResults, accounts): any[] {
+    const offerMap: Record<string, LoyaltyOfferBreakdown> = {};
+
+    creditResults
+      .filter((result) => this.continuityCampaignStatusChecker(result))
+      .map((result) => {
+        const account = accounts.find(
+          (account) =>
+            String(account.campaign.campaignId) === String(result.resourceId),
+        );
+        if (offerMap.hasOwnProperty(result.resourceId)) {
+          offerMap[result.resourceId] = this.updateOffer(
+            offerMap[result.resourceId],
+            result,
+            account,
+          );
+        } else {
+          offerMap[result.resourceId] = this.createOffer(result, account);
+        }
+      });
+
+    return this.deduplicateCreditOffers(Object.values(offerMap));
   }
 
   private deduplicateCreditOffers(offers: any[]) {
@@ -414,5 +424,104 @@ export class CTCartToEEBasketMapper {
         }),
       ),
     ).map((offer) => JSON.parse(offer));
+  }
+
+  private continuityCampaignStatusChecker(result: any) {
+    return (
+      result.balances.current ||
+      result.balances.transaction_count ||
+      result.balances.total_spend ||
+      result.balances.total_units
+    );
+  }
+
+  private createOffer(result: any, account: any) {
+    return {
+      name: account.campaign.campaignName,
+      amount: result.balances.current || 0,
+      sku: result.sku,
+      ...(account.type === 'CONTINUITY'
+        ? {
+            transactionCount: this.getBalanceValue(
+              result,
+              account,
+              'transactionCount',
+              'transaction_count',
+            ),
+            totalTransactionCount: this.getQualifierValue(
+              account,
+              'totalTransactionCount',
+            ),
+            totalSpend: this.getBalanceValue(
+              result,
+              account,
+              'totalSpend',
+              'total_spend',
+            ),
+            totalTransactionSpend: this.getQualifierValue(
+              account,
+              'totalTransactionSpend',
+            ),
+            totalUnits: this.getBalanceValue(
+              result,
+              account,
+              'totalUnits',
+              'total_units',
+            ),
+            totalTransactionUnits: this.getQualifierValue(
+              account,
+              'totalTransactionUnits',
+            ),
+            type: result.balances.current
+              ? LOYALTY_CREDIT_TYPE.FULFILLED
+              : LOYALTY_CREDIT_TYPE.IN_PROGRESS,
+          }
+        : {}),
+    };
+  }
+
+  private updateOffer(
+    existingOffer: LoyaltyOfferBreakdown,
+    result: any,
+    account: any,
+  ) {
+    if (result.balances.transaction_count) {
+      existingOffer.transactionCount =
+        account.balances.transactionCount + result.balances.transaction_count;
+    }
+    if (result.balances.total_spend) {
+      existingOffer.totalSpend =
+        account.balances.totalSpend + result.balances.total_spend;
+    }
+    if (result.balances.total_units) {
+      existingOffer.totalUnits =
+        account.balances.totalUnits + result.balances.total_units;
+    }
+    if (
+      result.balances.current &&
+      existingOffer.type === LOYALTY_CREDIT_TYPE.IN_PROGRESS
+    ) {
+      existingOffer.type = LOYALTY_CREDIT_TYPE.FULFILLED;
+      existingOffer.amount = result.balances.current;
+    }
+    return existingOffer;
+  }
+
+  private getBalanceValue(
+    result: any,
+    account: any,
+    accountProp: string,
+    resultProp: string,
+  ) {
+    const balance = result.balances[resultProp]
+      ? account.balances[accountProp] + result.balances[resultProp]
+      : undefined;
+    return balance;
+  }
+
+  private getQualifierValue(account: any, accountProp: string) {
+    return account.enriched.qualifier.continuity[accountProp]
+      ? account.enriched.qualifier.continuity[accountProp]
+      : undefined;
   }
 }
