@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { SettleMapper } from '../../../common/mappers/settle.mapper';
+import { SettleMapper } from '../../mappers/settle.mapper';
 import { EagleEyeApiClient } from '../../../common/providers/eagleeye/eagleeye.provider';
 import { Order, OrderUpdateAction } from '@commercetools/platform-sdk';
 import { BASKET_STORE_SERVICE } from '../../../common/services/basket-store/basket-store.provider';

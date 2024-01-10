@@ -3,7 +3,7 @@ import { OrderSettleService } from './order-settle.service';
 import { BasketStoreService } from '../../../common/services/basket-store/basket-store.interface';
 import { EagleEyeApiClient } from '../../../common/providers/eagleeye/eagleeye.provider';
 import { Commercetools } from '../../../common/providers/commercetools/commercetools.provider';
-import { SettleMapper } from '../../../common/mappers/settle.mapper';
+import { SettleMapper } from '../../mappers/settle.mapper';
 import { CircuitBreakerService } from '../../../common/providers/circuit-breaker/circuit-breaker.service';
 import { BASKET_STORE_SERVICE } from '../../../common/services/basket-store/basket-store.provider';
 import { Order } from '@commercetools/platform-sdk';

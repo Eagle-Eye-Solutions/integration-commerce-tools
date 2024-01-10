@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { SettleMapper } from './settle.mapper';
 import { ConfigService } from '@nestjs/config';
-import { BASKET_STORE_SERVICE } from '../services/basket-store/basket-store.provider';
-import { BasketStoreService } from '../services/basket-store/basket-store.interface';
+import { BASKET_STORE_SERVICE } from '../../common/services/basket-store/basket-store.provider';
+import { BasketStoreService } from '../../common/services/basket-store/basket-store.interface';
 
 describe('CTCartToEEBasketMapper', () => {
   let service: SettleMapper;

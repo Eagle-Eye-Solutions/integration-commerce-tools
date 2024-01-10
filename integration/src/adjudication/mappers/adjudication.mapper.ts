@@ -5,11 +5,11 @@ import {
   DirectDiscountDraft,
   ShippingInfo,
 } from '@commercetools/platform-sdk';
-import { DiscountDescription } from '../providers/commercetools/actions/cart-update/CartCustomTypeActionBuilder';
+import { DiscountDescription } from '../../common/providers/commercetools/actions/cart-update/CartCustomTypeActionBuilder';
 import { ConfigService } from '@nestjs/config';
-import { Commercetools } from '../providers/commercetools/commercetools.provider';
-import { BasketStoreService } from '../services/basket-store/basket-store.interface';
-import { BASKET_STORE_SERVICE } from '../services/basket-store/basket-store.provider';
+import { Commercetools } from '../../common/providers/commercetools/commercetools.provider';
+import { BasketStoreService } from '../../common/services/basket-store/basket-store.interface';
+import { BASKET_STORE_SERVICE } from '../../common/services/basket-store/basket-store.provider';
 
 export type BasketItem = {
   itemUnitCost: number;

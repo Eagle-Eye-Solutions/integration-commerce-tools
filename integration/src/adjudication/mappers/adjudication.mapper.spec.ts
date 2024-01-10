@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AdjudicationMapper } from './adjudication.mapper';
-import { Commercetools } from '../providers/commercetools/commercetools.provider';
+import { Commercetools } from '../../common/providers/commercetools/commercetools.provider';
 import { ConfigService } from '@nestjs/config';
-import { BASKET_STORE_SERVICE } from '../services/basket-store/basket-store.provider';
+import { BASKET_STORE_SERVICE } from '../../common/services/basket-store/basket-store.provider';
 
 describe('AdjudicationMapper', () => {
   let service: AdjudicationMapper;

@@ -19,7 +19,7 @@ import { BasketStoreService } from '../../../common/services/basket-store/basket
 import { BASKET_STORE_SERVICE } from '../../../common/services/basket-store/basket-store.provider';
 import { EagleEyePluginException } from '../../../common/exceptions/eagle-eye-plugin.exception';
 import { CartTypeDefinition } from '../../../common/providers/commercetools/custom-type/cart-type-definition';
-import { AdjudicationMapper } from '../../../common/mappers/adjudication.mapper';
+import { AdjudicationMapper } from '../../mappers/adjudication.mapper';
 import { CircuitBreakerIntercept } from '../../../common/decorators/circuit-breaker-intercept/circuit-breaker-intercept.decorator';
 import { CircuitBreakerService } from '../../../common/providers/circuit-breaker/circuit-breaker.service';
 import { LoyaltyService } from '../loyalty/loyalty.service';

@@ -1,6 +1,6 @@
 import { Test } from '@nestjs/testing';
 import { LoyaltyService } from './loyalty.service';
-import { LoyaltyMapper } from '../../../common/mappers/loyalty.mapper';
+import { LoyaltyMapper } from '../../mappers/loyalty.mapper';
 
 describe('LoyaltyService', () => {
   let loyaltyService: LoyaltyService;

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { LoyaltyMapper } from '../../../common/mappers/loyalty.mapper';
+import { LoyaltyMapper } from '../../mappers/loyalty.mapper';
 import {
   LoyaltyBreakdownObject,
   LoyaltyTotalObject,
