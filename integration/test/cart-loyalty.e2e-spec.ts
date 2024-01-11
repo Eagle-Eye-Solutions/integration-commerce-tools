@@ -182,7 +182,7 @@ describe('Cart Loyalty processing (e2e)', () => {
     // nock.recorder.rec();
     // the following API calls are done onModuleInit and need to be mocked before the testing module is created
     const ctAuthNock = nockCtAuth();
-    let itemLevelContinuityCampaignQualifyingCart = JSON.parse(
+    const itemLevelContinuityCampaignQualifyingCart = JSON.parse(
       JSON.stringify(RECALCULATE_CART),
     );
     itemLevelContinuityCampaignQualifyingCart.resource.obj.lineItems = [
@@ -424,7 +424,7 @@ describe('Cart Loyalty processing (e2e)', () => {
     // nock.recorder.rec();
     // the following API calls are done onModuleInit and need to be mocked before the testing module is created
     const ctAuthNock = nockCtAuth();
-    let itemLevelContinuityCampaignQualifyingCart = JSON.parse(
+    const itemLevelContinuityCampaignQualifyingCart = JSON.parse(
       JSON.stringify(RECALCULATE_CART),
     );
     itemLevelContinuityCampaignQualifyingCart.resource.obj.lineItems = [
