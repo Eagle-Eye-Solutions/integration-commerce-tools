@@ -89,9 +89,6 @@ JSON with the following format:
         {
           "name": "Example Offer",
           "amount": 100,
-          "type": "IN_PROGRESS",
-          "currentTransactions": 2,
-          "totalTransactionCount": 3
         }
       ]
     },
@@ -106,7 +103,150 @@ the offer and the sum of each redeemed instance of said offer).
 In cases where an offer applies more than once, it will show up with `(x<times>)` in its name.
 E.g: `"Example Offer (x2)`, with amount `200` if it were to apply twice.
 
-WIP/TODO
+#### Continuity
+
+Continuity campaign can be setup in three different variations in eagle eye based on:
+1. Minimum transactions
+2. Minimum spend
+3. Minimum number of units purchased
+
+In each of these scenarios, the `credit` offer is included with relevant and appropriate information.
+
+##### __Minimum transactions__
+
+Below is an example of credit offer when the continuity campaign on minimum number of transactions is in progress. As one can notice, below are the attributes that provide the relevant information about the status of the campaign for the account:
+- `type`: Indicates the state of the campaign for the account. Possible values are 
+  - `COMPLETING`: when the campaign qualification has been met
+  - `IN_PROGRESS`: when the campaign is in progress and the qualification has not been met
+- `totalTransactions`: Number of transactions performed by the account towards this campaign
+- `totalTransactionCount`: The target number of transactions to be performed to qualify for the points credit
+
+```json
+{
+  "credit": {
+    "basket": {
+      "total": 0,
+      "offers": [
+        {
+          "name": "Example Offer",
+          "amount": 0,
+          "type": "IN_PROGRESS",
+          "totalTransactions": 2,
+          "totalTransactionCount": 3
+        }
+      ]
+    },
+  }
+}
+```
+An example of credit offer for the final transaction to meet the campaign target would be as below. Please notice that the value for `totalTransactions` and `totalTransactionCount` match in this case.
+```json
+{
+  "credit": {
+    "basket": {
+      "total": 1000,
+      "offers": [
+        {
+          "name": "Example Offer",
+          "amount": 1000,
+          "type": "COMPLETING",
+          "totalTransactions": 3,
+          "totalTransactionCount": 3
+        }
+      ]
+    },
+  }
+}
+```
+
+##### __Minimum spend__
+
+Below is an example of credit offer when the continuity campaign on minimum spend is in progress. As one can notice, below are the attributes that provide the relevant information about the status of the campaign for the account:
+- `totalSpend`: Amount spent in the current transaction by the account towards this campaign
+- `totalTransactionSpend`: The target amount to be spent by the account to qualify for the points credit
+
+```json
+{
+  "credit": {
+    "basket": {
+      "total": 0,
+      "offers": [
+        {
+          "name": "Example Offer",
+          "amount": 0,
+          "type": "IN_PROGRESS",
+          "totalSpend": 1000,
+          "totalTransactionSpend": 3000
+        }
+      ]
+    },
+  }
+}
+```
+
+An example of credit offer for the qualifying transaction to meet the campaign target would be as below. Please notice that the value for `totalSpend` is greater than `totalTransactionSpend` in this case.
+```json
+{
+  "credit": {
+    "basket": {
+      "total": 1000,
+      "offers": [
+        {
+          "name": "Example Offer",
+          "amount": 1000,
+          "type": "COMPLETING",
+          "totalSpend": 4000,
+          "totalTransactionSpend": 3000
+        }
+      ]
+    },
+  }
+}
+```
+##### __Minimum number of units purchased__
+
+Below is an example of credit offer when the continuity campaign on minimum number of units purchased is in progress. As one can notice, below are the attributes that provide the relevant information about the status of the campaign for the account:
+- `totalUnits`: Number of units purchased in the current transaction by the account towards this campaign
+- `totalTransactionUnits`: The target number of units to be purchased by the account to qualify for the points credit
+
+```json
+{
+  "credit": {
+    "basket": {
+      "total": 0,
+      "offers": [
+        {
+          "name": "Example Offer",
+          "amount": 0,
+          "type": "IN_PROGRESS",
+          "totalUnits": 2,
+          "totalTransactionUnits": 3
+        }
+      ]
+    },
+  }
+}
+```
+
+An example of credit offer for the qualifying transaction to meet the campaign target would be as below. Please notice that the value for `totalUnits` is greater than `totalTransactionUnits` in this case.
+```json
+{
+  "credit": {
+    "basket": {
+      "total": 1000,
+      "offers": [
+        {
+          "name": "Example Offer",
+          "amount": 1000,
+          "type": "COMPLETING",
+          "totalUnits": 4,
+          "totalTransactionUnits": 3
+        }
+      ]
+    },
+  }
+}
+```
 
 ### Data mapping
 
