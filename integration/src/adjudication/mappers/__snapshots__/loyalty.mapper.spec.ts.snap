@@ -37,8 +37,8 @@ exports[`LoyaltyMapper mapAdjustedBasketToBasketCredits should return deduplicat
   "offers": [
     {
       "amount": 400,
-      "name": "Test Campaign",
-      "timesRedeemed": 1,
+      "name": "Test Campaign (x2)",
+      "timesRedeemed": 2,
     },
   ],
   "total": 800,
@@ -104,9 +104,9 @@ exports[`LoyaltyMapper mapAdjustedBasketToItemCredits should return deduplicated
   "offers": [
     {
       "amount": 400,
-      "name": "Test Campaign",
+      "name": "Test Campaign (x2)",
       "sku": "123456",
-      "timesRedeemed": 1,
+      "timesRedeemed": 2,
     },
   ],
   "total": 800,

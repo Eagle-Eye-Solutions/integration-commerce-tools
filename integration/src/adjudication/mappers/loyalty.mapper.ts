@@ -73,14 +73,14 @@ export class LoyaltyMapper {
           (account) =>
             String(account.campaign.campaignId) === String(result.resourceId),
         );
-        if (offerMap.hasOwnProperty(result.resourceId)) {
-          offerMap[result.resourceId] = this.updateOffer(
-            offerMap[result.resourceId],
+        if (offerMap.hasOwnProperty(result.instanceId)) {
+          offerMap[result.instanceId] = this.updateOffer(
+            offerMap[result.instanceId],
             result,
             account,
           );
         } else {
-          offerMap[result.resourceId] = this.createOffer(result, account);
+          offerMap[result.instanceId] = this.createOffer(result, account);
         }
       });
 
