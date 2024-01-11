@@ -119,8 +119,10 @@ WIP/TODO
 
 The data mapping between commercetools cart and EagleEye API involves several fields, to see the latest version of the
 mapping refer to
-the [CTCartToEEBasketMapper](https://github.com/Eagle-Eye-Solutions/integration-commerce-tools/blob/master/integration/src/common/mappers/ctCartToEeBasket.mapper.ts)
-class.
+the [AdjudicationMapper](https://github.com/Eagle-Eye-Solutions/integration-commerce-tools/blob/master/integration/src/adjudication/mappers/adjudication.mapper.ts)
+class
+and [LoyaltyMapper](https://github.com/Eagle-Eye-Solutions/integration-commerce-tools/blob/master/integration/src/adjudication/mappers/loyalty.mapper.ts)
+class
 
 ### Error handling
 
@@ -211,6 +213,13 @@ e.g.: `custom-objects/eagleeye-cart/edcdd99f-c682-4d82-advd-37029c6fs8bv`.
 Currently, the only way to save baskets is using commercetools' Custom Objects, but the code allows to easily change the
 store by creating a custom `BasketStoreService` implementing the same interface but storing data in a place of your
 choosing.
+
+### Data mapping
+
+The data mapping between commercetools cart and EagleEye API involves several fields, to see the latest version of the
+mapping refer to
+the [SettleMapper](https://github.com/Eagle-Eye-Solutions/integration-commerce-tools/blob/master/integration/src/settle/mappers/settle.mapper.ts)
+class
 
 ### Error handling
 
