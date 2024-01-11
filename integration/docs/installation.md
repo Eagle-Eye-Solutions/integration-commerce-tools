@@ -7,7 +7,7 @@ This plugin is a Node.js application that can be deployed in different ways and 
 This plugin is certified and available to install via commercetools Connect.
 
 For detailed instructions on how to deploy this plugin under Connect, head over to
-their[official documentation](https://docs.commercetools.com/connect/getting-started#deploy-a-connector). Here's a
+their [official documentation](https://docs.commercetools.com/connect/getting-started#deploy-a-connector). Here's a
 summary of the required steps to deploy in production:
 
 - Search for the connector (searching for "eagleeye" should be enough). Take note of properties like `id`/`key`
@@ -37,8 +37,14 @@ directly in commercetools as [Custom Objects](https://docs.commercetools.com/api
 A very basic Dockerfile is provided in the repository, but feel free to make your own or run through other methods
 like `pm2`, GCP CloudRun or any other (some additional code changes might be needed).
 
-The commercetools configuration, which is automatically done using CT connect, should be done manually when using a
-different hosting strategy by running the `connector:post-deploy:*` and `connector:pre-undeploy:*` scripts.
+The commercetools configuration (extension/subscription creation and custom types), which is automatically done using CT
+connect, should be done manually when using a different hosting strategy by running the `connector:post-deploy:*`
+and `connector:pre-undeploy:*` scripts.
+
+Extension and Subscription modules share the same source code. The same artifact must be deployed, only different
+endpoints will be used.   
+The extension module is triggered via a POST request to `/cart/service`.  
+The subscription module is triggered via a POST request to `/events`.
 
 ## Configuration
 
@@ -49,7 +55,7 @@ environment variables, refer to the specific deployment documentation for furthe
 |--------------------------------------------|----------|-------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | CTP_PROJECT_KEY                            | ✅        |                                     | The commercetools project key                                                                                                                                                                                                                                                                                                                                                                                          |
 | CTP_REGION                                 | ✅        |                                     | The commercetools region. E.g.: europe-west1.gcp                                                                                                                                                                                                                                                                                                                                                                       |
-| CTP_CLIENT_ID                              | ✅        |                                     | The commercetools client ID                                                                                                                                                                                                                                                                                                                                                                                            | 
+| CTP_CLIENT_ID                              | ✅        |                                     | The commercetools client ID. The client should be created with the following scopes: manage_key_value_documents view_shipping_methods manage_types manage_subscriptions manage_extensions manage_orders view_connectors_deployments manage_connectors_deployments manage_connectors                                                                                                                                    | 
 | CTP_CLIENT_SECRET                          | ✅        |                                     | The commercetools client secret                                                                                                                                                                                                                                                                                                                                                                                        |
 | EE_CLIENT_ID                               | ✅        |                                     | The clientId supplied by Eagle Eye during onboarding.                                                                                                                                                                                                                                                                                                                                                                  |
 | EE_CLIENT_SECRET                           | ✅        |                                     | The Eagle Eye secret                                                                                                                                                                                                                                                                                                                                                                                                   |
