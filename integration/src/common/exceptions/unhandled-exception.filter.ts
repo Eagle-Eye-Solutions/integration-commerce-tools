@@ -1,8 +1,8 @@
 import { ArgumentsHost, Catch, ExceptionFilter, Logger } from '@nestjs/common';
-import { CTActionsBuilder } from '../../providers/commercetools/actions/ActionsBuilder';
+import { CTActionsBuilder } from '../providers/commercetools/actions/ActionsBuilder';
 import { Response } from 'express';
-import { CartCustomTypeActionBuilder } from '../../providers/commercetools/actions/cart-update/CartCustomTypeActionBuilder';
-import { CartTypeDefinition } from '../../providers/commercetools/custom-type/cart-type-definition';
+import { CartCustomTypeActionBuilder } from '../providers/commercetools/actions/cart-update/CartCustomTypeActionBuilder';
+import { CartTypeDefinition } from '../providers/commercetools/custom-type/cart-type-definition';
 
 /**
  * Any unhandled exception should still return 200 to avoid breaking the cart API
