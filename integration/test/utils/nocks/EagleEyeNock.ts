@@ -405,6 +405,992 @@ export const nockWalletOpenWithLoyalty = async (
     );
 };
 
+export const nockWalletOpenWithMinSpendLoyaltyContinuityCampaignCompleting =
+  async (cart, times = 1, responseCode = 200, delayConnection = 0) => {
+    const configService = new ScriptConfigService();
+    const commercetools = new Commercetools(configService as any);
+    const customObjectService = new CustomObjectService(commercetools);
+    const basketStoreService = new CtBasketStoreService(
+      customObjectService,
+      configService as any,
+    );
+    const adjudicationMapper = new AdjudicationMapper(
+      configService as any,
+      commercetools,
+      basketStoreService,
+    );
+    const basketContents = [
+      ...adjudicationMapper.mapCartLineItemsToBasketContent(cart.lineItems),
+    ];
+    const shippingDiscountItem =
+      await adjudicationMapper.mapShippingMethodSkusToBasketItems(
+        cart.shippingInfo,
+      );
+    if (shippingDiscountItem.upc) {
+      basketContents.push(shippingDiscountItem);
+    }
+    return nock('https://pos.sandbox.uk.eagleeye.com:443', {
+      encodedQueryParams: true,
+    })
+      .post('/connect/wallet/open', {
+        reference: cart.id,
+        lock: true,
+        location: {
+          incomingIdentifier: 'outlet1',
+          parentIncomingIdentifier: 'banner1',
+        },
+        examine: [
+          {
+            type: 'TOKEN',
+            value: '123456',
+          },
+          {
+            type: 'TOKEN',
+            value: 'valid-code',
+          },
+          {
+            type: 'TOKEN',
+            value: 'invalid-code',
+          },
+        ],
+        options: {
+          adjustBasket: {
+            includeOpenOffers: true,
+            enabled: true,
+          },
+          analyseBasket: {
+            includeOpenOffers: true,
+            enabled: true,
+          },
+        },
+        basket: {
+          type: 'STANDARD',
+          summary: {
+            redemptionChannel: 'Online',
+            totalDiscountAmount: {
+              general: null,
+              staff: null,
+              promotions: 0,
+            },
+            totalItems: getTotalItemCount(cart),
+            totalBasketValue: getTotalBasketValue(cart),
+          },
+          contents: basketContents,
+        },
+      })
+      .times(times)
+      .delayConnection(delayConnection)
+      .reply(
+        responseCode,
+        {
+          wallet: null,
+          identity: null,
+          accounts: [
+            {
+              accountId: '2830357206',
+              walletId: '170818646',
+              campaignId: '1801469',
+              campaign: {
+                campaignId: 1801469,
+                campaignTypeId: 106,
+                campaignMode: 'RESTRICTED',
+                campaignName:
+                  '500 points for spending £50 or more across one or more transactions',
+                accountTypeId: 8,
+                status: 'ACTIVE',
+                sequenceKey: null,
+                reference: '001801469',
+              },
+              type: 'CONTINUITY',
+              clientType: 'OFFER',
+              status: 'ACTIVE',
+              state: 'LOADED',
+              balances: {
+                totalSpend: 0,
+                currentSpend: 0,
+                transactionCount: 0,
+                currentTransactions: 0,
+                totalUnits: 0,
+                currentUnits: 0,
+              },
+              enriched: {
+                token: null,
+                qualifier: {
+                  continuity: {
+                    totalTransactionCount: null,
+                    totalTransactionSpend: 5000,
+                    totalTransactionUnits: null,
+                  },
+                },
+                reward: {
+                  offerId: '1212493',
+                  offerName: 'CAMPAIGN OFFER (auto) v2',
+                  posReference: null,
+                },
+                custom: null,
+                restrictions: {},
+                redemptionWindows: {},
+                enrichmentType: 'CONTINUITY',
+                campaignName:
+                  '500 points for spending £50 or more across one or more transactions',
+                campaignReference: '001801469',
+              },
+            },
+            {
+              accountId: '2830357207',
+              walletId: '170818646',
+              campaignId: '1653843',
+              campaign: {
+                campaignId: 1653843,
+                campaignTypeId: 7,
+                campaignMode: 'OPEN',
+                campaignName: 'Retail Points',
+                accountTypeId: 7,
+                startDate: '2023-01-01T00:00:00+00:00',
+                endDate: '9999-12-30T23:59:00+00:00',
+                status: 'ACTIVE',
+                sequenceKey: null,
+                reference: 'RETAILPOINTS',
+                relationships: [],
+                dateCreated: '2023-09-04T08:20:31+00:00',
+                lastUpdated: '2023-10-04T16:13:35+00:00',
+              },
+              type: 'POINTS',
+              clientType: 'RETAILPOINTS',
+              status: 'ACTIVE',
+              state: 'LOADED',
+              balances: {
+                current: 0,
+                usable: 0,
+                locked: 0,
+                lifetime: 0,
+                lifetimeSpend: 0,
+                lifetimeSpendValue: 0,
+                pending: 0,
+              },
+              enriched: {
+                properties: {
+                  allowNegativeBalance: {
+                    enabled: true,
+                  },
+                  autotopup: {
+                    defaultFunding: [],
+                    enabled: false,
+                    reasonCodes: null,
+                  },
+                  credit: {
+                    defaultFunding: [],
+                    enabled: false,
+                    reasonCodes: null,
+                  },
+                  debit: {
+                    defaultFunding: [],
+                    enabled: false,
+                    reasonCodes: null,
+                  },
+                  details: {
+                    alternativeDescription: '',
+                    alternativeName: '',
+                    description: '',
+                    printMessage: '',
+                    screenMessage: '',
+                  },
+                  earn: {
+                    defaultFunding: [],
+                    enabled: false,
+                    reasonCodes: null,
+                  },
+                  earnRates: {
+                    ctintegration: {
+                      default: {
+                        description: null,
+                        name: null,
+                        product: null,
+                        rates: [
+                          {
+                            amount: 1,
+                            bonus: null,
+                            ceiling: null,
+                            floor: null,
+                            offset: 0,
+                            step: 1,
+                          },
+                        ],
+                        reference: null,
+                        roundPoints: {
+                          active: false,
+                        },
+                        type: 'STANDARD',
+                      },
+                    },
+                  },
+                  exchange: {
+                    defaultFunding: [],
+                    enabled: false,
+                    reasonCodes: null,
+                  },
+                  expiryPoints: {
+                    enabled: false,
+                  },
+                  goodwill: {
+                    defaultFunding: [],
+                    enabled: false,
+                    reasonCodes: null,
+                    restrictions: [
+                      {
+                        period: '',
+                        singleValue: 0,
+                        transactions: 0,
+                        value: 0,
+                      },
+                    ],
+                  },
+                  householdSharing: {
+                    enabled: true,
+                  },
+                  lock: null,
+                  pointsLimit: {
+                    exceed: false,
+                    limit: null,
+                  },
+                  redemptionRates: {
+                    ctintegration: [
+                      {
+                        bonus: 0,
+                        ceiling: 999999,
+                        floor: 1,
+                        pointsBack: 0,
+                        rate: 1,
+                        step: 1,
+                      },
+                    ],
+                  },
+                  spend: {
+                    defaultFunding: [],
+                    enabled: false,
+                    reasonCodes: null,
+                  },
+                },
+                pointsExpiry: null,
+                enrichmentType: 'POINTS',
+                schemeName: 'Retail Points',
+                schemeReference: 'RETAILPOINTS',
+              },
+            },
+          ],
+          additionalEntities: null,
+          walletTransactions: [],
+          accountTransactions: [],
+          analyseBasketResults: {
+            basket: {
+              type: 'ENRICHED',
+              summary: {
+                redemptionChannel: 'Online',
+                totalDiscountAmount: {
+                  general: null,
+                  staff: null,
+                  promotions: 0,
+                },
+                totalItems: 1,
+                totalBasketValue: 6000,
+                results: {
+                  points: {
+                    spend: 0,
+                    debit: 0,
+                    refund: 0,
+                    totalPointsTaken: 0,
+                    earn: 6000,
+                    credit: 500,
+                    totalPointsGiven: 6500,
+                    totalMonetaryValue: 0,
+                  },
+                },
+                adjudicationResults: [
+                  {
+                    resourceType: 'SCHEME',
+                    resourceId: '1653843',
+                    instanceId: '1653843-1',
+                    success: null,
+                    type: 'earn',
+                    value: null,
+                    balances: {
+                      current: 6000,
+                    },
+                    isRefundable: true,
+                    isUnredeemable: false,
+                    relatedAccountIds: [],
+                    targetedAccountId: '2830357207',
+                    targetedWalletId: '170818646',
+                    totalMatchingUnits: null,
+                    playOrderPosition: 1,
+                  },
+                  {
+                    resourceType: 'CAMPAIGN',
+                    resourceId: '1801469',
+                    instanceId: '1801469-1',
+                    success: null,
+                    type: 'credit',
+                    value: null,
+                    balances: {
+                      total_spend: 6000,
+                    },
+                    isRefundable: true,
+                    isUnredeemable: false,
+                    relatedAccountIds: ['2830357206'],
+                    targetedAccountId: '2830357206',
+                    targetedWalletId: '170818646',
+                    totalMatchingUnits: null,
+                    playOrderPosition: 2,
+                  },
+                  {
+                    resourceType: 'CAMPAIGN',
+                    resourceId: '1801469',
+                    instanceId: '1801469-1',
+                    success: null,
+                    type: 'redeem',
+                    value: 500,
+                    balances: null,
+                    isRefundable: true,
+                    isUnredeemable: false,
+                    relatedAccountIds: ['2830357206'],
+                    targetedAccountId: '2830357206',
+                    targetedWalletId: '170818646',
+                    totalMatchingUnits: null,
+                    playOrderPosition: 2,
+                  },
+                  {
+                    resourceType: 'CAMPAIGN',
+                    resourceId: '1801469',
+                    instanceId: '1801469-1',
+                    success: null,
+                    type: 'credit',
+                    value: null,
+                    balances: {
+                      current: 500,
+                    },
+                    isRefundable: true,
+                    isUnredeemable: false,
+                    relatedAccountIds: ['2830357206'],
+                    targetedAccountId: '2830357207',
+                    targetedWalletId: '170818646',
+                    totalMatchingUnits: null,
+                    playOrderPosition: 2,
+                  },
+                ],
+              },
+              contents: [
+                {
+                  upc: '245903',
+                  itemUnitCost: 6000,
+                  salesKey: 'SALE',
+                  totalUnitCostAfterDiscount: 6000,
+                  totalUnitCost: 6000,
+                  description: 'eBike',
+                  itemUnitMetric: 'EACH',
+                  itemUnitCount: 1,
+                  contributionResults: [
+                    {
+                      instanceId: '1653843-1',
+                      value: 6000,
+                    },
+                  ],
+                },
+              ],
+              analysedDateTime: '2024-01-11T11:34:17+00:00',
+            },
+            points: [
+              {
+                resourceType: 'SCHEME',
+                resourceId: '1653843',
+                walletId: '170818646',
+                operationType: 'earn',
+                value: 6000,
+                accountId: '2830357207',
+                relatedSchemeId: '1653843',
+                details: null,
+                totalMatchingUnits: null,
+              },
+              {
+                resourceType: 'CAMPAIGN',
+                resourceId: '1801469',
+                operationType: 'credit',
+                value: 500,
+                relatedSchemeId: '1653843',
+                accountId: '2830357207',
+                walletId: '170818646',
+                details: {
+                  appliedAnalyseBasketType: 'CONTINUITY',
+                },
+              },
+            ],
+            unusedAccounts: [],
+          },
+          basketAdjudicationResult: null,
+          spendAdjudicationResults: null,
+        },
+        [],
+      );
+  };
+
+export const nockWalletOpenWithMinSpendLoyaltyContinuityCampaignInProgress =
+  async (cart, times = 1, responseCode = 200, delayConnection = 0) => {
+    const configService = new ScriptConfigService();
+    const commercetools = new Commercetools(configService as any);
+    const customObjectService = new CustomObjectService(commercetools);
+    const basketStoreService = new CtBasketStoreService(
+      customObjectService,
+      configService as any,
+    );
+    const adjudicationMapper = new AdjudicationMapper(
+      configService as any,
+      commercetools,
+      basketStoreService,
+    );
+    const basketContents = [
+      ...adjudicationMapper.mapCartLineItemsToBasketContent(cart.lineItems),
+    ];
+    const shippingDiscountItem =
+      await adjudicationMapper.mapShippingMethodSkusToBasketItems(
+        cart.shippingInfo,
+      );
+    if (shippingDiscountItem.upc) {
+      basketContents.push(shippingDiscountItem);
+    }
+    return nock('https://pos.sandbox.uk.eagleeye.com:443', {
+      encodedQueryParams: true,
+    })
+      .post('/connect/wallet/open', {
+        reference: cart.id,
+        lock: true,
+        location: {
+          incomingIdentifier: 'outlet1',
+          parentIncomingIdentifier: 'banner1',
+        },
+        examine: [
+          {
+            type: 'TOKEN',
+            value: '123456',
+          },
+          {
+            type: 'TOKEN',
+            value: 'valid-code',
+          },
+          {
+            type: 'TOKEN',
+            value: 'invalid-code',
+          },
+        ],
+        options: {
+          adjustBasket: {
+            includeOpenOffers: true,
+            enabled: true,
+          },
+          analyseBasket: {
+            includeOpenOffers: true,
+            enabled: true,
+          },
+        },
+        basket: {
+          type: 'STANDARD',
+          summary: {
+            redemptionChannel: 'Online',
+            totalDiscountAmount: {
+              general: null,
+              staff: null,
+              promotions: 0,
+            },
+            totalItems: getTotalItemCount(cart),
+            totalBasketValue: getTotalBasketValue(cart),
+          },
+          contents: basketContents,
+        },
+      })
+      .times(times)
+      .delayConnection(delayConnection)
+      .reply(
+        responseCode,
+        {
+          wallet: null,
+          identity: null,
+          accounts: [
+            {
+              accountId: '2830357206',
+              walletId: '170818646',
+              campaignId: '1801469',
+              campaign: {
+                campaignId: 1801469,
+                campaignTypeId: 106,
+                campaignMode: 'RESTRICTED',
+                campaignName:
+                  '500 points for spending £50 or more across one or more transactions',
+                accountTypeId: 8,
+                startDate: '2024-01-08T00:00:00+00:00',
+                endDate: '2030-12-31T23:59:00+00:00',
+                status: 'ACTIVE',
+                sequenceKey: null,
+                reference: '001801469',
+                relationships: [],
+                dateCreated: '2024-01-08T14:38:32+00:00',
+                lastUpdated: '2024-01-08T14:38:32+00:00',
+              },
+              type: 'CONTINUITY',
+              clientType: 'OFFER',
+              status: 'ACTIVE',
+              state: 'LOADED',
+              balances: {
+                totalSpend: 0,
+                currentSpend: 0,
+                transactionCount: 0,
+                currentTransactions: 0,
+                totalUnits: 0,
+                currentUnits: 0,
+              },
+              enriched: {
+                token: null,
+                qualifier: {
+                  continuity: {
+                    totalTransactionCount: null,
+                    totalTransactionSpend: 5000,
+                    totalTransactionUnits: null,
+                  },
+                },
+                reward: {
+                  offerId: '1212493',
+                  offerName: 'CAMPAIGN OFFER (auto) v2',
+                  posReference: null,
+                },
+                custom: null,
+                restrictions: {},
+                redemptionWindows: {},
+                enrichmentType: 'CONTINUITY',
+                campaignName:
+                  '500 points for spending £50 or more across one or more transactions',
+                campaignReference: '001801469',
+              },
+            },
+            {
+              accountId: '2830357207',
+              walletId: '170818646',
+              campaignId: '1653843',
+              campaign: {
+                campaignId: 1653843,
+                campaignTypeId: 7,
+                campaignMode: 'OPEN',
+                campaignName: 'Retail Points',
+                accountTypeId: 7,
+                startDate: '2023-01-01T00:00:00+00:00',
+                endDate: '9999-12-30T23:59:00+00:00',
+                status: 'ACTIVE',
+                sequenceKey: null,
+                reference: 'RETAILPOINTS',
+                relationships: [],
+                dateCreated: '2023-09-04T08:20:31+00:00',
+                lastUpdated: '2023-10-04T16:13:35+00:00',
+              },
+              type: 'POINTS',
+              clientType: 'RETAILPOINTS',
+              status: 'ACTIVE',
+              state: 'LOADED',
+              balances: {
+                current: 0,
+                usable: 0,
+                locked: 0,
+                lifetime: 0,
+                lifetimeSpend: 0,
+                lifetimeSpendValue: 0,
+                pending: 0,
+              },
+            },
+          ],
+          analyseBasketResults: {
+            basket: {
+              type: 'ENRICHED',
+              summary: {
+                redemptionChannel: 'Online',
+                totalDiscountAmount: {
+                  general: null,
+                  staff: null,
+                  promotions: 0,
+                },
+                totalItems: 1,
+                totalBasketValue: 4000,
+                results: {
+                  points: {
+                    spend: 0,
+                    debit: 0,
+                    refund: 0,
+                    totalPointsTaken: 0,
+                    earn: 4000,
+                    credit: 0,
+                    totalPointsGiven: 4000,
+                    totalMonetaryValue: 0,
+                  },
+                },
+                adjudicationResults: [
+                  {
+                    resourceType: 'SCHEME',
+                    resourceId: '1653843',
+                    instanceId: '1653843-1',
+                    success: null,
+                    type: 'earn',
+                    value: null,
+                    balances: {
+                      current: 4000,
+                    },
+                    isRefundable: true,
+                    isUnredeemable: false,
+                    relatedAccountIds: [],
+                    targetedAccountId: '2830357207',
+                    targetedWalletId: '170818646',
+                    totalMatchingUnits: null,
+                    playOrderPosition: 1,
+                  },
+                  {
+                    resourceType: 'CAMPAIGN',
+                    resourceId: '1801469',
+                    instanceId: '1801469-1',
+                    success: null,
+                    type: 'credit',
+                    value: null,
+                    balances: {
+                      total_spend: 4000,
+                    },
+                    isRefundable: true,
+                    isUnredeemable: false,
+                    relatedAccountIds: ['2830357206'],
+                    targetedAccountId: '2830357206',
+                    targetedWalletId: '170818646',
+                    totalMatchingUnits: null,
+                    playOrderPosition: 2,
+                  },
+                ],
+              },
+              contents: [
+                {
+                  upc: '245903',
+                  itemUnitCost: 4000,
+                  salesKey: 'SALE',
+                  totalUnitCostAfterDiscount: 4000,
+                  totalUnitCost: 4000,
+                  description: 'eBike',
+                  itemUnitMetric: 'EACH',
+                  itemUnitCount: 1,
+                  contributionResults: [
+                    {
+                      instanceId: '1653843-1',
+                      value: 4000,
+                    },
+                  ],
+                },
+              ],
+              analysedDateTime: '2024-01-11T12:36:14+00:00',
+            },
+            points: [
+              {
+                resourceType: 'SCHEME',
+                resourceId: '1653843',
+                walletId: '170818646',
+                operationType: 'earn',
+                value: 4000,
+                accountId: '2830357207',
+                relatedSchemeId: '1653843',
+                details: null,
+                totalMatchingUnits: null,
+              },
+            ],
+            unusedAccounts: [],
+          },
+          basketAdjudicationResult: null,
+          spendAdjudicationResults: null,
+          transactionCapabilities: {
+            loyalty: {
+              spend: true,
+              earn: true,
+            },
+          },
+        },
+        [],
+      );
+  };
+
+export const nockWalletOpenWithMinTransactionLoyaltyContinuityCampaignInProgress_1 =
+  async (cart, times = 1, responseCode = 200, delayConnection = 0) => {
+    const configService = new ScriptConfigService();
+    const commercetools = new Commercetools(configService as any);
+    const customObjectService = new CustomObjectService(commercetools);
+    const basketStoreService = new CtBasketStoreService(
+      customObjectService,
+      configService as any,
+    );
+    const adjudicationMapper = new AdjudicationMapper(
+      configService as any,
+      commercetools,
+      basketStoreService,
+    );
+    const basketContents = [
+      ...adjudicationMapper.mapCartLineItemsToBasketContent(cart.lineItems),
+    ];
+    const shippingDiscountItem =
+      await adjudicationMapper.mapShippingMethodSkusToBasketItems(
+        cart.shippingInfo,
+      );
+    if (shippingDiscountItem.upc) {
+      basketContents.push(shippingDiscountItem);
+    }
+    return nock('https://pos.sandbox.uk.eagleeye.com:443', {
+      encodedQueryParams: true,
+    })
+      .post('/connect/wallet/open', {
+        reference: cart.id,
+        lock: true,
+        location: {
+          incomingIdentifier: 'outlet1',
+          parentIncomingIdentifier: 'banner1',
+        },
+        examine: [
+          {
+            type: 'TOKEN',
+            value: '123456',
+          },
+          {
+            type: 'TOKEN',
+            value: 'valid-code',
+          },
+          {
+            type: 'TOKEN',
+            value: 'invalid-code',
+          },
+        ],
+        options: {
+          adjustBasket: {
+            includeOpenOffers: true,
+            enabled: true,
+          },
+          analyseBasket: {
+            includeOpenOffers: true,
+            enabled: true,
+          },
+        },
+        basket: {
+          type: 'STANDARD',
+          summary: {
+            redemptionChannel: 'Online',
+            totalDiscountAmount: {
+              general: null,
+              staff: null,
+              promotions: 0,
+            },
+            totalItems: getTotalItemCount(cart),
+            totalBasketValue: getTotalBasketValue(cart),
+          },
+          contents: basketContents,
+        },
+      })
+      .times(times)
+      .delayConnection(delayConnection)
+      .reply(
+        responseCode,
+        {
+          wallet: null,
+          identity: null,
+          accounts: [
+            {
+              accountId: '2830359556',
+              walletId: '170820850',
+              campaignId: '1762358',
+              campaign: {
+                campaignId: 1762358,
+                campaignTypeId: 106,
+                campaignMode: 'RESTRICTED',
+                campaignName:
+                  '500 points for spending over £10 in three transactions',
+                accountTypeId: 8,
+                startDate: '2023-12-11T00:00:00+00:00',
+                endDate: '2030-12-31T23:59:00+00:00',
+                status: 'ACTIVE',
+                sequenceKey: null,
+                reference: '001762358',
+              },
+              type: 'CONTINUITY',
+              clientType: 'OFFER',
+              status: 'ACTIVE',
+              state: 'LOADED',
+              balances: {
+                totalSpend: 0,
+                currentSpend: 0,
+                transactionCount: 0,
+                currentTransactions: 0,
+                totalUnits: 0,
+                currentUnits: 0,
+              },
+              enriched: {
+                token: null,
+                qualifier: {
+                  continuity: {
+                    totalTransactionCount: 3,
+                    totalTransactionSpend: null,
+                    totalTransactionUnits: null,
+                  },
+                },
+                reward: {
+                  offerId: '1194691',
+                  offerName: 'CAMPAIGN OFFER (auto) v2',
+                  posReference: null,
+                },
+                custom: null,
+                restrictions: {},
+                redemptionWindows: {},
+                enrichmentType: 'CONTINUITY',
+                campaignName:
+                  '500 points for spending over £10 in three transactions',
+                campaignReference: '001762358',
+              },
+            },
+            {
+              accountId: '2830359557',
+              walletId: '170820850',
+              campaignId: '1653843',
+              campaign: {
+                campaignId: 1653843,
+                campaignTypeId: 7,
+                campaignMode: 'OPEN',
+                campaignName: 'Retail Points',
+                accountTypeId: 7,
+                startDate: '2023-01-01T00:00:00+00:00',
+                endDate: '9999-12-30T23:59:00+00:00',
+                status: 'ACTIVE',
+                sequenceKey: null,
+                reference: 'RETAILPOINTS',
+                relationships: [],
+                dateCreated: '2023-09-04T08:20:31+00:00',
+                lastUpdated: '2023-10-04T16:13:35+00:00',
+              },
+              type: 'POINTS',
+              clientType: 'RETAILPOINTS',
+              status: 'ACTIVE',
+              state: 'LOADED',
+              balances: {
+                current: 0,
+                usable: 0,
+                locked: 0,
+                lifetime: 0,
+                lifetimeSpend: 0,
+                lifetimeSpendValue: 0,
+                pending: 0,
+              },
+            },
+          ],
+          analyseBasketResults: {
+            basket: {
+              type: 'ENRICHED',
+              summary: {
+                redemptionChannel: 'Online',
+                totalDiscountAmount: {
+                  general: null,
+                  staff: null,
+                  promotions: 0,
+                },
+                totalItems: 1,
+                totalBasketValue: 4000,
+                results: {
+                  points: {
+                    spend: 0,
+                    debit: 0,
+                    refund: 0,
+                    totalPointsTaken: 0,
+                    earn: 4000,
+                    credit: 0,
+                    totalPointsGiven: 4000,
+                    totalMonetaryValue: 0,
+                  },
+                },
+                adjudicationResults: [
+                  {
+                    resourceType: 'SCHEME',
+                    resourceId: '1653843',
+                    instanceId: '1653843-1',
+                    success: null,
+                    type: 'earn',
+                    value: null,
+                    balances: {
+                      current: 4000,
+                    },
+                    isRefundable: true,
+                    isUnredeemable: false,
+                    relatedAccountIds: [],
+                    targetedAccountId: '2830359557',
+                    targetedWalletId: '170820850',
+                    totalMatchingUnits: null,
+                    playOrderPosition: 1,
+                  },
+                  {
+                    resourceType: 'CAMPAIGN',
+                    resourceId: '1762358',
+                    instanceId: '1762358-1',
+                    success: null,
+                    type: 'credit',
+                    value: null,
+                    balances: {
+                      transaction_count: 1,
+                    },
+                    isRefundable: true,
+                    isUnredeemable: false,
+                    relatedAccountIds: ['2830359556'],
+                    targetedAccountId: '2830359556',
+                    targetedWalletId: '170820850',
+                    totalMatchingUnits: null,
+                    playOrderPosition: 2,
+                  },
+                ],
+              },
+              contents: [
+                {
+                  upc: '245903',
+                  itemUnitCost: 4000,
+                  salesKey: 'SALE',
+                  totalUnitCostAfterDiscount: 4000,
+                  totalUnitCost: 4000,
+                  description: 'eBike',
+                  itemUnitMetric: 'EACH',
+                  itemUnitCount: 1,
+                  contributionResults: [
+                    {
+                      instanceId: '1653843-1',
+                      value: 4000,
+                    },
+                  ],
+                },
+              ],
+              analysedDateTime: '2024-01-11T13:04:13+00:00',
+            },
+            points: [
+              {
+                resourceType: 'SCHEME',
+                resourceId: '1653843',
+                walletId: '170820850',
+                operationType: 'earn',
+                value: 4000,
+                accountId: '2830359557',
+                relatedSchemeId: '1653843',
+                details: null,
+                totalMatchingUnits: null,
+              },
+            ],
+            unusedAccounts: [],
+          },
+          basketAdjudicationResult: null,
+          spendAdjudicationResults: null,
+          transactionCapabilities: {
+            loyalty: {
+              spend: true,
+              earn: true,
+            },
+          },
+        },
+        [],
+      );
+  };
+
 export const nockWalletSettle = async (
   cart,
   times = 1,

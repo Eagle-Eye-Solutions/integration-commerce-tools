@@ -161,7 +161,7 @@ export class LoyaltyMapper {
               'totalTransactionUnits',
             ),
             type: result.balances.current
-              ? LOYALTY_CREDIT_TYPE.FULFILLED
+              ? LOYALTY_CREDIT_TYPE.COMPLETING
               : LOYALTY_CREDIT_TYPE.IN_PROGRESS,
           }
         : {}),
@@ -189,7 +189,7 @@ export class LoyaltyMapper {
       result.balances.current &&
       existingOffer.type === LOYALTY_CREDIT_TYPE.IN_PROGRESS
     ) {
-      existingOffer.type = LOYALTY_CREDIT_TYPE.FULFILLED;
+      existingOffer.type = LOYALTY_CREDIT_TYPE.COMPLETING;
       existingOffer.amount = result.balances.current;
     }
     return existingOffer;

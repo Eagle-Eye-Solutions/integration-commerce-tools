@@ -32,5 +32,5 @@ export type LoyaltyBreakdownObject = LoyaltyTotalObject & {
 
 export enum LOYALTY_CREDIT_TYPE {
   IN_PROGRESS = 'IN_PROGRESS',
-  FULFILLED = 'FULFILLED',
+  COMPLETING = 'COMPLETING',
 }

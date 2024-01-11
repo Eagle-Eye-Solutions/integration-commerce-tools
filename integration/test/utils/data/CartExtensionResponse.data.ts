@@ -286,6 +286,162 @@ export const LOYALTY_SUCCESS_RESPONSE = {
   ],
 };
 
+export const MIN_SPEND_CONTINUITY_LOYALTY_CAMPAIGN_COMPLETING_RESPONSE = {
+  actions: [
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-errors',
+      value: [],
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-appliedDiscounts',
+      value: [],
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-basketStore',
+      value: 'CUSTOM_TYPE',
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-basketUri',
+      value:
+        'custom-objects/eagleeye-cart/8be07418-04a0-49ba-b56f-2aa35d1027a4',
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-voucherCodes',
+      value: [],
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-potentialVoucherCodes',
+      value: [],
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-action',
+      value: '',
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-settledStatus',
+      value: '',
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-loyaltyEarnAndCredits',
+      value:
+        '{"earn":{"basket":{"total":6000,"offers":[]}},"credit":{"basket":{"total":500,"offers":[{"name":"500 points for spending £50 or more across one or more transactions","amount":500,"totalSpend":6000,"totalTransactionSpend":5000,"type":"COMPLETING","timesRedeemed":1}]}}}',
+    },
+    {
+      action: 'setLineItemCustomType',
+      lineItemId: '3fce711d-e891-4005-be7f-bf3c999ccc7d',
+      type: {
+        typeId: 'type',
+        key: 'custom-line-item-type',
+      },
+      fields: {
+        'eagleeye-loyaltyCredits': '',
+      },
+    },
+    {
+      action: 'setLineItemCustomType',
+      lineItemId: '2d313f50-e3ec-4c17-ac14-9fb6f4d75665',
+      type: {
+        typeId: 'type',
+        key: 'custom-line-item-type',
+      },
+      fields: {
+        'eagleeye-loyaltyCredits': '',
+      },
+    },
+    {
+      action: 'setDirectDiscounts',
+      discounts: [],
+    },
+  ],
+};
+
+export const MIN_SPEND_CONTINUITY_LOYALTY_CAMPAIGN_IN_PROGRESS_RESPONSE = {
+  actions: [
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-errors',
+      value: [],
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-appliedDiscounts',
+      value: [],
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-basketStore',
+      value: 'CUSTOM_TYPE',
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-basketUri',
+      value:
+        'custom-objects/eagleeye-cart/8be07418-04a0-49ba-b56f-2aa35d1027a4',
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-voucherCodes',
+      value: [],
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-potentialVoucherCodes',
+      value: [],
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-action',
+      value: '',
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-settledStatus',
+      value: '',
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-loyaltyEarnAndCredits',
+      value:
+        '{"earn":{"basket":{"total":4000,"offers":[]}},"credit":{"basket":{"total":0,"offers":[{"name":"500 points for spending £50 or more across one or more transactions","amount":0,"totalSpend":4000,"totalTransactionSpend":5000,"type":"IN_PROGRESS","timesRedeemed":1}]}}}',
+    },
+    {
+      action: 'setLineItemCustomType',
+      lineItemId: '3fce711d-e891-4005-be7f-bf3c999ccc7d',
+      type: {
+        typeId: 'type',
+        key: 'custom-line-item-type',
+      },
+      fields: {
+        'eagleeye-loyaltyCredits': '',
+      },
+    },
+    {
+      action: 'setLineItemCustomType',
+      lineItemId: '2d313f50-e3ec-4c17-ac14-9fb6f4d75665',
+      type: {
+        typeId: 'type',
+        key: 'custom-line-item-type',
+      },
+      fields: {
+        'eagleeye-loyaltyCredits': '',
+      },
+    },
+    {
+      action: 'setDirectDiscounts',
+      discounts: [],
+    },
+  ],
+};
+
 export const ERROR_RESPONSE = {
   actions: [
     {
