@@ -15,6 +15,8 @@ import {
   nockWalletOpenWithLoyalty,
   nockWalletOpenWithMinSpendLoyaltyContinuityCampaignCompleting,
   nockWalletOpenWithMinSpendLoyaltyContinuityCampaignInProgress,
+  nockWalletOpenWithMinSpendOnItemLoyaltyContinuityCampaignCompleting,
+  nockWalletOpenWithMinSpendOnItemLoyaltyContinuityCampaignInProgress,
 } from './utils/nocks/EagleEyeNock';
 import { MockLogger } from './utils/mocks/MockLogger';
 import * as nock from 'nock';
@@ -23,6 +25,8 @@ import {
   LOYALTY_SUCCESS_RESPONSE,
   MIN_SPEND_CONTINUITY_LOYALTY_CAMPAIGN_COMPLETING_RESPONSE,
   MIN_SPEND_CONTINUITY_LOYALTY_CAMPAIGN_IN_PROGRESS_RESPONSE,
+  MIN_SPEND_ON_ITEM_CONTINUITY_LOYALTY_CAMPAIGN_COMPLETING_RESPONSE,
+  MIN_SPEND_ON_ITEM_CONTINUITY_LOYALTY_CAMPAIGN_INPROGRESS_RESPONSE,
 } from './utils/data/CartExtensionResponse.data';
 
 describe('Cart Loyalty processing (e2e)', () => {
@@ -173,7 +177,457 @@ describe('Cart Loyalty processing (e2e)', () => {
     expect(walletOpenNock.isDone()).toBeTruthy();
   });
 
-  it('should process request and return cart update actions with loyalty custom fields when a continuity campaign on transaction spend is competing', async () => {
+  it('should process request and return cart update actions with loyalty custom fields when a continuity campaign on transaction spend on a product is completing', async () => {
+    // ****** NOCK ******
+    // nock.recorder.rec();
+    // the following API calls are done onModuleInit and need to be mocked before the testing module is created
+    const ctAuthNock = nockCtAuth();
+    let itemLevelContinuityCampaignQualifyingCart = JSON.parse(
+      JSON.stringify(RECALCULATE_CART),
+    );
+    itemLevelContinuityCampaignQualifyingCart.resource.obj.lineItems = [
+      {
+        id: '4d02b4ab-8063-4f36-8bbf-790656d2e564',
+        productId: '4d629059-8e57-4785-87cc-8b91d6bef60c',
+        productKey: 'teddy-bear',
+        name: {
+          en: 'Teddy Bear',
+        },
+        variant: {
+          id: 1,
+          sku: '245896',
+          prices: [
+            {
+              id: 'e227bed3-6371-4036-a111-c6e0aed444cd',
+              value: {
+                type: 'centPrecision',
+                currencyCode: 'GBP',
+                centAmount: 3374,
+                fractionDigits: 2,
+              },
+            },
+          ],
+          attributes: [],
+          assets: [],
+          availability: {
+            isOnStock: true,
+            availableQuantity: 900,
+            version: 1,
+            id: 'bf224143-164b-4bf6-ade5-de0b8f1a6998',
+          },
+        },
+        price: {
+          id: 'e227bed3-6371-4036-a111-c6e0aed444cd',
+          value: {
+            type: 'centPrecision',
+            currencyCode: 'GBP',
+            centAmount: 3374,
+            fractionDigits: 2,
+          },
+        },
+        quantity: 1,
+        discountedPricePerQuantity: [],
+        perMethodTaxRate: [],
+        addedAt: '2024-01-11T16:06:21.344Z',
+        lastModifiedAt: '2024-01-11T16:06:21.344Z',
+        state: [
+          {
+            quantity: 1,
+            state: {
+              typeId: 'state',
+              id: '048f8cd6-b834-4c2f-89f7-96659b5f1956',
+            },
+          },
+        ],
+        priceMode: 'Platform',
+        lineItemMode: 'Standard',
+        totalPrice: {
+          type: 'centPrecision',
+          currencyCode: 'GBP',
+          centAmount: 3374,
+          fractionDigits: 2,
+        },
+        custom: {
+          type: {
+            typeId: 'type',
+            id: '24d8b2d5-7f5e-4c54-8028-cd9b4eb19a4e',
+          },
+          fields: {
+            'eagleeye-loyaltyCredits': '',
+          },
+        },
+      },
+    ];
+    const nockCtGetShippingMethods = nockCtGetShippingMethodsWithIds(
+      [
+        itemLevelContinuityCampaignQualifyingCart.resource.obj.shippingInfo
+          .shippingMethod.id,
+      ],
+      50,
+    );
+    const getCircuitStateCustomObjectNock = nockGetCustomObject(404, null);
+    const postEnrichedBasketCustomObjectNock =
+      nockPostEnrichedBasketCustomObject({
+        key: '8be07418-04a0-49ba-b56f-2aa35d1027a4',
+        container: 'eagleeye-cart',
+        value: {
+          enrichedBasket: {
+            type: 'ENRICHED',
+            summary: {
+              redemptionChannel: 'Online',
+              totalDiscountAmount: {
+                general: null,
+                staff: null,
+                promotions: 0,
+              },
+              totalItems: 1,
+              totalBasketValue: 3374,
+              results: {
+                points: {
+                  spend: 0,
+                  debit: 0,
+                  refund: 0,
+                  totalPointsTaken: 0,
+                  earn: 3374,
+                  credit: 500,
+                  totalPointsGiven: 3874,
+                  totalMonetaryValue: 0,
+                },
+              },
+              adjudicationResults: [
+                {
+                  resourceType: 'SCHEME',
+                  resourceId: '1653843',
+                  instanceId: '1653843-1',
+                  success: null,
+                  type: 'earn',
+                  value: null,
+                  balances: {
+                    current: 3374,
+                  },
+                  isRefundable: true,
+                  isUnredeemable: false,
+                  relatedAccountIds: [],
+                  targetedAccountId: '2830993431',
+                  targetedWalletId: '170828612',
+                  totalMatchingUnits: null,
+                  playOrderPosition: 1,
+                },
+              ],
+            },
+            contents: [
+              {
+                upc: '245896',
+                itemUnitCost: 3374,
+                salesKey: 'SALE',
+                totalUnitCostAfterDiscount: 3374,
+                totalUnitCost: 3374,
+                description: 'Bears',
+                itemUnitMetric: 'EACH',
+                itemUnitCount: 1,
+                contributionResults: [
+                  {
+                    instanceId: '1653843-1',
+                    value: 3374,
+                  },
+                ],
+                adjudicationResults: [
+                  {
+                    resourceType: 'CAMPAIGN',
+                    resourceId: '1801571',
+                    instanceId: '1801571-1',
+                    success: null,
+                    type: 'credit',
+                    value: null,
+                    balances: {
+                      total_spend: 3374,
+                    },
+                    isRefundable: true,
+                    isUnredeemable: false,
+                    relatedAccountIds: ['2830993430'],
+                    targetedAccountId: '2830993430',
+                    targetedWalletId: '170828612',
+                    totalMatchingUnits: null,
+                    playOrderPosition: 2,
+                  },
+                  {
+                    resourceType: 'CAMPAIGN',
+                    resourceId: '1801571',
+                    instanceId: '1801571-1',
+                    success: null,
+                    type: 'redeem',
+                    value: 500,
+                    balances: null,
+                    isRefundable: true,
+                    isUnredeemable: false,
+                    relatedAccountIds: ['2830993430'],
+                    targetedAccountId: '2830993430',
+                    targetedWalletId: '170828612',
+                    totalMatchingUnits: 1,
+                    playOrderPosition: 2,
+                  },
+                  {
+                    resourceType: 'CAMPAIGN',
+                    resourceId: '1801571',
+                    instanceId: '1801571-1',
+                    success: null,
+                    type: 'credit',
+                    value: null,
+                    balances: {
+                      current: 500,
+                    },
+                    isRefundable: true,
+                    isUnredeemable: false,
+                    relatedAccountIds: ['2830993430'],
+                    targetedAccountId: '2830993431',
+                    targetedWalletId: '170828612',
+                    totalMatchingUnits: null,
+                    playOrderPosition: 2,
+                  },
+                ],
+              },
+            ],
+            analysedDateTime: '2024-01-11T15:58:48+00:00',
+          },
+          cart: {
+            typeId: 'cart',
+            id: '8be07418-04a0-49ba-b56f-2aa35d1027a4',
+          },
+        },
+      });
+    const walletOpenNock =
+      await nockWalletOpenWithMinSpendOnItemLoyaltyContinuityCampaignCompleting(
+        itemLevelContinuityCampaignQualifyingCart.resource.obj,
+        1,
+        200,
+        0,
+      );
+    app = await initAppModule();
+    await request(app.getHttpServer())
+      .post('/cart/service')
+      .send(itemLevelContinuityCampaignQualifyingCart)
+      .expect(201)
+      .expect(
+        MIN_SPEND_ON_ITEM_CONTINUITY_LOYALTY_CAMPAIGN_COMPLETING_RESPONSE,
+      );
+
+    await sleep(100); //await for
+    expect(ctAuthNock.isDone()).toBeTruthy();
+    expect(nockCtGetShippingMethods.isDone()).toBeTruthy();
+    expect(getCircuitStateCustomObjectNock.isDone()).toBeTruthy();
+    expect(postEnrichedBasketCustomObjectNock.isDone()).toBeTruthy();
+    expect(walletOpenNock.isDone()).toBeTruthy();
+  });
+
+  it('should process request and return cart update actions with loyalty custom fields when a continuity campaign on transaction spend on a product is in progress', async () => {
+    // ****** NOCK ******
+    // nock.recorder.rec();
+    // the following API calls are done onModuleInit and need to be mocked before the testing module is created
+    const ctAuthNock = nockCtAuth();
+    let itemLevelContinuityCampaignQualifyingCart = JSON.parse(
+      JSON.stringify(RECALCULATE_CART),
+    );
+    itemLevelContinuityCampaignQualifyingCart.resource.obj.lineItems = [
+      {
+        id: '4d02b4ab-8063-4f36-8bbf-790656d2e564',
+        productId: '4d629059-8e57-4785-87cc-8b91d6bef60c',
+        productKey: 'teddy-bear',
+        name: {
+          en: 'Teddy Bear',
+        },
+        variant: {
+          id: 1,
+          sku: '245896',
+          prices: [
+            {
+              id: 'e227bed3-6371-4036-a111-c6e0aed444cd',
+              value: {
+                type: 'centPrecision',
+                currencyCode: 'GBP',
+                centAmount: 400,
+                fractionDigits: 2,
+              },
+            },
+          ],
+          attributes: [],
+          assets: [],
+          availability: {
+            isOnStock: true,
+            availableQuantity: 900,
+            version: 1,
+            id: 'bf224143-164b-4bf6-ade5-de0b8f1a6998',
+          },
+        },
+        price: {
+          id: 'e227bed3-6371-4036-a111-c6e0aed444cd',
+          value: {
+            type: 'centPrecision',
+            currencyCode: 'GBP',
+            centAmount: 400,
+            fractionDigits: 2,
+          },
+        },
+        quantity: 1,
+        discountedPricePerQuantity: [],
+        perMethodTaxRate: [],
+        addedAt: '2024-01-11T16:06:21.344Z',
+        lastModifiedAt: '2024-01-11T16:06:21.344Z',
+        state: [
+          {
+            quantity: 1,
+            state: {
+              typeId: 'state',
+              id: '048f8cd6-b834-4c2f-89f7-96659b5f1956',
+            },
+          },
+        ],
+        priceMode: 'Platform',
+        lineItemMode: 'Standard',
+        totalPrice: {
+          type: 'centPrecision',
+          currencyCode: 'GBP',
+          centAmount: 400,
+          fractionDigits: 2,
+        },
+        custom: {
+          type: {
+            typeId: 'type',
+            id: '24d8b2d5-7f5e-4c54-8028-cd9b4eb19a4e',
+          },
+          fields: {
+            'eagleeye-loyaltyCredits': '',
+          },
+        },
+      },
+    ];
+    const nockCtGetShippingMethods = nockCtGetShippingMethodsWithIds(
+      [
+        itemLevelContinuityCampaignQualifyingCart.resource.obj.shippingInfo
+          .shippingMethod.id,
+      ],
+      50,
+    );
+    const getCircuitStateCustomObjectNock = nockGetCustomObject(404, null);
+    const postEnrichedBasketCustomObjectNock =
+      nockPostEnrichedBasketCustomObject({
+        key: '8be07418-04a0-49ba-b56f-2aa35d1027a4',
+        container: 'eagleeye-cart',
+        value: {
+          enrichedBasket: {
+            type: 'ENRICHED',
+            summary: {
+              redemptionChannel: 'Online',
+              totalDiscountAmount: {
+                general: null,
+                staff: null,
+                promotions: 0,
+              },
+              totalItems: 1,
+              totalBasketValue: 400,
+              results: {
+                points: {
+                  spend: 0,
+                  debit: 0,
+                  refund: 0,
+                  totalPointsTaken: 0,
+                  earn: 400,
+                  credit: 0,
+                  totalPointsGiven: 400,
+                  totalMonetaryValue: 0,
+                },
+              },
+              adjudicationResults: [
+                {
+                  resourceType: 'SCHEME',
+                  resourceId: '1653843',
+                  instanceId: '1653843-1',
+                  success: null,
+                  type: 'earn',
+                  value: null,
+                  balances: {
+                    current: 400,
+                  },
+                  isRefundable: true,
+                  isUnredeemable: false,
+                  relatedAccountIds: [],
+                  targetedAccountId: '2830993431',
+                  targetedWalletId: '170828612',
+                  totalMatchingUnits: null,
+                  playOrderPosition: 1,
+                },
+              ],
+            },
+            contents: [
+              {
+                upc: '245896',
+                itemUnitCost: 400,
+                salesKey: 'SALE',
+                totalUnitCostAfterDiscount: 400,
+                totalUnitCost: 400,
+                description: 'Bears',
+                itemUnitMetric: 'EACH',
+                itemUnitCount: 1,
+                contributionResults: [
+                  {
+                    instanceId: '1653843-1',
+                    value: 400,
+                  },
+                ],
+                adjudicationResults: [
+                  {
+                    resourceType: 'CAMPAIGN',
+                    resourceId: '1801571',
+                    instanceId: '1801571-1',
+                    success: null,
+                    type: 'credit',
+                    value: null,
+                    balances: {
+                      total_spend: 400,
+                    },
+                    isRefundable: true,
+                    isUnredeemable: false,
+                    relatedAccountIds: ['2830993430'],
+                    targetedAccountId: '2830993430',
+                    targetedWalletId: '170828612',
+                    totalMatchingUnits: null,
+                    playOrderPosition: 2,
+                  },
+                ],
+              },
+            ],
+            analysedDateTime: '2024-01-11T18:05:59+00:00',
+          },
+          cart: {
+            typeId: 'cart',
+            id: '8be07418-04a0-49ba-b56f-2aa35d1027a4',
+          },
+        },
+      });
+    const walletOpenNock =
+      await nockWalletOpenWithMinSpendOnItemLoyaltyContinuityCampaignInProgress(
+        itemLevelContinuityCampaignQualifyingCart.resource.obj,
+        1,
+        200,
+        0,
+      );
+    app = await initAppModule();
+    await request(app.getHttpServer())
+      .post('/cart/service')
+      .send(itemLevelContinuityCampaignQualifyingCart)
+      .expect(201)
+      .expect(
+        MIN_SPEND_ON_ITEM_CONTINUITY_LOYALTY_CAMPAIGN_INPROGRESS_RESPONSE,
+      );
+
+    await sleep(100); //await for
+    expect(ctAuthNock.isDone()).toBeTruthy();
+    expect(nockCtGetShippingMethods.isDone()).toBeTruthy();
+    expect(getCircuitStateCustomObjectNock.isDone()).toBeTruthy();
+    expect(postEnrichedBasketCustomObjectNock.isDone()).toBeTruthy();
+    expect(walletOpenNock.isDone()).toBeTruthy();
+  });
+
+  it('should process request and return cart update actions with loyalty custom fields when a continuity campaign on transaction spend is completing', async () => {
     // ****** NOCK ******
     // nock.recorder.rec();
     // the following API calls are done onModuleInit and need to be mocked before the testing module is created

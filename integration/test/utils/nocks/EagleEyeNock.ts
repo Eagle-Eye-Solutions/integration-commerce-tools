@@ -405,6 +405,628 @@ export const nockWalletOpenWithLoyalty = async (
     );
 };
 
+export const nockWalletOpenWithMinSpendOnItemLoyaltyContinuityCampaignInProgress =
+  async (cart, times = 1, responseCode = 200, delayConnection = 0) => {
+    const configService = new ScriptConfigService();
+    const commercetools = new Commercetools(configService as any);
+    const customObjectService = new CustomObjectService(commercetools);
+    const basketStoreService = new CtBasketStoreService(
+      customObjectService,
+      configService as any,
+    );
+    const adjudicationMapper = new AdjudicationMapper(
+      configService as any,
+      commercetools,
+      basketStoreService,
+    );
+    const basketContents = [
+      ...adjudicationMapper.mapCartLineItemsToBasketContent(cart.lineItems),
+    ];
+    const shippingDiscountItem =
+      await adjudicationMapper.mapShippingMethodSkusToBasketItems(
+        cart.shippingInfo,
+      );
+    if (shippingDiscountItem.upc) {
+      basketContents.push(shippingDiscountItem);
+    }
+    return nock('https://pos.sandbox.uk.eagleeye.com:443', {
+      encodedQueryParams: true,
+    })
+      .post('/connect/wallet/open', {
+        reference: cart.id,
+        lock: true,
+        location: {
+          incomingIdentifier: 'outlet1',
+          parentIncomingIdentifier: 'banner1',
+        },
+        examine: [
+          {
+            type: 'TOKEN',
+            value: '123456',
+          },
+          {
+            type: 'TOKEN',
+            value: 'valid-code',
+          },
+          {
+            type: 'TOKEN',
+            value: 'invalid-code',
+          },
+        ],
+        options: {
+          adjustBasket: {
+            includeOpenOffers: true,
+            enabled: true,
+          },
+          analyseBasket: {
+            includeOpenOffers: true,
+            enabled: true,
+          },
+        },
+        basket: {
+          type: 'STANDARD',
+          summary: {
+            redemptionChannel: 'Online',
+            totalDiscountAmount: {
+              general: null,
+              staff: null,
+              promotions: 0,
+            },
+            totalItems: getTotalItemCount(cart),
+            totalBasketValue: getTotalBasketValue(cart),
+          },
+          contents: basketContents,
+        },
+      })
+      .times(times)
+      .delayConnection(delayConnection)
+      .reply(
+        responseCode,
+        {
+          wallet: null,
+          identity: null,
+          accounts: [
+            {
+              accountId: '2830993430',
+              walletId: '170828612',
+              campaignId: '1801571',
+              campaign: {
+                campaignId: 1801571,
+                campaignTypeId: 106,
+                campaignMode: 'RESTRICTED',
+                campaignName:
+                  '500 points for spending £10 on bears (UPC: 245896)',
+                accountTypeId: 8,
+                startDate: '2024-01-08T00:00:00+00:00',
+                endDate: '2030-12-31T23:59:00+00:00',
+                status: 'ACTIVE',
+                sequenceKey: null,
+                reference: '001801571',
+                relationships: [],
+                dateCreated: '2024-01-08T15:05:04+00:00',
+                lastUpdated: '2024-01-08T15:05:04+00:00',
+              },
+              type: 'CONTINUITY',
+              clientType: 'OFFER',
+              status: 'ACTIVE',
+              state: 'LOADED',
+              dates: {
+                start: '2024-01-11T15:57:48+00:00',
+                end: '2030-12-31T23:59:00+00:00',
+              },
+              meta: null,
+              dateCreated: '2024-01-11T15:57:48+00:00',
+              lastUpdated: '2024-01-11T15:57:48+00:00',
+              overrides: [],
+              balances: {
+                totalSpend: 0,
+                currentSpend: 0,
+                transactionCount: 0,
+                currentTransactions: 0,
+                totalUnits: 0,
+                currentUnits: 0,
+              },
+              relationships: null,
+              mobileWallet: null,
+              enriched: {
+                token: null,
+                qualifier: {
+                  continuity: {
+                    totalTransactionCount: null,
+                    totalTransactionSpend: 1000,
+                    totalTransactionUnits: null,
+                  },
+                },
+                reward: {
+                  offerId: '1212582',
+                  offerName: 'CAMPAIGN OFFER (auto) v2',
+                  posReference: null,
+                },
+                custom: null,
+                restrictions: {},
+                redemptionWindows: {},
+                enrichmentType: 'CONTINUITY',
+                campaignName:
+                  '500 points for spending £10 on bears (UPC: 245896)',
+                campaignReference: '001801571',
+              },
+            },
+            {
+              accountId: '2830993431',
+              walletId: '170828612',
+              campaignId: '1653843',
+              campaign: {
+                campaignId: 1653843,
+                campaignTypeId: 7,
+                campaignMode: 'OPEN',
+                campaignName: 'Retail Points',
+                accountTypeId: 7,
+                status: 'ACTIVE',
+                sequenceKey: null,
+                reference: 'RETAILPOINTS',
+                relationships: [],
+              },
+              type: 'POINTS',
+              clientType: 'RETAILPOINTS',
+              status: 'ACTIVE',
+              state: 'LOADED',
+              balances: {
+                current: 0,
+                usable: 0,
+                locked: 0,
+                lifetime: 0,
+                lifetimeSpend: 0,
+                lifetimeSpendValue: 0,
+                pending: 0,
+              },
+            },
+          ],
+          analyseBasketResults: {
+            basket: {
+              type: 'ENRICHED',
+              summary: {
+                redemptionChannel: 'Online',
+                totalDiscountAmount: {
+                  general: null,
+                  staff: null,
+                  promotions: 0,
+                },
+                totalItems: 1,
+                totalBasketValue: 400,
+                results: {
+                  points: {
+                    spend: 0,
+                    debit: 0,
+                    refund: 0,
+                    totalPointsTaken: 0,
+                    earn: 400,
+                    credit: 0,
+                    totalPointsGiven: 400,
+                    totalMonetaryValue: 0,
+                  },
+                },
+                adjudicationResults: [
+                  {
+                    resourceType: 'SCHEME',
+                    resourceId: '1653843',
+                    instanceId: '1653843-1',
+                    success: null,
+                    type: 'earn',
+                    value: null,
+                    balances: {
+                      current: 400,
+                    },
+                    isRefundable: true,
+                    isUnredeemable: false,
+                    relatedAccountIds: [],
+                    targetedAccountId: '2830993431',
+                    targetedWalletId: '170828612',
+                    totalMatchingUnits: null,
+                    playOrderPosition: 1,
+                  },
+                ],
+              },
+              contents: [
+                {
+                  upc: '245896',
+                  itemUnitCost: 400,
+                  salesKey: 'SALE',
+                  totalUnitCostAfterDiscount: 400,
+                  totalUnitCost: 400,
+                  description: 'Bears',
+                  itemUnitMetric: 'EACH',
+                  itemUnitCount: 1,
+                  contributionResults: [
+                    {
+                      instanceId: '1653843-1',
+                      value: 400,
+                    },
+                  ],
+                  adjudicationResults: [
+                    {
+                      resourceType: 'CAMPAIGN',
+                      resourceId: '1801571',
+                      instanceId: '1801571-1',
+                      success: null,
+                      type: 'credit',
+                      value: null,
+                      balances: {
+                        total_spend: 400,
+                      },
+                      isRefundable: true,
+                      isUnredeemable: false,
+                      relatedAccountIds: ['2830993430'],
+                      targetedAccountId: '2830993430',
+                      targetedWalletId: '170828612',
+                      totalMatchingUnits: null,
+                      playOrderPosition: 2,
+                    },
+                  ],
+                },
+              ],
+              analysedDateTime: '2024-01-11T18:05:59+00:00',
+            },
+            points: [
+              {
+                resourceType: 'SCHEME',
+                resourceId: '1653843',
+                walletId: '170828612',
+                operationType: 'earn',
+                value: 400,
+                accountId: '2830993431',
+                relatedSchemeId: '1653843',
+                details: null,
+                totalMatchingUnits: null,
+              },
+            ],
+            unusedAccounts: [],
+          },
+          basketAdjudicationResult: null,
+          spendAdjudicationResults: null,
+          transactionCapabilities: {
+            loyalty: {
+              spend: true,
+              earn: true,
+            },
+          },
+        },
+        [],
+      );
+  };
+
+export const nockWalletOpenWithMinSpendOnItemLoyaltyContinuityCampaignCompleting =
+  async (cart, times = 1, responseCode = 200, delayConnection = 0) => {
+    const configService = new ScriptConfigService();
+    const commercetools = new Commercetools(configService as any);
+    const customObjectService = new CustomObjectService(commercetools);
+    const basketStoreService = new CtBasketStoreService(
+      customObjectService,
+      configService as any,
+    );
+    const adjudicationMapper = new AdjudicationMapper(
+      configService as any,
+      commercetools,
+      basketStoreService,
+    );
+    const basketContents = [
+      ...adjudicationMapper.mapCartLineItemsToBasketContent(cart.lineItems),
+    ];
+    const shippingDiscountItem =
+      await adjudicationMapper.mapShippingMethodSkusToBasketItems(
+        cart.shippingInfo,
+      );
+    if (shippingDiscountItem.upc) {
+      basketContents.push(shippingDiscountItem);
+    }
+    return nock('https://pos.sandbox.uk.eagleeye.com:443', {
+      encodedQueryParams: true,
+    })
+      .post('/connect/wallet/open', {
+        reference: cart.id,
+        lock: true,
+        location: {
+          incomingIdentifier: 'outlet1',
+          parentIncomingIdentifier: 'banner1',
+        },
+        examine: [
+          {
+            type: 'TOKEN',
+            value: '123456',
+          },
+          {
+            type: 'TOKEN',
+            value: 'valid-code',
+          },
+          {
+            type: 'TOKEN',
+            value: 'invalid-code',
+          },
+        ],
+        options: {
+          adjustBasket: {
+            includeOpenOffers: true,
+            enabled: true,
+          },
+          analyseBasket: {
+            includeOpenOffers: true,
+            enabled: true,
+          },
+        },
+        basket: {
+          type: 'STANDARD',
+          summary: {
+            redemptionChannel: 'Online',
+            totalDiscountAmount: {
+              general: null,
+              staff: null,
+              promotions: 0,
+            },
+            totalItems: getTotalItemCount(cart),
+            totalBasketValue: getTotalBasketValue(cart),
+          },
+          contents: basketContents,
+        },
+      })
+      .times(times)
+      .delayConnection(delayConnection)
+      .reply(
+        responseCode,
+        {
+          wallet: null,
+          identity: null,
+          accounts: [
+            {
+              accountId: '2830993430',
+              walletId: '170828612',
+              campaignId: '1801571',
+              campaign: {
+                campaignId: 1801571,
+                campaignTypeId: 106,
+                campaignMode: 'RESTRICTED',
+                campaignName:
+                  '500 points for spending £10 on bears (UPC: 245896)',
+                accountTypeId: 8,
+                startDate: '2024-01-08T00:00:00+00:00',
+                endDate: '2030-12-31T23:59:00+00:00',
+                status: 'ACTIVE',
+                sequenceKey: null,
+                reference: '001801571',
+                relationships: [],
+                dateCreated: '2024-01-08T15:05:04+00:00',
+                lastUpdated: '2024-01-08T15:05:04+00:00',
+              },
+              type: 'CONTINUITY',
+              clientType: 'OFFER',
+              status: 'ACTIVE',
+              state: 'LOADED',
+              balances: {
+                totalSpend: 0,
+                currentSpend: 0,
+                transactionCount: 0,
+                currentTransactions: 0,
+                totalUnits: 0,
+                currentUnits: 0,
+              },
+              relationships: null,
+              mobileWallet: null,
+              enriched: {
+                token: null,
+                qualifier: {
+                  continuity: {
+                    totalTransactionCount: null,
+                    totalTransactionSpend: 1000,
+                    totalTransactionUnits: null,
+                  },
+                },
+                reward: {
+                  offerId: '1212582',
+                  offerName: 'CAMPAIGN OFFER (auto) v2',
+                  posReference: null,
+                },
+                custom: null,
+                restrictions: {},
+                redemptionWindows: {},
+                enrichmentType: 'CONTINUITY',
+                campaignName:
+                  '500 points for spending £10 on bears (UPC: 245896)',
+                campaignReference: '001801571',
+              },
+            },
+            {
+              accountId: '2830993431',
+              walletId: '170828612',
+              campaignId: '1653843',
+              campaign: {
+                campaignId: 1653843,
+                campaignTypeId: 7,
+                campaignMode: 'OPEN',
+                campaignName: 'Retail Points',
+                accountTypeId: 7,
+                startDate: '2023-01-01T00:00:00+00:00',
+                endDate: '9999-12-30T23:59:00+00:00',
+                status: 'ACTIVE',
+                sequenceKey: null,
+                reference: 'RETAILPOINTS',
+                relationships: [],
+                dateCreated: '2023-09-04T08:20:31+00:00',
+                lastUpdated: '2023-10-04T16:13:35+00:00',
+              },
+              type: 'POINTS',
+              clientType: 'RETAILPOINTS',
+              status: 'ACTIVE',
+              state: 'LOADED',
+              balances: {
+                current: 0,
+                usable: 0,
+                locked: 0,
+                lifetime: 0,
+                lifetimeSpend: 0,
+                lifetimeSpendValue: 0,
+                pending: 0,
+              },
+              relationships: null,
+              mobileWallet: null,
+            },
+          ],
+          analyseBasketResults: {
+            basket: {
+              type: 'ENRICHED',
+              summary: {
+                redemptionChannel: 'Online',
+                totalDiscountAmount: {
+                  general: null,
+                  staff: null,
+                  promotions: 0,
+                },
+                totalItems: 1,
+                totalBasketValue: 3374,
+                results: {
+                  points: {
+                    spend: 0,
+                    debit: 0,
+                    refund: 0,
+                    totalPointsTaken: 0,
+                    earn: 3374,
+                    credit: 500,
+                    totalPointsGiven: 3874,
+                    totalMonetaryValue: 0,
+                  },
+                },
+                adjudicationResults: [
+                  {
+                    resourceType: 'SCHEME',
+                    resourceId: '1653843',
+                    instanceId: '1653843-1',
+                    success: null,
+                    type: 'earn',
+                    value: null,
+                    balances: {
+                      current: 3374,
+                    },
+                    isRefundable: true,
+                    isUnredeemable: false,
+                    relatedAccountIds: [],
+                    targetedAccountId: '2830993431',
+                    targetedWalletId: '170828612',
+                    totalMatchingUnits: null,
+                    playOrderPosition: 1,
+                  },
+                ],
+              },
+              contents: [
+                {
+                  upc: '245896',
+                  itemUnitCost: 3374,
+                  salesKey: 'SALE',
+                  totalUnitCostAfterDiscount: 3374,
+                  totalUnitCost: 3374,
+                  description: 'Bears',
+                  itemUnitMetric: 'EACH',
+                  itemUnitCount: 1,
+                  contributionResults: [
+                    {
+                      instanceId: '1653843-1',
+                      value: 3374,
+                    },
+                  ],
+                  adjudicationResults: [
+                    {
+                      resourceType: 'CAMPAIGN',
+                      resourceId: '1801571',
+                      instanceId: '1801571-1',
+                      success: null,
+                      type: 'credit',
+                      value: null,
+                      balances: {
+                        total_spend: 3374,
+                      },
+                      isRefundable: true,
+                      isUnredeemable: false,
+                      relatedAccountIds: ['2830993430'],
+                      targetedAccountId: '2830993430',
+                      targetedWalletId: '170828612',
+                      totalMatchingUnits: null,
+                      playOrderPosition: 2,
+                    },
+                    {
+                      resourceType: 'CAMPAIGN',
+                      resourceId: '1801571',
+                      instanceId: '1801571-1',
+                      success: null,
+                      type: 'redeem',
+                      value: 500,
+                      balances: null,
+                      isRefundable: true,
+                      isUnredeemable: false,
+                      relatedAccountIds: ['2830993430'],
+                      targetedAccountId: '2830993430',
+                      targetedWalletId: '170828612',
+                      totalMatchingUnits: 1,
+                      playOrderPosition: 2,
+                    },
+                    {
+                      resourceType: 'CAMPAIGN',
+                      resourceId: '1801571',
+                      instanceId: '1801571-1',
+                      success: null,
+                      type: 'credit',
+                      value: null,
+                      balances: {
+                        current: 500,
+                      },
+                      isRefundable: true,
+                      isUnredeemable: false,
+                      relatedAccountIds: ['2830993430'],
+                      targetedAccountId: '2830993431',
+                      targetedWalletId: '170828612',
+                      totalMatchingUnits: null,
+                      playOrderPosition: 2,
+                    },
+                  ],
+                },
+              ],
+              analysedDateTime: '2024-01-11T15:58:48+00:00',
+            },
+            points: [
+              {
+                resourceType: 'SCHEME',
+                resourceId: '1653843',
+                walletId: '170828612',
+                operationType: 'earn',
+                value: 3374,
+                accountId: '2830993431',
+                relatedSchemeId: '1653843',
+                details: null,
+                totalMatchingUnits: null,
+              },
+              {
+                resourceType: 'CAMPAIGN',
+                resourceId: '1801571',
+                operationType: 'credit',
+                value: 500,
+                relatedSchemeId: '1653843',
+                accountId: '2830993431',
+                walletId: '170828612',
+                details: {
+                  appliedAnalyseBasketType: 'CONTINUITY',
+                },
+              },
+            ],
+            unusedAccounts: [],
+          },
+          basketAdjudicationResult: null,
+          spendAdjudicationResults: null,
+          transactionCapabilities: {
+            loyalty: {
+              spend: true,
+              earn: true,
+            },
+          },
+        },
+        [],
+      );
+  };
+
 export const nockWalletOpenWithMinSpendLoyaltyContinuityCampaignCompleting =
   async (cart, times = 1, responseCode = 200, delayConnection = 0) => {
     const configService = new ScriptConfigService();
