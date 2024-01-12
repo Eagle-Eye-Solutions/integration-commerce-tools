@@ -305,8 +305,7 @@ export const MIN_SPEND_ON_ITEM_CONTINUITY_LOYALTY_CAMPAIGN_INPROGRESS_RESPONSE =
       {
         action: 'setCustomField',
         name: 'eagleeye-basketUri',
-        value:
-          'custom-objects/eagleeye-cart/8be07418-04a0-49ba-b56f-2aa35d1027a4',
+        value: 'custom-objects/eagleeye-cart/{cart-id}',
       },
       {
         action: 'setCustomField',
@@ -369,8 +368,7 @@ export const MIN_SPEND_ON_ITEM_CONTINUITY_LOYALTY_CAMPAIGN_COMPLETING_RESPONSE =
       {
         action: 'setCustomField',
         name: 'eagleeye-basketUri',
-        value:
-          'custom-objects/eagleeye-cart/8be07418-04a0-49ba-b56f-2aa35d1027a4',
+        value: 'custom-objects/eagleeye-cart/{cart-id}',
       },
       {
         action: 'setCustomField',
@@ -432,8 +430,7 @@ export const MIN_SPEND_CONTINUITY_LOYALTY_CAMPAIGN_COMPLETING_RESPONSE = {
     {
       action: 'setCustomField',
       name: 'eagleeye-basketUri',
-      value:
-        'custom-objects/eagleeye-cart/8be07418-04a0-49ba-b56f-2aa35d1027a4',
+      value: 'custom-objects/eagleeye-cart/{cart-id}',
     },
     {
       action: 'setCustomField',
@@ -510,8 +507,7 @@ export const MIN_SPEND_CONTINUITY_LOYALTY_CAMPAIGN_IN_PROGRESS_RESPONSE = {
     {
       action: 'setCustomField',
       name: 'eagleeye-basketUri',
-      value:
-        'custom-objects/eagleeye-cart/8be07418-04a0-49ba-b56f-2aa35d1027a4',
+      value: 'custom-objects/eagleeye-cart/{cart-id}',
     },
     {
       action: 'setCustomField',
