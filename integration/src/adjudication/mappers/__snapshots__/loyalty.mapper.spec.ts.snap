@@ -1,5 +1,37 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`LoyaltyMapper mapAdjustedBasketToBasketCredits should process the continuity campaign fulfilled results and update the mapped basket credits 1`] = `
+{
+  "offers": [
+    {
+      "amount": 500,
+      "name": "500 points for spending over £10 in three transactions",
+      "timesRedeemed": 1,
+      "totalTransactionCount": 3,
+      "transactionCount": 3,
+      "type": "COMPLETING",
+    },
+  ],
+  "total": 500,
+}
+`;
+
+exports[`LoyaltyMapper mapAdjustedBasketToBasketCredits should process the continuity campaign in_progress results and update the mapped basket credits 1`] = `
+{
+  "offers": [
+    {
+      "amount": 0,
+      "name": "500 points for spending over £10 in three transactions",
+      "timesRedeemed": 1,
+      "totalTransactionCount": 3,
+      "transactionCount": 2,
+      "type": "IN_PROGRESS",
+    },
+  ],
+  "total": 0,
+}
+`;
+
 exports[`LoyaltyMapper mapAdjustedBasketToBasketCredits should return deduplicated results when there's more than one credit instance per campaign 1`] = `
 {
   "offers": [
@@ -30,6 +62,40 @@ exports[`LoyaltyMapper mapAdjustedBasketToBasketEarn should return the mapped ba
 {
   "offers": [],
   "total": 400,
+}
+`;
+
+exports[`LoyaltyMapper mapAdjustedBasketToItemCredits should process the continuity campaign fulfilled results and update the mapped item credits 1`] = `
+{
+  "offers": [
+    {
+      "amount": 500,
+      "name": "500 points for spending £10 on bears (UPC: 245896)",
+      "sku": "245896",
+      "timesRedeemed": 1,
+      "totalSpend": 1000,
+      "totalTransactionSpend": 1000,
+      "type": "COMPLETING",
+    },
+  ],
+  "total": 500,
+}
+`;
+
+exports[`LoyaltyMapper mapAdjustedBasketToItemCredits should process the continuity campaign in_progress results and update the mapped item credits 1`] = `
+{
+  "offers": [
+    {
+      "amount": 0,
+      "name": "500 points for spending £10 on bears (UPC: 245896)",
+      "sku": "245896",
+      "timesRedeemed": 1,
+      "totalSpend": 800,
+      "totalTransactionSpend": 1000,
+      "type": "IN_PROGRESS",
+    },
+  ],
+  "total": 0,
 }
 `;
 

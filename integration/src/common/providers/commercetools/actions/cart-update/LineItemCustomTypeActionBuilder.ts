@@ -5,7 +5,10 @@ import {
   TypeReference,
   LineItem,
 } from '@commercetools/platform-sdk';
-import { LoyaltyBreakdownObject } from '../../../../../adjudication/types/loyalty-earn-credits.type';
+import {
+  LOYALTY_CREDIT_TYPE,
+  LoyaltyBreakdownObject,
+} from '../../../../../adjudication/types/loyalty-earn-credits.type';
 import { FIELD_EAGLEEYE_LOYALTY_CREDITS } from '../../custom-type/line-item-type-definition';
 
 interface CustomFieldsObject {
@@ -61,7 +64,12 @@ export class LineItemCustomTypeActionBuilder {
   ): OrderUpdateAction[] => {
     const actions: OrderUpdateAction[] = [];
     lineItems.forEach((lineItem) => {
-      if (customFieldsObject.loyaltyCredits?.total) {
+      if (
+        customFieldsObject.loyaltyCredits?.total ||
+        customFieldsObject.loyaltyCredits?.offers.find(
+          (offer) => offer.type === LOYALTY_CREDIT_TYPE.IN_PROGRESS,
+        )
+      ) {
         const lineItemCreditOffers =
           customFieldsObject.loyaltyCredits.offers.filter(
             (offer) => offer.sku === lineItem.variant.sku,
