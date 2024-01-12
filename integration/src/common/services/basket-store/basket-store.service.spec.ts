@@ -72,7 +72,7 @@ describe('CtBasketStoreService', () => {
       );
       expect(result).toEqual({
         storeType: 'CUSTOM_TYPE',
-        uri: `custom-objects/${CUSTOM_OBJECT_CONTAINER_BASKET_STORE}/${saveCustomObjectResponse.body.key}`,
+        uri: `custom-objects/${CUSTOM_OBJECT_CONTAINER_BASKET_STORE}/{cart-id}`,
       });
     });
 

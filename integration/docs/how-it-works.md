@@ -208,7 +208,7 @@ The cart custom fields `eagleeye-basketStore` and `eagleeye-basketUri` are also 
 settling the transaction to know where the enriched basked is saved. The `basketStore` field is an enumeration with the
 name of the data store used (only CUSTOM_TYPE is currently supported). The `basketUri` field is used to identify the
 enriched basked in the store, when using custom objects as store it holds the path to the custom object,
-e.g.: `custom-objects/eagleeye-cart/edcdd99f-c682-4d82-advd-37029c6fs8bv`.
+e.g.: `custom-objects/eagleeye-cart/{cart-id}`.
 
 Currently, the only way to save baskets is using commercetools' Custom Objects, but the code allows to easily change the
 store by creating a custom `BasketStoreService` implementing the same interface but storing data in a place of your
