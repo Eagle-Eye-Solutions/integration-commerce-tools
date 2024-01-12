@@ -657,8 +657,7 @@ export const ORDER_FOR_SETTLE = {
           ],
           'eagleeye-voucherCodes': [],
           'eagleeye-errors': [],
-          'eagleeye-basketUri':
-            'custom-objects/eagleeye-cart/45311522-50f6-4aa1-9aba-add802387c1c',
+          'eagleeye-basketUri': 'custom-objects/eagleeye-cart/{cart-id}',
         },
       },
       billingAddress: {

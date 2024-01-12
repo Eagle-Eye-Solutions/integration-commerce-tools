@@ -57,7 +57,7 @@ export class CtBasketStoreService implements BasketStoreService {
       );
       return {
         storeType: 'CUSTOM_TYPE',
-        uri: `custom-objects/${CUSTOM_OBJECT_CONTAINER_BASKET_STORE}/${result.body.key}`,
+        uri: `custom-objects/${CUSTOM_OBJECT_CONTAINER_BASKET_STORE}/{cart-id}`,
       };
     } catch (e) {
       this.logger.error(
