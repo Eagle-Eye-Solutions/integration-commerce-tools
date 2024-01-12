@@ -75,7 +75,7 @@ describe('LoyaltyMapper', () => {
       expect(basketContents).toMatchSnapshot();
     });
 
-    it('should process the continuity campain fulfilled results and update the mapped basket credits', () => {
+    it('should process the continuity campaign fulfilled results and update the mapped basket credits', () => {
       const basket = {
         summary: {
           adjudicationResults: [
@@ -170,7 +170,7 @@ describe('LoyaltyMapper', () => {
       expect(basketContents).toMatchSnapshot();
     });
 
-    it('should process the continuity campain in_progress results and update the mapped basket credits', () => {
+    it('should process the continuity campaign in_progress results and update the mapped basket credits', () => {
       const basket = {
         summary: {
           adjudicationResults: [
@@ -333,7 +333,7 @@ describe('LoyaltyMapper', () => {
       expect(basketContents).toMatchSnapshot();
     });
 
-    it('should process the continuity campain fulfilled results and update the mapped item credits', () => {
+    it('should process the continuity campaign fulfilled results and update the mapped item credits', () => {
       const basket = {
         contents: [
           {
@@ -453,7 +453,7 @@ describe('LoyaltyMapper', () => {
       expect(basketContents).toMatchSnapshot();
     });
 
-    it('should process the continuity campain in_progress results and update the mapped item credits', () => {
+    it('should process the continuity campaign in_progress results and update the mapped item credits', () => {
       const basket = {
         contents: [
           {

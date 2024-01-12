@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`LoyaltyMapper mapAdjustedBasketToBasketCredits should process the continuity campain fulfilled results and update the mapped basket credits 1`] = `
+exports[`LoyaltyMapper mapAdjustedBasketToBasketCredits should process the continuity campaign fulfilled results and update the mapped basket credits 1`] = `
 {
   "offers": [
     {
@@ -16,7 +16,7 @@ exports[`LoyaltyMapper mapAdjustedBasketToBasketCredits should process the conti
 }
 `;
 
-exports[`LoyaltyMapper mapAdjustedBasketToBasketCredits should process the continuity campain in_progress results and update the mapped basket credits 1`] = `
+exports[`LoyaltyMapper mapAdjustedBasketToBasketCredits should process the continuity campaign in_progress results and update the mapped basket credits 1`] = `
 {
   "offers": [
     {
@@ -65,7 +65,7 @@ exports[`LoyaltyMapper mapAdjustedBasketToBasketEarn should return the mapped ba
 }
 `;
 
-exports[`LoyaltyMapper mapAdjustedBasketToItemCredits should process the continuity campain fulfilled results and update the mapped item credits 1`] = `
+exports[`LoyaltyMapper mapAdjustedBasketToItemCredits should process the continuity campaign fulfilled results and update the mapped item credits 1`] = `
 {
   "offers": [
     {
@@ -82,7 +82,7 @@ exports[`LoyaltyMapper mapAdjustedBasketToItemCredits should process the continu
 }
 `;
 
-exports[`LoyaltyMapper mapAdjustedBasketToItemCredits should process the continuity campain in_progress results and update the mapped item credits 1`] = `
+exports[`LoyaltyMapper mapAdjustedBasketToItemCredits should process the continuity campaign in_progress results and update the mapped item credits 1`] = `
 {
   "offers": [
     {

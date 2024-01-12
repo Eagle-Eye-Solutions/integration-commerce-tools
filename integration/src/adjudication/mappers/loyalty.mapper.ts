@@ -173,20 +173,20 @@ export class LoyaltyMapper {
     result: any,
     account: any,
   ) {
-    if (result.balances.transaction_count) {
+    if (result.balances?.transaction_count) {
       existingOffer.transactionCount =
         account.balances.transactionCount + result.balances.transaction_count;
     }
-    if (result.balances.total_spend) {
+    if (result.balances?.total_spend) {
       existingOffer.totalSpend =
         account.balances.totalSpend + result.balances.total_spend;
     }
-    if (result.balances.total_units) {
+    if (result.balances?.total_units) {
       existingOffer.totalUnits =
         account.balances.totalUnits + result.balances.total_units;
     }
     if (
-      result.balances.current &&
+      result.balances?.current &&
       existingOffer.type === LOYALTY_CREDIT_TYPE.IN_PROGRESS
     ) {
       existingOffer.type = LOYALTY_CREDIT_TYPE.COMPLETING;
