@@ -83,3 +83,7 @@ without a guaranteed order. For example, if the EagleEye plugin is installed tog
 taxes, the latter should run after promotions are calculated. In this case, a different solution should be adopted to
 guarantee the ordering.
 See [commercetools documentation](https://docs.commercetools.com/api/projects/api-extensions#multiple-api-extensions-in-a-single-api-call). 
+
+## Next Steps
+
+To learn how the plugin works, please refer to the [how it works](integration/docs/how-it-works.md) page
