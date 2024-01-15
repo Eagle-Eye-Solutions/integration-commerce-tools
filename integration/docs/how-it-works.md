@@ -346,12 +346,11 @@ be stored manually. Ideally, the enriched basket should be stored before the ord
 The cart custom fields `eagleeye-basketStore` and `eagleeye-basketUri` are also populated so that can be used when
 settling the transaction to know where the enriched basked is saved. The `basketStore` field is an enumeration with the
 name of the data store used (only CUSTOM_TYPE is currently supported). The `basketUri` field is used to identify the
-enriched basked in the store, when using custom objects as store it holds the path to the custom object,
-e.g.: `custom-objects/eagleeye-cart/{cart-id}`.
+enriched basked in the store, when using custom objects as store it holds the path to the custom object - `custom-objects/eagleeye-cart/{cart-id}`. The `cart-id` can be fetched from the commercetools order.
 
 Currently, the only way to save baskets is using commercetools' Custom Objects, but the code allows to easily change the
 store by creating a custom `BasketStoreService` implementing the same interface but storing data in a place of your
-choosing.
+choosing. If for example, the user decides to store the enriched basket in a MySQL database, in such a case, the `basketStore` field could be `_MYSQL_` and the `basketUri` field could be the "table name" in which the basket is stored. The settle service checks the basketStore string and knows which logic to use to get the enriched basket. 
 
 ### Data mapping
 
