@@ -11,9 +11,9 @@ on:
           - staging
       connector_key:
         type: string
-        description: ConnectorStaged key (also used for deployment)
-        required: true
-        default: eagleeye-integration-testing
+        description: ConnectorStaged key (override)
+        required: false
+        default: ''
       config_override:
         type: string
         description: Stringified and escaped JSON to override all integration configurations
@@ -46,6 +46,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Set connector_key based on environment
+        id: set-connector-key
+        run: |
+          if [[ -n "${{ github.event.inputs.connector_key }}" ]]; then
+            echo "CONNECTOR_KEY=${{ github.event.inputs.connector_key }}" >> $GITHUB_ENV
+          elif [[ "${{ github.event.inputs.environment }}" == "dev" ]]; then
+            echo "CONNECTOR_KEY=eagleeye-integration-testing" >> $GITHUB_ENV
+          elif [[ "${{ github.event.inputs.environment }}" == "staging" ]]; then
+            echo "CONNECTOR_KEY=eagleeye-commercetools-integration" >> $GITHUB_ENV
+          fi
       - name: Get and update Connector
         id: update-tag
         uses: ./.github/actions/connect/update-tag
@@ -53,7 +63,7 @@ jobs:
           tag: ${{ github.ref_name }}
           access_token: ${{ needs.ct-authorize.outputs.access_token }}
           ct_region: ${{ vars.CT_REGION }}
-          connector_key: ${{ github.event.inputs.connector_key }}
+          connector_key: ${{ env.CONNECTOR_KEY }}
   ct-request-previewable:
     name: 'Request Previewable Access'
     runs-on: ubuntu-latest
@@ -71,7 +81,7 @@ jobs:
           version: ${{ fromJSON(needs.ct-update-tag.outputs.connector).data.version }}
           access_token: ${{ needs.ct-authorize.outputs.access_token }}
           ct_region: ${{ vars.CT_REGION }}
-          connector_key: ${{ github.event.inputs.connector_key }}
+          connector_key: ${{ env.CONNECTOR_KEY }}
   ct-undeploy:
     name: 'Check and Undeploy Connector'
     runs-on: ubuntu-latest
@@ -88,7 +98,7 @@ jobs:
           ct_project_key: ${{ vars.CT_PROJECT_KEY }}
           ct_region: ${{ vars.CT_REGION }}
           connect_env: ${{ github.event.inputs.environment }}
-          connector_key: ${{ github.event.inputs.connector_key }}
+          connector_key: ${{ env.CONNECTOR_KEY }}
   ct-deploy:
     name: 'Deploy Connector'
     runs-on: ubuntu-latest
@@ -105,7 +115,7 @@ jobs:
           access_token: ${{ needs.ct-authorize.outputs.access_token }}
           is_previewable: ${{ fromJSON(needs.ct-request-previewable.outputs.connector).isPreviewable }}
           connect_env: ${{ github.event.inputs.environment }}
-          connector_key: ${{ github.event.inputs.connector_key }}
+          connector_key: ${{ env.CONNECTOR_KEY }}
           ct_api_client_id: ${{ secrets.CT_CLIENT_ID }}
           ct_api_client_secret: ${{ secrets.CT_CLIENT_SECRET }}
           ct_region: ${{ vars.CT_REGION }}
