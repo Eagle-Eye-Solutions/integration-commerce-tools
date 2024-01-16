@@ -14,20 +14,31 @@ describe('SettleController', () => {
     );
   });
 
-  describe('Subscription Event Handler', () => {
-    it('should process POST requests received at root level', async () => {
-      orderSubscriptionService.handleOrderSubscriptionEvents.mockReturnValueOnce(
-        Promise.resolve({ status: '200' }),
+  describe('handleSubscriptionEvents', () => {
+    it('should handle subscription events and return the result', async () => {
+      const mockBody = { message: { data: 'e30=' } };
+      const mockResponse = { status: jest.fn(), send: jest.fn() };
+      const mockSubscriptionResult = {
+        statusCode: 200,
+        result: { status: 'OK' },
+      };
+
+      jest
+        .spyOn(orderSubscriptionService, 'handleOrderSubscriptionEvents')
+        .mockResolvedValue(mockSubscriptionResult);
+
+      const response = await appController.handleSubscriptionEvents(
+        mockBody,
+        mockResponse as any,
       );
+
       expect(
-        await appController.handleSubscriptionEvents({
-          message: {
-            data: 'e30=',
-          },
-        }),
-      ).toEqual({
-        status: '200',
-      });
+        orderSubscriptionService.handleOrderSubscriptionEvents,
+      ).toHaveBeenCalledWith({});
+      expect(mockResponse.status).toHaveBeenCalledWith(
+        mockSubscriptionResult.statusCode,
+      );
+      expect(response).toEqual({ status: 'OK' });
     });
   });
 });

@@ -97,7 +97,7 @@ describe('Settle EE transactions on Order messages (e2e)', () => {
     await request(app.getHttpServer())
       .post('/events')
       .send({ message: { data: Buffer.from(JSON.stringify(requestData)) } })
-      .expect(201)
+      .expect(200)
       .expect({ status: 'OK' });
 
     await sleep(100); //await for
@@ -165,7 +165,7 @@ describe('Settle EE transactions on Order messages (e2e)', () => {
     await request(app.getHttpServer())
       .post('/events')
       .send({ message: { data: Buffer.from(JSON.stringify(requestData)) } })
-      .expect(201)
+      .expect(200)
       .expect({ status: 'OK' });
 
     await sleep(100); //await for
@@ -233,7 +233,7 @@ describe('Settle EE transactions on Order messages (e2e)', () => {
       .post('/events')
       .send({ message: { data: Buffer.from(JSON.stringify(requestData)) } })
 
-      .expect(201)
+      .expect(200)
       .expect({ status: 'OK' });
 
     await sleep(100); //await for
@@ -304,7 +304,7 @@ describe('Settle EE transactions on Order messages (e2e)', () => {
       .post('/events')
       .send({ message: { data: Buffer.from(JSON.stringify(requestData)) } })
 
-      .expect(201)
+      .expect(200)
       .expect({ status: 'OK' });
 
     await sleep(100); //await for
