@@ -63,7 +63,7 @@ export class BasketCleanupService {
       this.logger.log(
         `Preparing to remove ${customObjects.length} abandoned baskets.`,
       );
-      for (const customObject of customObjects) {
+      const promises = customObjects.map(async (customObject) => {
         try {
           await this.customObjectService.deleteCustomObject(
             this.containerKey,
@@ -80,7 +80,9 @@ export class BasketCleanupService {
             err,
           );
         }
-      }
+      });
+
+      await Promise.all(promises);
     } while (hasMore);
 
     this.logger.log(
