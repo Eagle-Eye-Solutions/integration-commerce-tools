@@ -8,6 +8,7 @@ import {
 import {
   LOYALTY_CREDIT_TYPE,
   LoyaltyBreakdownObject,
+  LoyaltyOfferBreakdown,
 } from '../../../../../adjudication/types/loyalty-earn-credits.type';
 import { FIELD_EAGLEEYE_LOYALTY_CREDITS } from '../../custom-type/line-item-type-definition';
 
@@ -25,7 +26,10 @@ export class LineItemCustomTypeActionBuilder {
     lineItems.forEach((lineItem) => {
       const customFields = {};
 
-      if (customFieldsObject.loyaltyCredits?.total) {
+      if (
+        customFieldsObject.loyaltyCredits?.total ||
+        isOfferInProgress(customFieldsObject)
+      ) {
         const lineItemCreditOffers =
           customFieldsObject.loyaltyCredits.offers.filter(
             (offer) => offer.sku === lineItem.variant.sku,
@@ -66,9 +70,7 @@ export class LineItemCustomTypeActionBuilder {
     lineItems.forEach((lineItem) => {
       if (
         customFieldsObject.loyaltyCredits?.total ||
-        customFieldsObject.loyaltyCredits?.offers.find(
-          (offer) => offer.type === LOYALTY_CREDIT_TYPE.IN_PROGRESS,
-        )
+        isOfferInProgress(customFieldsObject)
       ) {
         const lineItemCreditOffers =
           customFieldsObject.loyaltyCredits.offers.filter(
@@ -111,4 +113,11 @@ export class LineItemCustomTypeActionBuilder {
   ): TypeReference | undefined => {
     return (resource as any).custom?.type;
   };
+}
+function isOfferInProgress(
+  customFieldsObject: CustomFieldsObject,
+): LoyaltyOfferBreakdown {
+  return customFieldsObject.loyaltyCredits?.offers.find(
+    (offer) => offer.type === LOYALTY_CREDIT_TYPE.IN_PROGRESS,
+  );
 }
