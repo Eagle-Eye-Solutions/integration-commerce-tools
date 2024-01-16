@@ -128,6 +128,9 @@ jobs:
           circuit_breaker_error_threshold_percentage: ${{ vars.CIRCUIT_BREAKER_ERROR_THRESHOLD_PERCENTAGE }}
           circuit_breaker_enabled: ${{ vars.CIRCUIT_BREAKER_ENABLED }}
           ctp_disabled_events: ${{ vars.CTP_DISABLED_EVENTS }}
+          basket_cleanup_query_limit: ${{ vars.BASKET_CLEANUP_QUERY_LIMIT }}
+          basket_cleanup_older_than_value: ${{ vars.BASKET_CLEANUP_OLDER_THAN_VALUE }}
+          basket_cleanup_older_than_unit: ${{ vars.BASKET_CLEANUP_OLDER_THAN_UNIT }}
   e2e-tests:
     name: 'Running E2E tests'
     if: ${{ github.event.inputs.environment != 'staging' }}

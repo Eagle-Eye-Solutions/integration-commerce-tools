@@ -42,6 +42,11 @@ const validationSchema = Joi.object({
   eventHandler: {
     disabledEvents: Joi.array<string>(),
   },
+  storedBasketCleanup: {
+    objectQueryLimit: Joi.number(),
+    olderThanValue: Joi.number(),
+    olderThanUnit: Joi.string(),
+  },
 });
 
 export const parseShippingMethodMap = (): { key: string; upc: string }[] => {
@@ -103,6 +108,13 @@ export const defaultConfiguration = {
     disabledEvents: (process.env.CTP_DISABLED_EVENTS || '')
       .split(',')
       .map((item) => item.trim()),
+  },
+  storedBasketCleanup: {
+    objectQueryLimit:
+      parseInt(process.env.BASKET_CLEANUP_QUERY_LIMIT, 10) || 100,
+    olderThanValue:
+      parseInt(process.env.BASKET_CLEANUP_OLDER_THAN_VALUE, 10) || 1,
+    olderThanUnit: process.env.BASKET_CLEANUP_OLDER_THAN_UNIT || 'hours',
   },
 };
 

@@ -24,6 +24,22 @@ export const nockGetCustomObject = (
       [],
     );
 };
+
+export const nockQueryCustomObjects = (
+  statusCode = 200,
+  query?: any,
+  response?: any,
+  times = 1,
+) => {
+  return nock('https://api.europe-west1.gcp.commercetools.com:443', {
+    encodedQueryParams: true,
+  })
+    .get(`/${process.env.CTP_PROJECT_KEY}/custom-objects`)
+    .query(query)
+    .times(times)
+    .reply(statusCode, response || {}, []);
+};
+
 export const nockDeleteCustomObject = (
   key: string,
   container: string,

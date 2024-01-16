@@ -16,10 +16,11 @@ summary of the required steps to deploy in production:
 - Request a deployment.
 - Monitor the deployment process by getting the deployment details by `id`/`key`.
 
-For this plugin, the connector provides two applications:
+For this plugin, the connector provides three applications:
 
 - a `service` type, which is synchronous, handles cart creation/updates and "opens" transactions/saves EagleEye baskets.
 - an `event` type, which is asynchronous, handles order creation/updates and "settles"/confirms transactions.
+- a `job` type, which is synchronous, handles cleaning up old stored EagleEye baskets (if using Custom Objects).
 
 After these steps are completed successfully, your connector should be ready to use. Don't worry about needing to setup
 subscriptions/extensions, there's a default configuration for them and it's applied automatically by Connect using their
@@ -41,10 +42,11 @@ The commercetools configuration (extension/subscription creation and custom type
 connect, should be done manually when using a different hosting strategy by running the `connector:post-deploy:*`
 and `connector:pre-undeploy:*` scripts.
 
-Extension and Subscription modules share the same source code. The same artifact must be deployed, only different
-endpoints will be used.   
-The extension module is triggered via a POST request to `/cart/service`.  
+Extension, Subscription and cleanup job modules share the same source code. The same artifact must be deployed, only different
+endpoints will be used.
+The extension module is triggered via a POST request to `/cart/service`.
 The subscription module is triggered via a POST request to `/events`.
+The cleanup job is triggered via a POST request to `/jobs/stored-basket-cleanup`.
 
 ## Configuration
 
@@ -75,6 +77,9 @@ environment variables, refer to the specific deployment documentation for furthe
 | CT_CART_TYPE_KEY                           | 🚫       | custom-cart-type                    | Allows to change the custom cart type key. Useful if there is already another custom cart type used in the commercetools project                                                                                                                                                                                                                                                                                       |
 | SHIPPING_METHOD_MAP                        | 🚫       | `[]`                                | Stringified and escaped JSON array for mapping shipping methods to EE UPCs. Used to apply shipping discounts defined as product discounts in EagleEye. Example: `[{\"key\":\"my-shipping-method-key\",\"upc\":\"my-ee-upc\"}]`                                                                                                                                                                                         |
 | CONFIG_OVERRIDE                            | 🚫       |                                     | Stringified and escaped JSON to override any amount of configuration properties. The provided object will be merged with your default configuration based on environment variables. Example: `{\"commercetools\": { \"region\": \"us-central1.gcp\"}}`                                                                                                                                                                 |
+| BASKET_CLEANUP_QUERY_LIMIT                            | 🚫       | 100                                    | Number of custom objects to request per query when cleaning old custom objects. Numbers between 20 and 100 are recommended.                                                                                                                                                                 |
+| BASKET_CLEANUP_OLDER_THAN_VALUE                            | 🚫       | 7                                    | Number for time reference to use when querying old custom objects. E.g.: `5`, for older than 5 days                                                                                                                                                                 |
+| BASKET_CLEANUP_OLDER_THAN_UNIT                            | 🚫       | `"days"`                                    | Time unit for reference to use when querying old custom objects (follows moment.js spec). E.g.: `"days"` for older than 5 days. Follows the `moment.js` convention for units.                                                                                     |
 
 ## Interaction with other extensions
 

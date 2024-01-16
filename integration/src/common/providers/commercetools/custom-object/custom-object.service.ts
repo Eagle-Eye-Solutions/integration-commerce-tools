@@ -63,4 +63,12 @@ export class CustomObjectService {
       })
       .execute();
   };
+
+  queryCustomObjects = async (methodArgs = {}) => {
+    return this.commercetools
+      .getApiRoot()
+      .customObjects()
+      .get(methodArgs)
+      .execute();
+  };
 }
