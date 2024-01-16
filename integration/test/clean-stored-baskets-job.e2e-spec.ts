@@ -79,7 +79,7 @@ describe('Clean Stored Enriched Baskets (e2e)', () => {
       'my-cart-id',
       CUSTOM_OBJECT_CONTAINER_BASKET_STORE,
       {},
-      28,
+      33,
     );
 
     app = await initAppModule();

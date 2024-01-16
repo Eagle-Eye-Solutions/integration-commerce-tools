@@ -153,7 +153,7 @@ deployAs:
     applicationType: job
     endpoint: /jobs/stored-basket-cleanup
     properties:
-      schedule: "0 * * * *"
+      schedule: "0 * * * 7"
     configuration:
       standardConfiguration:
         - key: CTP_PROJECT_KEY

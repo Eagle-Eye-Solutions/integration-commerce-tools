@@ -37,51 +37,51 @@ export class BasketCleanupService {
       failed: [],
     };
     do {
-      const customObjects = await this.customObjectService.queryCustomObjects({
-        queryArgs: {
-          withTotal: false,
-          limit: this.limit,
-          container: this.containerKey,
-          offset: oldCustomObjects.length,
-          where: `lastModifiedAt < "${olderThanDate.toISOString()}"`,
-          sort: ['lastModifiedAt asc'],
+      const ctCustomObjects = await this.customObjectService.queryCustomObjects(
+        {
+          queryArgs: {
+            withTotal: false,
+            limit: this.limit,
+            container: this.containerKey,
+            offset: oldCustomObjects.length,
+            where: `lastModifiedAt < "${olderThanDate.toISOString()}"`,
+            sort: ['lastModifiedAt asc'],
+          },
         },
+      );
+      hasMore = Boolean(ctCustomObjects.body.count === this.limit);
+      const customObjects = ctCustomObjects.body.results.map((customObject) => {
+        return {
+          key: customObject.key,
+          lastModifiedAt: customObject.lastModifiedAt,
+        };
       });
-      hasMore = Boolean(customObjects.body.count === this.limit);
-      oldCustomObjects = oldCustomObjects.concat(
-        customObjects.body.results.map((customObject) => {
-          return {
-            key: customObject.key,
-            lastModifiedAt: customObject.lastModifiedAt,
-          };
-        }),
+      oldCustomObjects = oldCustomObjects.concat(customObjects);
+      this.logger.log(
+        `Got ${customObjects.length} baskets. New total: ${oldCustomObjects.length}`,
       );
       this.logger.log(
-        `Got ${customObjects.body.count} baskets. New total: ${oldCustomObjects.length}`,
+        `Preparing to remove ${customObjects.length} abandoned baskets.`,
       );
-    } while (hasMore);
-    this.logger.log(
-      `Preparing to remove ${oldCustomObjects.length} abandoned baskets.`,
-    );
-
-    for (const customObject of oldCustomObjects) {
-      try {
-        await this.customObjectService.deleteCustomObject(
-          this.containerKey,
-          customObject.key,
-        );
-        results.successful.push(customObject);
-        this.logger.log(
-          `Successfully removed basket with key ${customObject.key}, lastModifiedAt ${customObject.lastModifiedAt}`,
-        );
-      } catch (err) {
-        results.failed.push(customObject);
-        this.logger.error(
-          `Failed to remove custom object with key ${customObject.key}, lastModifiedAt ${customObject.lastModifiedAt}`,
-          err,
-        );
+      for (const customObject of customObjects) {
+        try {
+          await this.customObjectService.deleteCustomObject(
+            this.containerKey,
+            customObject.key,
+          );
+          results.successful.push(customObject);
+          this.logger.log(
+            `Successfully removed basket with key ${customObject.key}, lastModifiedAt ${customObject.lastModifiedAt}`,
+          );
+        } catch (err) {
+          results.failed.push(customObject);
+          this.logger.error(
+            `Failed to remove custom object with key ${customObject.key}, lastModifiedAt ${customObject.lastModifiedAt}`,
+            err,
+          );
+        }
       }
-    }
+    } while (hasMore);
 
     this.logger.log(
       `Finished removing old baskets. Results: ${results.successful.length} successful, ${results.failed.length} failed`,

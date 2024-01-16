@@ -114,7 +114,7 @@ export const defaultConfiguration = {
       parseInt(process.env.BASKET_CLEANUP_QUERY_LIMIT, 10) || 100,
     olderThanValue:
       parseInt(process.env.BASKET_CLEANUP_OLDER_THAN_VALUE, 10) || 1,
-    olderThanUnit: process.env.BASKET_CLEANUP_OLDER_THAN_UNIT || 'hours',
+    olderThanUnit: process.env.BASKET_CLEANUP_OLDER_THAN_UNIT || 'days',
   },
 };
 
