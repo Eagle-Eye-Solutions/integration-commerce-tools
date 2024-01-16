@@ -149,3 +149,50 @@ deployAs:
         - key: EE_CLIENT_SECRET
           description: secret of an API Client for the EagleEye API
           required: true
+  - name: integration_jobs
+    applicationType: job
+    endpoint: /jobs/stored-basket-cleanup
+    properties:
+      schedule: "0 * * * 7"
+    configuration:
+      standardConfiguration:
+        - key: CTP_PROJECT_KEY
+          description: Project key of the commercetools Composable Commerce Project
+          required: true
+        - key: CTP_REGION
+          description: Region where the commercetools Composable Commerce Project is hosted
+          required: true
+        - key: CONFIG_OVERRIDE
+          description: Stringified and escaped JSON to override all integration configurations
+          required: false
+        - key: EE_INCOMING_IDENTIFIER
+          description: EagleEye Outlet Incoming Identifier
+          required: true
+        - key: EE_PARENT_INCOMING_IDENTIFIER
+          description: EagleEye Outlet Parent unit Incoming Identifier
+          required: false
+        - key: BASKET_CLEANUP_QUERY_LIMIT
+          description: Number of custom objects to request per query when cleaning old custom objects
+          required: false
+        - key: BASKET_CLEANUP_OLDER_THAN_VALUE
+          description: "Number for time reference to use when querying old custom objects. E.g.: 5, for older than 5 days"
+          required: false
+        - key: BASKET_CLEANUP_OLDER_THAN_UNIT
+          description: "Time unit for reference to use when querying old custom objects (follows moment.js spec). E.g.: \"days\" for older than 5 days"
+          required: false
+      securedConfiguration:
+        - key: CTP_CLIENT_ID
+          description: client_id of an API Client for the commercetools Composable Commerce Project
+          required: true
+        - key: CTP_CLIENT_SECRET
+          description: secret of an API Client for the commercetools Composable Commerce Project
+          required: true
+        - key: CTP_SCOPE
+          description: scope of an API Client for the commercetools Composable Commerce Project
+          required: false
+        - key: EE_CLIENT_ID
+          description: client_id of an API Client for the EagleEye API
+          required: true
+        - key: EE_CLIENT_SECRET
+          description: secret of an API Client for the EagleEye API
+          required: true

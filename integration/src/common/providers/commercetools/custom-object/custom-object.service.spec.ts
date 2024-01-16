@@ -86,4 +86,12 @@ describe('CustomObjectService', () => {
         .delete().execute,
     ).toHaveBeenCalled();
   });
+
+  it('should query custom objects', async () => {
+    await service.queryCustomObjects();
+
+    expect(
+      commercetools.getApiRoot().customObjects().get().execute,
+    ).toHaveBeenCalled();
+  });
 });
