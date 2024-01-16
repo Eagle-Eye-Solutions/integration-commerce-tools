@@ -45,6 +45,7 @@ export const nockDeleteCustomObject = (
   container: string,
   response: any,
   times = 1,
+  statusCode = 200,
 ) => {
   return nock('https://api.europe-west1.gcp.commercetools.com:443', {
     encodedQueryParams: true,
@@ -53,7 +54,7 @@ export const nockDeleteCustomObject = (
       `/${process.env.CTP_PROJECT_KEY}/custom-objects/${container}/${key}`,
     )
     .times(times)
-    .reply(200, response, []);
+    .reply(statusCode, response, []);
 };
 
 export const nockPostEnrichedBasketCustomObject = (body?: any) => {

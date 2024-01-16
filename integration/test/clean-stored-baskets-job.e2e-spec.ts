@@ -37,7 +37,7 @@ describe('Clean Stored Enriched Baskets (e2e)', () => {
     await app.close();
   });
 
-  it('should clean all stored baskets older than the specified threshold', async () => {
+  it('should clean almost all stored baskets older than the specified threshold', async () => {
     const sampleCustomObject = {
       key: 'my-cart-id',
       lastModifiedAt: '2023-01-01T01:00:39Z',
@@ -79,7 +79,14 @@ describe('Clean Stored Enriched Baskets (e2e)', () => {
       'my-cart-id',
       CUSTOM_OBJECT_CONTAINER_BASKET_STORE,
       {},
-      17,
+      16,
+    );
+    const deleteCustomObjectNockFailed = nockDeleteCustomObject(
+      'my-cart-id',
+      CUSTOM_OBJECT_CONTAINER_BASKET_STORE,
+      {},
+      1,
+      404,
     );
 
     app = await initAppModule();
@@ -89,8 +96,8 @@ describe('Clean Stored Enriched Baskets (e2e)', () => {
       .expect(201)
       .expect({
         results: {
-          successful: Array(7).fill(sampleCustomObject),
-          failed: [],
+          successful: Array(6).fill(sampleCustomObject),
+          failed: Array(1).fill(sampleCustomObject),
         },
       });
 
@@ -99,5 +106,6 @@ describe('Clean Stored Enriched Baskets (e2e)', () => {
     expect(queryCustomObjectsNock.isDone()).toBeTruthy();
     expect(queryCustomObjectsNock2.isDone()).toBeTruthy();
     expect(deleteCustomObjectNock.isDone()).toBeTruthy();
+    expect(deleteCustomObjectNockFailed.isDone()).toBeTruthy();
   });
 });
