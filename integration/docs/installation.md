@@ -86,4 +86,4 @@ See [commercetools documentation](https://docs.commercetools.com/api/projects/ap
 
 ## Next Steps
 
-To learn how the plugin works, please refer to the [how it works](integration/docs/how-it-works.md) page
+To learn how the plugin works, please refer to the [how it works](how-it-works.md) page
