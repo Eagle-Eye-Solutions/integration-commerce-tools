@@ -1,5 +1,6 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Res } from '@nestjs/common';
 import { OrderSubscriptionService } from '../services/order-subscription/order-subscription.service';
+import { Response } from 'express';
 
 @Controller()
 export class SettleController {
@@ -7,11 +8,19 @@ export class SettleController {
     private readonly orderSubscriptionService: OrderSubscriptionService,
   ) {}
   @Post('events')
-  async handleSubscriptionEvents(@Body() body): Promise<any> {
+  async handleSubscriptionEvents(
+    @Body() body,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<any> {
     let message = body;
     if (body?.message?.data) {
       message = JSON.parse(Buffer.from(body.message.data, 'base64').toString());
     }
-    return this.orderSubscriptionService.handleOrderSubscriptionEvents(message);
+    const subscriptionResult =
+      await this.orderSubscriptionService.handleOrderSubscriptionEvents(
+        message,
+      );
+    res.status(subscriptionResult.statusCode);
+    return;
   }
 }

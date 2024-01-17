@@ -97,8 +97,7 @@ describe('Settle EE transactions on Order messages (e2e)', () => {
     await request(app.getHttpServer())
       .post('/events')
       .send({ message: { data: Buffer.from(JSON.stringify(requestData)) } })
-      .expect(201)
-      .expect({ status: 'OK' });
+      .expect(204);
 
     await sleep(100); //await for
     expect(ctAuthNock.isDone()).toBeTruthy();
@@ -165,8 +164,7 @@ describe('Settle EE transactions on Order messages (e2e)', () => {
     await request(app.getHttpServer())
       .post('/events')
       .send({ message: { data: Buffer.from(JSON.stringify(requestData)) } })
-      .expect(201)
-      .expect({ status: 'OK' });
+      .expect(204);
 
     await sleep(100); //await for
     expect(ctAuthNock.isDone()).toBeTruthy();
@@ -232,9 +230,7 @@ describe('Settle EE transactions on Order messages (e2e)', () => {
     await request(app.getHttpServer())
       .post('/events')
       .send({ message: { data: Buffer.from(JSON.stringify(requestData)) } })
-
-      .expect(201)
-      .expect({ status: 'OK' });
+      .expect(204);
 
     await sleep(100); //await for
     expect(ctAuthNock.isDone()).toBeTruthy();
@@ -303,9 +299,7 @@ describe('Settle EE transactions on Order messages (e2e)', () => {
     await request(app.getHttpServer())
       .post('/events')
       .send({ message: { data: Buffer.from(JSON.stringify(requestData)) } })
-
-      .expect(201)
-      .expect({ status: 'OK' });
+      .expect(204);
 
     await sleep(100); //await for
     expect(ctAuthNock.isDone()).toBeTruthy();

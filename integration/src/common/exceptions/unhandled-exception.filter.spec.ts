@@ -2,7 +2,7 @@ import { UnhandledExceptionsFilter } from './unhandled-exception.filter';
 import { ArgumentsHost } from '@nestjs/common';
 import { CTActionsBuilder } from '../providers/commercetools/actions/ActionsBuilder';
 import { CartCustomTypeActionBuilder } from '../providers/commercetools/actions/cart-update/CartCustomTypeActionBuilder';
-import { Response } from 'express';
+import { Response, Request } from 'express';
 import { Test, TestingModule } from '@nestjs/testing';
 import { CartTypeDefinition } from '../providers/commercetools/custom-type/cart-type-definition';
 import { ConfigService } from '@nestjs/config';
@@ -11,6 +11,7 @@ describe('UnhandledExceptionsFilter', () => {
   let filter: UnhandledExceptionsFilter;
   let mockArgumentsHost: jest.Mocked<ArgumentsHost>;
   let mockResponse: jest.Mocked<Response>;
+  let mockRequest: jest.Mocked<Request>;
   let cartTypeDefinition: CartTypeDefinition;
 
   beforeEach(async () => {
@@ -28,9 +29,17 @@ describe('UnhandledExceptionsFilter', () => {
       status: jest.fn().mockReturnThis(),
       json: jest.fn().mockReturnThis(),
     } as any;
+    mockRequest = {
+      body: {
+        resource: {
+          obj: {},
+        },
+      },
+    } as any;
     mockArgumentsHost = {
       switchToHttp: jest.fn().mockReturnValue({
         getResponse: jest.fn().mockReturnValue(mockResponse),
+        getRequest: jest.fn().mockReturnValue(mockRequest),
       } as unknown as ArgumentsHost),
     } as any;
   });
@@ -46,6 +55,31 @@ describe('UnhandledExceptionsFilter', () => {
 
   it('should return a 200 status', () => {
     const error = new Error('Test error');
+
+    filter.catch(error, mockArgumentsHost);
+
+    expect(mockResponse.status).toHaveBeenCalledWith(200);
+  });
+
+  it('should return set custom fields if the object already has a custom type', () => {
+    const error = new Error('Test error');
+    mockArgumentsHost.switchToHttp.mockReturnValue({
+      getResponse: jest.fn().mockReturnValue(mockResponse),
+      getRequest: () => ({
+        body: {
+          resource: {
+            obj: {
+              custom: {
+                type: {
+                  id: 'some-id',
+                  typeId: 'cart',
+                },
+              },
+            },
+          },
+        },
+      }),
+    } as any);
 
     filter.catch(error, mockArgumentsHost);
 
