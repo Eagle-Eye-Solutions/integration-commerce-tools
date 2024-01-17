@@ -19,8 +19,7 @@ describe('SettleController', () => {
       const mockBody = { message: { data: 'e30=' } };
       const mockResponse = { status: jest.fn(), send: jest.fn() };
       const mockSubscriptionResult = {
-        statusCode: 200,
-        result: { status: 'OK' },
+        statusCode: 204,
       };
 
       jest
@@ -38,7 +37,7 @@ describe('SettleController', () => {
       expect(mockResponse.status).toHaveBeenCalledWith(
         mockSubscriptionResult.statusCode,
       );
-      expect(response).toEqual({ status: 'OK' });
+      expect(response).toEqual(undefined);
     });
   });
 });

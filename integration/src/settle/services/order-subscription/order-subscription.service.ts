@@ -36,19 +36,22 @@ export class OrderSubscriptionService {
         this.eventHandlerService.handleProcessedEventResponse(results, message);
       return this.getResponseWithStatus(processedEventResult);
     } catch (e) {
-      this.logger.error('Unknown OrderSubscription processing error:', e);
-      return { statusCode: 500, result: e };
+      this.logger.error(
+        'Unknown OrderSubscription processing error:',
+        e.stack || e,
+      );
+      return { statusCode: 500 };
     }
   }
 
   private getResponseWithStatus(eventResult) {
     switch (eventResult.status) {
       case 'OK':
-        return { statusCode: 200, result: eventResult };
+        return { statusCode: 204 };
       case '4xx':
-        return { statusCode: 202, result: eventResult };
+        return { statusCode: 400 };
       default:
-        return { statusCode: 202, result: eventResult };
+        return { statusCode: 202 };
     }
   }
 }

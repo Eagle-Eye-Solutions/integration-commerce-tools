@@ -86,13 +86,13 @@ describe('OrderSubscriptionService', () => {
         value: [() => {}],
       },
     ]);
-    const result = { statusCode: 200, result: { status: 'OK' } };
+    const result = { statusCode: 204, result: { status: 'OK' } };
     jest
       .spyOn(eventHandlerService, 'handleProcessedEventResponse')
       .mockReturnValue(result.result as any)
       .mockReturnValue(result.result as any);
     const response = await service.handleOrderSubscriptionEvents(body as any);
-    expect(response).toEqual(result);
+    expect(response).toEqual({ statusCode: 204 });
   });
 
   it('should handle failed order subscription events (4xx)', async () => {
@@ -110,12 +110,12 @@ describe('OrderSubscriptionService', () => {
         reason: {},
       },
     ]);
-    const result = { statusCode: 202, result: { status: '4xx' } };
+    const result = { statusCode: 400, result: { status: '4xx' } };
     jest
       .spyOn(eventHandlerService, 'handleProcessedEventResponse')
       .mockReturnValue(result.result as any);
     const response = await service.handleOrderSubscriptionEvents(body as any);
-    expect(response).toEqual(result);
+    expect(response).toEqual({ statusCode: 400 });
   });
 
   it('should handle failed order subscription events (other)', async () => {
@@ -138,7 +138,7 @@ describe('OrderSubscriptionService', () => {
       .spyOn(eventHandlerService, 'handleProcessedEventResponse')
       .mockReturnValue(result.result as any);
     const response = await service.handleOrderSubscriptionEvents(body as any);
-    expect(response).toEqual(result);
+    expect(response).toEqual({ statusCode: 202 });
   });
 
   it('should handle early errors during processEvent', async () => {
@@ -153,8 +153,7 @@ describe('OrderSubscriptionService', () => {
     jest
       .spyOn(eventHandlerService, 'processEvent')
       .mockRejectedValueOnce(new Error('error'));
-    const result = { statusCode: 500, result: expect.any(Error) };
     const response = await service.handleOrderSubscriptionEvents(body as any);
-    expect(response).toEqual(result);
+    expect(response).toEqual({ statusCode: 500 });
   });
 });

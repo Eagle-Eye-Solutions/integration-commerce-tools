@@ -21,6 +21,6 @@ export class SettleController {
         message,
       );
     res.status(subscriptionResult.statusCode);
-    return subscriptionResult.result;
+    return;
   }
 }
