@@ -1,6 +1,6 @@
 import { ArgumentsHost, Catch, ExceptionFilter, Logger } from '@nestjs/common';
 import { CTActionsBuilder } from '../providers/commercetools/actions/ActionsBuilder';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { CartCustomTypeActionBuilder } from '../providers/commercetools/actions/cart-update/CartCustomTypeActionBuilder';
 import { CartTypeDefinition } from '../providers/commercetools/custom-type/cart-type-definition';
 
@@ -17,21 +17,39 @@ export class UnhandledExceptionsFilter implements ExceptionFilter {
     this.logger.error('Unhandled error: ', exception);
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
+    const originalRequest = ctx.getRequest<Request>();
 
     const actionBuilder = new CTActionsBuilder();
-    actionBuilder.add(
-      CartCustomTypeActionBuilder.addCustomType(
-        {
+    if (
+      CartCustomTypeActionBuilder.checkResourceCustomType(
+        originalRequest.body?.resource?.obj,
+      )
+    ) {
+      actionBuilder.addAll(
+        CartCustomTypeActionBuilder.setCustomFields({
           errors: [
             {
               type: 'EE_PLUGIN_GENERIC_ERROR',
               message: 'An unexpected error occured in the eagle eye plugin',
             },
           ],
-        },
-        this.cartTypeDefinition.getTypeKey(),
-      ),
-    );
+        }),
+      );
+    } else {
+      actionBuilder.add(
+        CartCustomTypeActionBuilder.addCustomType(
+          {
+            errors: [
+              {
+                type: 'EE_PLUGIN_GENERIC_ERROR',
+                message: 'An unexpected error occured in the eagle eye plugin',
+              },
+            ],
+          },
+          this.cartTypeDefinition.getTypeKey(),
+        ),
+      );
+    }
 
     response.status(200).json(actionBuilder.build());
   }

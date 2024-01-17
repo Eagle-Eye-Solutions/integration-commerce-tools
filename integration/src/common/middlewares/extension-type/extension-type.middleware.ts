@@ -9,9 +9,10 @@ export class ExtensionTypeMiddleware implements NestMiddleware {
     const body = req.body;
     if (!this.supportedTypes.includes(body?.resource?.typeId)) {
       console.log(
-        `The received typeId '${
-          body.resource.typeId
-        }' is not any of the supported ones: ${this.supportedTypes.join(', ')}`,
+        `The received typeId '${body?.resource
+          ?.typeId}' is not any of the supported ones: ${this.supportedTypes.join(
+          ', ',
+        )}`,
       );
       return res.status(200).json(new CTActionsBuilder().build());
     }
