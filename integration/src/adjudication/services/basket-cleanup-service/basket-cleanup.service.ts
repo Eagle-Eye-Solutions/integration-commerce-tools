@@ -85,10 +85,11 @@ export class BasketCleanupService {
       await Promise.all(promises);
     } while (hasMore);
 
-    this.logger.log(
-      `Finished removing old baskets. Results: ${results.successful.length} successful, ${results.failed.length} failed`,
+    this.logger.log({
+      message: `Finished removing old baskets. Results: ${results.successful.length} successful, ${results.failed.length} failed`,
+      context: BasketCleanupService.name,
       results,
-    );
+    });
 
     return {
       results,
