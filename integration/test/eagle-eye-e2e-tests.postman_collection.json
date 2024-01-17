@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "a0f8e9f4-4723-4f57-afdb-4e3cd58de965",
 		"name": "EagleEye CT Plugin - E2E Tests",
-		"description": "Descriptions are included folder levels.  \n  \nFor further plugin documentation refer to: [https://github.com/Eagle-Eye-Solutions/integration-commerce-tools/tree/master/integration/docs](https://github.com/Eagle-Eye-Solutions/integration-commerce-tools/tree/master/integration/docs)",
+		"description": "Descriptions are included folder levels.\n\nFor further plugin documentation refer to: [https://github.com/Eagle-Eye-Solutions/integration-commerce-tools/tree/master/integration/docs](https://github.com/Eagle-Eye-Solutions/integration-commerce-tools/tree/master/integration/docs)",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "17495524"
 	},
@@ -8388,6 +8388,107 @@
 					"name": "Base Earn",
 					"item": [
 						{
+							"name": "Create new wallet",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"// Load global pre-request script object",
+											"var ee = eval(pm.globals.get('ees'));",
+											"ee.setUrl('medusaUrl');",
+											"",
+											"// Set up any environment variables",
+											"pm.environment.set('value', CryptoJS.lib.WordArray.random(128/8).toString());",
+											"",
+											"// Call the global authentication function",
+											"ee.auth();"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"tests[\"Status code is 201\"] = responseCode.code === 201;",
+											"",
+											"var jsonData = JSON.parse(responseBody);",
+											"pm.environment.set('walletId', jsonData.walletId);",
+											"pm.environment.set('identityValue', jsonData.identities[0].value);",
+											"pm.environment.set('accountId', jsonData.accounts.scheme.successful.results[0].accountId);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-EES-AUTH-HASH",
+										"value": "{{xAuthHash}}"
+									},
+									{
+										"key": "X-EES-AUTH-CLIENT-ID",
+										"value": "{{xAuthClientId}}"
+									},
+									{
+										"key": "X-AUTH-HASH",
+										"value": "{{xAuthHash}}"
+									},
+									{
+										"key": "X-AUTH-CLIENT-ID",
+										"value": "{{xAuthClientId}}"
+									},
+									{
+										"key": "X-TRANSACTION-ID",
+										"value": "{{xTransactionId}}"
+									},
+									{
+										"key": "X-RETRY",
+										"value": "1"
+									},
+									{
+										"key": "X-EES-OPERATOR",
+										"value": "1"
+									},
+									{
+										"key": "X-EES-CALLER",
+										"value": "POSTMAN"
+									},
+									{
+										"key": "X-EES-CALLER-VERSION",
+										"value": "0"
+									},
+									{
+										"key": "X-EES-MESSAGEID",
+										"value": "03d476861afd384510f2cb80ccfa8511"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"type\": \"CONSUMER\",\n    \"identities\": [\n        {\n            \"type\": \"CUSTOMER_ID\",\n            \"value\": \"{{value}}\"\n        }\n    ],\n    \"accounts\": {\n        \"campaign\": [\n            {\n                \"campaignId\": \"1762318\"\n            }\n        ],\n        \"scheme\": [\n            {\n                \"status\": \"ACTIVE\",\n                \"schemeId\": \"{{schemeId}}\"\n            }\n        ]\n    }\n}"
+								},
+								"url": {
+									"raw": "{{url}}/services/wallet/accounts",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"services",
+										"wallet",
+										"accounts"
+									]
+								}
+							},
+							"response": []
+						},
+						{
 							"name": "Obtain access token",
 							"event": [
 								{
@@ -8533,7 +8634,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n   \"currency\":\"GBP\",\n   \"lineItems\":[\n      {\n         \"sku\":\"245871\",\n         \"quantity\":12\n      }\n   ],\n   \"custom\":{\n      \"type\":{\n         \"typeId\":\"type\",\n         \"key\":\"custom-cart-type\"\n      },\n      \"fields\":{\n         \"eagleeye-identityValue\": \"john.toe7@example.org\"\n      }\n   },\n   \"shippingAddress\":{\n      \"country\":\"GB\"\n   },\n   \"shippingMethod\":{\n      \"typeId\":\"shipping-method\",\n      \"key\":\"standard-key\"\n   }\n}\n"
+									"raw": "{\n   \"currency\":\"GBP\",\n   \"lineItems\":[\n      {\n         \"sku\":\"245871\",\n         \"quantity\":12\n      }\n   ],\n   \"custom\":{\n      \"type\":{\n         \"typeId\":\"type\",\n         \"key\":\"custom-cart-type\"\n      },\n      \"fields\":{\n         \"eagleeye-identityValue\": \"{{identityValue}}\"\n      }\n   },\n   \"shippingAddress\":{\n      \"country\":\"GB\"\n   },\n   \"shippingMethod\":{\n      \"typeId\":\"shipping-method\",\n      \"key\":\"standard-key\"\n   }\n}\n"
 								},
 								"url": {
 									"raw": "{{host}}/{{project-key}}/carts",
@@ -8735,6 +8836,114 @@
 								"description": "null"
 							},
 							"response": []
+						},
+						{
+							"name": "Get Order: Check Points Were Awarded To Customer",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"// Load global pre-request script object",
+											"var ee = eval(pm.globals.get('ees'));",
+											"ee.setUrl('medusaUrl');",
+											"",
+											"// Set up any environment variables",
+											"pm.environment.set('value', CryptoJS.lib.WordArray.random(128/8).toString());",
+											"",
+											"// Call the global authentication function",
+											"ee.auth();"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"var data = pm.response.json();",
+											"",
+											"tests[\"Status code is 200\"] = responseCode.code === 200;",
+											"",
+											"pm.test(\"Customer Points Are Available\", function () {",
+											"    pm.expect(data.balances.current).to.be.greaterThan(0);",
+											"});",
+											"",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "X-EES-AUTH-HASH",
+										"value": "{{xAuthHash}}"
+									},
+									{
+										"key": "X-EES-AUTH-CLIENT-ID",
+										"value": "{{xAuthClientId}}"
+									},
+									{
+										"key": "X-AUTH-HASH",
+										"value": "{{xAuthHash}}"
+									},
+									{
+										"key": "X-AUTH-CLIENT-ID",
+										"value": "{{xAuthClientId}}"
+									},
+									{
+										"key": "X-TRANSACTION-ID",
+										"value": "{{xTransactionId}}"
+									},
+									{
+										"key": "X-RETRY",
+										"value": "1"
+									},
+									{
+										"key": "X-EES-OPERATOR",
+										"value": "1"
+									},
+									{
+										"key": "X-EES-CALLER",
+										"value": "POSTMAN"
+									},
+									{
+										"key": "X-EES-CALLER-VERSION",
+										"value": "0"
+									},
+									{
+										"key": "X-EES-MESSAGEID",
+										"value": "03d476861afd384510f2cb80ccfa8511"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/wallet/{{walletId}}/account/{{accountId}}",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"wallet",
+										"{{walletId}}",
+										"account",
+										"{{accountId}}"
+									]
+								}
+							},
+							"response": []
 						}
 					]
 				},
@@ -8742,7 +8951,7 @@
 					"name": "Basket Level Coupon Credits",
 					"item": [
 						{
-							"name": "Create new wallet and targeted coupons Copy",
+							"name": "Create new wallet",
 							"event": [
 								{
 									"listen": "prerequest",
@@ -8769,7 +8978,8 @@
 											"",
 											"var jsonData = JSON.parse(responseBody);",
 											"pm.environment.set('walletId', jsonData.walletId);",
-											"pm.environment.set('identityValue', jsonData.identities[0].value);"
+											"pm.environment.set('identityValue', jsonData.identities[0].value);",
+											"pm.environment.set('accountId', jsonData.accounts.scheme.successful.results[0].accountId);"
 										],
 										"type": "text/javascript"
 									}
@@ -9201,6 +9411,114 @@
 								"description": "null"
 							},
 							"response": []
+						},
+						{
+							"name": "Get Order: Check Points Were Awarded To Customer",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"// Load global pre-request script object",
+											"var ee = eval(pm.globals.get('ees'));",
+											"ee.setUrl('medusaUrl');",
+											"",
+											"// Set up any environment variables",
+											"pm.environment.set('value', CryptoJS.lib.WordArray.random(128/8).toString());",
+											"",
+											"// Call the global authentication function",
+											"ee.auth();"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"var data = pm.response.json();",
+											"",
+											"tests[\"Status code is 200\"] = responseCode.code === 200;",
+											"",
+											"pm.test(\"Customer Points Are Available\", function () {",
+											"    pm.expect(data.balances.current).to.be.greaterThan(0);",
+											"});",
+											"",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "X-EES-AUTH-HASH",
+										"value": "{{xAuthHash}}"
+									},
+									{
+										"key": "X-EES-AUTH-CLIENT-ID",
+										"value": "{{xAuthClientId}}"
+									},
+									{
+										"key": "X-AUTH-HASH",
+										"value": "{{xAuthHash}}"
+									},
+									{
+										"key": "X-AUTH-CLIENT-ID",
+										"value": "{{xAuthClientId}}"
+									},
+									{
+										"key": "X-TRANSACTION-ID",
+										"value": "{{xTransactionId}}"
+									},
+									{
+										"key": "X-RETRY",
+										"value": "1"
+									},
+									{
+										"key": "X-EES-OPERATOR",
+										"value": "1"
+									},
+									{
+										"key": "X-EES-CALLER",
+										"value": "POSTMAN"
+									},
+									{
+										"key": "X-EES-CALLER-VERSION",
+										"value": "0"
+									},
+									{
+										"key": "X-EES-MESSAGEID",
+										"value": "03d476861afd384510f2cb80ccfa8511"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/wallet/{{walletId}}/account/{{accountId}}",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"wallet",
+										"{{walletId}}",
+										"account",
+										"{{accountId}}"
+									]
+								}
+							},
+							"response": []
 						}
 					]
 				},
@@ -9208,7 +9526,7 @@
 					"name": "Item Level Offers",
 					"item": [
 						{
-							"name": "Create new wallet and targeted coupons",
+							"name": "Create new wallet",
 							"event": [
 								{
 									"listen": "prerequest",
@@ -9235,7 +9553,8 @@
 											"",
 											"var jsonData = JSON.parse(responseBody);",
 											"pm.environment.set('walletId', jsonData.walletId);",
-											"pm.environment.set('identityValue', jsonData.identities[0].value);"
+											"pm.environment.set('identityValue', jsonData.identities[0].value);",
+											"pm.environment.set('accountId', jsonData.accounts.scheme.successful.results[0].accountId);"
 										],
 										"type": "text/javascript"
 									}
@@ -9568,6 +9887,114 @@
 									]
 								},
 								"description": "Creating a Cart fails with an [InvalidOperation](ctp:api:type:InvalidOperationError) error if the\n[ShippingMethod](ctp:api:type:ShippingMethod) referenced in the CartDraft\nhas a `predicate` that does not match the Cart.\n"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Order: Check Points Were Awarded To Customer",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"// Load global pre-request script object",
+											"var ee = eval(pm.globals.get('ees'));",
+											"ee.setUrl('medusaUrl');",
+											"",
+											"// Set up any environment variables",
+											"pm.environment.set('value', CryptoJS.lib.WordArray.random(128/8).toString());",
+											"",
+											"// Call the global authentication function",
+											"ee.auth();"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"var data = pm.response.json();",
+											"",
+											"tests[\"Status code is 200\"] = responseCode.code === 200;",
+											"",
+											"pm.test(\"Customer Points Are Available\", function () {",
+											"    pm.expect(data.balances.current).to.be.greaterThan(0);",
+											"});",
+											"",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "X-EES-AUTH-HASH",
+										"value": "{{xAuthHash}}"
+									},
+									{
+										"key": "X-EES-AUTH-CLIENT-ID",
+										"value": "{{xAuthClientId}}"
+									},
+									{
+										"key": "X-AUTH-HASH",
+										"value": "{{xAuthHash}}"
+									},
+									{
+										"key": "X-AUTH-CLIENT-ID",
+										"value": "{{xAuthClientId}}"
+									},
+									{
+										"key": "X-TRANSACTION-ID",
+										"value": "{{xTransactionId}}"
+									},
+									{
+										"key": "X-RETRY",
+										"value": "1"
+									},
+									{
+										"key": "X-EES-OPERATOR",
+										"value": "1"
+									},
+									{
+										"key": "X-EES-CALLER",
+										"value": "POSTMAN"
+									},
+									{
+										"key": "X-EES-CALLER-VERSION",
+										"value": "0"
+									},
+									{
+										"key": "X-EES-MESSAGEID",
+										"value": "03d476861afd384510f2cb80ccfa8511"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/wallet/{{walletId}}/account/{{accountId}}",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"wallet",
+										"{{walletId}}",
+										"account",
+										"{{accountId}}"
+									]
+								}
 							},
 							"response": []
 						}
@@ -9947,6 +10374,2898 @@
 							"response": []
 						}
 					]
+				},
+				{
+					"name": "Continuity",
+					"item": [
+						{
+							"name": "Separate Transactions",
+							"item": [
+								{
+									"name": "Create new wallet",
+									"event": [
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"// Load global pre-request script object",
+													"var ee = eval(pm.globals.get('ees'));",
+													"ee.setUrl('medusaUrl');",
+													"",
+													"// Set up any environment variables",
+													"pm.environment.set('value', CryptoJS.lib.WordArray.random(128/8).toString());",
+													"",
+													"// Call the global authentication function",
+													"ee.auth();"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"tests[\"Status code is 201\"] = responseCode.code === 201;",
+													"",
+													"var jsonData = JSON.parse(responseBody);",
+													"pm.environment.set('walletId', jsonData.walletId);",
+													"pm.environment.set('identityValue', jsonData.identities[0].value);",
+													"pm.environment.set('accountId', jsonData.accounts.scheme.successful.results[0].accountId);"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "X-EES-AUTH-HASH",
+												"value": "{{xAuthHash}}"
+											},
+											{
+												"key": "X-EES-AUTH-CLIENT-ID",
+												"value": "{{xAuthClientId}}"
+											},
+											{
+												"key": "X-AUTH-HASH",
+												"value": "{{xAuthHash}}"
+											},
+											{
+												"key": "X-AUTH-CLIENT-ID",
+												"value": "{{xAuthClientId}}"
+											},
+											{
+												"key": "X-TRANSACTION-ID",
+												"value": "{{xTransactionId}}"
+											},
+											{
+												"key": "X-RETRY",
+												"value": "1"
+											},
+											{
+												"key": "X-EES-OPERATOR",
+												"value": "1"
+											},
+											{
+												"key": "X-EES-CALLER",
+												"value": "POSTMAN"
+											},
+											{
+												"key": "X-EES-CALLER-VERSION",
+												"value": "0"
+											},
+											{
+												"key": "X-EES-MESSAGEID",
+												"value": "03d476861afd384510f2cb80ccfa8511"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"type\": \"CONSUMER\",\n    \"identities\": [\n        {\n            \"type\": \"CUSTOMER_ID\",\n            \"value\": \"{{value}}\"\n        }\n    ],\n    \"accounts\": {\n        \"campaign\": [\n            {\n                \"campaignId\": \"1801571\"\n            },\n            {\n                \"campaignId\": \"1801512\"\n            },\n            {\n                \"campaignId\": \"1801469\"\n            }\n        ],\n        \"scheme\": [\n            {\n                \"status\": \"ACTIVE\",\n                \"schemeId\": \"{{schemeId}}\"\n            }\n        ]\n    }\n}"
+										},
+										"url": {
+											"raw": "{{url}}/services/wallet/accounts",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"services",
+												"wallet",
+												"accounts"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Obtain access token",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"type": "text/javascript",
+												"exec": [
+													"tests[\"Status code is 200\"] = responseCode.code === 200;",
+													"var data = JSON.parse(responseBody);",
+													"if(data.access_token){",
+													"    pm.environment.set(\"ctp_access_token\", data.access_token);",
+													"}",
+													"if (data.scope) {",
+													"    parts = data.scope.split(\" \");",
+													"    parts = parts.filter(scope => scope.includes(\":\")).map(scope => scope.split(\":\"))",
+													"    if (parts.length > 0) {",
+													"        scopeParts = parts[0];",
+													"        pm.environment.set(\"project-key\", scopeParts[1]);",
+													"        parts = parts.filter(scope => scope.length >= 3)",
+													"        if (parts.length > 0) {",
+													"            scopeParts = parts[0];",
+													"            pm.environment.set(\"store-key\", scopeParts[2]);",
+													"        }",
+													"    }",
+													"}"
+												]
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "basic",
+											"basic": [
+												{
+													"key": "username",
+													"value": "{{client_id}}",
+													"type": "string"
+												},
+												{
+													"key": "password",
+													"value": "{{client_secret}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{auth_url}}/oauth/token?grant_type=client_credentials",
+											"host": [
+												"{{auth_url}}"
+											],
+											"path": [
+												"oauth",
+												"token"
+											],
+											"query": [
+												{
+													"key": "grant_type",
+													"value": "client_credentials"
+												}
+											]
+										},
+										"description": "Use this request to obtain an access token for your commercetools platform project via Client Credentials Flow. As a prerequisite you must have filled out environment variables in Postman for projectKey, client_id and client_secret to use this."
+									},
+									"response": []
+								},
+								{
+									"name": "Create Cart: Partial requirements met",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var data = pm.response.json();",
+													"",
+													"pm.test('Check status code', () => {",
+													"    pm.expect(pm.response.code).to.be.oneOf([",
+													"        200,",
+													"        201",
+													"    ]);",
+													"})",
+													"",
+													"pm.test(\"When Campaign Requirements Are Partially Met, 'IN PROGRESS' Label Is Displayed Under 'eagleeye-loyaltyCredits'\", function () {",
+													"    pm.expect(data.lineItems[0].custom.fields['eagleeye-loyaltyCredits']).to.include('IN_PROGRESS');",
+													"});",
+													"",
+													"pm.test(\"0 Total Points And Offer Are Registered Under Line Item's 'eagleeye-loyaltyCredits' property\", function () {",
+													"    pm.expect(data.lineItems[0].custom.fields['eagleeye-loyaltyCredits']).to.include('total\\\":0,\\\"offers\\\":[{\\\"name\\\":\\\"500 points');",
+													"});",
+													"",
+													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
+													"    pm.environment.set(\"cart-id\", data.results[0].id); ",
+													"    pm.environment.set(\"cart-version\", data.results[0].version);",
+													"}",
+													"if(data.results && data.results[0] && data.results[0].key){",
+													"    pm.environment.set(\"cart-key\", data.results[0].key); ",
+													"}",
+													"if(data.version){",
+													"    pm.environment.set(\"cart-version\", data.version);",
+													"}",
+													"if(data.id){",
+													"    pm.environment.set(\"cart-id\", data.id); ",
+													"}",
+													"if(data.key){",
+													"    pm.environment.set(\"cart-key\", data.key);",
+													"}",
+													"",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "oauth2",
+											"oauth2": [
+												{
+													"key": "accessToken",
+													"value": "{{ctp_access_token}}",
+													"type": "string"
+												},
+												{
+													"key": "addTokenTo",
+													"value": "header",
+													"type": "string"
+												},
+												{
+													"key": "tokenType",
+													"value": "Bearer",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n   \"currency\": \"GBP\",\n   \"lineItems\": [\n      {\n         \"sku\": \"245896\",\n         \"quantity\": 1\n      }\n   ],\n   \"shippingAddress\": {\n      \"key\": \"abc-123\",\n      \"country\": \"GB\"\n   },\n   \"custom\": {\n      \"type\": {\n         \"typeId\": \"type\",\n         \"key\": \"custom-cart-type\"\n      },\n      \"fields\": {\n         \"eagleeye-identityValue\": \"{{identityValue}}\"\n      }\n   }\n}"
+										},
+										"url": {
+											"raw": "{{host}}/{{project-key}}/carts",
+											"host": [
+												"{{host}}"
+											],
+											"path": [
+												"{{project-key}}",
+												"carts"
+											],
+											"query": [
+												{
+													"key": "expand",
+													"value": "",
+													"disabled": true
+												}
+											]
+										},
+										"description": "Creating a Cart fails with an [InvalidOperation](ctp:api:type:InvalidOperationError) error if the\n[ShippingMethod](ctp:api:type:ShippingMethod) referenced in the CartDraft\nhas a `predicate` that does not match the Cart.\n"
+									},
+									"response": []
+								},
+								{
+									"name": "Create Order: Payment State: Paid",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var data = pm.response.json();",
+													"",
+													"pm.test('Check status code', () => {",
+													"    pm.expect(pm.response.code).to.be.oneOf([",
+													"        200,",
+													"        201",
+													"    ]);",
+													"})",
+													"",
+													"setTimeout(() => {}, 5000)",
+													"",
+													"pm.test(\"When Campaign Requirements Are Partially Met, 'IN PROGRESS' Label Is Displayed Under 'eagleeye-loyaltyCredits'\", function () {",
+													"    pm.expect(data.lineItems[0].custom.fields['eagleeye-loyaltyCredits']).to.include('IN_PROGRESS');",
+													"});",
+													"",
+													"pm.test(\"0 Total Points And Offer Are Registered Under Line Item's 'eagleeye-loyaltyCredits' property\", function () {",
+													"    pm.expect(data.lineItems[0].custom.fields['eagleeye-loyaltyCredits']).to.include('total\\\":0,\\\"offers\\\":[{\\\"name\\\":\\\"500 points');",
+													"});",
+													"",
+													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
+													"    pm.environment.set(\"order-id\", data.results[0].id); ",
+													"    pm.environment.set(\"order-version\", data.results[0].version);",
+													"}",
+													"if(data.results && data.results[0] && data.results[0].key){",
+													"    pm.environment.set(\"order-key\", data.results[0].key); ",
+													"}",
+													"if(data.version){",
+													"    pm.environment.set(\"order-version\", data.version);",
+													"}",
+													"if(data.id){",
+													"    pm.environment.set(\"order-id\", data.id); ",
+													"}",
+													"if(data.key){",
+													"    pm.environment.set(\"order-key\", data.key);",
+													"}"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "oauth2",
+											"oauth2": [
+												{
+													"key": "accessToken",
+													"value": "{{ctp_access_token}}",
+													"type": "string"
+												},
+												{
+													"key": "addTokenTo",
+													"value": "header",
+													"type": "string"
+												},
+												{
+													"key": "tokenType",
+													"value": "Bearer",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"version\": {{cart-version}},\n    \"cart\": {\n        \"typeId\": \"cart\",\n        \"id\": \"{{cart-id}}\"\n    },\n    \"paymentState\": \"Paid\"\n}"
+										},
+										"url": {
+											"raw": "{{host}}/{{project-key}}/orders",
+											"host": [
+												"{{host}}"
+											],
+											"path": [
+												"{{project-key}}",
+												"orders"
+											],
+											"query": [
+												{
+													"key": "expand",
+													"value": "",
+													"disabled": true
+												}
+											]
+										},
+										"description": "Creating a Cart fails with an [InvalidOperation](ctp:api:type:InvalidOperationError) error if the\n[ShippingMethod](ctp:api:type:ShippingMethod) referenced in the CartDraft\nhas a `predicate` that does not match the Cart.\n"
+									},
+									"response": []
+								},
+								{
+									"name": "Get Order: Check 'Settled' Order",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var data = pm.response.json();",
+													"",
+													"pm.test('Check status code', () => {",
+													"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+													"});",
+													"",
+													"pm.test(\"Settled status is set to 'SETTLED'\", function () {",
+													"    pm.expect(data.custom.fields['eagleeye-settledStatus']).to.equal('SETTLED');",
+													"});",
+													"",
+													"pm.test(\"When Campaign Requirements Are Partially Met, 'IN PROGRESS' Label Is Displayed Under 'eagleeye-loyaltyCredits'\", function () {",
+													"    pm.expect(data.lineItems[0].custom.fields['eagleeye-loyaltyCredits']).to.include('IN_PROGRESS');",
+													"});",
+													"",
+													"pm.test(\"0 Total Points And Offer Are Registered Under Line Item's 'eagleeye-loyaltyCredits' property\", function () {",
+													"    pm.expect(data.lineItems[0].custom.fields['eagleeye-loyaltyCredits']).to.include('total\\\":0,\\\"offers\\\":[{\\\"name\\\":\\\"500 points');",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"auth": {
+											"type": "oauth2",
+											"oauth2": [
+												{
+													"key": "accessToken",
+													"value": "{{ctp_access_token}}",
+													"type": "string"
+												},
+												{
+													"key": "addTokenTo",
+													"value": "header",
+													"type": "string"
+												},
+												{
+													"key": "tokenType",
+													"value": "Bearer",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{host}}/{{project-key}}/orders/{{order-id}}",
+											"host": [
+												"{{host}}"
+											],
+											"path": [
+												"{{project-key}}",
+												"orders",
+												"{{order-id}}"
+											],
+											"query": [
+												{
+													"key": "expand",
+													"value": "",
+													"disabled": true
+												}
+											]
+										},
+										"description": "null"
+									},
+									"response": []
+								},
+								{
+									"name": "Create Cart: Complete continuity account",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var data = pm.response.json();",
+													"",
+													"pm.test('Check status code', () => {",
+													"    pm.expect(pm.response.code).to.be.oneOf([",
+													"        200,",
+													"        201",
+													"    ]);",
+													"})",
+													"",
+													"pm.test(\"When Campaign Requirements Are Fully Met, 'COMPLETING' Label Is Displayed Under 'eagleeye-loyaltyCredits'\", function () {",
+													"    pm.expect(data.lineItems[0].custom.fields['eagleeye-loyaltyCredits']).to.include('COMPLETING');",
+													"});",
+													"",
+													"pm.test(\"Total Points And Offer Are Registered Under Line Item's 'eagleeye-loyaltyCredits' property\", function () {",
+													"    pm.expect(data.lineItems[0].custom.fields['eagleeye-loyaltyCredits']).to.include('total\\\":500,\\\"offers\\\":[{\\\"name\\\":\\\"500 points');",
+													"});",
+													"",
+													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
+													"    pm.environment.set(\"cart-id\", data.results[0].id); ",
+													"    pm.environment.set(\"cart-version\", data.results[0].version);",
+													"}",
+													"if(data.results && data.results[0] && data.results[0].key){",
+													"    pm.environment.set(\"cart-key\", data.results[0].key); ",
+													"}",
+													"if(data.version){",
+													"    pm.environment.set(\"cart-version\", data.version);",
+													"}",
+													"if(data.id){",
+													"    pm.environment.set(\"cart-id\", data.id); ",
+													"}",
+													"if(data.key){",
+													"    pm.environment.set(\"cart-key\", data.key);",
+													"}",
+													"",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "oauth2",
+											"oauth2": [
+												{
+													"key": "accessToken",
+													"value": "{{ctp_access_token}}",
+													"type": "string"
+												},
+												{
+													"key": "addTokenTo",
+													"value": "header",
+													"type": "string"
+												},
+												{
+													"key": "tokenType",
+													"value": "Bearer",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n   \"currency\": \"GBP\",\n   \"lineItems\": [\n      {\n         \"sku\": \"245896\",\n         \"quantity\": 2\n      }\n   ],\n   \"shippingAddress\": {\n      \"key\": \"abc-123\",\n      \"country\": \"GB\"\n   },\n   \"custom\": {\n      \"type\": {\n         \"typeId\": \"type\",\n         \"key\": \"custom-cart-type\"\n      },\n      \"fields\": {\n         \"eagleeye-identityValue\": \"{{identityValue}}\"\n      }\n   }\n}"
+										},
+										"url": {
+											"raw": "{{host}}/{{project-key}}/carts",
+											"host": [
+												"{{host}}"
+											],
+											"path": [
+												"{{project-key}}",
+												"carts"
+											],
+											"query": [
+												{
+													"key": "expand",
+													"value": "",
+													"disabled": true
+												}
+											]
+										},
+										"description": "Creating a Cart fails with an [InvalidOperation](ctp:api:type:InvalidOperationError) error if the\n[ShippingMethod](ctp:api:type:ShippingMethod) referenced in the CartDraft\nhas a `predicate` that does not match the Cart.\n"
+									},
+									"response": []
+								},
+								{
+									"name": "Create Order: Payment State: Paid",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var data = pm.response.json();",
+													"",
+													"pm.test('Check status code', () => {",
+													"    pm.expect(pm.response.code).to.be.oneOf([",
+													"        200,",
+													"        201",
+													"    ]);",
+													"})",
+													"",
+													"setTimeout(() => {}, 5000)",
+													"",
+													"pm.test(\"When Campaign Requirements Are Fully Met, 'COMPLETING' Label Is Displayed Under 'eagleeye-loyaltyCredits'\", function () {",
+													"    pm.expect(data.lineItems[0].custom.fields['eagleeye-loyaltyCredits']).to.include('COMPLETING');",
+													"});",
+													"",
+													"pm.test(\"Total Points And Offer Are Registered Under Line Item's 'eagleeye-loyaltyCredits' property\", function () {",
+													"    pm.expect(data.lineItems[0].custom.fields['eagleeye-loyaltyCredits']).to.include('total\\\":500,\\\"offers\\\":[{\\\"name\\\":\\\"500 points');",
+													"});",
+													"",
+													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
+													"    pm.environment.set(\"order-id\", data.results[0].id); ",
+													"    pm.environment.set(\"order-version\", data.results[0].version);",
+													"}",
+													"if(data.results && data.results[0] && data.results[0].key){",
+													"    pm.environment.set(\"order-key\", data.results[0].key); ",
+													"}",
+													"if(data.version){",
+													"    pm.environment.set(\"order-version\", data.version);",
+													"}",
+													"if(data.id){",
+													"    pm.environment.set(\"order-id\", data.id); ",
+													"}",
+													"if(data.key){",
+													"    pm.environment.set(\"order-key\", data.key);",
+													"}"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "oauth2",
+											"oauth2": [
+												{
+													"key": "accessToken",
+													"value": "{{ctp_access_token}}",
+													"type": "string"
+												},
+												{
+													"key": "addTokenTo",
+													"value": "header",
+													"type": "string"
+												},
+												{
+													"key": "tokenType",
+													"value": "Bearer",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"version\": {{cart-version}},\n    \"cart\": {\n        \"typeId\": \"cart\",\n        \"id\": \"{{cart-id}}\"\n    },\n    \"paymentState\": \"Paid\"\n}"
+										},
+										"url": {
+											"raw": "{{host}}/{{project-key}}/orders",
+											"host": [
+												"{{host}}"
+											],
+											"path": [
+												"{{project-key}}",
+												"orders"
+											],
+											"query": [
+												{
+													"key": "expand",
+													"value": "",
+													"disabled": true
+												}
+											]
+										},
+										"description": "Creating a Cart fails with an [InvalidOperation](ctp:api:type:InvalidOperationError) error if the\n[ShippingMethod](ctp:api:type:ShippingMethod) referenced in the CartDraft\nhas a `predicate` that does not match the Cart.\n"
+									},
+									"response": []
+								},
+								{
+									"name": "Get Order: Check 'Settled' Order",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var data = pm.response.json();",
+													"",
+													"pm.test('Check status code', () => {",
+													"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+													"});",
+													"",
+													"pm.test(\"Settled status is set to 'SETTLED'\", function () {",
+													"    pm.expect(data.custom.fields['eagleeye-settledStatus']).to.equal('SETTLED');",
+													"});",
+													"",
+													"pm.test(\"When Campaign Requirements Are Fully Met, 'COMPLETING' Label Is Displayed Under 'eagleeye-loyaltyCredits'\", function () {",
+													"    pm.expect(data.lineItems[0].custom.fields['eagleeye-loyaltyCredits']).to.include('COMPLETING');",
+													"});",
+													"",
+													"pm.test(\"Total Points And Offer Are Registered Under Line Item's 'eagleeye-loyaltyCredits' property\", function () {",
+													"    pm.expect(data.lineItems[0].custom.fields['eagleeye-loyaltyCredits']).to.include('total\\\":500,\\\"offers\\\":[{\\\"name\\\":\\\"500 points');",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"auth": {
+											"type": "oauth2",
+											"oauth2": [
+												{
+													"key": "accessToken",
+													"value": "{{ctp_access_token}}",
+													"type": "string"
+												},
+												{
+													"key": "addTokenTo",
+													"value": "header",
+													"type": "string"
+												},
+												{
+													"key": "tokenType",
+													"value": "Bearer",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{host}}/{{project-key}}/orders/{{order-id}}",
+											"host": [
+												"{{host}}"
+											],
+											"path": [
+												"{{project-key}}",
+												"orders",
+												"{{order-id}}"
+											],
+											"query": [
+												{
+													"key": "expand",
+													"value": "",
+													"disabled": true
+												}
+											]
+										},
+										"description": "null"
+									},
+									"response": []
+								},
+								{
+									"name": "Get Order: Check Points Were Awarded To Customer",
+									"event": [
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"// Load global pre-request script object",
+													"var ee = eval(pm.globals.get('ees'));",
+													"ee.setUrl('medusaUrl');",
+													"",
+													"// Set up any environment variables",
+													"pm.environment.set('value', CryptoJS.lib.WordArray.random(128/8).toString());",
+													"",
+													"// Call the global authentication function",
+													"ee.auth();"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var data = pm.response.json();",
+													"",
+													"tests[\"Status code is 200\"] = responseCode.code === 200;",
+													"",
+													"pm.test(\"Customer Points Are Available\", function () {",
+													"    pm.expect(data.balances.current).to.be.greaterThan(0);",
+													"});",
+													"",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "X-EES-AUTH-HASH",
+												"value": "{{xAuthHash}}"
+											},
+											{
+												"key": "X-EES-AUTH-CLIENT-ID",
+												"value": "{{xAuthClientId}}"
+											},
+											{
+												"key": "X-AUTH-HASH",
+												"value": "{{xAuthHash}}"
+											},
+											{
+												"key": "X-AUTH-CLIENT-ID",
+												"value": "{{xAuthClientId}}"
+											},
+											{
+												"key": "X-TRANSACTION-ID",
+												"value": "{{xTransactionId}}"
+											},
+											{
+												"key": "X-RETRY",
+												"value": "1"
+											},
+											{
+												"key": "X-EES-OPERATOR",
+												"value": "1"
+											},
+											{
+												"key": "X-EES-CALLER",
+												"value": "POSTMAN"
+											},
+											{
+												"key": "X-EES-CALLER-VERSION",
+												"value": "0"
+											},
+											{
+												"key": "X-EES-MESSAGEID",
+												"value": "03d476861afd384510f2cb80ccfa8511"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{url}}/wallet/{{walletId}}/account/{{accountId}}",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"wallet",
+												"{{walletId}}",
+												"account",
+												"{{accountId}}"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "Single Transaction",
+							"item": [
+								{
+									"name": "Create new wallet",
+									"event": [
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"// Load global pre-request script object",
+													"var ee = eval(pm.globals.get('ees'));",
+													"ee.setUrl('medusaUrl');",
+													"",
+													"// Set up any environment variables",
+													"pm.environment.set('value', CryptoJS.lib.WordArray.random(128/8).toString());",
+													"",
+													"// Call the global authentication function",
+													"ee.auth();"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"tests[\"Status code is 201\"] = responseCode.code === 201;",
+													"",
+													"var jsonData = JSON.parse(responseBody);",
+													"pm.environment.set('walletId', jsonData.walletId);",
+													"pm.environment.set('identityValue', jsonData.identities[0].value);",
+													"pm.environment.set('accountId', jsonData.accounts.scheme.successful.results[0].accountId);"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "X-EES-AUTH-HASH",
+												"value": "{{xAuthHash}}"
+											},
+											{
+												"key": "X-EES-AUTH-CLIENT-ID",
+												"value": "{{xAuthClientId}}"
+											},
+											{
+												"key": "X-AUTH-HASH",
+												"value": "{{xAuthHash}}"
+											},
+											{
+												"key": "X-AUTH-CLIENT-ID",
+												"value": "{{xAuthClientId}}"
+											},
+											{
+												"key": "X-TRANSACTION-ID",
+												"value": "{{xTransactionId}}"
+											},
+											{
+												"key": "X-RETRY",
+												"value": "1"
+											},
+											{
+												"key": "X-EES-OPERATOR",
+												"value": "1"
+											},
+											{
+												"key": "X-EES-CALLER",
+												"value": "POSTMAN"
+											},
+											{
+												"key": "X-EES-CALLER-VERSION",
+												"value": "0"
+											},
+											{
+												"key": "X-EES-MESSAGEID",
+												"value": "03d476861afd384510f2cb80ccfa8511"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"type\": \"CONSUMER\",\n    \"identities\": [\n        {\n            \"type\": \"CUSTOMER_ID\",\n            \"value\": \"{{value}}\"\n        }\n    ],\n    \"accounts\": {\n        \"campaign\": [\n            {\n                \"campaignId\": \"1801571\"\n            },\n            {\n                \"campaignId\": \"1801512\"\n            },\n            {\n                \"campaignId\": \"1801469\"\n            }\n        ],\n        \"scheme\": [\n            {\n                \"status\": \"ACTIVE\",\n                \"schemeId\": \"{{schemeId}}\"\n            }\n        ]\n    }\n}"
+										},
+										"url": {
+											"raw": "{{url}}/services/wallet/accounts",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"services",
+												"wallet",
+												"accounts"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Obtain access token",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"type": "text/javascript",
+												"exec": [
+													"tests[\"Status code is 200\"] = responseCode.code === 200;",
+													"var data = JSON.parse(responseBody);",
+													"if(data.access_token){",
+													"    pm.environment.set(\"ctp_access_token\", data.access_token);",
+													"}",
+													"if (data.scope) {",
+													"    parts = data.scope.split(\" \");",
+													"    parts = parts.filter(scope => scope.includes(\":\")).map(scope => scope.split(\":\"))",
+													"    if (parts.length > 0) {",
+													"        scopeParts = parts[0];",
+													"        pm.environment.set(\"project-key\", scopeParts[1]);",
+													"        parts = parts.filter(scope => scope.length >= 3)",
+													"        if (parts.length > 0) {",
+													"            scopeParts = parts[0];",
+													"            pm.environment.set(\"store-key\", scopeParts[2]);",
+													"        }",
+													"    }",
+													"}"
+												]
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "basic",
+											"basic": [
+												{
+													"key": "username",
+													"value": "{{client_id}}",
+													"type": "string"
+												},
+												{
+													"key": "password",
+													"value": "{{client_secret}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{auth_url}}/oauth/token?grant_type=client_credentials",
+											"host": [
+												"{{auth_url}}"
+											],
+											"path": [
+												"oauth",
+												"token"
+											],
+											"query": [
+												{
+													"key": "grant_type",
+													"value": "client_credentials"
+												}
+											]
+										},
+										"description": "Use this request to obtain an access token for your commercetools platform project via Client Credentials Flow. As a prerequisite you must have filled out environment variables in Postman for projectKey, client_id and client_secret to use this."
+									},
+									"response": []
+								},
+								{
+									"name": "Create Cart: Complete continuity account",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var data = pm.response.json();",
+													"",
+													"pm.test('Check status code', () => {",
+													"    pm.expect(pm.response.code).to.be.oneOf([",
+													"        200,",
+													"        201",
+													"    ]);",
+													"})",
+													"",
+													"pm.test(\"When Campaign Requirements Are Fully Met, 'COMPLETING' Label Is Displayed Under 'eagleeye-loyaltyCredits'\", function () {",
+													"    pm.expect(data.lineItems[0].custom.fields['eagleeye-loyaltyCredits']).to.include('COMPLETING');",
+													"});",
+													"",
+													"pm.test(\"Total Points And Offer Are Registered Under Line Item's 'eagleeye-loyaltyCredits' property\", function () {",
+													"    pm.expect(data.lineItems[0].custom.fields['eagleeye-loyaltyCredits']).to.include('total\\\":500,\\\"offers\\\":[{\\\"name\\\":\\\"500 points');",
+													"});",
+													"",
+													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
+													"    pm.environment.set(\"cart-id\", data.results[0].id); ",
+													"    pm.environment.set(\"cart-version\", data.results[0].version);",
+													"}",
+													"if(data.results && data.results[0] && data.results[0].key){",
+													"    pm.environment.set(\"cart-key\", data.results[0].key); ",
+													"}",
+													"if(data.version){",
+													"    pm.environment.set(\"cart-version\", data.version);",
+													"}",
+													"if(data.id){",
+													"    pm.environment.set(\"cart-id\", data.id); ",
+													"}",
+													"if(data.key){",
+													"    pm.environment.set(\"cart-key\", data.key);",
+													"}",
+													"",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "oauth2",
+											"oauth2": [
+												{
+													"key": "accessToken",
+													"value": "{{ctp_access_token}}",
+													"type": "string"
+												},
+												{
+													"key": "addTokenTo",
+													"value": "header",
+													"type": "string"
+												},
+												{
+													"key": "tokenType",
+													"value": "Bearer",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n   \"currency\": \"GBP\",\n   \"lineItems\": [\n      {\n         \"sku\": \"245896\",\n         \"quantity\": 3\n      }\n   ],\n   \"shippingAddress\": {\n      \"key\": \"abc-123\",\n      \"country\": \"GB\"\n   },\n   \"custom\": {\n      \"type\": {\n         \"typeId\": \"type\",\n         \"key\": \"custom-cart-type\"\n      },\n      \"fields\": {\n         \"eagleeye-identityValue\": \"{{identityValue}}\"\n      }\n   }\n}"
+										},
+										"url": {
+											"raw": "{{host}}/{{project-key}}/carts",
+											"host": [
+												"{{host}}"
+											],
+											"path": [
+												"{{project-key}}",
+												"carts"
+											],
+											"query": [
+												{
+													"key": "expand",
+													"value": "",
+													"disabled": true
+												}
+											]
+										},
+										"description": "Creating a Cart fails with an [InvalidOperation](ctp:api:type:InvalidOperationError) error if the\n[ShippingMethod](ctp:api:type:ShippingMethod) referenced in the CartDraft\nhas a `predicate` that does not match the Cart.\n"
+									},
+									"response": []
+								},
+								{
+									"name": "Create Order: Payment State: Paid",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var data = pm.response.json();",
+													"",
+													"pm.test('Check status code', () => {",
+													"    pm.expect(pm.response.code).to.be.oneOf([",
+													"        200,",
+													"        201",
+													"    ]);",
+													"})",
+													"",
+													"setTimeout(() => {}, 5000)",
+													"",
+													"pm.test(\"When Campaign Requirements Are Fully Met, 'COMPLETING' Label Is Displayed Under 'eagleeye-loyaltyCredits'\", function () {",
+													"    pm.expect(data.lineItems[0].custom.fields['eagleeye-loyaltyCredits']).to.include('COMPLETING');",
+													"});",
+													"",
+													"pm.test(\"Total Points And Offer Are Registered Under Line Item's 'eagleeye-loyaltyCredits' property\", function () {",
+													"    pm.expect(data.lineItems[0].custom.fields['eagleeye-loyaltyCredits']).to.include('total\\\":500,\\\"offers\\\":[{\\\"name\\\":\\\"500 points');",
+													"});",
+													"",
+													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
+													"    pm.environment.set(\"order-id\", data.results[0].id); ",
+													"    pm.environment.set(\"order-version\", data.results[0].version);",
+													"}",
+													"if(data.results && data.results[0] && data.results[0].key){",
+													"    pm.environment.set(\"order-key\", data.results[0].key); ",
+													"}",
+													"if(data.version){",
+													"    pm.environment.set(\"order-version\", data.version);",
+													"}",
+													"if(data.id){",
+													"    pm.environment.set(\"order-id\", data.id); ",
+													"}",
+													"if(data.key){",
+													"    pm.environment.set(\"order-key\", data.key);",
+													"}"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "oauth2",
+											"oauth2": [
+												{
+													"key": "accessToken",
+													"value": "{{ctp_access_token}}",
+													"type": "string"
+												},
+												{
+													"key": "addTokenTo",
+													"value": "header",
+													"type": "string"
+												},
+												{
+													"key": "tokenType",
+													"value": "Bearer",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"version\": {{cart-version}},\n    \"cart\": {\n        \"typeId\": \"cart\",\n        \"id\": \"{{cart-id}}\"\n    },\n    \"paymentState\": \"Paid\"\n}"
+										},
+										"url": {
+											"raw": "{{host}}/{{project-key}}/orders",
+											"host": [
+												"{{host}}"
+											],
+											"path": [
+												"{{project-key}}",
+												"orders"
+											],
+											"query": [
+												{
+													"key": "expand",
+													"value": "",
+													"disabled": true
+												}
+											]
+										},
+										"description": "Creating a Cart fails with an [InvalidOperation](ctp:api:type:InvalidOperationError) error if the\n[ShippingMethod](ctp:api:type:ShippingMethod) referenced in the CartDraft\nhas a `predicate` that does not match the Cart.\n"
+									},
+									"response": []
+								},
+								{
+									"name": "Get Order: Check 'Settled' Order",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var data = pm.response.json();",
+													"",
+													"pm.test('Check status code', () => {",
+													"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+													"});",
+													"",
+													"pm.test(\"Settled status is set to 'SETTLED'\", function () {",
+													"    pm.expect(data.custom.fields['eagleeye-settledStatus']).to.equal('SETTLED');",
+													"});",
+													"",
+													"pm.test(\"When Campaign Requirements Are Fully Met, 'COMPLETING' Label Is Displayed Under 'eagleeye-loyaltyCredits'\", function () {",
+													"    pm.expect(data.lineItems[0].custom.fields['eagleeye-loyaltyCredits']).to.include('COMPLETING');",
+													"});",
+													"",
+													"pm.test(\"Total Points And Offer Are Registered Under Line Item's 'eagleeye-loyaltyCredits' property\", function () {",
+													"    pm.expect(data.lineItems[0].custom.fields['eagleeye-loyaltyCredits']).to.include('total\\\":500,\\\"offers\\\":[{\\\"name\\\":\\\"500 points');",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"auth": {
+											"type": "oauth2",
+											"oauth2": [
+												{
+													"key": "accessToken",
+													"value": "{{ctp_access_token}}",
+													"type": "string"
+												},
+												{
+													"key": "addTokenTo",
+													"value": "header",
+													"type": "string"
+												},
+												{
+													"key": "tokenType",
+													"value": "Bearer",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{host}}/{{project-key}}/orders/{{order-id}}",
+											"host": [
+												"{{host}}"
+											],
+											"path": [
+												"{{project-key}}",
+												"orders",
+												"{{order-id}}"
+											],
+											"query": [
+												{
+													"key": "expand",
+													"value": "",
+													"disabled": true
+												}
+											]
+										},
+										"description": "null"
+									},
+									"response": []
+								},
+								{
+									"name": "Get Order: Check Points Were Awarded To Customer",
+									"event": [
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"// Load global pre-request script object",
+													"var ee = eval(pm.globals.get('ees'));",
+													"ee.setUrl('medusaUrl');",
+													"",
+													"// Set up any environment variables",
+													"pm.environment.set('value', CryptoJS.lib.WordArray.random(128/8).toString());",
+													"",
+													"// Call the global authentication function",
+													"ee.auth();"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var data = pm.response.json();",
+													"",
+													"tests[\"Status code is 200\"] = responseCode.code === 200;",
+													"",
+													"pm.test(\"Customer Points Are Available\", function () {",
+													"    pm.expect(data.balances.current).to.be.greaterThan(0);",
+													"});",
+													"",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "X-EES-AUTH-HASH",
+												"value": "{{xAuthHash}}"
+											},
+											{
+												"key": "X-EES-AUTH-CLIENT-ID",
+												"value": "{{xAuthClientId}}"
+											},
+											{
+												"key": "X-AUTH-HASH",
+												"value": "{{xAuthHash}}"
+											},
+											{
+												"key": "X-AUTH-CLIENT-ID",
+												"value": "{{xAuthClientId}}"
+											},
+											{
+												"key": "X-TRANSACTION-ID",
+												"value": "{{xTransactionId}}"
+											},
+											{
+												"key": "X-RETRY",
+												"value": "1"
+											},
+											{
+												"key": "X-EES-OPERATOR",
+												"value": "1"
+											},
+											{
+												"key": "X-EES-CALLER",
+												"value": "POSTMAN"
+											},
+											{
+												"key": "X-EES-CALLER-VERSION",
+												"value": "0"
+											},
+											{
+												"key": "X-EES-MESSAGEID",
+												"value": "03d476861afd384510f2cb80ccfa8511"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{url}}/wallet/{{walletId}}/account/{{accountId}}",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"wallet",
+												"{{walletId}}",
+												"account",
+												"{{accountId}}"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						}
+					],
+					"description": "Both continuity and quest offers are points-based rewards with objectives that can be completed in separate transactions or in a single transaction."
+				},
+				{
+					"name": "Quest",
+					"item": [
+						{
+							"name": "Separate Transactions",
+							"item": [
+								{
+									"name": "Create new wallet",
+									"event": [
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"// Load global pre-request script object",
+													"var ee = eval(pm.globals.get('ees'));",
+													"ee.setUrl('medusaUrl');",
+													"",
+													"// Set up any environment variables",
+													"pm.environment.set('value', CryptoJS.lib.WordArray.random(128/8).toString());",
+													"",
+													"// Call the global authentication function",
+													"ee.auth();"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"tests[\"Status code is 201\"] = responseCode.code === 201;",
+													"",
+													"var jsonData = JSON.parse(responseBody);",
+													"pm.environment.set('walletId', jsonData.walletId);",
+													"pm.environment.set('identityValue', jsonData.identities[0].value);"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "X-EES-AUTH-HASH",
+												"value": "{{xAuthHash}}"
+											},
+											{
+												"key": "X-EES-AUTH-CLIENT-ID",
+												"value": "{{xAuthClientId}}"
+											},
+											{
+												"key": "X-AUTH-HASH",
+												"value": "{{xAuthHash}}"
+											},
+											{
+												"key": "X-AUTH-CLIENT-ID",
+												"value": "{{xAuthClientId}}"
+											},
+											{
+												"key": "X-TRANSACTION-ID",
+												"value": "{{xTransactionId}}"
+											},
+											{
+												"key": "X-RETRY",
+												"value": "1"
+											},
+											{
+												"key": "X-EES-OPERATOR",
+												"value": "1"
+											},
+											{
+												"key": "X-EES-CALLER",
+												"value": "POSTMAN"
+											},
+											{
+												"key": "X-EES-CALLER-VERSION",
+												"value": "0"
+											},
+											{
+												"key": "X-EES-MESSAGEID",
+												"value": "03d476861afd384510f2cb80ccfa8511"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"type\": \"CONSUMER\",\n    \"identities\": [\n        {\n            \"type\": \"CUSTOMER_ID\",\n            \"value\": \"{{value}}\"\n        }\n    ],\n    \"accounts\": {\n        \"campaign\": [\n            {\n                \"campaignId\": \"1762406\"\n            },\n            {\n                \"campaignId\": \"1762402\"\n            },\n            {\n                \"campaignId\": \"1762401\"\n            },\n            {\n                \"campaignId\": \"1762399\"\n            }\n        ],\n        \"scheme\": [\n            {\n                \"status\": \"ACTIVE\",\n                \"schemeId\": \"{{schemeId}}\"\n            }\n        ]\n    }\n}"
+										},
+										"url": {
+											"raw": "{{url}}/services/wallet/accounts",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"services",
+												"wallet",
+												"accounts"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Obtain access token",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"type": "text/javascript",
+												"exec": [
+													"tests[\"Status code is 200\"] = responseCode.code === 200;",
+													"var data = JSON.parse(responseBody);",
+													"if(data.access_token){",
+													"    pm.environment.set(\"ctp_access_token\", data.access_token);",
+													"}",
+													"if (data.scope) {",
+													"    parts = data.scope.split(\" \");",
+													"    parts = parts.filter(scope => scope.includes(\":\")).map(scope => scope.split(\":\"))",
+													"    if (parts.length > 0) {",
+													"        scopeParts = parts[0];",
+													"        pm.environment.set(\"project-key\", scopeParts[1]);",
+													"        parts = parts.filter(scope => scope.length >= 3)",
+													"        if (parts.length > 0) {",
+													"            scopeParts = parts[0];",
+													"            pm.environment.set(\"store-key\", scopeParts[2]);",
+													"        }",
+													"    }",
+													"}"
+												]
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "basic",
+											"basic": [
+												{
+													"key": "username",
+													"value": "{{client_id}}",
+													"type": "string"
+												},
+												{
+													"key": "password",
+													"value": "{{client_secret}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{auth_url}}/oauth/token?grant_type=client_credentials",
+											"host": [
+												"{{auth_url}}"
+											],
+											"path": [
+												"oauth",
+												"token"
+											],
+											"query": [
+												{
+													"key": "grant_type",
+													"value": "client_credentials"
+												}
+											]
+										},
+										"description": "Use this request to obtain an access token for your commercetools platform project via Client Credentials Flow. As a prerequisite you must have filled out environment variables in Postman for projectKey, client_id and client_secret to use this."
+									},
+									"response": []
+								},
+								{
+									"name": "Create Cart: Complete first objective",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var data = pm.response.json();",
+													"",
+													"pm.test('Check status code', () => {",
+													"    pm.expect(pm.response.code).to.be.oneOf([",
+													"        200,",
+													"        201",
+													"    ]);",
+													"})",
+													"",
+													"pm.test(\"'Travel Quest' Label Not  'eagleeye-loyaltyCredits' property\", function () {",
+													"    pm.expect(data.lineItems[0].custom.fields['eagleeye-loyaltyCredits']).not.to.include('Travel Quest');",
+													"});",
+													"",
+													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
+													"    pm.environment.set(\"cart-id\", data.results[0].id); ",
+													"    pm.environment.set(\"cart-version\", data.results[0].version);",
+													"}",
+													"if(data.results && data.results[0] && data.results[0].key){",
+													"    pm.environment.set(\"cart-key\", data.results[0].key); ",
+													"}",
+													"if(data.version){",
+													"    pm.environment.set(\"cart-version\", data.version);",
+													"}",
+													"if(data.id){",
+													"    pm.environment.set(\"cart-id\", data.id); ",
+													"}",
+													"if(data.key){",
+													"    pm.environment.set(\"cart-key\", data.key);",
+													"}",
+													"",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "oauth2",
+											"oauth2": [
+												{
+													"key": "accessToken",
+													"value": "{{ctp_access_token}}",
+													"type": "string"
+												},
+												{
+													"key": "addTokenTo",
+													"value": "header",
+													"type": "string"
+												},
+												{
+													"key": "tokenType",
+													"value": "Bearer",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n   \"currency\": \"GBP\",\n   \"lineItems\": [\n      {\n         \"sku\": \"245903\",\n         \"quantity\": 1\n      }\n   ],\n   \"shippingAddress\": {\n      \"key\": \"abc-123\",\n      \"country\": \"GB\"\n   },\n   \"custom\": {\n      \"type\": {\n         \"typeId\": \"type\",\n         \"key\": \"custom-cart-type\"\n      },\n      \"fields\": {\n         \"eagleeye-identityValue\": \"{{identityValue}}\"\n      }\n   }\n}"
+										},
+										"url": {
+											"raw": "{{host}}/{{project-key}}/carts",
+											"host": [
+												"{{host}}"
+											],
+											"path": [
+												"{{project-key}}",
+												"carts"
+											],
+											"query": [
+												{
+													"key": "expand",
+													"value": "",
+													"disabled": true
+												}
+											]
+										},
+										"description": "Creating a Cart fails with an [InvalidOperation](ctp:api:type:InvalidOperationError) error if the\n[ShippingMethod](ctp:api:type:ShippingMethod) referenced in the CartDraft\nhas a `predicate` that does not match the Cart.\n"
+									},
+									"response": []
+								},
+								{
+									"name": "Create Order: Payment State: Paid",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var data = pm.response.json();",
+													"",
+													"pm.test('Check status code', () => {",
+													"    pm.expect(pm.response.code).to.be.oneOf([",
+													"        200,",
+													"        201",
+													"    ]);",
+													"})",
+													"",
+													"setTimeout(() => {}, 5000)",
+													"",
+													"pm.test(\"'Travel Quest' Label Not  'eagleeye-loyaltyCredits' property\", function () {",
+													"    pm.expect(data.lineItems[0].custom.fields['eagleeye-loyaltyCredits']).not.to.include('Travel Quest');",
+													"});",
+													"",
+													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
+													"    pm.environment.set(\"order-id\", data.results[0].id); ",
+													"    pm.environment.set(\"order-version\", data.results[0].version);",
+													"}",
+													"if(data.results && data.results[0] && data.results[0].key){",
+													"    pm.environment.set(\"order-key\", data.results[0].key); ",
+													"}",
+													"if(data.version){",
+													"    pm.environment.set(\"order-version\", data.version);",
+													"}",
+													"if(data.id){",
+													"    pm.environment.set(\"order-id\", data.id); ",
+													"}",
+													"if(data.key){",
+													"    pm.environment.set(\"order-key\", data.key);",
+													"}"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "oauth2",
+											"oauth2": [
+												{
+													"key": "accessToken",
+													"value": "{{ctp_access_token}}",
+													"type": "string"
+												},
+												{
+													"key": "addTokenTo",
+													"value": "header",
+													"type": "string"
+												},
+												{
+													"key": "tokenType",
+													"value": "Bearer",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"version\": {{cart-version}},\n    \"cart\": {\n        \"typeId\": \"cart\",\n        \"id\": \"{{cart-id}}\"\n    },\n    \"paymentState\": \"Paid\"\n}"
+										},
+										"url": {
+											"raw": "{{host}}/{{project-key}}/orders",
+											"host": [
+												"{{host}}"
+											],
+											"path": [
+												"{{project-key}}",
+												"orders"
+											],
+											"query": [
+												{
+													"key": "expand",
+													"value": "",
+													"disabled": true
+												}
+											]
+										},
+										"description": "Creating a Cart fails with an [InvalidOperation](ctp:api:type:InvalidOperationError) error if the\n[ShippingMethod](ctp:api:type:ShippingMethod) referenced in the CartDraft\nhas a `predicate` that does not match the Cart.\n"
+									},
+									"response": []
+								},
+								{
+									"name": "Get Order: Check 'Settled' Order",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var data = pm.response.json();",
+													"",
+													"pm.test('Check status code', () => {",
+													"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+													"});",
+													"",
+													"pm.test(\"Settled status is set to 'SETTLED'\", function () {",
+													"    pm.expect(data.custom.fields['eagleeye-settledStatus']).to.equal('SETTLED');",
+													"});",
+													"",
+													"pm.test(\"'Travel Quest' Label Not  'eagleeye-loyaltyCredits' property\", function () {",
+													"    pm.expect(data.lineItems[0].custom.fields['eagleeye-loyaltyCredits']).not.to.include('Travel Quest');",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"auth": {
+											"type": "oauth2",
+											"oauth2": [
+												{
+													"key": "accessToken",
+													"value": "{{ctp_access_token}}",
+													"type": "string"
+												},
+												{
+													"key": "addTokenTo",
+													"value": "header",
+													"type": "string"
+												},
+												{
+													"key": "tokenType",
+													"value": "Bearer",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{host}}/{{project-key}}/orders/{{order-id}}",
+											"host": [
+												"{{host}}"
+											],
+											"path": [
+												"{{project-key}}",
+												"orders",
+												"{{order-id}}"
+											],
+											"query": [
+												{
+													"key": "expand",
+													"value": "",
+													"disabled": true
+												}
+											]
+										},
+										"description": "null"
+									},
+									"response": []
+								},
+								{
+									"name": "Create Cart: Complete second objective",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var data = pm.response.json();",
+													"",
+													"pm.test('Check status code', () => {",
+													"    pm.expect(pm.response.code).to.be.oneOf([",
+													"        200,",
+													"        201",
+													"    ]);",
+													"})",
+													"",
+													"pm.test(\"'Travel Quest' Label Not  'eagleeye-loyaltyCredits' property\", function () {",
+													"    pm.expect(data.lineItems[0].custom.fields['eagleeye-loyaltyCredits']).not.to.include('Travel Quest');",
+													"});",
+													"",
+													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
+													"    pm.environment.set(\"cart-id\", data.results[0].id); ",
+													"    pm.environment.set(\"cart-version\", data.results[0].version);",
+													"}",
+													"if(data.results && data.results[0] && data.results[0].key){",
+													"    pm.environment.set(\"cart-key\", data.results[0].key); ",
+													"}",
+													"if(data.version){",
+													"    pm.environment.set(\"cart-version\", data.version);",
+													"}",
+													"if(data.id){",
+													"    pm.environment.set(\"cart-id\", data.id); ",
+													"}",
+													"if(data.key){",
+													"    pm.environment.set(\"cart-key\", data.key);",
+													"}",
+													"",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "oauth2",
+											"oauth2": [
+												{
+													"key": "accessToken",
+													"value": "{{ctp_access_token}}",
+													"type": "string"
+												},
+												{
+													"key": "addTokenTo",
+													"value": "header",
+													"type": "string"
+												},
+												{
+													"key": "tokenType",
+													"value": "Bearer",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n   \"currency\": \"GBP\",\n   \"lineItems\": [\n      {\n         \"sku\": \"245902\",\n         \"quantity\": 1\n      }\n   ],\n   \"shippingAddress\": {\n      \"key\": \"abc-123\",\n      \"country\": \"GB\"\n   },\n   \"custom\": {\n      \"type\": {\n         \"typeId\": \"type\",\n         \"key\": \"custom-cart-type\"\n      },\n      \"fields\": {\n         \"eagleeye-identityValue\": \"{{identityValue}}\"\n      }\n   }\n}"
+										},
+										"url": {
+											"raw": "{{host}}/{{project-key}}/carts",
+											"host": [
+												"{{host}}"
+											],
+											"path": [
+												"{{project-key}}",
+												"carts"
+											],
+											"query": [
+												{
+													"key": "expand",
+													"value": "",
+													"disabled": true
+												}
+											]
+										},
+										"description": "Creating a Cart fails with an [InvalidOperation](ctp:api:type:InvalidOperationError) error if the\n[ShippingMethod](ctp:api:type:ShippingMethod) referenced in the CartDraft\nhas a `predicate` that does not match the Cart.\n"
+									},
+									"response": []
+								},
+								{
+									"name": "Create Order: Payment State: Paid",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var data = pm.response.json();",
+													"",
+													"pm.test('Check status code', () => {",
+													"    pm.expect(pm.response.code).to.be.oneOf([",
+													"        200,",
+													"        201",
+													"    ]);",
+													"})",
+													"",
+													"setTimeout(() => {}, 5000)",
+													"",
+													"pm.test(\"'Travel Quest' Label Not  'eagleeye-loyaltyCredits' property\", function () {",
+													"    pm.expect(data.lineItems[0].custom.fields['eagleeye-loyaltyCredits']).not.to.include('Travel Quest');",
+													"});",
+													"",
+													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
+													"    pm.environment.set(\"order-id\", data.results[0].id); ",
+													"    pm.environment.set(\"order-version\", data.results[0].version);",
+													"}",
+													"if(data.results && data.results[0] && data.results[0].key){",
+													"    pm.environment.set(\"order-key\", data.results[0].key); ",
+													"}",
+													"if(data.version){",
+													"    pm.environment.set(\"order-version\", data.version);",
+													"}",
+													"if(data.id){",
+													"    pm.environment.set(\"order-id\", data.id); ",
+													"}",
+													"if(data.key){",
+													"    pm.environment.set(\"order-key\", data.key);",
+													"}"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "oauth2",
+											"oauth2": [
+												{
+													"key": "accessToken",
+													"value": "{{ctp_access_token}}",
+													"type": "string"
+												},
+												{
+													"key": "addTokenTo",
+													"value": "header",
+													"type": "string"
+												},
+												{
+													"key": "tokenType",
+													"value": "Bearer",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"version\": {{cart-version}},\n    \"cart\": {\n        \"typeId\": \"cart\",\n        \"id\": \"{{cart-id}}\"\n    },\n    \"paymentState\": \"Paid\"\n}"
+										},
+										"url": {
+											"raw": "{{host}}/{{project-key}}/orders",
+											"host": [
+												"{{host}}"
+											],
+											"path": [
+												"{{project-key}}",
+												"orders"
+											],
+											"query": [
+												{
+													"key": "expand",
+													"value": "",
+													"disabled": true
+												}
+											]
+										},
+										"description": "Creating a Cart fails with an [InvalidOperation](ctp:api:type:InvalidOperationError) error if the\n[ShippingMethod](ctp:api:type:ShippingMethod) referenced in the CartDraft\nhas a `predicate` that does not match the Cart.\n"
+									},
+									"response": []
+								},
+								{
+									"name": "Get Order: Check 'Settled' Order",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var data = pm.response.json();",
+													"",
+													"pm.test('Check status code', () => {",
+													"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+													"});",
+													"",
+													"pm.test(\"Settled status is set to 'SETTLED'\", function () {",
+													"    pm.expect(data.custom.fields['eagleeye-settledStatus']).to.equal('SETTLED');",
+													"});",
+													"",
+													"pm.test(\"'Travel Quest' Label Not  'eagleeye-loyaltyCredits' property\", function () {",
+													"    pm.expect(data.lineItems[0].custom.fields['eagleeye-loyaltyCredits']).not.to.include('Travel Quest');",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"auth": {
+											"type": "oauth2",
+											"oauth2": [
+												{
+													"key": "accessToken",
+													"value": "{{ctp_access_token}}",
+													"type": "string"
+												},
+												{
+													"key": "addTokenTo",
+													"value": "header",
+													"type": "string"
+												},
+												{
+													"key": "tokenType",
+													"value": "Bearer",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{host}}/{{project-key}}/orders/{{order-id}}",
+											"host": [
+												"{{host}}"
+											],
+											"path": [
+												"{{project-key}}",
+												"orders",
+												"{{order-id}}"
+											],
+											"query": [
+												{
+													"key": "expand",
+													"value": "",
+													"disabled": true
+												}
+											]
+										},
+										"description": "null"
+									},
+									"response": []
+								},
+								{
+									"name": "Create Cart: Complete final objective",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var data = pm.response.json();",
+													"",
+													"pm.test('Check status code', () => {",
+													"    pm.expect(pm.response.code).to.be.oneOf([",
+													"        200,",
+													"        201",
+													"    ]);",
+													"})",
+													"",
+													"pm.test(\"Total Points And Offer Are Registered Under Line Item's 'eagleeye-loyaltyEarnAndCredits' property\", function () {",
+													"    pm.expect(data.custom.fields['eagleeye-loyaltyEarnAndCredits']).to.include('total\\\":2000,\\\"offers\\\":[{\\\"name\\\":\\\"Travel Quest');",
+													"});",
+													"",
+													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
+													"    pm.environment.set(\"cart-id\", data.results[0].id); ",
+													"    pm.environment.set(\"cart-version\", data.results[0].version);",
+													"}",
+													"if(data.results && data.results[0] && data.results[0].key){",
+													"    pm.environment.set(\"cart-key\", data.results[0].key); ",
+													"}",
+													"if(data.version){",
+													"    pm.environment.set(\"cart-version\", data.version);",
+													"}",
+													"if(data.id){",
+													"    pm.environment.set(\"cart-id\", data.id); ",
+													"}",
+													"if(data.key){",
+													"    pm.environment.set(\"cart-key\", data.key);",
+													"}",
+													"",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "oauth2",
+											"oauth2": [
+												{
+													"key": "accessToken",
+													"value": "{{ctp_access_token}}",
+													"type": "string"
+												},
+												{
+													"key": "addTokenTo",
+													"value": "header",
+													"type": "string"
+												},
+												{
+													"key": "tokenType",
+													"value": "Bearer",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n   \"currency\": \"GBP\",\n   \"lineItems\": [\n      {\n         \"sku\": \"245882\",\n         \"quantity\": 1\n      }\n   ],\n   \"shippingAddress\": {\n      \"key\": \"abc-123\",\n      \"country\": \"GB\"\n   },\n   \"custom\": {\n      \"type\": {\n         \"typeId\": \"type\",\n         \"key\": \"custom-cart-type\"\n      },\n      \"fields\": {\n         \"eagleeye-identityValue\": \"{{identityValue}}\"\n      }\n   }\n}"
+										},
+										"url": {
+											"raw": "{{host}}/{{project-key}}/carts",
+											"host": [
+												"{{host}}"
+											],
+											"path": [
+												"{{project-key}}",
+												"carts"
+											],
+											"query": [
+												{
+													"key": "expand",
+													"value": "",
+													"disabled": true
+												}
+											]
+										},
+										"description": "Creating a Cart fails with an [InvalidOperation](ctp:api:type:InvalidOperationError) error if the\n[ShippingMethod](ctp:api:type:ShippingMethod) referenced in the CartDraft\nhas a `predicate` that does not match the Cart.\n"
+									},
+									"response": []
+								},
+								{
+									"name": "Create Order: Payment State: Paid",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var data = pm.response.json();",
+													"",
+													"pm.test('Check status code', () => {",
+													"    pm.expect(pm.response.code).to.be.oneOf([",
+													"        200,",
+													"        201",
+													"    ]);",
+													"})",
+													"",
+													"setTimeout(() => {}, 5000)",
+													"",
+													"pm.test(\"Total Points And Offer Are Registered Under Line Item's 'eagleeye-loyaltyEarnAndCredits' property\", function () {",
+													"    pm.expect(data.custom.fields['eagleeye-loyaltyEarnAndCredits']).to.include('total\\\":2000,\\\"offers\\\":[{\\\"name\\\":\\\"Travel Quest');",
+													"});",
+													"",
+													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
+													"    pm.environment.set(\"order-id\", data.results[0].id); ",
+													"    pm.environment.set(\"order-version\", data.results[0].version);",
+													"}",
+													"if(data.results && data.results[0] && data.results[0].key){",
+													"    pm.environment.set(\"order-key\", data.results[0].key); ",
+													"}",
+													"if(data.version){",
+													"    pm.environment.set(\"order-version\", data.version);",
+													"}",
+													"if(data.id){",
+													"    pm.environment.set(\"order-id\", data.id); ",
+													"}",
+													"if(data.key){",
+													"    pm.environment.set(\"order-key\", data.key);",
+													"}"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "oauth2",
+											"oauth2": [
+												{
+													"key": "accessToken",
+													"value": "{{ctp_access_token}}",
+													"type": "string"
+												},
+												{
+													"key": "addTokenTo",
+													"value": "header",
+													"type": "string"
+												},
+												{
+													"key": "tokenType",
+													"value": "Bearer",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"version\": {{cart-version}},\n    \"cart\": {\n        \"typeId\": \"cart\",\n        \"id\": \"{{cart-id}}\"\n    },\n    \"paymentState\": \"Paid\"\n}"
+										},
+										"url": {
+											"raw": "{{host}}/{{project-key}}/orders",
+											"host": [
+												"{{host}}"
+											],
+											"path": [
+												"{{project-key}}",
+												"orders"
+											],
+											"query": [
+												{
+													"key": "expand",
+													"value": "",
+													"disabled": true
+												}
+											]
+										},
+										"description": "Creating a Cart fails with an [InvalidOperation](ctp:api:type:InvalidOperationError) error if the\n[ShippingMethod](ctp:api:type:ShippingMethod) referenced in the CartDraft\nhas a `predicate` that does not match the Cart.\n"
+									},
+									"response": []
+								},
+								{
+									"name": "Get Order: Check 'Settled' Order",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var data = pm.response.json();",
+													"",
+													"pm.test('Check status code', () => {",
+													"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+													"});",
+													"",
+													"pm.test(\"Settled status is set to 'SETTLED'\", function () {",
+													"    pm.expect(data.custom.fields['eagleeye-settledStatus']).to.equal('SETTLED');",
+													"});",
+													"",
+													"pm.test(\"Total Points And Offer Are Registered Under Line Item's 'eagleeye-loyaltyEarnAndCredits' property\", function () {",
+													"    pm.expect(data.custom.fields['eagleeye-loyaltyEarnAndCredits']).to.include('total\\\":2000,\\\"offers\\\":[{\\\"name\\\":\\\"Travel Quest');",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"auth": {
+											"type": "oauth2",
+											"oauth2": [
+												{
+													"key": "accessToken",
+													"value": "{{ctp_access_token}}",
+													"type": "string"
+												},
+												{
+													"key": "addTokenTo",
+													"value": "header",
+													"type": "string"
+												},
+												{
+													"key": "tokenType",
+													"value": "Bearer",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{host}}/{{project-key}}/orders/{{order-id}}",
+											"host": [
+												"{{host}}"
+											],
+											"path": [
+												"{{project-key}}",
+												"orders",
+												"{{order-id}}"
+											],
+											"query": [
+												{
+													"key": "expand",
+													"value": "",
+													"disabled": true
+												}
+											]
+										},
+										"description": "null"
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "Single Transaction",
+							"item": [
+								{
+									"name": "Create new wallet",
+									"event": [
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"// Load global pre-request script object",
+													"var ee = eval(pm.globals.get('ees'));",
+													"ee.setUrl('medusaUrl');",
+													"",
+													"// Set up any environment variables",
+													"pm.environment.set('value', CryptoJS.lib.WordArray.random(128/8).toString());",
+													"",
+													"// Call the global authentication function",
+													"ee.auth();"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"tests[\"Status code is 201\"] = responseCode.code === 201;",
+													"",
+													"var jsonData = JSON.parse(responseBody);",
+													"pm.environment.set('walletId', jsonData.walletId);",
+													"pm.environment.set('identityValue', jsonData.identities[0].value);"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "X-EES-AUTH-HASH",
+												"value": "{{xAuthHash}}"
+											},
+											{
+												"key": "X-EES-AUTH-CLIENT-ID",
+												"value": "{{xAuthClientId}}"
+											},
+											{
+												"key": "X-AUTH-HASH",
+												"value": "{{xAuthHash}}"
+											},
+											{
+												"key": "X-AUTH-CLIENT-ID",
+												"value": "{{xAuthClientId}}"
+											},
+											{
+												"key": "X-TRANSACTION-ID",
+												"value": "{{xTransactionId}}"
+											},
+											{
+												"key": "X-RETRY",
+												"value": "1"
+											},
+											{
+												"key": "X-EES-OPERATOR",
+												"value": "1"
+											},
+											{
+												"key": "X-EES-CALLER",
+												"value": "POSTMAN"
+											},
+											{
+												"key": "X-EES-CALLER-VERSION",
+												"value": "0"
+											},
+											{
+												"key": "X-EES-MESSAGEID",
+												"value": "03d476861afd384510f2cb80ccfa8511"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"type\": \"CONSUMER\",\n    \"identities\": [\n        {\n            \"type\": \"CUSTOMER_ID\",\n            \"value\": \"{{value}}\"\n        }\n    ],\n    \"accounts\": {\n        \"campaign\": [\n            {\n                \"campaignId\": \"1762406\"\n            },\n            {\n                \"campaignId\": \"1762402\"\n            },\n            {\n                \"campaignId\": \"1762401\"\n            },\n            {\n                \"campaignId\": \"1762399\"\n            }\n        ],\n        \"scheme\": [\n            {\n                \"status\": \"ACTIVE\",\n                \"schemeId\": \"{{schemeId}}\"\n            }\n        ]\n    }\n}"
+										},
+										"url": {
+											"raw": "{{url}}/services/wallet/accounts",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"services",
+												"wallet",
+												"accounts"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Obtain access token",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"type": "text/javascript",
+												"exec": [
+													"tests[\"Status code is 200\"] = responseCode.code === 200;",
+													"var data = JSON.parse(responseBody);",
+													"if(data.access_token){",
+													"    pm.environment.set(\"ctp_access_token\", data.access_token);",
+													"}",
+													"if (data.scope) {",
+													"    parts = data.scope.split(\" \");",
+													"    parts = parts.filter(scope => scope.includes(\":\")).map(scope => scope.split(\":\"))",
+													"    if (parts.length > 0) {",
+													"        scopeParts = parts[0];",
+													"        pm.environment.set(\"project-key\", scopeParts[1]);",
+													"        parts = parts.filter(scope => scope.length >= 3)",
+													"        if (parts.length > 0) {",
+													"            scopeParts = parts[0];",
+													"            pm.environment.set(\"store-key\", scopeParts[2]);",
+													"        }",
+													"    }",
+													"}"
+												]
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "basic",
+											"basic": [
+												{
+													"key": "username",
+													"value": "{{client_id}}",
+													"type": "string"
+												},
+												{
+													"key": "password",
+													"value": "{{client_secret}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{auth_url}}/oauth/token?grant_type=client_credentials",
+											"host": [
+												"{{auth_url}}"
+											],
+											"path": [
+												"oauth",
+												"token"
+											],
+											"query": [
+												{
+													"key": "grant_type",
+													"value": "client_credentials"
+												}
+											]
+										},
+										"description": "Use this request to obtain an access token for your commercetools platform project via Client Credentials Flow. As a prerequisite you must have filled out environment variables in Postman for projectKey, client_id and client_secret to use this."
+									},
+									"response": []
+								},
+								{
+									"name": "Create Cart: Complete all objectives",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var data = pm.response.json();",
+													"",
+													"pm.test('Check status code', () => {",
+													"    pm.expect(pm.response.code).to.be.oneOf([",
+													"        200,",
+													"        201",
+													"    ]);",
+													"})",
+													"",
+													"pm.test(\"Total Points And Offer Are Registered Under Line Item's 'eagleeye-loyaltyEarnAndCredits' property\", function () {",
+													"    pm.expect(data.custom.fields['eagleeye-loyaltyEarnAndCredits']).to.include('total\\\":2000,\\\"offers\\\":[{\\\"name\\\":\\\"Travel Quest');",
+													"});",
+													"",
+													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
+													"    pm.environment.set(\"cart-id\", data.results[0].id); ",
+													"    pm.environment.set(\"cart-version\", data.results[0].version);",
+													"}",
+													"if(data.results && data.results[0] && data.results[0].key){",
+													"    pm.environment.set(\"cart-key\", data.results[0].key); ",
+													"}",
+													"if(data.version){",
+													"    pm.environment.set(\"cart-version\", data.version);",
+													"}",
+													"if(data.id){",
+													"    pm.environment.set(\"cart-id\", data.id); ",
+													"}",
+													"if(data.key){",
+													"    pm.environment.set(\"cart-key\", data.key);",
+													"}",
+													"",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "oauth2",
+											"oauth2": [
+												{
+													"key": "accessToken",
+													"value": "{{ctp_access_token}}",
+													"type": "string"
+												},
+												{
+													"key": "addTokenTo",
+													"value": "header",
+													"type": "string"
+												},
+												{
+													"key": "tokenType",
+													"value": "Bearer",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n   \"currency\": \"GBP\",\n   \"lineItems\": [\n      {\n         \"sku\": \"245903\",\n         \"quantity\": 1\n      },\n      {\n         \"sku\": \"245902\",\n         \"quantity\": 1\n      },\n      {\n         \"sku\": \"245882\",\n         \"quantity\": 1\n      }\n\n   ],\n   \"shippingAddress\": {\n      \"key\": \"abc-123\",\n      \"country\": \"GB\"\n   },\n   \"custom\": {\n      \"type\": {\n         \"typeId\": \"type\",\n         \"key\": \"custom-cart-type\"\n      },\n      \"fields\": {\n         \"eagleeye-identityValue\": \"{{identityValue}}\"\n      }\n   }\n}"
+										},
+										"url": {
+											"raw": "{{host}}/{{project-key}}/carts",
+											"host": [
+												"{{host}}"
+											],
+											"path": [
+												"{{project-key}}",
+												"carts"
+											],
+											"query": [
+												{
+													"key": "expand",
+													"value": "",
+													"disabled": true
+												}
+											]
+										},
+										"description": "Creating a Cart fails with an [InvalidOperation](ctp:api:type:InvalidOperationError) error if the\n[ShippingMethod](ctp:api:type:ShippingMethod) referenced in the CartDraft\nhas a `predicate` that does not match the Cart.\n"
+									},
+									"response": []
+								},
+								{
+									"name": "Create Order: Payment State: Paid",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var data = pm.response.json();",
+													"",
+													"pm.test('Check status code', () => {",
+													"    pm.expect(pm.response.code).to.be.oneOf([",
+													"        200,",
+													"        201",
+													"    ]);",
+													"})",
+													"",
+													"setTimeout(() => {}, 5000)",
+													"",
+													"pm.test(\"Total Points And Offer Are Registered Under Line Item's 'eagleeye-loyaltyEarnAndCredits' property\", function () {",
+													"    pm.expect(data.custom.fields['eagleeye-loyaltyEarnAndCredits']).to.include('total\\\":2000,\\\"offers\\\":[{\\\"name\\\":\\\"Travel Quest');",
+													"});",
+													"",
+													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
+													"    pm.environment.set(\"order-id\", data.results[0].id); ",
+													"    pm.environment.set(\"order-version\", data.results[0].version);",
+													"}",
+													"if(data.results && data.results[0] && data.results[0].key){",
+													"    pm.environment.set(\"order-key\", data.results[0].key); ",
+													"}",
+													"if(data.version){",
+													"    pm.environment.set(\"order-version\", data.version);",
+													"}",
+													"if(data.id){",
+													"    pm.environment.set(\"order-id\", data.id); ",
+													"}",
+													"if(data.key){",
+													"    pm.environment.set(\"order-key\", data.key);",
+													"}"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "oauth2",
+											"oauth2": [
+												{
+													"key": "accessToken",
+													"value": "{{ctp_access_token}}",
+													"type": "string"
+												},
+												{
+													"key": "addTokenTo",
+													"value": "header",
+													"type": "string"
+												},
+												{
+													"key": "tokenType",
+													"value": "Bearer",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"version\": {{cart-version}},\n    \"cart\": {\n        \"typeId\": \"cart\",\n        \"id\": \"{{cart-id}}\"\n    },\n    \"paymentState\": \"Paid\"\n}"
+										},
+										"url": {
+											"raw": "{{host}}/{{project-key}}/orders",
+											"host": [
+												"{{host}}"
+											],
+											"path": [
+												"{{project-key}}",
+												"orders"
+											],
+											"query": [
+												{
+													"key": "expand",
+													"value": "",
+													"disabled": true
+												}
+											]
+										},
+										"description": "Creating a Cart fails with an [InvalidOperation](ctp:api:type:InvalidOperationError) error if the\n[ShippingMethod](ctp:api:type:ShippingMethod) referenced in the CartDraft\nhas a `predicate` that does not match the Cart.\n"
+									},
+									"response": []
+								},
+								{
+									"name": "Get Order: Check 'Settled' Order",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var data = pm.response.json();",
+													"",
+													"pm.test('Check status code', () => {",
+													"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+													"});",
+													"",
+													"pm.test(\"Settled status is set to 'SETTLED'\", function () {",
+													"    pm.expect(data.custom.fields['eagleeye-settledStatus']).to.equal('SETTLED');",
+													"});",
+													"",
+													"pm.test(\"Total Points And Offer Are Registered Under Line Item's 'eagleeye-loyaltyEarnAndCredits' property\", function () {",
+													"    pm.expect(data.custom.fields['eagleeye-loyaltyEarnAndCredits']).to.include('total\\\":2000,\\\"offers\\\":[{\\\"name\\\":\\\"Travel Quest');",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"auth": {
+											"type": "oauth2",
+											"oauth2": [
+												{
+													"key": "accessToken",
+													"value": "{{ctp_access_token}}",
+													"type": "string"
+												},
+												{
+													"key": "addTokenTo",
+													"value": "header",
+													"type": "string"
+												},
+												{
+													"key": "tokenType",
+													"value": "Bearer",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{host}}/{{project-key}}/orders/{{order-id}}",
+											"host": [
+												"{{host}}"
+											],
+											"path": [
+												"{{project-key}}",
+												"orders",
+												"{{order-id}}"
+											],
+											"query": [
+												{
+													"key": "expand",
+													"value": "",
+													"disabled": true
+												}
+											]
+										},
+										"description": "null"
+									},
+									"response": []
+								}
+							]
+						}
+					],
+					"description": "Both continuity and quest offers are points-based rewards with objectives that can be completed in separate transactions or in a single transaction."
 				}
 			],
 			"description": "Loyalty points are added to the cart custom fields `eagleeye-loyaltyCredits` and `eagleeye-loyaltyEarnAndCredits`"
