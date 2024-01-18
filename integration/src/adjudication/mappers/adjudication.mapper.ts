@@ -84,12 +84,10 @@ export class AdjudicationMapper {
     });
   }
 
-  mapBasketDiscountsToDiscountDescriptions(discounts): DiscountDescription[] {
-    return discounts.map((discount) => {
-      return {
-        description: discount.campaignName,
-      };
-    });
+  mapBasketDiscountsToDiscountDescription(discount): DiscountDescription {
+    return {
+      description: discount.campaignName,
+    };
   }
 
   mapAdjustedBasketToItemDirectDiscounts(

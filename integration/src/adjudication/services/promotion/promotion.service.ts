@@ -19,14 +19,14 @@ export class PromotionService {
     cartReference: CartReference,
   ): Promise<{
     discounts: DirectDiscountDraft[];
-    discountDescriptions: DiscountDescription[];
+    basketDiscountDescriptions: DiscountDescription[];
+    lineItemsDiscountDescriptions: Map<string, string[]>; //product id to campaign names
     errors: CustomFieldError[];
     enrichedBasket: any;
     voucherCodes: string[];
     potentialVoucherCodes: string[];
   }> {
     const discounts: DirectDiscountDraft[] = [];
-    const discountDescriptions: DiscountDescription[] = [];
     const errors: CustomFieldError[] = [];
 
     if (walletOpenResponse.data?.analyseBasketResults?.basket) {
@@ -70,18 +70,15 @@ export class PromotionService {
       walletOpenResponse.data.examine
         ?.filter((entry) => entry.errorCode === 'PCEXNV')
         .map((result) => result.value) || [];
-
-    if (walletOpenResponse.data?.analyseBasketResults?.discount?.length) {
-      const descriptions =
-        this.adjudicationMapper.mapBasketDiscountsToDiscountDescriptions(
-          walletOpenResponse.data?.analyseBasketResults?.discount,
-        );
-      discountDescriptions.push(...descriptions);
-    }
+    const basketDiscountDescriptions: DiscountDescription[] =
+      this.getBasketCampaignNames(walletOpenResponse);
+    const lineItemsDiscountDescriptions =
+      this.getLineItemsCampaignNames(walletOpenResponse);
 
     return {
       discounts,
-      discountDescriptions,
+      basketDiscountDescriptions,
+      lineItemsDiscountDescriptions,
       errors,
       enrichedBasket: walletOpenResponse.data?.analyseBasketResults?.basket,
       voucherCodes: validTokens,
@@ -89,18 +86,72 @@ export class PromotionService {
     };
   }
 
-  async getBasketDiscountDescriptions(
-    discounts,
-  ): Promise<DiscountDescription[]> {
-    let discountDescriptions: DiscountDescription[] = [];
-    if (discounts?.length) {
-      const descriptions =
-        this.adjudicationMapper.mapBasketDiscountsToDiscountDescriptions(
-          discounts,
+  private getBasketCampaignNames(
+    walletOpenResponse: any,
+  ): DiscountDescription[] {
+    const resourceIds =
+      walletOpenResponse.data?.analyseBasketResults?.basket?.summary?.adjustmentResults?.map(
+        (result) => result.resourceId,
+      );
+    if (resourceIds?.length) {
+      return walletOpenResponse.data?.analyseBasketResults?.discount
+        ?.filter((discount) => resourceIds.includes(discount.campaignId))
+        .map((discount) =>
+          this.adjudicationMapper.mapBasketDiscountsToDiscountDescription(
+            discount,
+          ),
         );
-      discountDescriptions = discountDescriptions.concat(descriptions);
     }
-    return discountDescriptions;
+    return [];
+  }
+
+  private getLineItemsCampaignNames(
+    walletOpenResponse: any,
+  ): Map<string, string[]> {
+    const productIdToCampaignNamesMap: Map<string, string[]> = new Map();
+
+    const resourceIdToProductIdMaps = new Map<string, string>();
+    console.log(
+      'walletOpenResponse.data?.analyseBasketResults?.contents',
+      walletOpenResponse.data?.analyseBasketResults?.basket?.contents,
+    );
+    walletOpenResponse.data?.analyseBasketResults?.basket?.contents?.forEach(
+      (content) => {
+        content.adjustmentResults?.forEach((result) => {
+          resourceIdToProductIdMaps.set(result.resourceId, content.upc); //todo check if upc is correct, maybe need to use sku based on property, add util class to do this logic
+        });
+      },
+    );
+
+    if (resourceIdToProductIdMaps.size) {
+      walletOpenResponse.data?.analyseBasketResults?.discount?.forEach(
+        (discount) => {
+          if (resourceIdToProductIdMaps.has(discount.campaignId)) {
+            if (
+              productIdToCampaignNamesMap.has(
+                resourceIdToProductIdMaps.get(discount.campaignId),
+              )
+            ) {
+              productIdToCampaignNamesMap.set(
+                resourceIdToProductIdMaps.get(discount.campaignId),
+                [
+                  ...productIdToCampaignNamesMap.get(
+                    resourceIdToProductIdMaps.get(discount.campaignId),
+                  ),
+                  discount.campaignName,
+                ],
+              );
+            } else {
+              productIdToCampaignNamesMap.set(
+                resourceIdToProductIdMaps.get(discount.campaignId),
+                [discount.campaignName],
+              );
+            }
+          }
+        },
+      );
+    }
+    return productIdToCampaignNamesMap;
   }
 
   async getBasketLevelDiscounts(
@@ -111,12 +162,10 @@ export class PromotionService {
       basket.summary?.totalDiscountAmount.promotions &&
       basket.summary?.adjustmentResults?.length
     ) {
-      const cartDiscounts =
-        this.adjudicationMapper.mapAdjustedBasketToCartDirectDiscounts(
-          basket,
-          cart,
-        );
-      return cartDiscounts;
+      return this.adjudicationMapper.mapAdjustedBasketToCartDirectDiscounts(
+        basket,
+        cart,
+      );
     }
 
     return [];
@@ -130,12 +179,10 @@ export class PromotionService {
       basket?.summary?.totalDiscountAmount?.promotions &&
       basket.contents?.length
     ) {
-      const itemDiscounts =
-        this.adjudicationMapper.mapAdjustedBasketToItemDirectDiscounts(
-          basket,
-          cart,
-        );
-      return itemDiscounts;
+      return this.adjudicationMapper.mapAdjustedBasketToItemDirectDiscounts(
+        basket,
+        cart,
+      );
     }
 
     return [];
@@ -149,12 +196,10 @@ export class PromotionService {
       basket?.summary?.totalDiscountAmount?.promotions &&
       basket.contents?.length
     ) {
-      const shippingDiscounts =
-        this.adjudicationMapper.mapAdjustedBasketToShippingDirectDiscounts(
-          basket,
-          cart,
-        );
-      return shippingDiscounts;
+      return this.adjudicationMapper.mapAdjustedBasketToShippingDirectDiscounts(
+        basket,
+        cart,
+      );
     }
 
     return [];

@@ -125,6 +125,7 @@ describe('PromotionService', () => {
               },
               adjustmentResults: [
                 {
+                  resourceId: '1669988',
                   value: 10,
                 },
               ],
@@ -142,6 +143,7 @@ describe('PromotionService', () => {
           },
           discount: [
             {
+              campaignId: '1669988',
               campaignName: 'Example Discount',
             },
           ],
@@ -176,10 +178,8 @@ describe('PromotionService', () => {
               cart as any,
             ),
           ),
-        discountDescriptions:
-          service.adjudicationMapper.mapBasketDiscountsToDiscountDescriptions(
-            walletOpenResponse.analyseBasketResults.discount,
-          ),
+        basketDiscountDescriptions: [{ description: 'Example Discount' }],
+        lineItemsDiscountDescriptions: new Map(),
         errors: [],
         enrichedBasket: walletOpenResponse.analyseBasketResults.basket,
         voucherCodes: [],
@@ -207,7 +207,8 @@ describe('PromotionService', () => {
       expect(result).toEqual({
         discounts: [],
         enrichedBasket: undefined,
-        discountDescriptions: [],
+        basketDiscountDescriptions: [],
+        lineItemsDiscountDescriptions: new Map(),
         errors: [],
         voucherCodes: [],
         potentialVoucherCodes: [],
@@ -275,7 +276,7 @@ describe('PromotionService', () => {
 
       expect(result).toEqual({
         discounts: [],
-        discountDescriptions: [],
+        basketDiscountDescriptions: [],
         enrichedBasket: undefined,
         errors: [
           {
@@ -303,6 +304,7 @@ describe('PromotionService', () => {
             },
           },
         ],
+        lineItemsDiscountDescriptions: new Map(),
         voucherCodes: ['valid-code'],
         potentialVoucherCodes: ['invalid-code'],
       });
@@ -568,65 +570,6 @@ describe('PromotionService', () => {
       );
 
       expect(result).toEqual([]);
-    });
-  });
-
-  describe('getBasketDiscountDescriptions', () => {
-    it('should return descriptions for applied discounts', async () => {
-      const walletOpenResponse = {
-        analyseBasketResults: {
-          basket: {
-            summary: {
-              totalDiscountAmount: {
-                promotions: 10,
-              },
-            },
-            contents: [
-              {
-                upc: 'SKU123',
-                adjustmentResults: [
-                  {
-                    totalDiscountAmount: 10,
-                  },
-                ],
-              },
-            ],
-          },
-          discount: [
-            {
-              campaignName: 'Example Discount',
-            },
-          ],
-        },
-      };
-
-      const result = await service.getBasketDiscountDescriptions(
-        walletOpenResponse.analyseBasketResults.discount,
-      );
-
-      expect(result).toEqual([
-        {
-          description: 'Example Discount',
-        },
-      ]);
-    });
-
-    it('should not get descriptions when no valid promotions are found', async () => {
-      const walletOpenResponse = {
-        analyseBasketResults: {
-          basket: {},
-          discount: [],
-        },
-      };
-
-      const result = await service.getBasketDiscountDescriptions(
-        walletOpenResponse.analyseBasketResults.discount,
-      );
-      const resulNoDiscount =
-        await service.getBasketDiscountDescriptions(undefined);
-
-      expect(result).toEqual([]);
-      expect(resulNoDiscount).toEqual([]);
     });
   });
 });
