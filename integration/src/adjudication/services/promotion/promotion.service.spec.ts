@@ -5,12 +5,13 @@ import { EagleEyeApiClient } from '../../../common/providers/eagleeye/eagleeye.p
 import { ConfigService } from '@nestjs/config';
 import { AdjudicationMapper } from '../../mappers/adjudication.mapper';
 import { Logger } from '@nestjs/common';
-import { BASKET_STORE_SERVICE } from '../../../common/services/basket-store/basket-store.provider';
+import { CampaignNameService } from './campaign-name.service';
 
 describe('PromotionService', () => {
   let service: PromotionService;
   let configService: ConfigService;
   let commercetools: Commercetools;
+  let campaignNameService: CampaignNameService;
   const walletOpenMock = jest.fn();
   const cartWithoutItems = {
     id: 'cartId',
@@ -29,6 +30,13 @@ describe('PromotionService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         PromotionService,
+        {
+          provide: CampaignNameService,
+          useValue: {
+            getBasketCampaignNames: jest.fn(),
+            getLineItemsCampaignNames: jest.fn(),
+          },
+        },
         {
           provide: Commercetools,
           useValue: {
@@ -51,21 +59,13 @@ describe('PromotionService', () => {
         },
         AdjudicationMapper,
         Logger,
-        {
-          provide: BASKET_STORE_SERVICE,
-          useValue: {
-            save: jest.fn(),
-            get: jest.fn(),
-            delete: jest.fn(),
-            isEnabled: jest.fn(),
-          },
-        },
       ],
     }).compile();
 
     service = module.get<PromotionService>(PromotionService);
     configService = module.get<ConfigService>(ConfigService);
     commercetools = module.get<Commercetools>(Commercetools);
+    campaignNameService = module.get<CampaignNameService>(CampaignNameService);
   });
 
   describe('getDiscounts', () => {
@@ -161,6 +161,14 @@ describe('PromotionService', () => {
         .spyOn(commercetools, 'getShippingMethods')
         .mockResolvedValueOnce([{ key: 'standard-key' }] as any);
 
+      jest
+        .spyOn(campaignNameService, 'getBasketCampaignNames')
+        .mockReturnValueOnce([{ description: 'Example Discount' }]);
+
+      jest
+        .spyOn(campaignNameService, 'getLineItemsCampaignNames')
+        .mockReturnValueOnce(new Map([['SKU123', ['Example Discount']]]));
+
       const result = await service.getDiscounts(
         { status: 200, data: walletOpenResponse },
         cartReference as any,
@@ -179,7 +187,9 @@ describe('PromotionService', () => {
             ),
           ),
         basketDiscountDescriptions: [{ description: 'Example Discount' }],
-        lineItemsDiscountDescriptions: new Map(),
+        lineItemsDiscountDescriptions: new Map([
+          ['SKU123', ['Example Discount']],
+        ]),
         errors: [],
         enrichedBasket: walletOpenResponse.analyseBasketResults.basket,
         voucherCodes: [],
@@ -198,6 +208,14 @@ describe('PromotionService', () => {
       jest
         .spyOn(configService, 'get')
         .mockReturnValueOnce(shippingMethodMapMock);
+
+      jest
+        .spyOn(campaignNameService, 'getBasketCampaignNames')
+        .mockReturnValueOnce([]);
+
+      jest
+        .spyOn(campaignNameService, 'getLineItemsCampaignNames')
+        .mockReturnValueOnce(new Map());
 
       const result = await service.getDiscounts(
         { status: 200, data: walletOpenResponse },
@@ -268,6 +286,14 @@ describe('PromotionService', () => {
       jest
         .spyOn(configService, 'get')
         .mockReturnValueOnce(shippingMethodMapMock);
+
+      jest
+        .spyOn(campaignNameService, 'getBasketCampaignNames')
+        .mockReturnValueOnce([]);
+
+      jest
+        .spyOn(campaignNameService, 'getLineItemsCampaignNames')
+        .mockReturnValueOnce(new Map());
 
       const result = await service.getDiscounts(
         { status: 200, data: walletOpenResponse },

@@ -226,6 +226,9 @@ describe('CartExtensionService', () => {
     jest.spyOn(promotionService, 'getDiscounts').mockResolvedValueOnce({
       discounts: discountDrafts,
       basketDiscountDescriptions,
+      lineItemsDiscountDescriptions: new Map([
+        ['123456', ['Product discount (123456)']],
+      ]),
       errors: [],
     } as any);
     jest.spyOn(basketStoreService, 'isEnabled').mockReturnValue(true);
@@ -290,7 +293,7 @@ describe('CartExtensionService', () => {
         {
           action: 'setLineItemCustomType',
           fields: {
-            [FIELD_EAGLEEYE_APPLIED_DISCOUNTS]: '',
+            [FIELD_EAGLEEYE_APPLIED_DISCOUNTS]: ['Product discount (123456)'],
             [FIELD_EAGLEEYE_LOYALTY_CREDITS]:
               '{"total":200,"offers":[{"name":"Test Campaign 2 (x2)","amount":100,"timesRedeemed":2,"sku":"123456"}]}',
           },
@@ -323,7 +326,23 @@ describe('CartExtensionService', () => {
         typeId: 'cart',
         id: '123',
         obj: {
-          lineItems: [],
+          lineItems: [
+            {
+              id: '123456',
+              variant: {
+                sku: '123456',
+              },
+              price: {
+                value: {
+                  centAmount: 100,
+                },
+              },
+              quantity: 2,
+              name: {
+                en: 'Example Item',
+              },
+            },
+          ],
         } as any,
       },
     };
@@ -349,6 +368,9 @@ describe('CartExtensionService', () => {
     jest.spyOn(promotionService, 'getDiscounts').mockResolvedValueOnce({
       discounts: discountDrafts,
       basketDiscountDescriptions,
+      lineItemsDiscountDescriptions: new Map([
+        ['123456', ['Product discount (123456)']],
+      ]),
       errors: [],
     } as any);
     jest.spyOn(basketStoreService, 'isEnabled').mockReturnValue(false);
@@ -377,6 +399,18 @@ describe('CartExtensionService', () => {
           },
           type: {
             key: 'custom-cart-type',
+            typeId: 'type',
+          },
+        },
+        {
+          action: 'setLineItemCustomType',
+          fields: {
+            'eagleeye-appliedDiscounts': ['Product discount (123456)'],
+            'eagleeye-loyaltyCredits': '',
+          },
+          lineItemId: '123456',
+          type: {
+            key: 'custom-line-item-type',
             typeId: 'type',
           },
         },

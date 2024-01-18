@@ -167,7 +167,7 @@ describe('Cart Loyalty processing (e2e)', () => {
       .post('/cart/service')
       .send(RECALCULATE_CART)
       .expect(201)
-      .expect(LOYALTY_SUCCESS_RESPONSE);
+      .expect((res) => expect(res.body).toEqual(LOYALTY_SUCCESS_RESPONSE));
 
     await sleep(100); //await for
     expect(ctAuthNock.isDone()).toBeTruthy();
@@ -407,8 +407,10 @@ describe('Cart Loyalty processing (e2e)', () => {
       .post('/cart/service')
       .send(itemLevelContinuityCampaignQualifyingCart)
       .expect(201)
-      .expect(
-        MIN_SPEND_ON_ITEM_CONTINUITY_LOYALTY_CAMPAIGN_COMPLETING_RESPONSE,
+      .expect((res) =>
+        expect(res.body).toEqual(
+          MIN_SPEND_ON_ITEM_CONTINUITY_LOYALTY_CAMPAIGN_COMPLETING_RESPONSE,
+        ),
       );
 
     await sleep(100); //await for
@@ -615,8 +617,10 @@ describe('Cart Loyalty processing (e2e)', () => {
       .post('/cart/service')
       .send(itemLevelContinuityCampaignQualifyingCart)
       .expect(201)
-      .expect(
-        MIN_SPEND_ON_ITEM_CONTINUITY_LOYALTY_CAMPAIGN_INPROGRESS_RESPONSE,
+      .expect((res) =>
+        expect(res.body).toEqual(
+          MIN_SPEND_ON_ITEM_CONTINUITY_LOYALTY_CAMPAIGN_INPROGRESS_RESPONSE,
+        ),
       );
 
     await sleep(100); //await for
@@ -776,7 +780,11 @@ describe('Cart Loyalty processing (e2e)', () => {
       .post('/cart/service')
       .send(RECALCULATE_CART)
       .expect(201)
-      .expect(MIN_SPEND_CONTINUITY_LOYALTY_CAMPAIGN_COMPLETING_RESPONSE);
+      .expect((res) =>
+        expect(res.body).toEqual(
+          MIN_SPEND_CONTINUITY_LOYALTY_CAMPAIGN_COMPLETING_RESPONSE,
+        ),
+      );
 
     await sleep(100); //await for
     expect(ctAuthNock.isDone()).toBeTruthy();
@@ -901,7 +909,11 @@ describe('Cart Loyalty processing (e2e)', () => {
       .post('/cart/service')
       .send(RECALCULATE_CART)
       .expect(201)
-      .expect(MIN_SPEND_CONTINUITY_LOYALTY_CAMPAIGN_IN_PROGRESS_RESPONSE);
+      .expect((res) =>
+        expect(res.body).toEqual(
+          MIN_SPEND_CONTINUITY_LOYALTY_CAMPAIGN_IN_PROGRESS_RESPONSE,
+        ),
+      );
 
     await sleep(100); //await for
     expect(ctAuthNock.isDone()).toBeTruthy();
