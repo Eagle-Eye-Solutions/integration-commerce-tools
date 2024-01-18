@@ -86,15 +86,16 @@ describe('OrderSubscriptionService', () => {
         value: [() => {}],
       },
     ]);
-    const result = { status: 'OK' };
+    const result = { statusCode: 204, result: { status: 'OK' } };
     jest
       .spyOn(eventHandlerService, 'handleProcessedEventResponse')
-      .mockReturnValue(result as any);
+      .mockReturnValue(result.result as any)
+      .mockReturnValue(result.result as any);
     const response = await service.handleOrderSubscriptionEvents(body as any);
-    expect(response).toEqual(result);
+    expect(response).toEqual({ statusCode: 204 });
   });
 
-  it('should handle failed order subscription events', async () => {
+  it('should handle failed order subscription events (4xx)', async () => {
     const body = {
       resource: {
         typeId: 'order',
@@ -109,11 +110,50 @@ describe('OrderSubscriptionService', () => {
         reason: {},
       },
     ]);
-    const result = { status: '4xx' };
+    const result = { statusCode: 400, result: { status: '4xx' } };
     jest
       .spyOn(eventHandlerService, 'handleProcessedEventResponse')
-      .mockReturnValue(result as any);
+      .mockReturnValue(result.result as any);
     const response = await service.handleOrderSubscriptionEvents(body as any);
-    expect(response).toEqual(result);
+    expect(response).toEqual({ statusCode: 400 });
+  });
+
+  it('should handle failed order subscription events (other)', async () => {
+    const body = {
+      resource: {
+        typeId: 'order',
+        id: 'order-id',
+      },
+      type: 'OrderPaymentStateChanged',
+      paymentState: 'Paid',
+    } as unknown as OrderPaymentStateChangedMessage;
+    jest.spyOn(eventHandlerService, 'processEvent').mockResolvedValueOnce([
+      {
+        status: 'rejected',
+        reason: {},
+      },
+    ]);
+    const result = { statusCode: 202, result: { status: 'other' } };
+    jest
+      .spyOn(eventHandlerService, 'handleProcessedEventResponse')
+      .mockReturnValue(result.result as any);
+    const response = await service.handleOrderSubscriptionEvents(body as any);
+    expect(response).toEqual({ statusCode: 202 });
+  });
+
+  it('should handle early errors during processEvent', async () => {
+    const body = {
+      resource: {
+        typeId: 'order',
+        id: 'order-id',
+      },
+      type: 'OrderPaymentStateChanged',
+      paymentState: 'Paid',
+    } as unknown as OrderPaymentStateChangedMessage;
+    jest
+      .spyOn(eventHandlerService, 'processEvent')
+      .mockRejectedValueOnce(new Error('error'));
+    const response = await service.handleOrderSubscriptionEvents(body as any);
+    expect(response).toEqual({ statusCode: 500 });
   });
 });
