@@ -14,7 +14,7 @@ import { LineItemPromotions } from '../../../../../adjudication/types/promotions
 import { FIELD_EAGLEEYE_LOYALTY_CREDITS } from '../../custom-type/line-item-type-definition';
 import { FIELD_EAGLEEYE_APPLIED_DISCOUNTS } from '../../custom-type/cart-type-definition';
 
-interface CustomFieldsObject {
+export interface CustomFieldsObject {
   loyaltyCredits?: LoyaltyBreakdownObject;
   promotions?: LineItemPromotions;
 }
