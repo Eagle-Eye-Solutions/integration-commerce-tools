@@ -27,7 +27,7 @@ describe('CampaignNameService', () => {
       expect(result).toEqual([]);
     });
 
-    it('should return mapped discounts if resourceIds are found', () => {
+    it('should return mapped discounts if resourceIds are found and remove duplicated campaign names', () => {
       const walletOpenResponse = {
         data: {
           analyseBasketResults: {
@@ -40,6 +40,7 @@ describe('CampaignNameService', () => {
               { campaignId: '1', campaignName: 'Discount 1' },
               { campaignId: '2', campaignName: 'Discount 2' },
               { campaignId: '3', campaignName: 'Discount 3' },
+              { campaignId: '4', campaignName: 'Discount 3' },
             ],
           },
         },

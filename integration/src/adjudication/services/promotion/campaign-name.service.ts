@@ -1,5 +1,9 @@
 import { DiscountDescription } from '../../../common/providers/commercetools/actions/cart-update/CartCustomTypeActionBuilder';
 import { Injectable } from '@nestjs/common';
+import {
+  removeDuplicates,
+  removeDuplicatesFromMap,
+} from '../../../common/helper/deduplicateUtil';
 
 @Injectable()
 export class CampaignNameService {
@@ -9,11 +13,16 @@ export class CampaignNameService {
         (result) => result.resourceId,
       );
     if (resourceIds?.length) {
-      return walletOpenResponse.data?.analyseBasketResults?.discount
-        ?.filter((discount) => resourceIds.includes(discount.campaignId))
-        .map((discount) => ({
-          description: discount.campaignName,
-        }));
+      const basketTotalCampaignNames =
+        walletOpenResponse.data?.analyseBasketResults?.discount
+          ?.filter((discount) => resourceIds.includes(discount.campaignId))
+          .map((discount) => discount.campaignName);
+      const deduplicatedBasketCampaigns = removeDuplicates(
+        basketTotalCampaignNames,
+      );
+      return deduplicatedBasketCampaigns?.map((name) => ({
+        description: name,
+      }));
     }
     return [];
   }
@@ -61,6 +70,6 @@ export class CampaignNameService {
         },
       );
     }
-    return productIdToCampaignNamesMap;
+    return removeDuplicatesFromMap(productIdToCampaignNamesMap);
   }
 }
