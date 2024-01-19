@@ -1,10 +1,10 @@
-export const removeDuplicatesFromMap = (
-  productIdToCampaignNamesMap: Map<string, string[]>,
+export const removeDuplicatesFromMapValues = (
+  inputMap: Map<string, string[]>,
 ): Map<string, string[]> => {
-  for (const [key, value] of productIdToCampaignNamesMap.entries()) {
-    productIdToCampaignNamesMap.set(key, removeDuplicates(value));
+  for (const [key, value] of inputMap.entries()) {
+    inputMap.set(key, removeDuplicates(value));
   }
-  return productIdToCampaignNamesMap;
+  return inputMap;
 };
 
 export const removeDuplicates = (arr: string[]): string[] => {
