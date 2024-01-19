@@ -2,8 +2,6 @@ import * as nock from 'nock';
 import { AdjudicationMapper } from '../../../src/adjudication/mappers/adjudication.mapper';
 import { Commercetools } from '../../../src/common/providers/commercetools/commercetools.provider';
 import { ScriptConfigService } from '../../../src/common/config/configuration';
-import { CtBasketStoreService } from '../../../src/common/services/basket-store/ct-basket-store.service';
-import { CustomObjectService } from '../../../src/common/providers/commercetools/custom-object/custom-object.service';
 
 export const nockWalletOpen = async (
   cart,
@@ -13,15 +11,9 @@ export const nockWalletOpen = async (
 ) => {
   const configService = new ScriptConfigService();
   const commercetools = new Commercetools(configService as any);
-  const customObjectService = new CustomObjectService(commercetools);
-  const basketStoreService = new CtBasketStoreService(
-    customObjectService,
-    configService as any,
-  );
   const adjudicationMapper = new AdjudicationMapper(
     configService as any,
     commercetools,
-    basketStoreService,
   );
   const basketContents = [
     ...adjudicationMapper.mapCartLineItemsToBasketContent(cart.lineItems),
@@ -106,7 +98,7 @@ export const nockWalletOpen = async (
               totalItems: getTotalItemCount(cart),
               totalBasketValue: getTotalBasketValue(cart),
               adjustmentResults: [
-                { value: 200 },
+                { resourceId: '1669988', value: 200 },
                 { value: 500 }, // Voucher code "123456", 5 pounds off 50 (Basket)
               ],
             },
@@ -115,6 +107,7 @@ export const nockWalletOpen = async (
                 upc: '245865',
                 adjustmentResults: [
                   {
+                    resourceId: '123456',
                     totalDiscountAmount: 100,
                   },
                 ],
@@ -131,7 +124,12 @@ export const nockWalletOpen = async (
           },
           discount: [
             {
-              campaignName: 'Example Discount',
+              campaignId: '123456',
+              campaignName: 'Product discount for buying 245865',
+            },
+            {
+              campaignId: '1669988',
+              campaignName: 'Basket 20% Discount',
             },
           ],
         },
@@ -174,15 +172,9 @@ export const nockWalletOpenWithLoyalty = async (
 ) => {
   const configService = new ScriptConfigService();
   const commercetools = new Commercetools(configService as any);
-  const customObjectService = new CustomObjectService(commercetools);
-  const basketStoreService = new CtBasketStoreService(
-    customObjectService,
-    configService as any,
-  );
   const adjudicationMapper = new AdjudicationMapper(
     configService as any,
     commercetools,
-    basketStoreService,
   );
   const basketContents = [
     ...adjudicationMapper.mapCartLineItemsToBasketContent(cart.lineItems),
@@ -409,15 +401,9 @@ export const nockWalletOpenWithMinSpendOnItemLoyaltyContinuityCampaignInProgress
   async (cart, times = 1, responseCode = 200, delayConnection = 0) => {
     const configService = new ScriptConfigService();
     const commercetools = new Commercetools(configService as any);
-    const customObjectService = new CustomObjectService(commercetools);
-    const basketStoreService = new CtBasketStoreService(
-      customObjectService,
-      configService as any,
-    );
     const adjudicationMapper = new AdjudicationMapper(
       configService as any,
       commercetools,
-      basketStoreService,
     );
     const basketContents = [
       ...adjudicationMapper.mapCartLineItemsToBasketContent(cart.lineItems),
@@ -698,15 +684,9 @@ export const nockWalletOpenWithMinSpendOnItemLoyaltyContinuityCampaignCompleting
   async (cart, times = 1, responseCode = 200, delayConnection = 0) => {
     const configService = new ScriptConfigService();
     const commercetools = new Commercetools(configService as any);
-    const customObjectService = new CustomObjectService(commercetools);
-    const basketStoreService = new CtBasketStoreService(
-      customObjectService,
-      configService as any,
-    );
     const adjudicationMapper = new AdjudicationMapper(
       configService as any,
       commercetools,
-      basketStoreService,
     );
     const basketContents = [
       ...adjudicationMapper.mapCartLineItemsToBasketContent(cart.lineItems),
@@ -1031,15 +1011,9 @@ export const nockWalletOpenWithMinSpendLoyaltyContinuityCampaignCompleting =
   async (cart, times = 1, responseCode = 200, delayConnection = 0) => {
     const configService = new ScriptConfigService();
     const commercetools = new Commercetools(configService as any);
-    const customObjectService = new CustomObjectService(commercetools);
-    const basketStoreService = new CtBasketStoreService(
-      customObjectService,
-      configService as any,
-    );
     const adjudicationMapper = new AdjudicationMapper(
       configService as any,
       commercetools,
-      basketStoreService,
     );
     const basketContents = [
       ...adjudicationMapper.mapCartLineItemsToBasketContent(cart.lineItems),
@@ -1458,15 +1432,9 @@ export const nockWalletOpenWithMinSpendLoyaltyContinuityCampaignInProgress =
   async (cart, times = 1, responseCode = 200, delayConnection = 0) => {
     const configService = new ScriptConfigService();
     const commercetools = new Commercetools(configService as any);
-    const customObjectService = new CustomObjectService(commercetools);
-    const basketStoreService = new CtBasketStoreService(
-      customObjectService,
-      configService as any,
-    );
     const adjudicationMapper = new AdjudicationMapper(
       configService as any,
       commercetools,
-      basketStoreService,
     );
     const basketContents = [
       ...adjudicationMapper.mapCartLineItemsToBasketContent(cart.lineItems),
@@ -1739,15 +1707,9 @@ export const nockWalletOpenWithMinTransactionLoyaltyContinuityCampaignInProgress
   async (cart, times = 1, responseCode = 200, delayConnection = 0) => {
     const configService = new ScriptConfigService();
     const commercetools = new Commercetools(configService as any);
-    const customObjectService = new CustomObjectService(commercetools);
-    const basketStoreService = new CtBasketStoreService(
-      customObjectService,
-      configService as any,
-    );
     const adjudicationMapper = new AdjudicationMapper(
       configService as any,
       commercetools,
-      basketStoreService,
     );
     const basketContents = [
       ...adjudicationMapper.mapCartLineItemsToBasketContent(cart.lineItems),
@@ -2300,15 +2262,9 @@ export const nockWalletOpenRetryOnIdentificationError = async (
 ) => {
   const configService = new ScriptConfigService();
   const commercetools = new Commercetools(configService as any);
-  const customObjectService = new CustomObjectService(commercetools);
-  const basketStoreService = new CtBasketStoreService(
-    customObjectService,
-    configService as any,
-  );
   const adjudicationMapper = new AdjudicationMapper(
     configService as any,
     commercetools,
-    basketStoreService,
   );
   const basketContents = [
     ...adjudicationMapper.mapCartLineItemsToBasketContent(cart.lineItems),
@@ -2389,7 +2345,7 @@ export const nockWalletOpenRetryOnIdentificationError = async (
                 totalItems: getTotalItemCount(cart),
                 totalBasketValue: getTotalBasketValue(cart),
                 adjustmentResults: [
-                  { value: 200 },
+                  { resourceId: '1669988', value: 200 },
                   { value: 500 }, // Voucher code "123456", 5 pounds off 50 (Basket)
                 ],
               },
@@ -2398,6 +2354,7 @@ export const nockWalletOpenRetryOnIdentificationError = async (
                   upc: '245865',
                   adjustmentResults: [
                     {
+                      resourceId: '123456',
                       totalDiscountAmount: 100,
                     },
                   ],
@@ -2414,7 +2371,12 @@ export const nockWalletOpenRetryOnIdentificationError = async (
             },
             discount: [
               {
-                campaignName: 'Example Discount',
+                campaignId: '123456',
+                campaignName: 'Product discount for buying 245865',
+              },
+              {
+                campaignId: '1669988',
+                campaignName: 'Basket 20% Discount',
               },
             ],
           },
@@ -2433,15 +2395,9 @@ export const nockWalletOpenIdentityError = async (
 ) => {
   const configService = new ScriptConfigService();
   const commercetools = new Commercetools(configService as any);
-  const customObjectService = new CustomObjectService(commercetools);
-  const basketStoreService = new CtBasketStoreService(
-    customObjectService,
-    configService as any,
-  );
   const adjudicationMapper = new AdjudicationMapper(
     configService as any,
     commercetools,
-    basketStoreService,
   );
   const basketContents = [
     ...adjudicationMapper.mapCartLineItemsToBasketContent(cart.lineItems),

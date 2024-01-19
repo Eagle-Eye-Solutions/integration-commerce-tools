@@ -1,15 +1,12 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import {
   Cart,
-  LineItem,
   DirectDiscountDraft,
+  LineItem,
   ShippingInfo,
 } from '@commercetools/platform-sdk';
-import { DiscountDescription } from '../../common/providers/commercetools/actions/cart-update/CartCustomTypeActionBuilder';
 import { ConfigService } from '@nestjs/config';
 import { Commercetools } from '../../common/providers/commercetools/commercetools.provider';
-import { BasketStoreService } from '../../common/services/basket-store/basket-store.interface';
-import { BASKET_STORE_SERVICE } from '../../common/services/basket-store/basket-store.provider';
 
 export type BasketItem = {
   itemUnitCost: number;
@@ -28,8 +25,6 @@ export class AdjudicationMapper {
   constructor(
     readonly configService: ConfigService,
     readonly commercetools: Commercetools,
-    @Inject(BASKET_STORE_SERVICE)
-    private readonly basketStoreService: BasketStoreService,
   ) {}
 
   mapCartLineItemsToBasketContent(lineItems: LineItem[]) {
@@ -84,14 +79,6 @@ export class AdjudicationMapper {
     });
   }
 
-  mapBasketDiscountsToDiscountDescriptions(discounts): DiscountDescription[] {
-    return discounts.map((discount) => {
-      return {
-        description: discount.campaignName,
-      };
-    });
-  }
-
   mapAdjustedBasketToItemDirectDiscounts(
     basket,
     cart: Cart,
@@ -99,7 +86,9 @@ export class AdjudicationMapper {
     return basket.contents
       .map((item) => {
         const cartLineItem = cart.lineItems.find(
-          (lineItem) => lineItem.variant.sku === item.upc,
+          (lineItem) =>
+            lineItem.variant.sku === item.upc ||
+            lineItem.variant.sku === item.sku,
         );
         if (cartLineItem) {
           return item.adjustmentResults?.map((adjustment) => {
@@ -117,7 +106,7 @@ export class AdjudicationMapper {
               },
               target: {
                 type: 'lineItems',
-                predicate: `sku="${item.upc}"`,
+                predicate: `sku="${item.upc || item.sku}"`,
               },
             };
           });
@@ -138,7 +127,7 @@ export class AdjudicationMapper {
     return basket.contents
       .map((item) => {
         const matchingMethod = shippingMethodMap?.find(
-          (method) => method.upc === item.upc,
+          (method) => method.upc === item.upc || method.upc === item.sku,
         );
         if (matchingMethod) {
           return item.adjustmentResults?.map((adjustment) => {
@@ -182,8 +171,7 @@ export class AdjudicationMapper {
         (method) => method.key === shippingMethod[0].key,
       );
       if (matchingMethod) {
-        return {
-          upc: matchingMethod.upc,
+        const shippingItem: BasketItem = {
           itemUnitCost: shippingInfo.price.centAmount,
           totalUnitCostAfterDiscount: shippingInfo.price.centAmount,
           totalUnitCost: shippingInfo.price.centAmount,
@@ -192,6 +180,12 @@ export class AdjudicationMapper {
           itemUnitCount: 1,
           salesKey: 'SALE',
         };
+        if (this.configService.get<boolean>('eagleEye.useItemSku')) {
+          shippingItem.sku = matchingMethod.upc;
+        } else {
+          shippingItem.upc = matchingMethod.upc;
+        }
+        return shippingItem;
       }
     }
     return {};
@@ -224,7 +218,7 @@ export class AdjudicationMapper {
     const shippingDiscountItem = await this.mapShippingMethodSkusToBasketItems(
       cart.shippingInfo,
     );
-    if (shippingDiscountItem.upc) {
+    if (shippingDiscountItem.upc || shippingDiscountItem.sku) {
       basketContents.push(shippingDiscountItem);
     }
     const incomingIdentifier = this.configService.get(

@@ -16,6 +16,7 @@ import { AdjudicationController } from './controllers/adjudication.controller';
 import { AdjudicationMapper } from './mappers/adjudication.mapper';
 import { LoyaltyMapper } from './mappers/loyalty.mapper';
 import { BasketCleanupService } from './services/basket-cleanup-service/basket-cleanup.service';
+import { CampaignNameService } from './services/promotion/campaign-name.service';
 
 const providers = [
   CartExtensionService,
@@ -27,6 +28,7 @@ const providers = [
   AdjudicationMapper,
   LoyaltyMapper,
   BasketCleanupService,
+  CampaignNameService,
 ];
 
 @Module({

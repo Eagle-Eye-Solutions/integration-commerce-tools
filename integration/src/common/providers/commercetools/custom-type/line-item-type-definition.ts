@@ -2,6 +2,7 @@ import { TypeDraft } from '@commercetools/platform-sdk';
 import { ConfigService } from '@nestjs/config';
 import { Injectable } from '@nestjs/common';
 import { TypeDefinitionInterface } from './type-definition.interface';
+import { FIELD_EAGLEEYE_APPLIED_DISCOUNTS } from './cart-type-definition';
 
 export const FIELD_EAGLEEYE_LOYALTY_CREDITS = 'eagleeye-loyaltyCredits';
 export const TYPE_LINE_ITEM = 'custom-line-item-type';
@@ -36,6 +37,18 @@ export class LineItemTypeDefinition implements TypeDefinitionInterface {
           required: false,
           type: {
             name: 'String',
+          },
+          inputHint: 'SingleLine',
+        },
+        {
+          name: FIELD_EAGLEEYE_APPLIED_DISCOUNTS,
+          label: {
+            en: 'eagleeye-appliedDiscounts',
+          },
+          required: false,
+          type: {
+            name: 'Set',
+            elementType: { name: 'String' },
           },
           inputHint: 'SingleLine',
         },

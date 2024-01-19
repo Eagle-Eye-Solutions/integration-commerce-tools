@@ -145,6 +145,33 @@ describe('AdjudicationMapper', () => {
     });
   });
 
+  it('should return the mapped custom basket items and map the shipping method to the lineitem using the sku when is configured', async () => {
+    const shippingInfo = {
+      shippingMethod: {
+        id: 'some-id',
+      },
+      price: {
+        centAmount: 300,
+        currencyCode: 'USD',
+        type: 'centPrecision',
+        fractionDigits: 2,
+      },
+      shippingMethodName: 'Example Shipping Discount',
+    };
+
+    jest.spyOn(configService, 'get').mockReturnValueOnce(shippingMethodMapMock);
+    jest.spyOn(configService, 'get').mockReturnValueOnce(true);
+    jest
+      .spyOn(commercetools, 'getShippingMethods')
+      .mockResolvedValueOnce([{ key: 'standard-key' }] as any);
+
+    const basketContents = await service.mapShippingMethodSkusToBasketItems(
+      shippingInfo as any,
+    );
+
+    expect(basketContents).toMatchSnapshot();
+  });
+
   describe('mapAdjustedBasketToCartDirectDiscounts', () => {
     it('should return the direct discount draft', () => {
       const basket = {
@@ -176,6 +203,33 @@ describe('AdjudicationMapper', () => {
         contents: [
           {
             upc: 'SKU123',
+            adjustmentResults: [
+              {
+                totalDiscountAmount: 10,
+              },
+            ],
+          },
+        ],
+      };
+
+      const directDiscounts = service.mapAdjustedBasketToItemDirectDiscounts(
+        basket,
+        cart,
+      );
+
+      expect(directDiscounts).toMatchSnapshot();
+    });
+
+    it('should return the direct discount drafts when using sku instead of upc', () => {
+      const basket = {
+        summary: {
+          totalDiscountAmount: {
+            promotions: 10,
+          },
+        },
+        contents: [
+          {
+            sku: 'SKU123',
             adjustmentResults: [
               {
                 totalDiscountAmount: 10,

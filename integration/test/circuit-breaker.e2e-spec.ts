@@ -86,38 +86,38 @@ describe('Circuit breaker (e2e)', () => {
       .post('/cart/service')
       .send(RECALCULATE_CART)
       .expect(201)
-      .expect(SUCCESS_RESPONSE);
+      .expect((res) => expect(res.body).toEqual(SUCCESS_RESPONSE));
     await request(app.getHttpServer())
       .post('/cart/service')
       .send(RECALCULATE_CART)
       .expect(201)
-      .expect(SUCCESS_RESPONSE);
+      .expect((res) => expect(res.body).toEqual(SUCCESS_RESPONSE));
     await request(app.getHttpServer())
       .post('/cart/service')
       .send(RECALCULATE_CART)
       .expect(201)
-      .expect(SUCCESS_RESPONSE);
+      .expect((res) => expect(res.body).toEqual(SUCCESS_RESPONSE));
     await request(app.getHttpServer())
       .post('/cart/service')
       .send(RECALCULATE_CART)
       .expect(201)
-      .expect(ERROR_RESPONSE);
+      .expect((res) => expect(res.body).toEqual(ERROR_RESPONSE));
     await request(app.getHttpServer())
       .post('/cart/service')
       .send(RECALCULATE_CART)
       .expect(201)
-      .expect(ERROR_RESPONSE);
+      .expect((res) => expect(res.body).toEqual(ERROR_RESPONSE));
     await request(app.getHttpServer())
       .post('/cart/service')
       .send(RECALCULATE_CART)
       .expect(201)
-      .expect(ERROR_RESPONSE);
+      .expect((res) => expect(res.body).toEqual(ERROR_RESPONSE));
     // open circuit and save circuit state to CT custom object
     await request(app.getHttpServer())
       .post('/cart/service')
       .send(RECALCULATE_CART)
       .expect(201)
-      .expect(ERROR_RESPONSE);
+      .expect((res) => expect(res.body).toEqual(ERROR_RESPONSE));
     await sleep(100); //await for
     expect(ctAuthNock.isDone()).toBeTruthy();
     expect(nockCtGetShippingMethods.isDone()).toBeTruthy();
@@ -148,76 +148,80 @@ describe('Circuit breaker (e2e)', () => {
       .post('/cart/service')
       .send(RECALCULATE_CART)
       .expect(201)
-      .expect({
-        actions: [
-          {
-            action: 'setCustomField',
-            name: 'eagleeye-errors',
-            value: [
-              '{"type":"EE_API_CIRCUIT_OPEN","message":"The eagle eye API is unavailable, the cart promotions and loyalty points are NOT updated"}',
-            ],
-          },
-          {
-            action: 'setCustomField',
-            name: 'eagleeye-appliedDiscounts',
-            value: [],
-          },
-          {
-            action: 'setCustomField',
-            name: 'eagleeye-basketStore',
-            value: '',
-          },
-          {
-            action: 'setCustomField',
-            name: 'eagleeye-basketUri',
-            value: '',
-          },
-          {
-            action: 'setCustomField',
-            name: 'eagleeye-voucherCodes',
-            value: [],
-          },
-          {
-            action: 'setCustomField',
-            name: 'eagleeye-potentialVoucherCodes',
-            value: [],
-          },
-          { action: 'setCustomField', name: 'eagleeye-action', value: '' },
-          {
-            action: 'setCustomField',
-            name: 'eagleeye-settledStatus',
-            value: '',
-          },
-          {
-            action: 'setCustomField',
-            name: 'eagleeye-loyaltyEarnAndCredits',
-            value: '',
-          },
-          {
-            action: 'setLineItemCustomType',
-            lineItemId: '3fce711d-e891-4005-be7f-bf3c999ccc7d',
-            type: {
-              typeId: 'type',
-              key: 'custom-line-item-type',
+      .expect((res) =>
+        expect(res.body).toEqual({
+          actions: [
+            {
+              action: 'setCustomField',
+              name: 'eagleeye-errors',
+              value: [
+                '{"type":"EE_API_CIRCUIT_OPEN","message":"The eagle eye API is unavailable, the cart promotions and loyalty points are NOT updated"}',
+              ],
             },
-            fields: {
-              'eagleeye-loyaltyCredits': '',
+            {
+              action: 'setCustomField',
+              name: 'eagleeye-appliedDiscounts',
+              value: [],
             },
-          },
-          {
-            action: 'setLineItemCustomType',
-            lineItemId: '2d313f50-e3ec-4c17-ac14-9fb6f4d75665',
-            type: {
-              typeId: 'type',
-              key: 'custom-line-item-type',
+            {
+              action: 'setCustomField',
+              name: 'eagleeye-basketStore',
+              value: '',
             },
-            fields: {
-              'eagleeye-loyaltyCredits': '',
+            {
+              action: 'setCustomField',
+              name: 'eagleeye-basketUri',
+              value: '',
             },
-          },
-          { action: 'setDirectDiscounts', discounts: [] },
-        ],
-      });
+            {
+              action: 'setCustomField',
+              name: 'eagleeye-voucherCodes',
+              value: [],
+            },
+            {
+              action: 'setCustomField',
+              name: 'eagleeye-potentialVoucherCodes',
+              value: [],
+            },
+            { action: 'setCustomField', name: 'eagleeye-action', value: '' },
+            {
+              action: 'setCustomField',
+              name: 'eagleeye-settledStatus',
+              value: '',
+            },
+            {
+              action: 'setCustomField',
+              name: 'eagleeye-loyaltyEarnAndCredits',
+              value: '',
+            },
+            {
+              action: 'setLineItemCustomType',
+              lineItemId: '3fce711d-e891-4005-be7f-bf3c999ccc7d',
+              type: {
+                typeId: 'type',
+                key: 'custom-line-item-type',
+              },
+              fields: {
+                'eagleeye-appliedDiscounts': [],
+                'eagleeye-loyaltyCredits': '',
+              },
+            },
+            {
+              action: 'setLineItemCustomType',
+              lineItemId: '2d313f50-e3ec-4c17-ac14-9fb6f4d75665',
+              type: {
+                typeId: 'type',
+                key: 'custom-line-item-type',
+              },
+              fields: {
+                'eagleeye-appliedDiscounts': [],
+                'eagleeye-loyaltyCredits': '',
+              },
+            },
+            { action: 'setDirectDiscounts', discounts: [] },
+          ],
+        }),
+      );
     expect(ctAuthNock.isDone()).toBeTruthy();
     expect(nockCtGetShippingMethods.isDone()).toBeTruthy();
     expect(getCustomObjectNock.isDone()).toBeTruthy();

@@ -62,70 +62,7 @@ export class CartExtensionService {
       });
       return extensionActions;
     } catch (error) {
-      this.logger.error(error, error.stack);
-
-      const errors: CustomFieldError[] = [];
-
-      errors.push(this.getErrorDetails(error));
-
-      if (this.basketStoreService.isEnabled(body.resource as CartReference)) {
-        try {
-          await this.basketStoreService.delete(body.resource.id);
-        } catch (errorDelete) {
-          this.logger.error(
-            'Error deleting stored enriched basket',
-            errorDelete,
-          );
-        }
-      }
-
-      const actionBuilder = new CTActionsBuilder();
-
-      if (CartCustomTypeActionBuilder.checkResourceCustomType(cart)) {
-        actionBuilder.addAll([
-          ...CartCustomTypeActionBuilder.setCustomFields({
-            errors,
-            discountDescriptions: [],
-          }),
-          ...LineItemCustomTypeActionBuilder.setCustomFields(
-            {},
-            cart.lineItems.filter((lineItem) => lineItem.custom?.type),
-          ),
-          ...LineItemCustomTypeActionBuilder.addCustomType(
-            {},
-            cart.lineItems.filter((lineItem) => !lineItem.custom?.type),
-            this.lineItemTypeDefinition.getTypeKey(),
-          ),
-        ]);
-      } else {
-        actionBuilder.addAll([
-          CartCustomTypeActionBuilder.addCustomType(
-            { errors },
-            this.cartTypeDefinition.getTypeKey(),
-          ),
-          ...LineItemCustomTypeActionBuilder.setCustomFields(
-            {},
-            cart.lineItems.filter((lineItem) => lineItem.custom?.type),
-          ),
-          ...LineItemCustomTypeActionBuilder.addCustomType(
-            {},
-            cart.lineItems.filter((lineItem) => !lineItem.custom?.type),
-            this.lineItemTypeDefinition.getTypeKey(),
-          ),
-        ]);
-      }
-      // Discount removal should only be done for carts. This action is not valid for orders.
-      if (body.resource.typeId === 'cart') {
-        // Discounts should be removed only if the basket was not persisted in AIR. See https://eagleeye.atlassian.net/browse/CTP-3
-        actionBuilder.add(CartDiscountActionBuilder.removeDiscounts());
-      }
-
-      const extensionActions = actionBuilder.build();
-      this.logger.debug({
-        message: `Returning ${extensionActions.actions.length} actions to commercetools`,
-        extensionActions,
-      });
-      return extensionActions;
+      return this.handleError(error, body, cart);
     }
   }
 
@@ -155,7 +92,7 @@ export class CartExtensionService {
       actionBuilder.addAll([
         ...CartCustomTypeActionBuilder.setCustomFields({
           errors: [...walletOpenResponse.errors, ...basketDiscounts.errors],
-          discountDescriptions: [...basketDiscounts.discountDescriptions],
+          discountDescriptions: [...basketDiscounts.basketDiscountDescriptions],
           voucherCodes: basketDiscounts.voucherCodes,
           potentialVoucherCodes: basketDiscounts.potentialVoucherCodes,
           basketLocation,
@@ -165,11 +102,21 @@ export class CartExtensionService {
           },
         }),
         ...LineItemCustomTypeActionBuilder.setCustomFields(
-          { loyaltyCredits: loyaltyEarnAndCredits.credit.items },
+          {
+            loyaltyCredits: loyaltyEarnAndCredits.credit.items,
+            promotions: {
+              appliedDiscounts: basketDiscounts.lineItemsDiscountDescriptions,
+            },
+          },
           resourceObj.lineItems.filter((lineItem) => lineItem.custom?.type),
         ),
         ...LineItemCustomTypeActionBuilder.addCustomType(
-          { loyaltyCredits: loyaltyEarnAndCredits.credit.items },
+          {
+            loyaltyCredits: loyaltyEarnAndCredits.credit.items,
+            promotions: {
+              appliedDiscounts: basketDiscounts.lineItemsDiscountDescriptions,
+            },
+          },
           resourceObj.lineItems.filter((lineItem) => !lineItem.custom?.type),
           this.lineItemTypeDefinition.getTypeKey(),
         ),
@@ -179,7 +126,9 @@ export class CartExtensionService {
         CartCustomTypeActionBuilder.addCustomType(
           {
             errors: [...walletOpenResponse.errors, ...basketDiscounts.errors],
-            discountDescriptions: [...basketDiscounts.discountDescriptions],
+            discountDescriptions: [
+              ...basketDiscounts.basketDiscountDescriptions,
+            ],
             voucherCodes: basketDiscounts.voucherCodes,
             potentialVoucherCodes: basketDiscounts.potentialVoucherCodes,
             basketLocation,
@@ -191,11 +140,21 @@ export class CartExtensionService {
           this.cartTypeDefinition.getTypeKey(),
         ),
         ...LineItemCustomTypeActionBuilder.setCustomFields(
-          { loyaltyCredits: loyaltyEarnAndCredits.credit.items },
+          {
+            loyaltyCredits: loyaltyEarnAndCredits.credit.items,
+            promotions: {
+              appliedDiscounts: basketDiscounts.lineItemsDiscountDescriptions,
+            },
+          },
           resourceObj.lineItems.filter((lineItem) => lineItem.custom?.type),
         ),
         ...LineItemCustomTypeActionBuilder.addCustomType(
-          { loyaltyCredits: loyaltyEarnAndCredits.credit.items },
+          {
+            loyaltyCredits: loyaltyEarnAndCredits.credit.items,
+            promotions: {
+              appliedDiscounts: basketDiscounts.lineItemsDiscountDescriptions,
+            },
+          },
           resourceObj.lineItems.filter((lineItem) => !lineItem.custom?.type),
           this.lineItemTypeDefinition.getTypeKey(),
         ),
@@ -204,30 +163,6 @@ export class CartExtensionService {
     actionBuilder.add(
       CartDiscountActionBuilder.addDiscount([...basketDiscounts.discounts]),
     );
-  }
-
-  private getErrorDetails(error: any): CustomFieldError {
-    if (
-      error instanceof EagleEyeApiException ||
-      error instanceof EagleEyePluginException
-    ) {
-      return {
-        type: error.type,
-        message: error.message,
-      };
-    } else if (error.code === 'EOPENBREAKER') {
-      return {
-        type: 'EE_API_CIRCUIT_OPEN',
-        message:
-          'The eagle eye API is unavailable, the cart promotions and loyalty points are NOT updated',
-      };
-    } else {
-      return {
-        type: 'EE_API_GENERIC_ERROR',
-        message:
-          'Unexpected error with getting the promotions and loyalty points',
-      };
-    }
   }
 
   async attemptToOpenWallet(cartReference: CartReference) {
@@ -284,6 +219,94 @@ export class CartExtensionService {
       }
     }
     return { payload: walletOpenResponse, errors };
+  }
+
+  private getErrorDetails(error: any): CustomFieldError {
+    if (
+      error instanceof EagleEyeApiException ||
+      error instanceof EagleEyePluginException
+    ) {
+      return {
+        type: error.type,
+        message: error.message,
+      };
+    } else if (error.code === 'EOPENBREAKER') {
+      return {
+        type: 'EE_API_CIRCUIT_OPEN',
+        message:
+          'The eagle eye API is unavailable, the cart promotions and loyalty points are NOT updated',
+      };
+    } else {
+      return {
+        type: 'EE_API_GENERIC_ERROR',
+        message:
+          'Unexpected error with getting the promotions and loyalty points',
+      };
+    }
+  }
+
+  private async handleError(error, body: ExtensionInput, cart: Cart) {
+    this.logger.error(error, error.stack);
+
+    const errors: CustomFieldError[] = [];
+
+    errors.push(this.getErrorDetails(error));
+
+    if (this.basketStoreService.isEnabled(body.resource as CartReference)) {
+      try {
+        await this.basketStoreService.delete(body.resource.id);
+      } catch (errorDelete) {
+        this.logger.error('Error deleting stored enriched basket', errorDelete);
+      }
+    }
+
+    const actionBuilder = new CTActionsBuilder();
+
+    if (CartCustomTypeActionBuilder.checkResourceCustomType(cart)) {
+      actionBuilder.addAll([
+        ...CartCustomTypeActionBuilder.setCustomFields({
+          errors,
+          discountDescriptions: [],
+        }),
+        ...LineItemCustomTypeActionBuilder.setCustomFields(
+          {},
+          cart.lineItems.filter((lineItem) => lineItem.custom?.type),
+        ),
+        ...LineItemCustomTypeActionBuilder.addCustomType(
+          {},
+          cart.lineItems.filter((lineItem) => !lineItem.custom?.type),
+          this.lineItemTypeDefinition.getTypeKey(),
+        ),
+      ]);
+    } else {
+      actionBuilder.addAll([
+        CartCustomTypeActionBuilder.addCustomType(
+          { errors },
+          this.cartTypeDefinition.getTypeKey(),
+        ),
+        ...LineItemCustomTypeActionBuilder.setCustomFields(
+          {},
+          cart.lineItems.filter((lineItem) => lineItem.custom?.type),
+        ),
+        ...LineItemCustomTypeActionBuilder.addCustomType(
+          {},
+          cart.lineItems.filter((lineItem) => !lineItem.custom?.type),
+          this.lineItemTypeDefinition.getTypeKey(),
+        ),
+      ]);
+    }
+    // Discount removal should only be done for carts. This action is not valid for orders.
+    if (body.resource.typeId === 'cart') {
+      // Discounts should be removed only if the basket was not persisted in AIR. See https://eagleeye.atlassian.net/browse/CTP-3
+      actionBuilder.add(CartDiscountActionBuilder.removeDiscounts());
+    }
+
+    const extensionActions = actionBuilder.build();
+    this.logger.debug({
+      message: `Returning ${extensionActions.actions.length} actions to commercetools`,
+      extensionActions,
+    });
+    return extensionActions;
   }
 
   @CircuitBreakerIntercept()

@@ -5,12 +5,13 @@ import { EagleEyeApiClient } from '../../../common/providers/eagleeye/eagleeye.p
 import { ConfigService } from '@nestjs/config';
 import { AdjudicationMapper } from '../../mappers/adjudication.mapper';
 import { Logger } from '@nestjs/common';
-import { BASKET_STORE_SERVICE } from '../../../common/services/basket-store/basket-store.provider';
+import { CampaignNameService } from './campaign-name.service';
 
 describe('PromotionService', () => {
   let service: PromotionService;
   let configService: ConfigService;
   let commercetools: Commercetools;
+  let campaignNameService: CampaignNameService;
   const walletOpenMock = jest.fn();
   const cartWithoutItems = {
     id: 'cartId',
@@ -29,6 +30,13 @@ describe('PromotionService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         PromotionService,
+        {
+          provide: CampaignNameService,
+          useValue: {
+            getBasketCampaignNames: jest.fn(),
+            getLineItemsCampaignNames: jest.fn(),
+          },
+        },
         {
           provide: Commercetools,
           useValue: {
@@ -51,21 +59,13 @@ describe('PromotionService', () => {
         },
         AdjudicationMapper,
         Logger,
-        {
-          provide: BASKET_STORE_SERVICE,
-          useValue: {
-            save: jest.fn(),
-            get: jest.fn(),
-            delete: jest.fn(),
-            isEnabled: jest.fn(),
-          },
-        },
       ],
     }).compile();
 
     service = module.get<PromotionService>(PromotionService);
     configService = module.get<ConfigService>(ConfigService);
     commercetools = module.get<Commercetools>(Commercetools);
+    campaignNameService = module.get<CampaignNameService>(CampaignNameService);
   });
 
   describe('getDiscounts', () => {
@@ -125,6 +125,7 @@ describe('PromotionService', () => {
               },
               adjustmentResults: [
                 {
+                  resourceId: '1669988',
                   value: 10,
                 },
               ],
@@ -142,6 +143,7 @@ describe('PromotionService', () => {
           },
           discount: [
             {
+              campaignId: '1669988',
               campaignName: 'Example Discount',
             },
           ],
@@ -158,6 +160,14 @@ describe('PromotionService', () => {
       jest
         .spyOn(commercetools, 'getShippingMethods')
         .mockResolvedValueOnce([{ key: 'standard-key' }] as any);
+
+      jest
+        .spyOn(campaignNameService, 'getBasketCampaignNames')
+        .mockReturnValueOnce([{ description: 'Example Discount' }]);
+
+      jest
+        .spyOn(campaignNameService, 'getLineItemsCampaignNames')
+        .mockReturnValueOnce(new Map([['SKU123', ['Example Discount']]]));
 
       const result = await service.getDiscounts(
         { status: 200, data: walletOpenResponse },
@@ -176,10 +186,10 @@ describe('PromotionService', () => {
               cart as any,
             ),
           ),
-        discountDescriptions:
-          service.adjudicationMapper.mapBasketDiscountsToDiscountDescriptions(
-            walletOpenResponse.analyseBasketResults.discount,
-          ),
+        basketDiscountDescriptions: [{ description: 'Example Discount' }],
+        lineItemsDiscountDescriptions: new Map([
+          ['SKU123', ['Example Discount']],
+        ]),
         errors: [],
         enrichedBasket: walletOpenResponse.analyseBasketResults.basket,
         voucherCodes: [],
@@ -199,6 +209,14 @@ describe('PromotionService', () => {
         .spyOn(configService, 'get')
         .mockReturnValueOnce(shippingMethodMapMock);
 
+      jest
+        .spyOn(campaignNameService, 'getBasketCampaignNames')
+        .mockReturnValueOnce([]);
+
+      jest
+        .spyOn(campaignNameService, 'getLineItemsCampaignNames')
+        .mockReturnValueOnce(new Map());
+
       const result = await service.getDiscounts(
         { status: 200, data: walletOpenResponse },
         cartReference as any,
@@ -207,7 +225,8 @@ describe('PromotionService', () => {
       expect(result).toEqual({
         discounts: [],
         enrichedBasket: undefined,
-        discountDescriptions: [],
+        basketDiscountDescriptions: [],
+        lineItemsDiscountDescriptions: new Map(),
         errors: [],
         voucherCodes: [],
         potentialVoucherCodes: [],
@@ -268,6 +287,14 @@ describe('PromotionService', () => {
         .spyOn(configService, 'get')
         .mockReturnValueOnce(shippingMethodMapMock);
 
+      jest
+        .spyOn(campaignNameService, 'getBasketCampaignNames')
+        .mockReturnValueOnce([]);
+
+      jest
+        .spyOn(campaignNameService, 'getLineItemsCampaignNames')
+        .mockReturnValueOnce(new Map());
+
       const result = await service.getDiscounts(
         { status: 200, data: walletOpenResponse },
         cartReference as any,
@@ -275,7 +302,7 @@ describe('PromotionService', () => {
 
       expect(result).toEqual({
         discounts: [],
-        discountDescriptions: [],
+        basketDiscountDescriptions: [],
         enrichedBasket: undefined,
         errors: [
           {
@@ -303,6 +330,7 @@ describe('PromotionService', () => {
             },
           },
         ],
+        lineItemsDiscountDescriptions: new Map(),
         voucherCodes: ['valid-code'],
         potentialVoucherCodes: ['invalid-code'],
       });
@@ -568,65 +596,6 @@ describe('PromotionService', () => {
       );
 
       expect(result).toEqual([]);
-    });
-  });
-
-  describe('getBasketDiscountDescriptions', () => {
-    it('should return descriptions for applied discounts', async () => {
-      const walletOpenResponse = {
-        analyseBasketResults: {
-          basket: {
-            summary: {
-              totalDiscountAmount: {
-                promotions: 10,
-              },
-            },
-            contents: [
-              {
-                upc: 'SKU123',
-                adjustmentResults: [
-                  {
-                    totalDiscountAmount: 10,
-                  },
-                ],
-              },
-            ],
-          },
-          discount: [
-            {
-              campaignName: 'Example Discount',
-            },
-          ],
-        },
-      };
-
-      const result = await service.getBasketDiscountDescriptions(
-        walletOpenResponse.analyseBasketResults.discount,
-      );
-
-      expect(result).toEqual([
-        {
-          description: 'Example Discount',
-        },
-      ]);
-    });
-
-    it('should not get descriptions when no valid promotions are found', async () => {
-      const walletOpenResponse = {
-        analyseBasketResults: {
-          basket: {},
-          discount: [],
-        },
-      };
-
-      const result = await service.getBasketDiscountDescriptions(
-        walletOpenResponse.analyseBasketResults.discount,
-      );
-      const resulNoDiscount =
-        await service.getBasketDiscountDescriptions(undefined);
-
-      expect(result).toEqual([]);
-      expect(resulNoDiscount).toEqual([]);
     });
   });
 });

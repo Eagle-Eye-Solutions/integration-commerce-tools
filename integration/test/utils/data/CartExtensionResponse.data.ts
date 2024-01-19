@@ -33,7 +33,7 @@ export const SUCCESS_RESPONSE = {
     {
       action: 'setCustomField',
       name: 'eagleeye-appliedDiscounts',
-      value: ['Example Discount'],
+      value: ['Basket 20% Discount'],
     },
     {
       action: 'setCustomField',
@@ -76,6 +76,7 @@ export const SUCCESS_RESPONSE = {
       },
       fields: {
         'eagleeye-loyaltyCredits': '',
+        'eagleeye-appliedDiscounts': ['Product discount for buying 245865'],
       },
     },
     {
@@ -87,6 +88,7 @@ export const SUCCESS_RESPONSE = {
       },
       fields: {
         'eagleeye-loyaltyCredits': '',
+        'eagleeye-appliedDiscounts': [],
       },
     },
     {
@@ -214,6 +216,7 @@ export const LOYALTY_SUCCESS_RESPONSE = {
         key: 'custom-line-item-type',
       },
       fields: {
+        'eagleeye-appliedDiscounts': [],
         'eagleeye-loyaltyCredits':
           '{"total":100,"offers":[{"name":"Retail Points","amount":100,"sku":"245865","timesRedeemed":1}]}',
       },
@@ -225,7 +228,9 @@ export const LOYALTY_SUCCESS_RESPONSE = {
         typeId: 'type',
         key: 'custom-line-item-type',
       },
-      fields: {},
+      fields: {
+        'eagleeye-appliedDiscounts': [],
+      },
     },
     {
       action: 'setDirectDiscounts',
@@ -341,6 +346,12 @@ export const MIN_SPEND_ON_ITEM_CONTINUITY_LOYALTY_CAMPAIGN_INPROGRESS_RESPONSE =
           '{"total":0,"offers":[{"name":"500 points for spending £10 on bears (UPC: 245896)","amount":0,"sku":"245896","totalSpend":400,"totalTransactionSpend":1000,"type":"IN_PROGRESS","timesRedeemed":1}]}',
       },
       {
+        action: 'setLineItemCustomField',
+        lineItemId: '4d02b4ab-8063-4f36-8bbf-790656d2e564',
+        name: 'eagleeye-appliedDiscounts',
+        value: [],
+      },
+      {
         action: 'setDirectDiscounts',
         discounts: [],
       },
@@ -402,6 +413,12 @@ export const MIN_SPEND_ON_ITEM_CONTINUITY_LOYALTY_CAMPAIGN_COMPLETING_RESPONSE =
         name: 'eagleeye-loyaltyCredits',
         value:
           '{"total":500,"offers":[{"name":"500 points for spending £10 on bears (UPC: 245896)","amount":500,"sku":"245896","totalSpend":3374,"totalTransactionSpend":1000,"type":"COMPLETING","timesRedeemed":1}]}',
+      },
+      {
+        action: 'setLineItemCustomField',
+        lineItemId: '4d02b4ab-8063-4f36-8bbf-790656d2e564',
+        name: 'eagleeye-appliedDiscounts',
+        value: [],
       },
       {
         action: 'setDirectDiscounts',
@@ -466,6 +483,7 @@ export const MIN_SPEND_CONTINUITY_LOYALTY_CAMPAIGN_COMPLETING_RESPONSE = {
         key: 'custom-line-item-type',
       },
       fields: {
+        'eagleeye-appliedDiscounts': [],
         'eagleeye-loyaltyCredits': '',
       },
     },
@@ -477,6 +495,7 @@ export const MIN_SPEND_CONTINUITY_LOYALTY_CAMPAIGN_COMPLETING_RESPONSE = {
         key: 'custom-line-item-type',
       },
       fields: {
+        'eagleeye-appliedDiscounts': [],
         'eagleeye-loyaltyCredits': '',
       },
     },
@@ -544,6 +563,7 @@ export const MIN_SPEND_CONTINUITY_LOYALTY_CAMPAIGN_IN_PROGRESS_RESPONSE = {
       },
       fields: {
         'eagleeye-loyaltyCredits': '',
+        'eagleeye-appliedDiscounts': [],
       },
     },
     {
@@ -555,6 +575,7 @@ export const MIN_SPEND_CONTINUITY_LOYALTY_CAMPAIGN_IN_PROGRESS_RESPONSE = {
       },
       fields: {
         'eagleeye-loyaltyCredits': '',
+        'eagleeye-appliedDiscounts': [],
       },
     },
     {
@@ -601,6 +622,7 @@ export const ERROR_RESPONSE = {
         key: 'custom-line-item-type',
       },
       fields: {
+        'eagleeye-appliedDiscounts': [],
         'eagleeye-loyaltyCredits': '',
       },
     },
@@ -612,6 +634,7 @@ export const ERROR_RESPONSE = {
         key: 'custom-line-item-type',
       },
       fields: {
+        'eagleeye-appliedDiscounts': [],
         'eagleeye-loyaltyCredits': '',
       },
     },
@@ -631,7 +654,7 @@ export const CUSTOMER_NOT_FOUND_FETCHED_OPEN_PROMOTIONS_RESPONSE = {
         'eagleeye-errors': [
           '{"type":"EE_API_CUSTOMER_NF","message":"123456 - Customer identity not found","context":{"type":"EE_IDENTITY_NOT_FOUND"}}',
         ],
-        'eagleeye-appliedDiscounts': ['Example Discount'],
+        'eagleeye-appliedDiscounts': ['Basket 20% Discount'],
         'eagleeye-basketStore': 'CUSTOM_TYPE',
         'eagleeye-basketUri': 'custom-objects/eagleeye-cart/{cart-id}',
         'eagleeye-voucherCodes': [],
@@ -651,6 +674,7 @@ export const CUSTOMER_NOT_FOUND_FETCHED_OPEN_PROMOTIONS_RESPONSE = {
         key: 'custom-line-item-type',
       },
       fields: {
+        'eagleeye-appliedDiscounts': ['Product discount for buying 245865'],
         'eagleeye-loyaltyCredits': '',
       },
     },
@@ -662,6 +686,7 @@ export const CUSTOMER_NOT_FOUND_FETCHED_OPEN_PROMOTIONS_RESPONSE = {
         key: 'custom-line-item-type',
       },
       fields: {
+        'eagleeye-appliedDiscounts': [],
         'eagleeye-loyaltyCredits': '',
       },
     },
