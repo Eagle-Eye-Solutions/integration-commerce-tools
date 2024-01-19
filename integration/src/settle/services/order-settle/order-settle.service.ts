@@ -95,6 +95,29 @@ export class OrderSettleService {
     return [];
   }
 
+  getSettleErrorActions(ctOrder: Order, error: any): OrderUpdateAction[] {
+    const currentErrors = ctOrder.custom?.fields[FIELD_EAGLEEYE_ERRORS] || [];
+    return [
+      {
+        action: 'setCustomField',
+        name: FIELD_EAGLEEYE_SETTLED_STATUS,
+        value: 'ERROR',
+      },
+      {
+        action: 'setCustomField',
+        name: FIELD_EAGLEEYE_ERRORS,
+        value: [
+          ...currentErrors,
+          JSON.stringify({
+            type: 'EE_API_SETTLE_ERROR',
+            message: 'EagleEye transaction could not be settled.',
+            context: JSON.stringify(error, Object.getOwnPropertyNames(error)),
+          }),
+        ],
+      },
+    ];
+  }
+
   async walletSettleInvoke(method, args) {
     return await this.eagleEyeClient.wallet.invoke(method, args);
   }

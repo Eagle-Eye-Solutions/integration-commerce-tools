@@ -50,12 +50,25 @@ export class OrderPaymentStateChangedProcessor extends AbstractEventProcessor {
         ctOrder.custom.fields &&
         ctOrder.custom.fields[FIELD_EAGLEEYE_SETTLED_STATUS] !== 'SETTLED'
       ) {
-        const updateActions =
-          await this.orderSettleService.settleTransactionFromOrder(ctOrder);
+        let updateActions = [];
+        let settleError;
+        try {
+          updateActions =
+            await this.orderSettleService.settleTransactionFromOrder(ctOrder);
+        } catch (err) {
+          updateActions = this.orderSettleService.getSettleErrorActions(
+            ctOrder,
+            err,
+          );
+          settleError = err;
+        }
         await this.commercetools.updateOrderById(ctOrder.id, {
           version: ctOrder.version,
           actions: updateActions,
         });
+        if (settleError !== undefined) {
+          throw settleError;
+        }
       }
     });
     return actions;

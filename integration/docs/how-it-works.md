@@ -370,7 +370,8 @@ class
 The commercetools events are sent on the configured queue and consumed by the subscription module.
 If the module fails to process the incoming order message it will return an error code so that the message is not
 acknowledged and stays on the message queue for reprocessing. The error details will be added to the order custom
-field `eagleeye-errors` and the `eagleeye-settledStatus` will not be set to `SETTLED`.
+field `eagleeye-errors` and the `eagleeye-settledStatus` will not be set to `SETTLED`, but rather it will be set
+to `ERROR`.
 
 ## Stored baskets cleanup
 

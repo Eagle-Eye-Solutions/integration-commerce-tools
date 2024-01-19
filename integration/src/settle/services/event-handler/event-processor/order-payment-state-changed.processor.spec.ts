@@ -2,8 +2,11 @@ import { OrderPaymentStateChangedProcessor } from './order-payment-state-changed
 import { ConfigService } from '@nestjs/config';
 import { Commercetools } from '../../../../common/providers/commercetools/commercetools.provider';
 import { MessageDeliveryPayload } from '@commercetools/platform-sdk';
-import { EagleEyePluginException } from '../../../../common/exceptions/eagle-eye-plugin.exception';
 import { OrderSettleService } from '../../../../settle/services/order-settle/order-settle.service';
+import {
+  FIELD_EAGLEEYE_ERRORS,
+  FIELD_EAGLEEYE_SETTLED_STATUS,
+} from '../../../../common/providers/commercetools/custom-type/cart-type-definition';
 
 describe('OrderPaymentStateChangedProcessor', () => {
   let processor: OrderPaymentStateChangedProcessor;
@@ -25,6 +28,7 @@ describe('OrderPaymentStateChangedProcessor', () => {
     } as unknown as Commercetools;
     orderSettleService = {
       settleTransactionFromOrder: jest.fn(),
+      getSettleErrorActions: jest.fn(),
     } as unknown as OrderSettleService;
 
     processor = new OrderPaymentStateChangedProcessor(
@@ -69,10 +73,52 @@ describe('OrderPaymentStateChangedProcessor', () => {
       expect(result).toBe(undefined);
     });
 
-    it('should throw error if action fails', async () => {
-      jest.spyOn(commercetools, 'getOrderById').mockImplementationOnce(() => {
-        throw new EagleEyePluginException('BASKET_STORE_DELETE', 'Example');
-      });
+    it('should throw error and set custom fields if action fails', async () => {
+      const ctOrder = {
+        id: 'order-id',
+        version: 1,
+        cart: {
+          id: 'cart-id',
+        },
+        custom: {
+          fields: {},
+        },
+      };
+      jest
+        .spyOn(commercetools, 'getOrderById')
+        .mockResolvedValue(ctOrder as any);
+
+      const fakeError = { message: 'Example error' };
+      jest
+        .spyOn(orderSettleService, 'settleTransactionFromOrder')
+        .mockImplementationOnce(() => {
+          throw fakeError;
+        });
+      jest
+        .spyOn(orderSettleService, 'getSettleErrorActions')
+        .mockReturnValueOnce([
+          {
+            action: 'setCustomField',
+            name: FIELD_EAGLEEYE_SETTLED_STATUS,
+            value: 'ERROR',
+          },
+          {
+            action: 'setCustomField',
+            name: FIELD_EAGLEEYE_ERRORS,
+            value: [
+              JSON.stringify({
+                type: 'EE_API_SETTLE_ERROR',
+                message: 'EagleEye transaction could not be settled.',
+                context: JSON.stringify(
+                  fakeError,
+                  Object.getOwnPropertyNames(fakeError),
+                ),
+              }),
+            ],
+          },
+        ]);
+
+      const updateOrderSpy = jest.spyOn(commercetools, 'updateOrderById');
 
       let error;
       try {
@@ -82,7 +128,24 @@ describe('OrderPaymentStateChangedProcessor', () => {
         error = err;
       }
 
-      expect(error).toBeInstanceOf(EagleEyePluginException);
+      expect(updateOrderSpy).toHaveBeenCalledWith('order-id', {
+        actions: [
+          {
+            action: 'setCustomField',
+            name: 'eagleeye-settledStatus',
+            value: 'ERROR',
+          },
+          {
+            action: 'setCustomField',
+            name: 'eagleeye-errors',
+            value: [
+              '{"type":"EE_API_SETTLE_ERROR","message":"EagleEye transaction could not be settled.","context":"{\\"message\\":\\"Example error\\"}"}',
+            ],
+          },
+        ],
+        version: 1,
+      });
+      expect(error).toBeDefined();
     });
   });
 
