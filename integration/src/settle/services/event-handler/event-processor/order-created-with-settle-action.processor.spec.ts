@@ -2,8 +2,11 @@ import { OrderCreatedWithSettleActionProcessor } from './order-created-with-sett
 import { ConfigService } from '@nestjs/config';
 import { Commercetools } from '../../../../common/providers/commercetools/commercetools.provider';
 import { MessageDeliveryPayload } from '@commercetools/platform-sdk';
-import { EagleEyePluginException } from '../../../../common/exceptions/eagle-eye-plugin.exception';
 import { OrderSettleService } from '../../../../settle/services/order-settle/order-settle.service';
+import {
+  FIELD_EAGLEEYE_ERRORS,
+  FIELD_EAGLEEYE_SETTLED_STATUS,
+} from '../../../../common/providers/commercetools/custom-type/cart-type-definition';
 
 describe('OrderCreatedWithSettleActionProcessor', () => {
   let processor: OrderCreatedWithSettleActionProcessor;
@@ -23,6 +26,7 @@ describe('OrderCreatedWithSettleActionProcessor', () => {
     } as unknown as Commercetools;
     orderSettleService = {
       settleTransactionFromOrder: jest.fn(),
+      getSettleErrorActions: jest.fn(),
     } as unknown as OrderSettleService;
 
     processor = new OrderCreatedWithSettleActionProcessor(
@@ -42,6 +46,8 @@ describe('OrderCreatedWithSettleActionProcessor', () => {
   describe('generateActions', () => {
     it('should generate actions correctly', async () => {
       const ctOrder = {
+        id: 'order-id',
+        version: 1,
         cart: {
           id: 'cart-id',
         },
@@ -71,21 +77,47 @@ describe('OrderCreatedWithSettleActionProcessor', () => {
       expect(result).toBe(undefined);
     });
 
-    it('should throw error if action fails', async () => {
+    it('should throw error and set custom fields if action fails', async () => {
       processor.setMessage({
         resource: { id: 'some-id', typeId: 'order' },
         order: {
           id: 'order-id',
+          version: 1,
           custom: {
             fields: {},
           },
         },
       } as any);
+      const fakeError = { message: 'Example error' };
       jest
         .spyOn(orderSettleService, 'settleTransactionFromOrder')
         .mockImplementationOnce(() => {
-          throw new EagleEyePluginException('BASKET_STORE_DELETE', 'Example');
+          throw fakeError;
         });
+      jest
+        .spyOn(orderSettleService, 'getSettleErrorActions')
+        .mockReturnValueOnce([
+          {
+            action: 'setCustomField',
+            name: FIELD_EAGLEEYE_SETTLED_STATUS,
+            value: 'ERROR',
+          },
+          {
+            action: 'setCustomField',
+            name: FIELD_EAGLEEYE_ERRORS,
+            value: [
+              JSON.stringify({
+                type: 'EE_API_SETTLE_ERROR',
+                message: 'EagleEye transaction could not be settled.',
+                context: JSON.stringify(
+                  fakeError,
+                  Object.getOwnPropertyNames(fakeError),
+                ),
+              }),
+            ],
+          },
+        ]);
+      const updateOrderSpy = jest.spyOn(commercetools, 'updateOrderById');
 
       let error;
       try {
@@ -95,7 +127,24 @@ describe('OrderCreatedWithSettleActionProcessor', () => {
         error = err;
       }
 
-      expect(error).toBeInstanceOf(EagleEyePluginException);
+      expect(updateOrderSpy).toHaveBeenCalledWith('order-id', {
+        actions: [
+          {
+            action: 'setCustomField',
+            name: 'eagleeye-settledStatus',
+            value: 'ERROR',
+          },
+          {
+            action: 'setCustomField',
+            name: 'eagleeye-errors',
+            value: [
+              '{"type":"EE_API_SETTLE_ERROR","message":"EagleEye transaction could not be settled.","context":"{\\"message\\":\\"Example error\\"}"}',
+            ],
+          },
+        ],
+        version: 1,
+      });
+      expect(error).toBeDefined();
     });
   });
 

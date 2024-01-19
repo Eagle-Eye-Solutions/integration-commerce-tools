@@ -51,12 +51,25 @@ export class OrderUpdatedWithSettleActionProcessor extends AbstractEventProcesso
     });
     const actions = [];
     actions.push(async () => {
-      const updateActions =
-        await this.orderSettleService.settleTransactionFromOrder(this.order);
+      let updateActions = [];
+      let settleError;
+      try {
+        updateActions =
+          await this.orderSettleService.settleTransactionFromOrder(this.order);
+      } catch (err) {
+        updateActions = this.orderSettleService.getSettleErrorActions(
+          this.order,
+          err,
+        );
+        settleError = err;
+      }
       await this.commercetools.updateOrderById(this.order.id, {
         version: this.order.version,
         actions: updateActions,
       });
+      if (settleError !== undefined) {
+        throw settleError;
+      }
     });
     return actions;
   }

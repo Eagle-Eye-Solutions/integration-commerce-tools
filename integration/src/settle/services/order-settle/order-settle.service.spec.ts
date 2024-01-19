@@ -256,4 +256,37 @@ describe('OrderSettleService', () => {
       ]);
     });
   });
+
+  describe('getSettleErrorActions', () => {
+    it('should return update actions based on order and error', () => {
+      const ctOrder: Order = {
+        id: 'order-id',
+        cart: {
+          id: 'cart-id',
+        },
+        custom: {
+          fields: {},
+        },
+      } as any;
+
+      const result = orderSettleService.getSettleErrorActions(ctOrder, {
+        message: 'Error message',
+      });
+
+      expect(result).toEqual([
+        {
+          action: 'setCustomField',
+          name: 'eagleeye-settledStatus',
+          value: 'ERROR',
+        },
+        {
+          action: 'setCustomField',
+          name: 'eagleeye-errors',
+          value: [
+            '{"type":"EE_API_SETTLE_ERROR","message":"EagleEye transaction could not be settled.","context":"{\\"message\\":\\"Error message\\"}"}',
+          ],
+        },
+      ]);
+    });
+  });
 });
