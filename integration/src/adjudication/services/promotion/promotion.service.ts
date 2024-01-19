@@ -9,24 +9,28 @@ import {
   CustomFieldError,
   DiscountDescription,
 } from '../../../common/providers/commercetools/actions/cart-update/CartCustomTypeActionBuilder';
+import { CampaignNameService } from './campaign-name.service';
 
 @Injectable()
 export class PromotionService {
-  constructor(readonly adjudicationMapper: AdjudicationMapper) {}
+  constructor(
+    readonly adjudicationMapper: AdjudicationMapper,
+    private readonly campaignNameService: CampaignNameService,
+  ) {}
 
   async getDiscounts(
     walletOpenResponse: any,
     cartReference: CartReference,
   ): Promise<{
     discounts: DirectDiscountDraft[];
-    discountDescriptions: DiscountDescription[];
+    basketDiscountDescriptions: DiscountDescription[];
+    lineItemsDiscountDescriptions: Map<string, string[]>; //product id to campaign names
     errors: CustomFieldError[];
     enrichedBasket: any;
     voucherCodes: string[];
     potentialVoucherCodes: string[];
   }> {
     const discounts: DirectDiscountDraft[] = [];
-    const discountDescriptions: DiscountDescription[] = [];
     const errors: CustomFieldError[] = [];
 
     if (walletOpenResponse.data?.analyseBasketResults?.basket) {
@@ -70,37 +74,20 @@ export class PromotionService {
       walletOpenResponse.data.examine
         ?.filter((entry) => entry.errorCode === 'PCEXNV')
         .map((result) => result.value) || [];
-
-    if (walletOpenResponse.data?.analyseBasketResults?.discount?.length) {
-      const descriptions =
-        this.adjudicationMapper.mapBasketDiscountsToDiscountDescriptions(
-          walletOpenResponse.data?.analyseBasketResults?.discount,
-        );
-      discountDescriptions.push(...descriptions);
-    }
+    const basketDiscountDescriptions: DiscountDescription[] =
+      this.campaignNameService.getBasketCampaignNames(walletOpenResponse);
+    const lineItemsDiscountDescriptions =
+      this.campaignNameService.getLineItemsCampaignNames(walletOpenResponse);
 
     return {
       discounts,
-      discountDescriptions,
+      basketDiscountDescriptions,
+      lineItemsDiscountDescriptions,
       errors,
       enrichedBasket: walletOpenResponse.data?.analyseBasketResults?.basket,
       voucherCodes: validTokens,
       potentialVoucherCodes: invalidTokens,
     };
-  }
-
-  async getBasketDiscountDescriptions(
-    discounts,
-  ): Promise<DiscountDescription[]> {
-    let discountDescriptions: DiscountDescription[] = [];
-    if (discounts?.length) {
-      const descriptions =
-        this.adjudicationMapper.mapBasketDiscountsToDiscountDescriptions(
-          discounts,
-        );
-      discountDescriptions = discountDescriptions.concat(descriptions);
-    }
-    return discountDescriptions;
   }
 
   async getBasketLevelDiscounts(
@@ -111,12 +98,10 @@ export class PromotionService {
       basket.summary?.totalDiscountAmount.promotions &&
       basket.summary?.adjustmentResults?.length
     ) {
-      const cartDiscounts =
-        this.adjudicationMapper.mapAdjustedBasketToCartDirectDiscounts(
-          basket,
-          cart,
-        );
-      return cartDiscounts;
+      return this.adjudicationMapper.mapAdjustedBasketToCartDirectDiscounts(
+        basket,
+        cart,
+      );
     }
 
     return [];
@@ -130,12 +115,10 @@ export class PromotionService {
       basket?.summary?.totalDiscountAmount?.promotions &&
       basket.contents?.length
     ) {
-      const itemDiscounts =
-        this.adjudicationMapper.mapAdjustedBasketToItemDirectDiscounts(
-          basket,
-          cart,
-        );
-      return itemDiscounts;
+      return this.adjudicationMapper.mapAdjustedBasketToItemDirectDiscounts(
+        basket,
+        cart,
+      );
     }
 
     return [];
@@ -149,12 +132,10 @@ export class PromotionService {
       basket?.summary?.totalDiscountAmount?.promotions &&
       basket.contents?.length
     ) {
-      const shippingDiscounts =
-        this.adjudicationMapper.mapAdjustedBasketToShippingDirectDiscounts(
-          basket,
-          cart,
-        );
-      return shippingDiscounts;
+      return this.adjudicationMapper.mapAdjustedBasketToShippingDirectDiscounts(
+        basket,
+        cart,
+      );
     }
 
     return [];

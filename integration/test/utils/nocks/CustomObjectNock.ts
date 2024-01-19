@@ -79,12 +79,20 @@ export const nockPostEnrichedBasketCustomObject = (body?: any) => {
               },
               totalItems: 7,
               totalBasketValue: 6138,
-              adjustmentResults: [{ value: 200 }, { value: 500 }],
+              adjustmentResults: [
+                { resourceId: '1669988', value: 200 },
+                { value: 500 },
+              ],
             },
             contents: [
               {
                 upc: '245865',
-                adjustmentResults: [{ totalDiscountAmount: 100 }],
+                adjustmentResults: [
+                  {
+                    resourceId: '123456',
+                    totalDiscountAmount: 100,
+                  },
+                ],
               },
               {
                 upc: '245879',
