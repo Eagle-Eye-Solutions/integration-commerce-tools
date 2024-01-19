@@ -202,7 +202,7 @@ describe('Circuit breaker (e2e)', () => {
                 key: 'custom-line-item-type',
               },
               fields: {
-                'eagleeye-appliedDiscounts': '',
+                'eagleeye-appliedDiscounts': [],
                 'eagleeye-loyaltyCredits': '',
               },
             },
@@ -214,7 +214,7 @@ describe('Circuit breaker (e2e)', () => {
                 key: 'custom-line-item-type',
               },
               fields: {
-                'eagleeye-appliedDiscounts': '',
+                'eagleeye-appliedDiscounts': [],
                 'eagleeye-loyaltyCredits': '',
               },
             },
