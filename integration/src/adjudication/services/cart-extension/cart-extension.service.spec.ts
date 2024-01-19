@@ -12,7 +12,10 @@ import { EagleEyeApiClient } from '../../../common/providers/eagleeye/eagleeye.p
 import { AdjudicationMapper } from '../../mappers/adjudication.mapper';
 import { Commercetools } from '../../../common/providers/commercetools/commercetools.provider';
 import { OrderSettleService } from '../../../settle/services/order-settle/order-settle.service';
-import { CartTypeDefinition } from '../../../common/providers/commercetools/custom-type/cart-type-definition';
+import {
+  CartTypeDefinition,
+  FIELD_EAGLEEYE_APPLIED_DISCOUNTS,
+} from '../../../common/providers/commercetools/custom-type/cart-type-definition';
 import { LoyaltyService } from '../loyalty/loyalty.service';
 import {
   FIELD_EAGLEEYE_LOYALTY_CREDITS,
@@ -209,7 +212,7 @@ describe('CartExtensionService', () => {
         },
       },
     ];
-    const discountDescriptions = [
+    const basketDiscountDescriptions = [
       {
         description: 'Example Discount',
       },
@@ -222,7 +225,10 @@ describe('CartExtensionService', () => {
     ];
     jest.spyOn(promotionService, 'getDiscounts').mockResolvedValueOnce({
       discounts: discountDrafts,
-      discountDescriptions,
+      basketDiscountDescriptions,
+      lineItemsDiscountDescriptions: new Map([
+        ['123456', ['Product discount (123456)']],
+      ]),
       errors: [],
     } as any);
     jest.spyOn(basketStoreService, 'isEnabled').mockReturnValue(true);
@@ -265,7 +271,7 @@ describe('CartExtensionService', () => {
           action: 'setCustomType',
           fields: {
             'eagleeye-errors': [],
-            'eagleeye-appliedDiscounts': discountDescriptions.map(
+            'eagleeye-appliedDiscounts': basketDiscountDescriptions.map(
               (d) => d.description,
             ),
             'eagleeye-basketStore': undefined,
@@ -287,6 +293,7 @@ describe('CartExtensionService', () => {
         {
           action: 'setLineItemCustomType',
           fields: {
+            [FIELD_EAGLEEYE_APPLIED_DISCOUNTS]: ['Product discount (123456)'],
             [FIELD_EAGLEEYE_LOYALTY_CREDITS]:
               '{"total":200,"offers":[{"name":"Test Campaign 2 (x2)","amount":100,"timesRedeemed":2,"sku":"123456"}]}',
           },
@@ -319,7 +326,23 @@ describe('CartExtensionService', () => {
         typeId: 'cart',
         id: '123',
         obj: {
-          lineItems: [],
+          lineItems: [
+            {
+              id: '123456',
+              variant: {
+                sku: '123456',
+              },
+              price: {
+                value: {
+                  centAmount: 100,
+                },
+              },
+              quantity: 2,
+              name: {
+                en: 'Example Item',
+              },
+            },
+          ],
         } as any,
       },
     };
@@ -341,10 +364,13 @@ describe('CartExtensionService', () => {
         },
       },
     ];
-    const discountDescriptions = [];
+    const basketDiscountDescriptions = [];
     jest.spyOn(promotionService, 'getDiscounts').mockResolvedValueOnce({
       discounts: discountDrafts,
-      discountDescriptions,
+      basketDiscountDescriptions,
+      lineItemsDiscountDescriptions: new Map([
+        ['123456', ['Product discount (123456)']],
+      ]),
       errors: [],
     } as any);
     jest.spyOn(basketStoreService, 'isEnabled').mockReturnValue(false);
@@ -357,7 +383,7 @@ describe('CartExtensionService', () => {
           action: 'setCustomType',
           fields: {
             'eagleeye-errors': [],
-            'eagleeye-appliedDiscounts': discountDescriptions.map(
+            'eagleeye-appliedDiscounts': basketDiscountDescriptions.map(
               (d) => d.description,
             ),
             'eagleeye-basketStore': undefined,
@@ -373,6 +399,18 @@ describe('CartExtensionService', () => {
           },
           type: {
             key: 'custom-cart-type',
+            typeId: 'type',
+          },
+        },
+        {
+          action: 'setLineItemCustomType',
+          fields: {
+            'eagleeye-appliedDiscounts': ['Product discount (123456)'],
+            'eagleeye-loyaltyCredits': '',
+          },
+          lineItemId: '123456',
+          type: {
+            key: 'custom-line-item-type',
             typeId: 'type',
           },
         },
@@ -404,7 +442,7 @@ describe('CartExtensionService', () => {
       },
     };
     const discountDrafts = [];
-    const discountDescriptions = [];
+    const basketDiscountDescriptions = [];
     const errors = [
       {
         type: 'EE_API_TOKEN_PCEXNF',
@@ -421,7 +459,7 @@ describe('CartExtensionService', () => {
     jest.spyOn(basketStoreService, 'isEnabled').mockReturnValue(true);
     jest.spyOn(promotionService, 'getDiscounts').mockResolvedValueOnce({
       discounts: discountDrafts,
-      discountDescriptions,
+      basketDiscountDescriptions,
       errors,
       voucherCodes: ['valid-token'],
     } as any);
@@ -434,7 +472,7 @@ describe('CartExtensionService', () => {
           action: 'setCustomType',
           fields: {
             'eagleeye-errors': errors.map((error) => JSON.stringify(error)),
-            'eagleeye-appliedDiscounts': discountDescriptions.map(
+            'eagleeye-appliedDiscounts': basketDiscountDescriptions.map(
               (d) => d.description,
             ),
             'eagleeye-basketStore': undefined,
@@ -601,7 +639,7 @@ describe('CartExtensionService', () => {
         },
       },
     ];
-    const discountDescriptions = [
+    const basketDiscountDescriptions = [
       {
         description: 'Example Discount',
       },
@@ -614,7 +652,7 @@ describe('CartExtensionService', () => {
     ];
     jest.spyOn(promotionService, 'getDiscounts').mockResolvedValueOnce({
       discounts: discountDrafts,
-      discountDescriptions,
+      basketDiscountDescriptions,
       errors: [],
     } as any);
     jest

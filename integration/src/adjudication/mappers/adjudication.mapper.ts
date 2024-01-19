@@ -1,15 +1,12 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import {
   Cart,
-  LineItem,
   DirectDiscountDraft,
+  LineItem,
   ShippingInfo,
 } from '@commercetools/platform-sdk';
-import { DiscountDescription } from '../../common/providers/commercetools/actions/cart-update/CartCustomTypeActionBuilder';
 import { ConfigService } from '@nestjs/config';
 import { Commercetools } from '../../common/providers/commercetools/commercetools.provider';
-import { BasketStoreService } from '../../common/services/basket-store/basket-store.interface';
-import { BASKET_STORE_SERVICE } from '../../common/services/basket-store/basket-store.provider';
 
 export type BasketItem = {
   itemUnitCost: number;
@@ -28,8 +25,6 @@ export class AdjudicationMapper {
   constructor(
     readonly configService: ConfigService,
     readonly commercetools: Commercetools,
-    @Inject(BASKET_STORE_SERVICE)
-    private readonly basketStoreService: BasketStoreService,
   ) {}
 
   mapCartLineItemsToBasketContent(lineItems: LineItem[]) {
@@ -80,14 +75,6 @@ export class AdjudicationMapper {
         target: {
           type: 'totalPrice' as any,
         },
-      };
-    });
-  }
-
-  mapBasketDiscountsToDiscountDescriptions(discounts): DiscountDescription[] {
-    return discounts.map((discount) => {
-      return {
-        description: discount.campaignName,
       };
     });
   }

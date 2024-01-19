@@ -1,0 +1,117 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`LineItemCustomTypeActionBuilder > loyaltyCredits should build an addCustomType action when total is available in an offer 1`] = `
+[
+  {
+    "action": "setLineItemCustomType",
+    "fields": {
+      "eagleeye-appliedDiscounts": "",
+      "eagleeye-loyaltyCredits": "{"total":20,"offers":[{"sku":"sku1","amount":10,"timesRedeemed":2}]}",
+    },
+    "lineItemId": "lineItemId1",
+    "type": {
+      "key": "custom-line-item-type",
+      "typeId": "type",
+    },
+  },
+  {
+    "action": "setLineItemCustomType",
+    "fields": {
+      "eagleeye-appliedDiscounts": "",
+      "eagleeye-loyaltyCredits": "{"total":60,"offers":[{"sku":"sku2","amount":20,"timesRedeemed":3}]}",
+    },
+    "lineItemId": "lineItemId2",
+    "type": {
+      "key": "custom-line-item-type",
+      "typeId": "type",
+    },
+  },
+]
+`;
+
+exports[`LineItemCustomTypeActionBuilder > loyaltyCredits should build an addCustomType action when total is not available but the offer is in progress 1`] = `
+[
+  {
+    "action": "setLineItemCustomType",
+    "fields": {
+      "eagleeye-appliedDiscounts": "",
+      "eagleeye-loyaltyCredits": "{"total":0,"offers":[{"sku":"sku1","amount":0,"timesRedeemed":1,"type":"IN_PROGRESS","totalUnits":1,"totalTransactionUnits":3}]}",
+    },
+    "lineItemId": "lineItemId1",
+    "type": {
+      "key": "custom-line-item-type",
+      "typeId": "type",
+    },
+  },
+  {
+    "action": "setLineItemCustomType",
+    "fields": {
+      "eagleeye-appliedDiscounts": "",
+      "eagleeye-loyaltyCredits": "{"total":0,"offers":[{"sku":"sku2","amount":0,"timesRedeemed":1,"type":"IN_PROGRESS","totalUnits":2,"totalTransactionUnits":3}]}",
+    },
+    "lineItemId": "lineItemId2",
+    "type": {
+      "key": "custom-line-item-type",
+      "typeId": "type",
+    },
+  },
+]
+`;
+
+exports[`LineItemCustomTypeActionBuilder > loyaltyCredits should set custom fields for line items when total is available in an offer 1`] = `
+[
+  {
+    "action": "setLineItemCustomField",
+    "lineItemId": "lineItemId1",
+    "name": "eagleeye-loyaltyCredits",
+    "value": "{"total":20,"offers":[{"sku":"sku1","amount":10,"timesRedeemed":2}]}",
+  },
+  {
+    "action": "setLineItemCustomField",
+    "lineItemId": "lineItemId1",
+    "name": "eagleeye-appliedDiscounts",
+    "value": "",
+  },
+  {
+    "action": "setLineItemCustomField",
+    "lineItemId": "lineItemId2",
+    "name": "eagleeye-loyaltyCredits",
+    "value": "{"total":60,"offers":[{"sku":"sku2","amount":20,"timesRedeemed":3}]}",
+  },
+  {
+    "action": "setLineItemCustomField",
+    "lineItemId": "lineItemId2",
+    "name": "eagleeye-appliedDiscounts",
+    "value": "",
+  },
+]
+`;
+
+exports[`LineItemCustomTypeActionBuilder > loyaltyCredits should set custom fields for line items when total is not available but the offer is in progress 1`] = `
+[
+  {
+    "action": "setLineItemCustomField",
+    "lineItemId": "lineItemId1",
+    "name": "eagleeye-loyaltyCredits",
+    "value": "{"total":0,"offers":[{"sku":"sku1","amount":0,"timesRedeemed":1,"type":"IN_PROGRESS","totalUnits":1,"totalTransactionUnits":3}]}",
+  },
+  {
+    "action": "setLineItemCustomField",
+    "lineItemId": "lineItemId1",
+    "name": "eagleeye-appliedDiscounts",
+    "value": "",
+  },
+  {
+    "action": "setLineItemCustomField",
+    "lineItemId": "lineItemId2",
+    "name": "eagleeye-loyaltyCredits",
+    "value": "{"total":0,"offers":[{"sku":"sku2","amount":0,"timesRedeemed":1,"type":"IN_PROGRESS","totalUnits":2,"totalTransactionUnits":3}]}",
+  },
+  {
+    "action": "setLineItemCustomField",
+    "lineItemId": "lineItemId2",
+    "name": "eagleeye-appliedDiscounts",
+    "value": "",
+  },
+]
+`;

@@ -75,7 +75,11 @@ describe('Identity Not Found (e2e)', () => {
       .post('/cart/service')
       .send(cartExtenstionInput)
       .expect(201)
-      .expect(CUSTOMER_NOT_FOUND_FETCHED_OPEN_PROMOTIONS_RESPONSE);
+      .expect((res) =>
+        expect(res.body).toEqual(
+          CUSTOMER_NOT_FOUND_FETCHED_OPEN_PROMOTIONS_RESPONSE,
+        ),
+      );
 
     await sleep(100); //await for
     expect(ctAuthNock.isDone()).toBeTruthy();
