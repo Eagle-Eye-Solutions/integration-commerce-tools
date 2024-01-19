@@ -78,6 +78,23 @@ describe('OrderCreatedWithSettleActionProcessor', () => {
     });
 
     it('should throw error and set custom fields if action fails', async () => {
+      const ctOrder = {
+        id: 'order-id',
+        version: 1,
+        cart: {
+          id: 'cart-id',
+        },
+        custom: {
+          fields: {
+            'eagleeye-action': 'SETTLE',
+            'eagleeye-settledStatus': '',
+          },
+        },
+      };
+      jest
+        .spyOn(commercetools, 'getOrderById')
+        .mockResolvedValue(ctOrder as any);
+
       processor.setMessage({
         resource: { id: 'some-id', typeId: 'order' },
         order: {
@@ -121,6 +138,7 @@ describe('OrderCreatedWithSettleActionProcessor', () => {
 
       let error;
       try {
+        await processor.isValidState();
         const actions = await processor.generateActions();
         await actions[0]();
       } catch (err) {

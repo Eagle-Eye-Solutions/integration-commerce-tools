@@ -43,28 +43,20 @@ export class OrderCreatedWithPaidStateProcessor extends AbstractEventProcessor {
     });
     const actions = [];
     actions.push(async () => {
-      const orderCreatedMessage = this
-        .message as unknown as OrderCreatedMessage;
-      let ctOrder: Order;
-      if (orderCreatedMessage.order) {
-        ctOrder = orderCreatedMessage.order;
-      } else {
-        ctOrder = this.order;
-      }
       let updateActions = [];
       let settleError;
       try {
         updateActions =
-          await this.orderSettleService.settleTransactionFromOrder(ctOrder);
+          await this.orderSettleService.settleTransactionFromOrder(this.order);
       } catch (err) {
         updateActions = this.orderSettleService.getSettleErrorActions(
-          ctOrder,
+          this.order,
           err,
         );
         settleError = err;
       }
-      await this.commercetools.updateOrderById(ctOrder.id, {
-        version: ctOrder.version,
+      await this.commercetools.updateOrderById(this.order.id, {
+        version: this.order.version,
         actions: updateActions,
       });
       if (settleError !== undefined) {
