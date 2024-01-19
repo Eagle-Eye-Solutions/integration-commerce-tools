@@ -87,6 +87,23 @@ describe('OrderCreatedWithPaidStateProcessor', () => {
           },
         },
       } as any);
+
+      const ctOrder = {
+        id: 'order-id',
+        version: 1,
+        cart: {
+          id: 'cart-id',
+        },
+        custom: {
+          fields: {
+            'eagleeye-settledStatus': '',
+          },
+        },
+        paymentState: 'Paid',
+      };
+      jest
+        .spyOn(commercetools, 'getOrderById')
+        .mockResolvedValue(ctOrder as any);
       const fakeError = { message: 'Example error' };
       jest
         .spyOn(orderSettleService, 'settleTransactionFromOrder')
@@ -121,6 +138,7 @@ describe('OrderCreatedWithPaidStateProcessor', () => {
 
       let error;
       try {
+        await processor.isValidState();
         const actions = await processor.generateActions();
         await actions[0]();
       } catch (err) {
