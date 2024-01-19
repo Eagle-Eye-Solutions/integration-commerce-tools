@@ -69,7 +69,7 @@ describe('OrderCreatedWithPaidStateProcessor', () => {
             value: 'settled',
           },
         ]);
-      await processor.isValidState({} as any);
+      await processor.isValidState();
       const actions = await processor.generateActions();
       const result = await actions[0]();
 
@@ -150,33 +150,29 @@ describe('OrderCreatedWithPaidStateProcessor', () => {
 
   describe('isValidState', () => {
     it('should return true if the order payment state is "Paid"', async () => {
-      const result = await processor.isValidState({
-        resource: { id: 'some-id', typeId: 'order' },
-        order: {
-          paymentState: 'Paid',
-          custom: {
-            fields: {
-              'eagleeye-settledStatus': '',
-            },
+      const ctOrder = {
+        id: 'order-id',
+        version: 1,
+        cart: {
+          id: 'cart-id',
+        },
+        custom: {
+          fields: {
+            'eagleeye-settledStatus': '',
           },
         },
-      } as any);
+        paymentState: 'Paid',
+      };
+      jest
+        .spyOn(commercetools, 'getOrderById')
+        .mockResolvedValue(ctOrder as any);
+      const result = await processor.isValidState();
 
       expect(result).toBe(true);
     });
 
     it('should return false if the order payment state is not "Paid"', async () => {
-      const result = await processor.isValidState({
-        resource: { id: 'some-id', typeId: 'order' },
-        order: {
-          paymentState: 'OtherState',
-          custom: {
-            fields: {
-              'eagleeye-settledStatus': '',
-            },
-          },
-        },
-      } as any);
+      const result = await processor.isValidState();
 
       expect(result).toBe(false);
     });
@@ -196,9 +192,7 @@ describe('OrderCreatedWithPaidStateProcessor', () => {
       jest
         .spyOn(commercetools, 'getOrderById')
         .mockResolvedValue(ctOrder as any);
-      const result = await processor.isValidState({
-        resource: { id: 'some-id', typeId: 'order' },
-      } as any);
+      const result = await processor.isValidState();
 
       expect(result).toBe(true);
     });
@@ -207,9 +201,7 @@ describe('OrderCreatedWithPaidStateProcessor', () => {
       jest.spyOn(commercetools, 'getOrderById').mockImplementationOnce(() => {
         throw Error;
       });
-      const result = await processor.isValidState({
-        resource: { id: 'some-id', typeId: 'order' },
-      } as any);
+      const result = await processor.isValidState();
 
       expect(result).toBe(false);
     });

@@ -114,24 +114,28 @@ describe('EventHandlerService', () => {
     });
 
     it('should process the OrderCreated (with "Paid" paymentState) event and return action promises', async () => {
+      const ctOrder = {
+        id: '123456',
+        cart: {
+          id: 'cart-id',
+        },
+        paymentState: 'Paid',
+        custom: {
+          fields: {},
+        },
+      };
       const message = {
         resource: {
           typeId: 'order',
           id: '123456',
         },
-        order: {
-          id: '123456',
-          cart: {
-            id: 'cart-id',
-          },
-          paymentState: 'Paid',
-          custom: {
-            fields: {},
-          },
-        },
+        order: ctOrder,
         type: 'OrderCreated',
         id: '123456',
       };
+      jest
+        .spyOn(commercetools, 'getOrderById')
+        .mockResolvedValue(ctOrder as any);
 
       const actionPromises = await service.processEvent(message as any);
 
@@ -144,25 +148,29 @@ describe('EventHandlerService', () => {
     });
 
     it('should process the OrderCreated (with "SETTLE" action) event and return action promises', async () => {
+      const ctOrder = {
+        id: '123456',
+        cart: {
+          id: 'cart-id',
+        },
+        custom: {
+          fields: {
+            'eagleeye-action': 'SETTLE',
+          },
+        },
+      };
       const message = {
         resource: {
           typeId: 'order',
           id: '123456',
         },
-        order: {
-          id: '123456',
-          cart: {
-            id: 'cart-id',
-          },
-          custom: {
-            fields: {
-              'eagleeye-action': 'SETTLE',
-            },
-          },
-        },
+        order: ctOrder,
         type: 'OrderCreated',
         id: '123456',
       };
+      jest
+        .spyOn(commercetools, 'getOrderById')
+        .mockResolvedValue(ctOrder as any);
 
       const actionPromises = await service.processEvent(message as any);
 

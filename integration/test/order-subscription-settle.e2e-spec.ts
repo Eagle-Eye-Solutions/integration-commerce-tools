@@ -114,6 +114,10 @@ describe('Settle EE transactions on Order messages (e2e)', () => {
     const getCircuitStateCustomObjectNock = nockGetCustomObject(404, null);
     const getEnrichedBasketCustomObjectNock =
       nockGetEnrichedBasketCustomObject();
+    const getOrderByIdNock = nockCtGetOrderById({
+      ...ORDER_FOR_SETTLE.resource.obj,
+      paymentState: 'Paid',
+    });
 
     const updateOrderByIdNock = nockCtUpdateOrderById(
       ORDER_FOR_SETTLE.resource.obj,
@@ -172,6 +176,7 @@ describe('Settle EE transactions on Order messages (e2e)', () => {
     expect(getEnrichedBasketCustomObjectNock.isDone()).toBeTruthy();
     expect(walletSettleNock.isDone()).toBeTruthy();
     expect(deleteCustomObjectNock.isDone()).toBeTruthy();
+    expect(getOrderByIdNock.isDone()).toBeTruthy();
     expect(updateOrderByIdNock.isDone()).toBeTruthy();
   });
 
@@ -185,6 +190,8 @@ describe('Settle EE transactions on Order messages (e2e)', () => {
       ...ORDER_FOR_SETTLE.resource.obj,
     };
     orderWithSettleAction.custom.fields['eagleeye-action'] = 'SETTLE';
+
+    const getOrderByIdNock = nockCtGetOrderById(orderWithSettleAction);
 
     const updateOrderByIdNock = nockCtUpdateOrderById(orderWithSettleAction, {
       version: ORDER_FOR_SETTLE.resource.obj.version,
@@ -238,6 +245,7 @@ describe('Settle EE transactions on Order messages (e2e)', () => {
     expect(getEnrichedBasketCustomObjectNock.isDone()).toBeTruthy();
     expect(walletSettleNock.isDone()).toBeTruthy();
     expect(deleteCustomObjectNock.isDone()).toBeTruthy();
+    expect(getOrderByIdNock.isDone()).toBeTruthy();
     expect(updateOrderByIdNock.isDone()).toBeTruthy();
   });
 
