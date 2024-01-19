@@ -88,7 +88,7 @@ export const SUCCESS_RESPONSE = {
       },
       fields: {
         'eagleeye-loyaltyCredits': '',
-        'eagleeye-appliedDiscounts': '',
+        'eagleeye-appliedDiscounts': [],
       },
     },
     {
@@ -216,7 +216,7 @@ export const LOYALTY_SUCCESS_RESPONSE = {
         key: 'custom-line-item-type',
       },
       fields: {
-        'eagleeye-appliedDiscounts': '',
+        'eagleeye-appliedDiscounts': [],
         'eagleeye-loyaltyCredits':
           '{"total":100,"offers":[{"name":"Retail Points","amount":100,"sku":"245865","timesRedeemed":1}]}',
       },
@@ -229,7 +229,7 @@ export const LOYALTY_SUCCESS_RESPONSE = {
         key: 'custom-line-item-type',
       },
       fields: {
-        'eagleeye-appliedDiscounts': '',
+        'eagleeye-appliedDiscounts': [],
       },
     },
     {
@@ -349,7 +349,7 @@ export const MIN_SPEND_ON_ITEM_CONTINUITY_LOYALTY_CAMPAIGN_INPROGRESS_RESPONSE =
         action: 'setLineItemCustomField',
         lineItemId: '4d02b4ab-8063-4f36-8bbf-790656d2e564',
         name: 'eagleeye-appliedDiscounts',
-        value: '',
+        value: [],
       },
       {
         action: 'setDirectDiscounts',
@@ -418,7 +418,7 @@ export const MIN_SPEND_ON_ITEM_CONTINUITY_LOYALTY_CAMPAIGN_COMPLETING_RESPONSE =
         action: 'setLineItemCustomField',
         lineItemId: '4d02b4ab-8063-4f36-8bbf-790656d2e564',
         name: 'eagleeye-appliedDiscounts',
-        value: '',
+        value: [],
       },
       {
         action: 'setDirectDiscounts',
@@ -483,7 +483,7 @@ export const MIN_SPEND_CONTINUITY_LOYALTY_CAMPAIGN_COMPLETING_RESPONSE = {
         key: 'custom-line-item-type',
       },
       fields: {
-        'eagleeye-appliedDiscounts': '',
+        'eagleeye-appliedDiscounts': [],
         'eagleeye-loyaltyCredits': '',
       },
     },
@@ -495,7 +495,7 @@ export const MIN_SPEND_CONTINUITY_LOYALTY_CAMPAIGN_COMPLETING_RESPONSE = {
         key: 'custom-line-item-type',
       },
       fields: {
-        'eagleeye-appliedDiscounts': '',
+        'eagleeye-appliedDiscounts': [],
         'eagleeye-loyaltyCredits': '',
       },
     },
@@ -563,7 +563,7 @@ export const MIN_SPEND_CONTINUITY_LOYALTY_CAMPAIGN_IN_PROGRESS_RESPONSE = {
       },
       fields: {
         'eagleeye-loyaltyCredits': '',
-        'eagleeye-appliedDiscounts': '',
+        'eagleeye-appliedDiscounts': [],
       },
     },
     {
@@ -575,7 +575,7 @@ export const MIN_SPEND_CONTINUITY_LOYALTY_CAMPAIGN_IN_PROGRESS_RESPONSE = {
       },
       fields: {
         'eagleeye-loyaltyCredits': '',
-        'eagleeye-appliedDiscounts': '',
+        'eagleeye-appliedDiscounts': [],
       },
     },
     {
@@ -622,7 +622,7 @@ export const ERROR_RESPONSE = {
         key: 'custom-line-item-type',
       },
       fields: {
-        'eagleeye-appliedDiscounts': '',
+        'eagleeye-appliedDiscounts': [],
         'eagleeye-loyaltyCredits': '',
       },
     },
@@ -634,7 +634,7 @@ export const ERROR_RESPONSE = {
         key: 'custom-line-item-type',
       },
       fields: {
-        'eagleeye-appliedDiscounts': '',
+        'eagleeye-appliedDiscounts': [],
         'eagleeye-loyaltyCredits': '',
       },
     },
@@ -686,7 +686,7 @@ export const CUSTOMER_NOT_FOUND_FETCHED_OPEN_PROMOTIONS_RESPONSE = {
         key: 'custom-line-item-type',
       },
       fields: {
-        'eagleeye-appliedDiscounts': '',
+        'eagleeye-appliedDiscounts': [],
         'eagleeye-loyaltyCredits': '',
       },
     },

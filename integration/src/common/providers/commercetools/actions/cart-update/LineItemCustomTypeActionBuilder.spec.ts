@@ -199,7 +199,7 @@ describe('LineItemCustomTypeActionBuilder > promotions', () => {
       {
         action: 'setLineItemCustomType',
         fields: {
-          'eagleeye-appliedDiscounts': '',
+          'eagleeye-appliedDiscounts': [],
           'eagleeye-loyaltyCredits': '',
         },
         lineItemId: 'lineItemId2',

@@ -5,7 +5,7 @@ exports[`LineItemCustomTypeActionBuilder > loyaltyCredits should build an addCus
   {
     "action": "setLineItemCustomType",
     "fields": {
-      "eagleeye-appliedDiscounts": "",
+      "eagleeye-appliedDiscounts": [],
       "eagleeye-loyaltyCredits": "{"total":20,"offers":[{"sku":"sku1","amount":10,"timesRedeemed":2}]}",
     },
     "lineItemId": "lineItemId1",
@@ -17,7 +17,7 @@ exports[`LineItemCustomTypeActionBuilder > loyaltyCredits should build an addCus
   {
     "action": "setLineItemCustomType",
     "fields": {
-      "eagleeye-appliedDiscounts": "",
+      "eagleeye-appliedDiscounts": [],
       "eagleeye-loyaltyCredits": "{"total":60,"offers":[{"sku":"sku2","amount":20,"timesRedeemed":3}]}",
     },
     "lineItemId": "lineItemId2",
@@ -34,7 +34,7 @@ exports[`LineItemCustomTypeActionBuilder > loyaltyCredits should build an addCus
   {
     "action": "setLineItemCustomType",
     "fields": {
-      "eagleeye-appliedDiscounts": "",
+      "eagleeye-appliedDiscounts": [],
       "eagleeye-loyaltyCredits": "{"total":0,"offers":[{"sku":"sku1","amount":0,"timesRedeemed":1,"type":"IN_PROGRESS","totalUnits":1,"totalTransactionUnits":3}]}",
     },
     "lineItemId": "lineItemId1",
@@ -46,7 +46,7 @@ exports[`LineItemCustomTypeActionBuilder > loyaltyCredits should build an addCus
   {
     "action": "setLineItemCustomType",
     "fields": {
-      "eagleeye-appliedDiscounts": "",
+      "eagleeye-appliedDiscounts": [],
       "eagleeye-loyaltyCredits": "{"total":0,"offers":[{"sku":"sku2","amount":0,"timesRedeemed":1,"type":"IN_PROGRESS","totalUnits":2,"totalTransactionUnits":3}]}",
     },
     "lineItemId": "lineItemId2",
@@ -70,7 +70,7 @@ exports[`LineItemCustomTypeActionBuilder > loyaltyCredits should set custom fiel
     "action": "setLineItemCustomField",
     "lineItemId": "lineItemId1",
     "name": "eagleeye-appliedDiscounts",
-    "value": "",
+    "value": [],
   },
   {
     "action": "setLineItemCustomField",
@@ -82,7 +82,7 @@ exports[`LineItemCustomTypeActionBuilder > loyaltyCredits should set custom fiel
     "action": "setLineItemCustomField",
     "lineItemId": "lineItemId2",
     "name": "eagleeye-appliedDiscounts",
-    "value": "",
+    "value": [],
   },
 ]
 `;
@@ -99,7 +99,7 @@ exports[`LineItemCustomTypeActionBuilder > loyaltyCredits should set custom fiel
     "action": "setLineItemCustomField",
     "lineItemId": "lineItemId1",
     "name": "eagleeye-appliedDiscounts",
-    "value": "",
+    "value": [],
   },
   {
     "action": "setLineItemCustomField",
@@ -111,7 +111,7 @@ exports[`LineItemCustomTypeActionBuilder > loyaltyCredits should set custom fiel
     "action": "setLineItemCustomField",
     "lineItemId": "lineItemId2",
     "name": "eagleeye-appliedDiscounts",
-    "value": "",
+    "value": [],
   },
 ]
 `;

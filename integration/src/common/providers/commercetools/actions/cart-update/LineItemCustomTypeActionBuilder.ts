@@ -109,7 +109,7 @@ export class LineItemCustomTypeActionBuilder {
           lineItem.variant.sku,
         );
     } else {
-      customFields[FIELD_EAGLEEYE_APPLIED_DISCOUNTS] = '';
+      customFields[FIELD_EAGLEEYE_APPLIED_DISCOUNTS] = [];
     }
   }
 
@@ -135,7 +135,7 @@ export class LineItemCustomTypeActionBuilder {
         action: 'setLineItemCustomField',
         lineItemId: lineItem.id,
         name: FIELD_EAGLEEYE_APPLIED_DISCOUNTS,
-        value: '',
+        value: [],
       });
     }
   }
