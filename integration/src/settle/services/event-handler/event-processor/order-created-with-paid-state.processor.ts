@@ -26,7 +26,7 @@ export class OrderCreatedWithPaidStateProcessor extends AbstractEventProcessor {
     const isValid =
       orderCreatedMessage.resource.typeId === 'order' &&
       this.isValidMessageType(orderCreatedMessage.type) &&
-      (await this.isValidState(orderCreatedMessage)) &&
+      (await this.isValidState()) &&
       !this.isEventDisabled();
     this.logger.debug(
       `${OrderCreatedWithPaidStateProcessor.name} ${
@@ -74,32 +74,24 @@ export class OrderCreatedWithPaidStateProcessor extends AbstractEventProcessor {
     return actions;
   }
 
-  public async isValidState(
-    orderCreatedMessage: OrderCreatedMessage,
-  ): Promise<boolean> {
+  public async isValidState(): Promise<boolean> {
     let orderPaymentState;
     let orderSettledStatus;
-    if (orderCreatedMessage.order && orderCreatedMessage.order.custom?.fields) {
-      orderPaymentState = orderCreatedMessage.order.paymentState;
-      orderSettledStatus =
-        orderCreatedMessage.order.custom?.fields[FIELD_EAGLEEYE_SETTLED_STATUS];
-    } else {
-      try {
-        this.order = await this.commercetools.getOrderById(
-          this.message.resource.id,
-        );
-        orderPaymentState = this.order.paymentState;
-        if (this.order.custom?.fields) {
-          orderSettledStatus =
-            this.order.custom?.fields[FIELD_EAGLEEYE_SETTLED_STATUS];
-        }
-      } catch (err) {
-        this.logger.warn(
-          `Failed to get order ${this.message.resource.id} from CT to check paymentState`,
-          err,
-        );
-        return false;
+    try {
+      this.order = await this.commercetools.getOrderById(
+        this.message.resource.id,
+      );
+      orderPaymentState = this.order.paymentState;
+      if (this.order.custom?.fields) {
+        orderSettledStatus =
+          this.order.custom?.fields[FIELD_EAGLEEYE_SETTLED_STATUS];
       }
+    } catch (err) {
+      this.logger.warn(
+        `Failed to get order ${this.message.resource.id} from CT to check paymentState`,
+        err,
+      );
+      return false;
     }
     return (
       Boolean(orderPaymentState === 'Paid') &&

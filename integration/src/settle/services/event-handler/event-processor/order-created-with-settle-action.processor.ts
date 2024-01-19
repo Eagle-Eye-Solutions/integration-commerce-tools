@@ -29,7 +29,7 @@ export class OrderCreatedWithSettleActionProcessor extends AbstractEventProcesso
     const isValid =
       orderCreatedMessage.resource.typeId === 'order' &&
       this.isValidMessageType(orderCreatedMessage.type) &&
-      (await this.isValidState(orderCreatedMessage)) &&
+      (await this.isValidState()) &&
       !this.isEventDisabled();
     this.logger.debug(
       `${OrderCreatedWithSettleActionProcessor.name} ${
@@ -77,33 +77,24 @@ export class OrderCreatedWithSettleActionProcessor extends AbstractEventProcesso
     return actions;
   }
 
-  public async isValidState(
-    orderCreatedMessage: OrderCreatedMessage,
-  ): Promise<boolean> {
+  public async isValidState(): Promise<boolean> {
     let orderSettleAction;
     let orderSettledStatus;
-    if (orderCreatedMessage.order && orderCreatedMessage.order.custom?.fields) {
-      orderSettleAction =
-        orderCreatedMessage.order.custom?.fields[FIELD_EAGLEEYE_ACTION];
-      orderSettledStatus =
-        orderCreatedMessage.order.custom?.fields[FIELD_EAGLEEYE_SETTLED_STATUS];
-    } else {
-      try {
-        this.order = await this.commercetools.getOrderById(
-          this.message.resource.id,
-        );
-        if (this.order.custom?.fields) {
-          orderSettleAction = this.order.custom?.fields[FIELD_EAGLEEYE_ACTION];
-          orderSettledStatus =
-            this.order.custom?.fields[FIELD_EAGLEEYE_SETTLED_STATUS];
-        }
-      } catch (err) {
-        this.logger.warn(
-          `Failed to get order ${this.message.resource.id} from CT to check action/status`,
-          err,
-        );
-        return false;
+    try {
+      this.order = await this.commercetools.getOrderById(
+        this.message.resource.id,
+      );
+      if (this.order.custom?.fields) {
+        orderSettleAction = this.order.custom?.fields[FIELD_EAGLEEYE_ACTION];
+        orderSettledStatus =
+          this.order.custom?.fields[FIELD_EAGLEEYE_SETTLED_STATUS];
       }
+    } catch (err) {
+      this.logger.warn(
+        `Failed to get order ${this.message.resource.id} from CT to check action/status`,
+        err,
+      );
+      return false;
     }
     return (
       Boolean(orderSettleAction === 'SETTLE') &&
