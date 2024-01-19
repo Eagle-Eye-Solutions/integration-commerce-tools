@@ -99,7 +99,9 @@ export class AdjudicationMapper {
     return basket.contents
       .map((item) => {
         const cartLineItem = cart.lineItems.find(
-          (lineItem) => lineItem.variant.sku === item.upc,
+          (lineItem) =>
+            lineItem.variant.sku === item.upc ||
+            lineItem.variant.sku === item.sku,
         );
         if (cartLineItem) {
           return item.adjustmentResults?.map((adjustment) => {
@@ -117,7 +119,7 @@ export class AdjudicationMapper {
               },
               target: {
                 type: 'lineItems',
-                predicate: `sku="${item.upc}"`,
+                predicate: `sku="${item.upc || item.sku}"`,
               },
             };
           });
@@ -138,7 +140,7 @@ export class AdjudicationMapper {
     return basket.contents
       .map((item) => {
         const matchingMethod = shippingMethodMap?.find(
-          (method) => method.upc === item.upc,
+          (method) => method.upc === item.upc || method.upc === item.sku,
         );
         if (matchingMethod) {
           return item.adjustmentResults?.map((adjustment) => {
@@ -182,8 +184,7 @@ export class AdjudicationMapper {
         (method) => method.key === shippingMethod[0].key,
       );
       if (matchingMethod) {
-        return {
-          upc: matchingMethod.upc,
+        const shippingItem: BasketItem = {
           itemUnitCost: shippingInfo.price.centAmount,
           totalUnitCostAfterDiscount: shippingInfo.price.centAmount,
           totalUnitCost: shippingInfo.price.centAmount,
@@ -192,6 +193,12 @@ export class AdjudicationMapper {
           itemUnitCount: 1,
           salesKey: 'SALE',
         };
+        if (this.configService.get<boolean>('eagleEye.useItemSku')) {
+          shippingItem.sku = matchingMethod.upc;
+        } else {
+          shippingItem.upc = matchingMethod.upc;
+        }
+        return shippingItem;
       }
     }
     return {};
@@ -224,7 +231,7 @@ export class AdjudicationMapper {
     const shippingDiscountItem = await this.mapShippingMethodSkusToBasketItems(
       cart.shippingInfo,
     );
-    if (shippingDiscountItem.upc) {
+    if (shippingDiscountItem.upc || shippingDiscountItem.sku) {
       basketContents.push(shippingDiscountItem);
     }
     const incomingIdentifier = this.configService.get(

@@ -26,6 +26,28 @@ exports[`AdjudicationMapper mapAdjustedBasketToItemDirectDiscounts should return
 ]
 `;
 
+exports[`AdjudicationMapper mapAdjustedBasketToItemDirectDiscounts should return the direct discount drafts when using sku instead of upc 1`] = `
+[
+  {
+    "target": {
+      "predicate": "sku="SKU123"",
+      "type": "lineItems",
+    },
+    "value": {
+      "money": [
+        {
+          "centAmount": 10,
+          "currencyCode": "USD",
+          "fractionDigits": 2,
+          "type": "centPrecision",
+        },
+      ],
+      "type": "absolute",
+    },
+  },
+]
+`;
+
 exports[`AdjudicationMapper mapAdjustedBasketToShippingDirectDiscounts should not return the direct discount drafts if there are no adjustmentResults 1`] = `[]`;
 
 exports[`AdjudicationMapper mapAdjustedBasketToShippingDirectDiscounts should return the direct discount drafts 1`] = `
@@ -478,4 +500,17 @@ exports[`AdjudicationMapper mapVoucherCodesToCampaignTokens should return an arr
     "value": "12345678",
   },
 ]
+`;
+
+exports[`AdjudicationMapper should return the mapped custom basket items and map the shipping method to the lineitem using the sku when is configured 1`] = `
+{
+  "description": "Example Shipping Discount",
+  "itemUnitCost": 300,
+  "itemUnitCount": 1,
+  "itemUnitMetric": "EACH",
+  "salesKey": "SALE",
+  "sku": "245879",
+  "totalUnitCost": 300,
+  "totalUnitCostAfterDiscount": 300,
+}
 `;
