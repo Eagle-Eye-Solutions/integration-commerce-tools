@@ -1,14 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import {
+  LOYALTY_CREDIT_CATEGORY,
   LOYALTY_CREDIT_TYPE,
   LoyaltyBreakdownObject,
   LoyaltyOfferBreakdown,
   LoyaltyTotalObject,
+  ProcessedCreditOffers,
 } from '../types/loyalty-earn-credits.type';
+import { QuestCampaignHandler } from './handlers/quest.campaign.handler';
 
 @Injectable()
 export class LoyaltyMapper {
-  constructor() {}
+  constructor(readonly questCampaignHandler: QuestCampaignHandler) {}
 
   mapAdjustedBasketToBasketEarn(basket): LoyaltyTotalObject {
     const basketEarn = { total: 0, offers: [] };
@@ -23,6 +26,10 @@ export class LoyaltyMapper {
 
   mapAdjustedBasketToBasketCredits(basket, accounts): LoyaltyBreakdownObject {
     const basketCredits = { total: 0, offers: [] };
+    let processedCreditOffers: ProcessedCreditOffers = {
+      isProcessRedeemResults: true,
+      offers: [],
+    };
     const basketCreditResults = basket.summary.adjudicationResults.filter(
       (result) => result.type === 'credit',
     );
@@ -32,11 +39,29 @@ export class LoyaltyMapper {
           result.balances.current ? result.balances.current + acc : acc,
         0,
       );
-      basketCredits.offers = this.getCreditOffers(
+      processedCreditOffers = this.getCreditOffers(
         basketCreditResults,
         accounts,
       );
+      basketCredits.offers = processedCreditOffers.offers;
     }
+
+    const isQuestAccountPresent = accounts.find(
+      (account) => account.type === LOYALTY_CREDIT_CATEGORY.QUEST,
+    );
+
+    if (processedCreditOffers.isProcessRedeemResults && isQuestAccountPresent) {
+      const basketRedeemResults = basket.summary.adjudicationResults.filter(
+        (result) => result.type === 'redeem',
+      );
+      basketCredits.offers.push(
+        this.questCampaignHandler.calculateQuestCampaignProgress(
+          basketRedeemResults,
+          accounts,
+        ),
+      );
+    }
+
     return basketCredits;
   }
 
@@ -58,21 +83,29 @@ export class LoyaltyMapper {
           result.balances.current ? result.balances.current + acc : acc,
         0,
       );
-      itemCredits.offers = this.getCreditOffers(itemCreditResults, accounts);
+      const processedCreditOffers = this.getCreditOffers(
+        itemCreditResults,
+        accounts,
+      );
+      itemCredits.offers = processedCreditOffers.offers;
     }
     return itemCredits;
   }
 
-  private getCreditOffers(creditResults, accounts): any[] {
+  private getCreditOffers(creditResults, accounts): ProcessedCreditOffers {
     const offerMap: Record<string, LoyaltyOfferBreakdown> = {};
+    let questOffer: boolean = false;
 
     creditResults
-      .filter((result) => this.continuityCampaignStatusChecker(result))
+      .filter((result) => this.questAndContinuityCampaignStatusChecker(result))
       .map((result) => {
         const account = accounts.find(
           (account) =>
             String(account.campaign.campaignId) === String(result.resourceId),
         );
+        if (account.type === 'QUEST') {
+          questOffer = true;
+        }
         if (offerMap.hasOwnProperty(result.instanceId)) {
           offerMap[result.instanceId] = this.updateOffer(
             offerMap[result.instanceId],
@@ -80,16 +113,24 @@ export class LoyaltyMapper {
             account,
           );
         } else {
-          offerMap[result.instanceId] = this.createOffer(result, account);
+          offerMap[result.instanceId] = questOffer
+            ? this.questCampaignHandler.createQuestCreditOffer(
+                result,
+                accounts,
+                account,
+              )
+            : this.createOffer(result, account);
         }
       });
 
-    return this.deduplicateCreditOffers(Object.values(offerMap));
+    return {
+      isProcessRedeemResults: !questOffer,
+      offers: this.deduplicateCreditOffers(Object.values(offerMap)),
+    };
   }
 
   private deduplicateCreditOffers(offers: any[]) {
     const offerCount: { [key: string]: number } = {};
-
     offers.forEach((offer) => {
       offerCount[offer.name] = (offerCount[offer.name] || 0) + 1;
     });
@@ -114,7 +155,7 @@ export class LoyaltyMapper {
     ).map((offer) => JSON.parse(offer));
   }
 
-  private continuityCampaignStatusChecker(result: any) {
+  private questAndContinuityCampaignStatusChecker(result: any) {
     return (
       result.balances.current ||
       result.balances.transaction_count ||
@@ -128,8 +169,9 @@ export class LoyaltyMapper {
       name: account.campaign.campaignName,
       amount: result.balances.current || 0,
       sku: result.sku,
-      ...(account.type === 'CONTINUITY'
+      ...(account.type === LOYALTY_CREDIT_CATEGORY.CONTINUITY
         ? {
+            category: LOYALTY_CREDIT_CATEGORY.CONTINUITY,
             transactionCount: this.getBalanceValue(
               result,
               account,

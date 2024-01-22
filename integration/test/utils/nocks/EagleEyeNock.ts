@@ -1975,6 +1975,1307 @@ export const nockWalletOpenWithMinTransactionLoyaltyContinuityCampaignInProgress
       );
   };
 
+export const nockWalletOpenWithQuestCampaignCompleting = async (
+  cart,
+  times = 1,
+  responseCode = 200,
+  delayConnection = 0,
+) => {
+  const configService = new ScriptConfigService();
+  const commercetools = new Commercetools(configService as any);
+  const adjudicationMapper = new AdjudicationMapper(
+    configService as any,
+    commercetools,
+  );
+  const basketContents = [
+    ...adjudicationMapper.mapCartLineItemsToBasketContent(cart.lineItems),
+  ];
+  const shippingDiscountItem =
+    await adjudicationMapper.mapShippingMethodSkusToBasketItems(
+      cart.shippingInfo,
+    );
+  if (shippingDiscountItem.upc) {
+    basketContents.push(shippingDiscountItem);
+  }
+  return nock('https://pos.sandbox.uk.eagleeye.com:443', {
+    encodedQueryParams: true,
+  })
+    .post('/connect/wallet/open', {
+      reference: cart.id,
+      lock: true,
+      location: {
+        incomingIdentifier: 'outlet1',
+        parentIncomingIdentifier: 'banner1',
+      },
+      examine: [
+        {
+          type: 'TOKEN',
+          value: '123456',
+        },
+        {
+          type: 'TOKEN',
+          value: 'valid-code',
+        },
+        {
+          type: 'TOKEN',
+          value: 'invalid-code',
+        },
+      ],
+      options: {
+        adjustBasket: {
+          includeOpenOffers: true,
+          enabled: true,
+        },
+        analyseBasket: {
+          includeOpenOffers: true,
+          enabled: true,
+        },
+      },
+      basket: {
+        type: 'STANDARD',
+        summary: {
+          redemptionChannel: 'Online',
+          totalDiscountAmount: {
+            general: null,
+            staff: null,
+            promotions: 0,
+          },
+          totalItems: getTotalItemCount(cart),
+          totalBasketValue: getTotalBasketValue(cart),
+        },
+        contents: basketContents,
+      },
+    })
+    .times(times)
+    .delayConnection(delayConnection)
+    .reply(
+      responseCode,
+      {
+        wallet: null,
+        identity: null,
+        accounts: [
+          {
+            accountId: '2853561874',
+            walletId: '172454304',
+            campaignId: '1762406',
+            campaign: {
+              campaignId: 1762406,
+              campaignTypeId: 57,
+              campaignMode: 'RESTRICTED',
+              campaignName: 'Travel Quest',
+              accountTypeId: 12,
+              startDate: '2023-12-11T00:00:00+00:00',
+              endDate: '2030-12-31T23:59:00+00:00',
+              status: 'ACTIVE',
+              sequenceKey: null,
+              reference: '001762406',
+              relationships: {
+                OBJECTIVE: {
+                  CAMPAIGN: [
+                    {
+                      campaignId: '1762399',
+                      dateCreated: '2023-12-11T12:43:06+00:00',
+                    },
+                    {
+                      campaignId: '1762401',
+                      dateCreated: '2023-12-11T12:43:06+00:00',
+                    },
+                    {
+                      campaignId: '1762402',
+                      dateCreated: '2023-12-11T12:43:06+00:00',
+                    },
+                  ],
+                },
+              },
+              dateCreated: '2023-12-11T12:43:06+00:00',
+              lastUpdated: '2023-12-11T12:43:06+00:00',
+            },
+            type: 'QUEST',
+            clientType: 'OFFER',
+            status: 'ACTIVE',
+            state: 'LOADED',
+            dates: {
+              start: '2024-01-22T01:12:51+00:00',
+              end: '2030-12-31T23:59:00+00:00',
+            },
+            meta: null,
+            dateCreated: '2024-01-22T01:12:51+00:00',
+            lastUpdated: '2024-01-22T01:12:51+00:00',
+            overrides: [],
+            balances: { objectivesMet: 0 },
+            relationships: null,
+            mobileWallet: null,
+            enriched: {
+              token: null,
+              qualifier: null,
+              reward: {
+                offerId: '1194699',
+                offerName: 'CAMPAIGN OFFER (auto) v2',
+                posReference: null,
+              },
+              custom: null,
+              restrictions: {},
+              redemptionWindows: {},
+              enrichmentType: 'COUPON',
+              campaignName: 'Travel Quest',
+              campaignReference: '001762406',
+            },
+          },
+          {
+            accountId: '2853561875',
+            walletId: '172454304',
+            campaignId: '1762399',
+            campaign: {
+              campaignId: 1762399,
+              campaignTypeId: 58,
+              campaignMode: 'RESTRICTED',
+              campaignName: 'Quest: Car Hire (UPC: 245882)',
+              accountTypeId: 1,
+              startDate: '2023-12-11T00:00:00+00:00',
+              endDate: '2030-12-31T23:59:00+00:00',
+              status: 'ACTIVE',
+              sequenceKey: null,
+              reference: '001762399',
+              relationships: {
+                OBJECTIVE_OF: {
+                  CAMPAIGN: [
+                    {
+                      campaignId: '1762406',
+                      dateCreated: '2023-12-11T12:39:59+00:00',
+                    },
+                  ],
+                },
+              },
+              dateCreated: '2023-12-11T12:39:59+00:00',
+              lastUpdated: '2023-12-12T11:41:12+00:00',
+            },
+            type: 'ECOUPON',
+            clientType: 'OFFER',
+            status: 'LOCKED',
+            state: 'LOADED',
+            dates: {
+              start: '2024-01-22T01:12:51+00:00',
+              end: '2030-12-31T23:59:00+00:00',
+            },
+            meta: null,
+            dateCreated: '2024-01-22T01:12:51+00:00',
+            lastUpdated: '2024-01-22T12:31:02+00:00',
+            overrides: [],
+            balances: { available: 0, refundable: 0 },
+            relationships: null,
+            mobileWallet: null,
+            enriched: {
+              token: null,
+              qualifier: null,
+              reward: {
+                offerId: '1194696',
+                offerName: 'CAMPAIGN OFFER (auto) v2',
+                posReference: null,
+              },
+              custom: null,
+              restrictions: {},
+              redemptionWindows: {},
+              enrichmentType: 'COUPON',
+              campaignName: 'Quest: Car Hire (UPC: 245882)',
+              campaignReference: '001762399',
+            },
+          },
+          {
+            accountId: '2853561876',
+            walletId: '172454304',
+            campaignId: '1762401',
+            campaign: {
+              campaignId: 1762401,
+              campaignTypeId: 58,
+              campaignMode: 'RESTRICTED',
+              campaignName: 'Quest: Buy eScooter (UPC: 245902)',
+              accountTypeId: 1,
+              startDate: '2023-12-11T00:00:00+00:00',
+              endDate: '2030-12-31T23:59:00+00:00',
+              status: 'ACTIVE',
+              sequenceKey: null,
+              reference: '001762401',
+              relationships: {
+                OBJECTIVE_OF: {
+                  CAMPAIGN: [
+                    {
+                      campaignId: '1762406',
+                      dateCreated: '2023-12-11T12:41:13+00:00',
+                    },
+                  ],
+                },
+              },
+              dateCreated: '2023-12-11T12:41:13+00:00',
+              lastUpdated: '2023-12-12T11:37:54+00:00',
+            },
+            type: 'ECOUPON',
+            clientType: 'OFFER',
+            status: 'LOCKED',
+            state: 'LOADED',
+            dates: {
+              start: '2024-01-22T01:12:51+00:00',
+              end: '2030-12-31T23:59:00+00:00',
+            },
+            meta: null,
+            dateCreated: '2024-01-22T01:12:51+00:00',
+            lastUpdated: '2024-01-22T12:31:02+00:00',
+            overrides: [],
+            balances: { available: 0, refundable: 0 },
+            relationships: null,
+            mobileWallet: null,
+            enriched: {
+              token: null,
+              qualifier: null,
+              reward: {
+                offerId: '1194697',
+                offerName: 'CAMPAIGN OFFER (auto) v2',
+                posReference: null,
+              },
+              custom: null,
+              restrictions: {},
+              redemptionWindows: {},
+              enrichmentType: 'COUPON',
+              campaignName: 'Quest: Buy eScooter (UPC: 245902)',
+              campaignReference: '001762401',
+            },
+          },
+          {
+            accountId: '2853561877',
+            walletId: '172454304',
+            campaignId: '1762402',
+            campaign: {
+              campaignId: 1762402,
+              campaignTypeId: 58,
+              campaignMode: 'RESTRICTED',
+              campaignName: 'Quest: Buy eBike (UPC: 245903)',
+              accountTypeId: 1,
+              startDate: '2023-12-11T00:00:00+00:00',
+              endDate: '2030-12-31T23:59:00+00:00',
+              status: 'ACTIVE',
+              sequenceKey: null,
+              reference: '001762402',
+              relationships: {
+                OBJECTIVE_OF: {
+                  CAMPAIGN: [
+                    {
+                      campaignId: '1762406',
+                      dateCreated: '2023-12-11T12:42:07+00:00',
+                    },
+                    {
+                      campaignId: '100002671',
+                      dateCreated: '2023-12-11T12:42:07+00:00',
+                    },
+                  ],
+                },
+              },
+              dateCreated: '2023-12-11T12:42:07+00:00',
+              lastUpdated: '2023-12-12T11:37:13+00:00',
+            },
+            type: 'ECOUPON',
+            clientType: 'OFFER',
+            status: 'LOCKED',
+            state: 'LOADED',
+            dates: {
+              start: '2024-01-22T01:12:51+00:00',
+              end: '2030-12-31T23:59:00+00:00',
+            },
+            meta: null,
+            dateCreated: '2024-01-22T01:12:51+00:00',
+            lastUpdated: '2024-01-22T12:31:02+00:00',
+            overrides: [],
+            balances: { available: 0, refundable: 0 },
+            relationships: null,
+            mobileWallet: null,
+            enriched: {
+              token: null,
+              qualifier: null,
+              reward: {
+                offerId: '1194698',
+                offerName: 'CAMPAIGN OFFER (auto) v2',
+                posReference: null,
+              },
+              custom: null,
+              restrictions: {},
+              redemptionWindows: {},
+              enrichmentType: 'COUPON',
+              campaignName: 'Quest: Buy eBike (UPC: 245903)',
+              campaignReference: '001762402',
+            },
+          },
+          {
+            accountId: '2853561878',
+            walletId: '172454304',
+            campaignId: '1653843',
+            campaign: {
+              campaignId: 1653843,
+              campaignTypeId: 7,
+              campaignMode: 'OPEN',
+              campaignName: 'Retail Points',
+              accountTypeId: 7,
+              startDate: '2023-01-01T00:00:00+00:00',
+              endDate: '9999-12-30T23:59:00+00:00',
+              status: 'ACTIVE',
+              sequenceKey: null,
+              reference: 'RETAILPOINTS',
+              relationships: [],
+              dateCreated: '2023-09-04T08:20:31+00:00',
+              lastUpdated: '2023-10-04T16:13:35+00:00',
+            },
+            type: 'POINTS',
+            clientType: 'RETAILPOINTS',
+            status: 'ACTIVE',
+            state: 'LOADED',
+            dates: {
+              start: '2024-01-22T01:12:51+00:00',
+              end: '2038-01-19T03:14:07+00:00',
+            },
+            meta: null,
+            dateCreated: '2024-01-22T01:12:51+00:00',
+            lastUpdated: '2024-01-22T01:12:51+00:00',
+            overrides: [],
+            balances: {
+              current: 0,
+              usable: 0,
+              locked: 0,
+              lifetime: 0,
+              lifetimeSpend: 0,
+              lifetimeSpendValue: 0,
+              pending: 0,
+            },
+            relationships: null,
+            mobileWallet: null,
+            enriched: {
+              properties: {
+                allowNegativeBalance: { enabled: true },
+                autotopup: {
+                  defaultFunding: [],
+                  enabled: false,
+                  reasonCodes: null,
+                },
+                credit: {
+                  defaultFunding: [],
+                  enabled: false,
+                  reasonCodes: null,
+                },
+                debit: {
+                  defaultFunding: [],
+                  enabled: false,
+                  reasonCodes: null,
+                },
+                details: {
+                  alternativeDescription: '',
+                  alternativeName: '',
+                  description: '',
+                  printMessage: '',
+                  screenMessage: '',
+                },
+                earn: {
+                  defaultFunding: [],
+                  enabled: false,
+                  reasonCodes: null,
+                },
+                earnRates: {
+                  ctintegration: {
+                    default: {
+                      description: null,
+                      name: null,
+                      product: null,
+                      rates: [
+                        {
+                          amount: 1,
+                          bonus: null,
+                          ceiling: null,
+                          floor: null,
+                          offset: 0,
+                          step: 1,
+                        },
+                      ],
+                      reference: null,
+                      roundPoints: { active: false },
+                      type: 'STANDARD',
+                    },
+                  },
+                },
+                exchange: {
+                  defaultFunding: [],
+                  enabled: false,
+                  reasonCodes: null,
+                },
+                expiryPoints: { enabled: false },
+                goodwill: {
+                  defaultFunding: [],
+                  enabled: false,
+                  reasonCodes: null,
+                  restrictions: [
+                    {
+                      period: '',
+                      singleValue: 0,
+                      transactions: 0,
+                      value: 0,
+                    },
+                  ],
+                },
+                householdSharing: { enabled: true },
+                lock: null,
+                pointsLimit: { exceed: false, limit: null },
+                redemptionRates: {
+                  ctintegration: [
+                    {
+                      bonus: 0,
+                      ceiling: 999999,
+                      floor: 1,
+                      pointsBack: 0,
+                      rate: 1,
+                      step: 1,
+                    },
+                  ],
+                },
+                spend: {
+                  defaultFunding: [],
+                  enabled: false,
+                  reasonCodes: null,
+                },
+              },
+              pointsExpiry: null,
+              enrichmentType: 'POINTS',
+              schemeName: 'Retail Points',
+              schemeReference: 'RETAILPOINTS',
+            },
+          },
+        ],
+        analyseBasketResults: {
+          basket: {
+            type: 'ENRICHED',
+            summary: {
+              redemptionChannel: 'Online',
+              totalDiscountAmount: {
+                general: null,
+                staff: null,
+                promotions: 0,
+              },
+              totalItems: 3,
+              totalBasketValue: 8993,
+              results: {
+                points: {
+                  spend: 0,
+                  debit: 0,
+                  refund: 0,
+                  totalPointsTaken: 0,
+                  earn: 8993,
+                  credit: 2000,
+                  totalPointsGiven: 10993,
+                  totalMonetaryValue: 0,
+                },
+              },
+              adjudicationResults: [
+                {
+                  resourceType: 'SCHEME',
+                  resourceId: '1653843',
+                  instanceId: '1653843-1',
+                  success: null,
+                  type: 'earn',
+                  value: null,
+                  balances: { current: 8993 },
+                  relatedAccountIds: [],
+                  targetedAccountId: '2853561878',
+                  targetedWalletId: '172454304',
+                },
+                {
+                  resourceType: 'CAMPAIGN',
+                  resourceId: '1762399',
+                  instanceId: '1762399-1',
+                  success: null,
+                  type: 'redeem',
+                  value: 0,
+                  balances: null,
+                  relatedAccountIds: ['2853561875'],
+                  targetedAccountId: '2853561875',
+                  targetedWalletId: '172454304',
+                },
+                {
+                  resourceType: 'CAMPAIGN',
+                  resourceId: '1762401',
+                  instanceId: '1762401-1',
+                  success: null,
+                  type: 'redeem',
+                  value: 0,
+                  balances: null,
+                  relatedAccountIds: ['2853561876'],
+                  targetedAccountId: '2853561876',
+                  targetedWalletId: '172454304',
+                },
+                {
+                  resourceType: 'CAMPAIGN',
+                  resourceId: '1762402',
+                  instanceId: '1762402-1',
+                  success: null,
+                  type: 'redeem',
+                  value: 0,
+                  balances: null,
+                  relatedAccountIds: ['2853561877'],
+                  targetedAccountId: '2853561877',
+                  targetedWalletId: '172454304',
+                },
+                {
+                  resourceType: 'CAMPAIGN',
+                  resourceId: '1762406',
+                  instanceId: '1762406-1',
+                  success: null,
+                  type: 'redeem',
+                  value: 2000,
+                  balances: null,
+                  relatedAccountIds: ['2853561874'],
+                  targetedAccountId: '2853561874',
+                  targetedWalletId: '172454304',
+                },
+                {
+                  resourceType: 'CAMPAIGN',
+                  resourceId: '1762406',
+                  instanceId: '1762406-1',
+                  success: null,
+                  type: 'credit',
+                  value: null,
+                  balances: { current: 2000 },
+                  relatedAccountIds: ['2853561874'],
+                  targetedAccountId: '2853561878',
+                  targetedWalletId: '172454304',
+                },
+              ],
+              qualifiesResults: [
+                {
+                  instanceId: '1762406-1',
+                  totalMatchingUnits: null,
+                  totalMatchingSpend: null,
+                },
+              ],
+            },
+            contents: [
+              {
+                itemUnitCost: 2817,
+                totalUnitCostAfterDiscount: 2817,
+                totalUnitCost: 2817,
+                description: 'eBike Hire',
+                itemUnitMetric: 'EACH',
+                itemUnitCount: 1,
+                salesKey: 'SALE',
+                upc: '245903',
+                contributionResults: [
+                  { instanceId: '1653843-1', value: 2817 },
+                  { instanceId: '1762406-1', value: 626 },
+                ],
+                qualifiesResults: [
+                  {
+                    instanceId: '1762402-1',
+                    totalMatchingUnits: 1,
+                    totalMatchingSpend: 1,
+                  },
+                ],
+              },
+              {
+                itemUnitCost: 2137,
+                totalUnitCostAfterDiscount: 2137,
+                totalUnitCost: 2137,
+                description: 'Standard Card Hire',
+                itemUnitMetric: 'EACH',
+                itemUnitCount: 1,
+                salesKey: 'SALE',
+                upc: '245882',
+                contributionResults: [
+                  { instanceId: '1653843-1', value: 2137 },
+                  { instanceId: '1762406-1', value: 475 },
+                ],
+                qualifiesResults: [
+                  {
+                    instanceId: '1762399-1',
+                    totalMatchingUnits: 1,
+                    totalMatchingSpend: 1,
+                  },
+                ],
+              },
+              {
+                itemUnitCost: 4039,
+                totalUnitCostAfterDiscount: 4039,
+                totalUnitCost: 4039,
+                description: 'eScooter Hire',
+                itemUnitMetric: 'EACH',
+                itemUnitCount: 1,
+                salesKey: 'SALE',
+                upc: '245902',
+                contributionResults: [
+                  { instanceId: '1653843-1', value: 4039 },
+                  { instanceId: '1762406-1', value: 899 },
+                ],
+                qualifiesResults: [
+                  {
+                    instanceId: '1762401-1',
+                    totalMatchingUnits: 1,
+                    totalMatchingSpend: 1,
+                  },
+                ],
+              },
+            ],
+            analysedDateTime: '2024-01-22T13:07:20+00:00',
+          },
+          points: [
+            {
+              resourceType: 'SCHEME',
+              resourceId: '1653843',
+              walletId: '172454304',
+              operationType: 'earn',
+              value: 8993,
+              accountId: '2853561878',
+              relatedSchemeId: '1653843',
+              details: null,
+              totalMatchingUnits: null,
+            },
+            {
+              resourceType: 'CAMPAIGN',
+              resourceId: '1762406',
+              operationType: 'credit',
+              value: 2000,
+              relatedSchemeId: '1653843',
+              accountId: '2853561878',
+              walletId: '172454304',
+              details: { appliedAnalyseBasketType: 'QUEST_FIXED_POINTS' },
+            },
+          ],
+          unusedAccounts: [],
+        },
+        basketAdjudicationResult: null,
+        spendAdjudicationResults: null,
+        transactionCapabilities: {
+          loyalty: {
+            spend: true,
+            earn: true,
+          },
+        },
+      },
+      [],
+    );
+};
+
+export const nockWalletOpenWithQuestCampaignInProgress = async (
+  cart,
+  times = 1,
+  responseCode = 200,
+  delayConnection = 0,
+) => {
+  const configService = new ScriptConfigService();
+  const commercetools = new Commercetools(configService as any);
+  const adjudicationMapper = new AdjudicationMapper(
+    configService as any,
+    commercetools,
+  );
+  const basketContents = [
+    ...adjudicationMapper.mapCartLineItemsToBasketContent(cart.lineItems),
+  ];
+  const shippingDiscountItem =
+    await adjudicationMapper.mapShippingMethodSkusToBasketItems(
+      cart.shippingInfo,
+    );
+  if (shippingDiscountItem.upc) {
+    basketContents.push(shippingDiscountItem);
+  }
+  return nock('https://pos.sandbox.uk.eagleeye.com:443', {
+    encodedQueryParams: true,
+  })
+    .post('/connect/wallet/open', {
+      reference: cart.id,
+      lock: true,
+      location: {
+        incomingIdentifier: 'outlet1',
+        parentIncomingIdentifier: 'banner1',
+      },
+      examine: [
+        {
+          type: 'TOKEN',
+          value: '123456',
+        },
+        {
+          type: 'TOKEN',
+          value: 'valid-code',
+        },
+        {
+          type: 'TOKEN',
+          value: 'invalid-code',
+        },
+      ],
+      options: {
+        adjustBasket: {
+          includeOpenOffers: true,
+          enabled: true,
+        },
+        analyseBasket: {
+          includeOpenOffers: true,
+          enabled: true,
+        },
+      },
+      basket: {
+        type: 'STANDARD',
+        summary: {
+          redemptionChannel: 'Online',
+          totalDiscountAmount: {
+            general: null,
+            staff: null,
+            promotions: 0,
+          },
+          totalItems: getTotalItemCount(cart),
+          totalBasketValue: getTotalBasketValue(cart),
+        },
+        contents: basketContents,
+      },
+    })
+    .times(times)
+    .delayConnection(delayConnection)
+    .reply(
+      responseCode,
+      {
+        wallet: null,
+        identity: null,
+        accounts: [
+          {
+            accountId: '2853881865',
+            walletId: '172471269',
+            campaignId: '1762406',
+            campaign: {
+              campaignId: 1762406,
+              campaignTypeId: 57,
+              campaignMode: 'RESTRICTED',
+              campaignName: 'Travel Quest',
+              accountTypeId: 12,
+              startDate: '2023-12-11T00:00:00+00:00',
+              endDate: '2030-12-31T23:59:00+00:00',
+              status: 'ACTIVE',
+              sequenceKey: null,
+              reference: '001762406',
+              relationships: {
+                OBJECTIVE: {
+                  CAMPAIGN: [
+                    {
+                      campaignId: '1762399',
+                      dateCreated: '2023-12-11T12:43:06+00:00',
+                    },
+                    {
+                      campaignId: '1762401',
+                      dateCreated: '2023-12-11T12:43:06+00:00',
+                    },
+                    {
+                      campaignId: '1762402',
+                      dateCreated: '2023-12-11T12:43:06+00:00',
+                    },
+                  ],
+                },
+              },
+              dateCreated: '2023-12-11T12:43:06+00:00',
+              lastUpdated: '2023-12-11T12:43:06+00:00',
+            },
+            type: 'QUEST',
+            clientType: 'OFFER',
+            status: 'ACTIVE',
+            state: 'LOADED',
+            dates: {
+              start: '2024-01-22T13:52:08+00:00',
+              end: '2030-12-31T23:59:00+00:00',
+            },
+            meta: null,
+            dateCreated: '2024-01-22T13:52:08+00:00',
+            lastUpdated: '2024-01-22T13:52:08+00:00',
+            overrides: [],
+            balances: { objectivesMet: 0 },
+            relationships: null,
+            mobileWallet: null,
+            enriched: {
+              token: null,
+              qualifier: null,
+              reward: {
+                offerId: '1194699',
+                offerName: 'CAMPAIGN OFFER (auto) v2',
+                posReference: null,
+              },
+              custom: null,
+              restrictions: {},
+              redemptionWindows: {},
+              enrichmentType: 'COUPON',
+              campaignName: 'Travel Quest',
+              campaignReference: '001762406',
+            },
+          },
+          {
+            accountId: '2853881866',
+            walletId: '172471269',
+            campaignId: '1762399',
+            campaign: {
+              campaignId: 1762399,
+              campaignTypeId: 58,
+              campaignMode: 'RESTRICTED',
+              campaignName: 'Quest: Car Hire (UPC: 245882)',
+              accountTypeId: 1,
+              startDate: '2023-12-11T00:00:00+00:00',
+              endDate: '2030-12-31T23:59:00+00:00',
+              status: 'ACTIVE',
+              sequenceKey: null,
+              reference: '001762399',
+              relationships: {
+                OBJECTIVE_OF: {
+                  CAMPAIGN: [
+                    {
+                      campaignId: '1762406',
+                      dateCreated: '2023-12-11T12:39:59+00:00',
+                    },
+                  ],
+                },
+              },
+              dateCreated: '2023-12-11T12:39:59+00:00',
+              lastUpdated: '2023-12-12T11:41:12+00:00',
+            },
+            type: 'ECOUPON',
+            clientType: 'OFFER',
+            status: 'LOCKED',
+            state: 'LOADED',
+            dates: {
+              start: '2024-01-22T13:52:08+00:00',
+              end: '2030-12-31T23:59:00+00:00',
+            },
+            meta: null,
+            dateCreated: '2024-01-22T13:52:08+00:00',
+            lastUpdated: '2024-01-22T13:52:31+00:00',
+            overrides: [],
+            balances: { available: 0, refundable: 0 },
+            relationships: null,
+            mobileWallet: null,
+            enriched: {
+              token: null,
+              qualifier: null,
+              reward: {
+                offerId: '1194696',
+                offerName: 'CAMPAIGN OFFER (auto) v2',
+                posReference: null,
+              },
+              custom: null,
+              restrictions: {},
+              redemptionWindows: {},
+              enrichmentType: 'COUPON',
+              campaignName: 'Quest: Car Hire (UPC: 245882)',
+              campaignReference: '001762399',
+            },
+          },
+          {
+            accountId: '2853881867',
+            walletId: '172471269',
+            campaignId: '1762401',
+            campaign: {
+              campaignId: 1762401,
+              campaignTypeId: 58,
+              campaignMode: 'RESTRICTED',
+              campaignName: 'Quest: Buy eScooter (UPC: 245902)',
+              accountTypeId: 1,
+              startDate: '2023-12-11T00:00:00+00:00',
+              endDate: '2030-12-31T23:59:00+00:00',
+              status: 'ACTIVE',
+              sequenceKey: null,
+              reference: '001762401',
+              relationships: {
+                OBJECTIVE_OF: {
+                  CAMPAIGN: [
+                    {
+                      campaignId: '1762406',
+                      dateCreated: '2023-12-11T12:41:13+00:00',
+                    },
+                  ],
+                },
+              },
+              dateCreated: '2023-12-11T12:41:13+00:00',
+              lastUpdated: '2023-12-12T11:37:54+00:00',
+            },
+            type: 'ECOUPON',
+            clientType: 'OFFER',
+            status: 'ACTIVE',
+            state: 'LOADED',
+            dates: {
+              start: '2024-01-22T13:52:08+00:00',
+              end: '2030-12-31T23:59:00+00:00',
+            },
+            meta: null,
+            dateCreated: '2024-01-22T13:52:08+00:00',
+            lastUpdated: '2024-01-22T13:52:08+00:00',
+            overrides: [],
+            balances: { available: 0, refundable: 0 },
+            relationships: null,
+            mobileWallet: null,
+            enriched: {
+              token: null,
+              qualifier: null,
+              reward: {
+                offerId: '1194697',
+                offerName: 'CAMPAIGN OFFER (auto) v2',
+                posReference: null,
+              },
+              custom: null,
+              restrictions: {},
+              redemptionWindows: {},
+              enrichmentType: 'COUPON',
+              campaignName: 'Quest: Buy eScooter (UPC: 245902)',
+              campaignReference: '001762401',
+            },
+          },
+          {
+            accountId: '2853881868',
+            walletId: '172471269',
+            campaignId: '1762402',
+            campaign: {
+              campaignId: 1762402,
+              campaignTypeId: 58,
+              campaignMode: 'RESTRICTED',
+              campaignName: 'Quest: Buy eBike (UPC: 245903)',
+              accountTypeId: 1,
+              startDate: '2023-12-11T00:00:00+00:00',
+              endDate: '2030-12-31T23:59:00+00:00',
+              status: 'ACTIVE',
+              sequenceKey: null,
+              reference: '001762402',
+              relationships: {
+                OBJECTIVE_OF: {
+                  CAMPAIGN: [
+                    {
+                      campaignId: '1762406',
+                      dateCreated: '2023-12-11T12:42:07+00:00',
+                    },
+                    {
+                      campaignId: '100002671',
+                      dateCreated: '2023-12-11T12:42:07+00:00',
+                    },
+                  ],
+                },
+              },
+              dateCreated: '2023-12-11T12:42:07+00:00',
+              lastUpdated: '2023-12-12T11:37:13+00:00',
+            },
+            type: 'ECOUPON',
+            clientType: 'OFFER',
+            status: 'LOCKED',
+            state: 'LOADED',
+            dates: {
+              start: '2024-01-22T13:52:08+00:00',
+              end: '2030-12-31T23:59:00+00:00',
+            },
+            meta: null,
+            dateCreated: '2024-01-22T13:52:08+00:00',
+            lastUpdated: '2024-01-22T13:52:31+00:00',
+            overrides: [],
+            balances: { available: 0, refundable: 0 },
+            relationships: null,
+            mobileWallet: null,
+            enriched: {
+              token: null,
+              qualifier: null,
+              reward: {
+                offerId: '1194698',
+                offerName: 'CAMPAIGN OFFER (auto) v2',
+                posReference: null,
+              },
+              custom: null,
+              restrictions: {},
+              redemptionWindows: {},
+              enrichmentType: 'COUPON',
+              campaignName: 'Quest: Buy eBike (UPC: 245903)',
+              campaignReference: '001762402',
+            },
+          },
+          {
+            accountId: '2853881869',
+            walletId: '172471269',
+            campaignId: '1653843',
+            campaign: {
+              campaignId: 1653843,
+              campaignTypeId: 7,
+              campaignMode: 'OPEN',
+              campaignName: 'Retail Points',
+              accountTypeId: 7,
+              startDate: '2023-01-01T00:00:00+00:00',
+              endDate: '9999-12-30T23:59:00+00:00',
+              status: 'ACTIVE',
+              sequenceKey: null,
+              reference: 'RETAILPOINTS',
+              relationships: [],
+              dateCreated: '2023-09-04T08:20:31+00:00',
+              lastUpdated: '2023-10-04T16:13:35+00:00',
+            },
+            type: 'POINTS',
+            clientType: 'RETAILPOINTS',
+            status: 'ACTIVE',
+            state: 'LOADED',
+            dates: {
+              start: '2024-01-22T13:52:08+00:00',
+              end: '2038-01-19T03:14:07+00:00',
+            },
+            meta: null,
+            dateCreated: '2024-01-22T13:52:08+00:00',
+            lastUpdated: '2024-01-22T13:52:08+00:00',
+            overrides: [],
+            balances: {
+              current: 0,
+              usable: 0,
+              locked: 0,
+              lifetime: 0,
+              lifetimeSpend: 0,
+              lifetimeSpendValue: 0,
+              pending: 0,
+            },
+            relationships: null,
+            mobileWallet: null,
+            enriched: {
+              properties: {
+                allowNegativeBalance: { enabled: true },
+                autotopup: {
+                  defaultFunding: [],
+                  enabled: false,
+                  reasonCodes: null,
+                },
+                credit: {
+                  defaultFunding: [],
+                  enabled: false,
+                  reasonCodes: null,
+                },
+                debit: {
+                  defaultFunding: [],
+                  enabled: false,
+                  reasonCodes: null,
+                },
+                details: {
+                  alternativeDescription: '',
+                  alternativeName: '',
+                  description: '',
+                  printMessage: '',
+                  screenMessage: '',
+                },
+                earn: { defaultFunding: [], enabled: false, reasonCodes: null },
+                earnRates: {
+                  ctintegration: {
+                    default: {
+                      description: null,
+                      name: null,
+                      product: null,
+                      rates: [
+                        {
+                          amount: 1,
+                          bonus: null,
+                          ceiling: null,
+                          floor: null,
+                          offset: 0,
+                          step: 1,
+                        },
+                      ],
+                      reference: null,
+                      roundPoints: { active: false },
+                      type: 'STANDARD',
+                    },
+                  },
+                },
+                exchange: {
+                  defaultFunding: [],
+                  enabled: false,
+                  reasonCodes: null,
+                },
+                expiryPoints: { enabled: false },
+                goodwill: {
+                  defaultFunding: [],
+                  enabled: false,
+                  reasonCodes: null,
+                  restrictions: [
+                    {
+                      period: '',
+                      singleValue: 0,
+                      transactions: 0,
+                      value: 0,
+                    },
+                  ],
+                },
+                householdSharing: { enabled: true },
+                lock: null,
+                pointsLimit: { exceed: false, limit: null },
+                redemptionRates: {
+                  ctintegration: [
+                    {
+                      bonus: 0,
+                      ceiling: 999999,
+                      floor: 1,
+                      pointsBack: 0,
+                      rate: 1,
+                      step: 1,
+                    },
+                  ],
+                },
+                spend: {
+                  defaultFunding: [],
+                  enabled: false,
+                  reasonCodes: null,
+                },
+              },
+              pointsExpiry: null,
+              enrichmentType: 'POINTS',
+              schemeName: 'Retail Points',
+              schemeReference: 'RETAILPOINTS',
+            },
+          },
+        ],
+        analyseBasketResults: {
+          basket: {
+            type: 'ENRICHED',
+            summary: {
+              redemptionChannel: 'Online',
+              totalDiscountAmount: {
+                general: null,
+                staff: null,
+                promotions: 0,
+              },
+              totalItems: 2,
+              totalBasketValue: 4954,
+              results: {
+                points: {
+                  spend: 0,
+                  debit: 0,
+                  refund: 0,
+                  totalPointsTaken: 0,
+                  earn: 4954,
+                  credit: 0,
+                  totalPointsGiven: 4954,
+                  totalMonetaryValue: 0,
+                },
+              },
+              adjudicationResults: [
+                {
+                  resourceType: 'SCHEME',
+                  resourceId: '1653843',
+                  instanceId: '1653843-1',
+                  success: null,
+                  type: 'earn',
+                  value: null,
+                  balances: { current: 4954 },
+                  isRefundable: true,
+                  isUnredeemable: false,
+                  relatedAccountIds: [],
+                  targetedAccountId: '2853881869',
+                  targetedWalletId: '172471269',
+                  totalMatchingUnits: null,
+                  playOrderPosition: 1,
+                },
+                {
+                  resourceType: 'CAMPAIGN',
+                  resourceId: '1762399',
+                  instanceId: '1762399-1',
+                  success: null,
+                  type: 'redeem',
+                  value: 0,
+                  balances: null,
+                  isRefundable: true,
+                  isUnredeemable: false,
+                  relatedAccountIds: ['2853881866'],
+                  targetedAccountId: '2853881866',
+                  targetedWalletId: '172471269',
+                  totalMatchingUnits: null,
+                  playOrderPosition: 2,
+                  totalRewardUnits: 0,
+                },
+                {
+                  resourceType: 'CAMPAIGN',
+                  resourceId: '1762402',
+                  instanceId: '1762402-1',
+                  success: null,
+                  type: 'redeem',
+                  value: 0,
+                  balances: null,
+                  isRefundable: true,
+                  isUnredeemable: false,
+                  relatedAccountIds: ['2853881868'],
+                  targetedAccountId: '2853881868',
+                  targetedWalletId: '172471269',
+                  totalMatchingUnits: null,
+                  playOrderPosition: 3,
+                  totalRewardUnits: 0,
+                },
+              ],
+            },
+            contents: [
+              {
+                itemUnitCost: 2817,
+                totalUnitCostAfterDiscount: 2817,
+                totalUnitCost: 2817,
+                description: 'eBike Hire',
+                itemUnitMetric: 'EACH',
+                itemUnitCount: 1,
+                salesKey: 'SALE',
+                upc: '245903',
+                contributionResults: [{ instanceId: '1653843-1', value: 2817 }],
+                qualifiesResults: [
+                  {
+                    instanceId: '1762402-1',
+                    totalMatchingUnits: 1,
+                    totalMatchingSpend: 1,
+                  },
+                ],
+              },
+              {
+                itemUnitCost: 2137,
+                totalUnitCostAfterDiscount: 2137,
+                totalUnitCost: 2137,
+                description: 'Standard Card Hire',
+                itemUnitMetric: 'EACH',
+                itemUnitCount: 1,
+                salesKey: 'SALE',
+                upc: '245882',
+                contributionResults: [{ instanceId: '1653843-1', value: 2137 }],
+                qualifiesResults: [
+                  {
+                    instanceId: '1762399-1',
+                    totalMatchingUnits: 1,
+                    totalMatchingSpend: 1,
+                  },
+                ],
+              },
+            ],
+            analysedDateTime: '2024-01-22T13:52:58+00:00',
+          },
+          points: [
+            {
+              resourceType: 'SCHEME',
+              resourceId: '1653843',
+              walletId: '172471269',
+              operationType: 'earn',
+              value: 4954,
+              accountId: '2853881869',
+              relatedSchemeId: '1653843',
+              details: null,
+              totalMatchingUnits: null,
+            },
+          ],
+          unusedAccounts: [
+            {
+              resourceType: 'ACCOUNT',
+              resourceId: '2853881867',
+              reasonMessage: 'Basket did not match qualifier',
+              reasonCode: 'QNM1',
+            },
+            {
+              resourceType: 'ACCOUNT',
+              resourceId: '2853881865',
+              reasonMessage: 'Basket did not match qualifier',
+              reasonCode: 'QNM1',
+            },
+          ],
+        },
+        basketAdjudicationResult: null,
+        spendAdjudicationResults: null,
+        transactionCapabilities: {
+          loyalty: {
+            spend: true,
+            earn: true,
+          },
+        },
+      },
+      [],
+    );
+};
+
 export const nockWalletSettle = async (
   cart,
   times = 1,

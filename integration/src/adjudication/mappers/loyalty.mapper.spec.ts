@@ -1,15 +1,32 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { LoyaltyMapper } from './loyalty.mapper';
+import { QuestCampaignHandler } from './handlers/quest.campaign.handler';
+import {
+  LOYALTY_CREDIT_CATEGORY,
+  LOYALTY_CREDIT_TYPE,
+} from '../types/loyalty-earn-credits.type';
 
 describe('LoyaltyMapper', () => {
   let service: LoyaltyMapper;
+  let questCampaignHandler: QuestCampaignHandler;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [LoyaltyMapper],
+      providers: [
+        LoyaltyMapper,
+        {
+          provide: QuestCampaignHandler,
+          useValue: {
+            calculateQuestCampaignProgress: jest.fn(),
+            createQuestCreditOffer: jest.fn(),
+          },
+        },
+      ],
     }).compile();
 
     service = module.get<LoyaltyMapper>(LoyaltyMapper);
+    questCampaignHandler =
+      module.get<QuestCampaignHandler>(QuestCampaignHandler);
     jest.resetAllMocks();
   });
 
@@ -239,6 +256,470 @@ describe('LoyaltyMapper', () => {
         },
       ];
 
+      const basketContents = service.mapAdjustedBasketToBasketCredits(
+        basket,
+        accounts,
+      );
+
+      expect(basketContents).toMatchSnapshot();
+    });
+
+    it('should process the quest campaign fulfilled results and update the mapped basket credits', () => {
+      const basket = {
+        summary: {
+          adjudicationResults: [
+            {
+              resourceType: 'CAMPAIGN',
+              resourceId: '1762399',
+              instanceId: '1762399-1',
+              type: 'redeem',
+              value: 0,
+              balances: null,
+              relatedAccountIds: ['2853561875'],
+              targetedAccountId: '2853561875',
+              targetedWalletId: '172454304',
+            },
+            {
+              resourceType: 'CAMPAIGN',
+              resourceId: '1762401',
+              instanceId: '1762401-1',
+              type: 'redeem',
+              value: 0,
+              balances: null,
+              relatedAccountIds: ['2853561876'],
+              targetedAccountId: '2853561876',
+              targetedWalletId: '172454304',
+            },
+            {
+              resourceType: 'CAMPAIGN',
+              resourceId: '1762402',
+              instanceId: '1762402-1',
+              type: 'redeem',
+              value: 0,
+              balances: null,
+              relatedAccountIds: ['2853561877'],
+              targetedAccountId: '2853561877',
+              targetedWalletId: '172454304',
+            },
+            {
+              resourceType: 'CAMPAIGN',
+              resourceId: '1762406',
+              instanceId: '1762406-1',
+              type: 'redeem',
+              value: 2000,
+              balances: null,
+              relatedAccountIds: ['2853561874'],
+              targetedAccountId: '2853561874',
+              targetedWalletId: '172454304',
+            },
+            {
+              resourceType: 'CAMPAIGN',
+              resourceId: '1762406',
+              instanceId: '1762406-1',
+              success: null,
+              type: 'credit',
+              value: null,
+              balances: { current: 2000 },
+              relatedAccountIds: ['2853561874'],
+              targetedAccountId: '2853561878',
+              targetedWalletId: '172454304',
+            },
+          ],
+        },
+      };
+      const accounts = [
+        {
+          accountId: '2853561874',
+          walletId: '172454304',
+          campaignId: '1762406',
+          campaign: {
+            campaignId: 1762406,
+            campaignTypeId: 57,
+            campaignMode: 'RESTRICTED',
+            campaignName: 'Travel Quest',
+            accountTypeId: 12,
+            status: 'ACTIVE',
+            sequenceKey: null,
+            reference: '001762406',
+            relationships: {
+              OBJECTIVE: {
+                CAMPAIGN: [
+                  {
+                    campaignId: '1762399',
+                    dateCreated: '2023-12-11T12:43:06+00:00',
+                  },
+                  {
+                    campaignId: '1762401',
+                    dateCreated: '2023-12-11T12:43:06+00:00',
+                  },
+                  {
+                    campaignId: '1762402',
+                    dateCreated: '2023-12-11T12:43:06+00:00',
+                  },
+                ],
+              },
+            },
+          },
+          type: 'QUEST',
+          overrides: [],
+          balances: { objectivesMet: 0 },
+          relationships: null,
+          enriched: {
+            enrichmentType: 'COUPON',
+            campaignName: 'Travel Quest',
+            campaignReference: '001762406',
+          },
+        },
+        {
+          accountId: '2853561875',
+          walletId: '172454304',
+          campaignId: '1762399',
+          campaign: {
+            campaignId: 1762399,
+            campaignTypeId: 58,
+            campaignMode: 'RESTRICTED',
+            campaignName: 'Quest: Car Hire (UPC: 245882)',
+            accountTypeId: 1,
+            status: 'ACTIVE',
+            sequenceKey: null,
+            reference: '001762399',
+            relationships: {
+              OBJECTIVE_OF: {
+                CAMPAIGN: [
+                  {
+                    campaignId: '1762406',
+                    dateCreated: '2023-12-11T12:39:59+00:00',
+                  },
+                ],
+              },
+            },
+          },
+          type: 'ECOUPON',
+          overrides: [],
+          balances: { available: 0, refundable: 0 },
+          enriched: {
+            enrichmentType: 'COUPON',
+            campaignName: 'Quest: Car Hire (UPC: 245882)',
+            campaignReference: '001762399',
+          },
+        },
+        {
+          accountId: '2853561876',
+          walletId: '172454304',
+          campaignId: '1762401',
+          campaign: {
+            campaignId: 1762401,
+            campaignTypeId: 58,
+            campaignMode: 'RESTRICTED',
+            campaignName: 'Quest: Buy eScooter (UPC: 245902)',
+            accountTypeId: 1,
+            status: 'ACTIVE',
+            sequenceKey: null,
+            reference: '001762401',
+            relationships: {
+              OBJECTIVE_OF: {
+                CAMPAIGN: [
+                  {
+                    campaignId: '1762406',
+                    dateCreated: '2023-12-11T12:41:13+00:00',
+                  },
+                ],
+              },
+            },
+          },
+          type: 'ECOUPON',
+          overrides: [],
+          balances: { available: 0, refundable: 0 },
+          relationships: null,
+          enriched: {
+            enrichmentType: 'COUPON',
+            campaignName: 'Quest: Buy eScooter (UPC: 245902)',
+            campaignReference: '001762401',
+          },
+        },
+        {
+          accountId: '2853561877',
+          walletId: '172454304',
+          campaignId: '1762402',
+          campaign: {
+            campaignId: 1762402,
+            campaignTypeId: 58,
+            campaignMode: 'RESTRICTED',
+            campaignName: 'Quest: Buy eBike (UPC: 245903)',
+            accountTypeId: 1,
+            reference: '001762402',
+            relationships: {
+              OBJECTIVE_OF: {
+                CAMPAIGN: [
+                  {
+                    campaignId: '1762406',
+                    dateCreated: '2023-12-11T12:42:07+00:00',
+                  },
+                ],
+              },
+            },
+          },
+          type: 'ECOUPON',
+          balances: { available: 0, refundable: 0 },
+          relationships: null,
+          enriched: {
+            enrichmentType: 'COUPON',
+            campaignName: 'Quest: Buy eBike (UPC: 245903)',
+            campaignReference: '001762402',
+          },
+        },
+      ];
+      jest
+        .spyOn(questCampaignHandler, 'createQuestCreditOffer')
+        .mockReturnValue({
+          type: LOYALTY_CREDIT_TYPE.COMPLETING,
+          name: 'Travel Quest',
+          amount: 2000,
+          category: LOYALTY_CREDIT_CATEGORY.QUEST,
+          totalObjectives: [
+            {
+              campaignId: '1762399',
+              campaignName: 'Quest: Car Hire (UPC: 245882)',
+            },
+            {
+              campaignId: '1762401',
+              campaignName: 'Quest: Buy eScooter (UPC: 245902)',
+            },
+            {
+              campaignId: '1762402',
+              campaignName: 'Quest: Buy eBike (UPC: 245903)',
+            },
+          ],
+          objectivesMet: [
+            {
+              campaignId: '1762399',
+              campaignName: 'Quest: Car Hire (UPC: 245882)',
+            },
+            {
+              campaignId: '1762401',
+              campaignName: 'Quest: Buy eScooter (UPC: 245902)',
+            },
+            {
+              campaignId: '1762402',
+              campaignName: 'Quest: Buy eBike (UPC: 245903)',
+            },
+          ],
+          timesRedeemed: 1,
+        });
+      const basketContents = service.mapAdjustedBasketToBasketCredits(
+        basket,
+        accounts,
+      );
+
+      expect(basketContents).toMatchSnapshot();
+    });
+
+    it('should process the quest campaign in progress results and update the mapped basket credits', () => {
+      const basket = {
+        summary: {
+          adjudicationResults: [
+            {
+              resourceType: 'CAMPAIGN',
+              resourceId: '1762399',
+              instanceId: '1762399-1',
+              type: 'redeem',
+              value: 0,
+              balances: null,
+              relatedAccountIds: ['2853561875'],
+              targetedAccountId: '2853561875',
+              targetedWalletId: '172454304',
+            },
+            {
+              resourceType: 'CAMPAIGN',
+              resourceId: '1762401',
+              instanceId: '1762401-1',
+              type: 'redeem',
+              value: 0,
+              balances: null,
+              relatedAccountIds: ['2853561876'],
+              targetedAccountId: '2853561876',
+              targetedWalletId: '172454304',
+            },
+          ],
+        },
+      };
+      const accounts = [
+        {
+          accountId: '2853561874',
+          walletId: '172454304',
+          campaignId: '1762406',
+          campaign: {
+            campaignId: 1762406,
+            campaignTypeId: 57,
+            campaignMode: 'RESTRICTED',
+            campaignName: 'Travel Quest',
+            accountTypeId: 12,
+            status: 'ACTIVE',
+            sequenceKey: null,
+            reference: '001762406',
+            relationships: {
+              OBJECTIVE: {
+                CAMPAIGN: [
+                  {
+                    campaignId: '1762399',
+                    dateCreated: '2023-12-11T12:43:06+00:00',
+                  },
+                  {
+                    campaignId: '1762401',
+                    dateCreated: '2023-12-11T12:43:06+00:00',
+                  },
+                  {
+                    campaignId: '1762402',
+                    dateCreated: '2023-12-11T12:43:06+00:00',
+                  },
+                ],
+              },
+            },
+          },
+          type: 'QUEST',
+          overrides: [],
+          balances: { objectivesMet: 0 },
+          relationships: null,
+          enriched: {
+            enrichmentType: 'COUPON',
+            campaignName: 'Travel Quest',
+            campaignReference: '001762406',
+          },
+        },
+        {
+          accountId: '2853561875',
+          walletId: '172454304',
+          campaignId: '1762399',
+          campaign: {
+            campaignId: 1762399,
+            campaignTypeId: 58,
+            campaignMode: 'RESTRICTED',
+            campaignName: 'Quest: Car Hire (UPC: 245882)',
+            accountTypeId: 1,
+            status: 'ACTIVE',
+            sequenceKey: null,
+            reference: '001762399',
+            relationships: {
+              OBJECTIVE_OF: {
+                CAMPAIGN: [
+                  {
+                    campaignId: '1762406',
+                    dateCreated: '2023-12-11T12:39:59+00:00',
+                  },
+                ],
+              },
+            },
+          },
+          type: 'ECOUPON',
+          overrides: [],
+          balances: { available: 0, refundable: 0 },
+          enriched: {
+            enrichmentType: 'COUPON',
+            campaignName: 'Quest: Car Hire (UPC: 245882)',
+            campaignReference: '001762399',
+          },
+        },
+        {
+          accountId: '2853561876',
+          walletId: '172454304',
+          campaignId: '1762401',
+          campaign: {
+            campaignId: 1762401,
+            campaignTypeId: 58,
+            campaignMode: 'RESTRICTED',
+            campaignName: 'Quest: Buy eScooter (UPC: 245902)',
+            accountTypeId: 1,
+            status: 'ACTIVE',
+            sequenceKey: null,
+            reference: '001762401',
+            relationships: {
+              OBJECTIVE_OF: {
+                CAMPAIGN: [
+                  {
+                    campaignId: '1762406',
+                    dateCreated: '2023-12-11T12:41:13+00:00',
+                  },
+                ],
+              },
+            },
+          },
+          type: 'ECOUPON',
+          overrides: [],
+          balances: { available: 0, refundable: 0 },
+          relationships: null,
+          enriched: {
+            enrichmentType: 'COUPON',
+            campaignName: 'Quest: Buy eScooter (UPC: 245902)',
+            campaignReference: '001762401',
+          },
+        },
+        {
+          accountId: '2853561877',
+          walletId: '172454304',
+          campaignId: '1762402',
+          campaign: {
+            campaignId: 1762402,
+            campaignTypeId: 58,
+            campaignMode: 'RESTRICTED',
+            campaignName: 'Quest: Buy eBike (UPC: 245903)',
+            accountTypeId: 1,
+            reference: '001762402',
+            relationships: {
+              OBJECTIVE_OF: {
+                CAMPAIGN: [
+                  {
+                    campaignId: '1762406',
+                    dateCreated: '2023-12-11T12:42:07+00:00',
+                  },
+                ],
+              },
+            },
+          },
+          type: 'ECOUPON',
+          balances: { available: 0, refundable: 0 },
+          relationships: null,
+          enriched: {
+            enrichmentType: 'COUPON',
+            campaignName: 'Quest: Buy eBike (UPC: 245903)',
+            campaignReference: '001762402',
+          },
+        },
+      ];
+      jest
+        .spyOn(questCampaignHandler, 'calculateQuestCampaignProgress')
+        .mockReturnValue([
+          {
+            type: LOYALTY_CREDIT_TYPE.IN_PROGRESS,
+            name: 'Travel Quest',
+            amount: 0,
+            category: LOYALTY_CREDIT_CATEGORY.QUEST,
+            totalObjectives: [
+              {
+                campaignId: '1762399',
+                campaignName: 'Quest: Car Hire (UPC: 245882)',
+              },
+              {
+                campaignId: '1762401',
+                campaignName: 'Quest: Buy eScooter (UPC: 245902)',
+              },
+              {
+                campaignId: '1762402',
+                campaignName: 'Quest: Buy eBike (UPC: 245903)',
+              },
+            ],
+            objectivesMet: [
+              {
+                campaignId: '1762399',
+                campaignName: 'Quest: Car Hire (UPC: 245882)',
+              },
+              {
+                campaignId: '1762401',
+                campaignName: 'Quest: Buy eScooter (UPC: 245902)',
+              },
+            ],
+            timesRedeemed: 1,
+          },
+        ]);
       const basketContents = service.mapAdjustedBasketToBasketCredits(
         basket,
         accounts,

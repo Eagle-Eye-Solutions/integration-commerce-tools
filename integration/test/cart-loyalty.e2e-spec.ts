@@ -17,6 +17,8 @@ import {
   nockWalletOpenWithMinSpendLoyaltyContinuityCampaignInProgress,
   nockWalletOpenWithMinSpendOnItemLoyaltyContinuityCampaignCompleting,
   nockWalletOpenWithMinSpendOnItemLoyaltyContinuityCampaignInProgress,
+  nockWalletOpenWithQuestCampaignCompleting,
+  nockWalletOpenWithQuestCampaignInProgress,
 } from './utils/nocks/EagleEyeNock';
 import { MockLogger } from './utils/mocks/MockLogger';
 import * as nock from 'nock';
@@ -27,6 +29,8 @@ import {
   MIN_SPEND_CONTINUITY_LOYALTY_CAMPAIGN_IN_PROGRESS_RESPONSE,
   MIN_SPEND_ON_ITEM_CONTINUITY_LOYALTY_CAMPAIGN_COMPLETING_RESPONSE,
   MIN_SPEND_ON_ITEM_CONTINUITY_LOYALTY_CAMPAIGN_INPROGRESS_RESPONSE,
+  QUEST_LOYALTY_CAMPAIGN_COMPLETING_RESPONSE,
+  QUEST_LOYALTY_CAMPAIGN_INPROGRESS_RESPONSE,
 } from './utils/data/CartExtensionResponse.data';
 
 describe('Cart Loyalty processing (e2e)', () => {
@@ -914,6 +918,412 @@ describe('Cart Loyalty processing (e2e)', () => {
           MIN_SPEND_CONTINUITY_LOYALTY_CAMPAIGN_IN_PROGRESS_RESPONSE,
         ),
       );
+
+    await sleep(100); //await for
+    expect(ctAuthNock.isDone()).toBeTruthy();
+    expect(nockCtGetShippingMethods.isDone()).toBeTruthy();
+    expect(getCircuitStateCustomObjectNock.isDone()).toBeTruthy();
+    expect(postEnrichedBasketCustomObjectNock.isDone()).toBeTruthy();
+    expect(walletOpenNock.isDone()).toBeTruthy();
+  });
+
+  it('should process request and return cart update actions when a quest campaign is completing', async () => {
+    // ****** NOCK ******
+    // nock.recorder.rec();
+    // the following API calls are done onModuleInit and need to be mocked before the testing module is created
+    const ctAuthNock = nockCtAuth();
+    const nockCtGetShippingMethods = nockCtGetShippingMethodsWithIds(
+      [RECALCULATE_CART.resource.obj.shippingInfo.shippingMethod.id],
+      50,
+    );
+    const getCircuitStateCustomObjectNock = nockGetCustomObject(404, null);
+    const postEnrichedBasketCustomObjectNock =
+      nockPostEnrichedBasketCustomObject({
+        key: '8be07418-04a0-49ba-b56f-2aa35d1027a4',
+        container: 'eagleeye-cart',
+        value: {
+          enrichedBasket: {
+            type: 'ENRICHED',
+            summary: {
+              redemptionChannel: 'Online',
+              totalDiscountAmount: {
+                general: null,
+                staff: null,
+                promotions: 0,
+              },
+              totalItems: 3,
+              totalBasketValue: 8993,
+              results: {
+                points: {
+                  spend: 0,
+                  debit: 0,
+                  refund: 0,
+                  totalPointsTaken: 0,
+                  earn: 8993,
+                  credit: 2000,
+                  totalPointsGiven: 10993,
+                  totalMonetaryValue: 0,
+                },
+              },
+              adjudicationResults: [
+                {
+                  resourceType: 'SCHEME',
+                  resourceId: '1653843',
+                  instanceId: '1653843-1',
+                  success: null,
+                  type: 'earn',
+                  value: null,
+                  balances: {
+                    current: 8993,
+                  },
+                  relatedAccountIds: [],
+                  targetedAccountId: '2853561878',
+                  targetedWalletId: '172454304',
+                },
+                {
+                  resourceType: 'CAMPAIGN',
+                  resourceId: '1762399',
+                  instanceId: '1762399-1',
+                  success: null,
+                  type: 'redeem',
+                  value: 0,
+                  balances: null,
+                  relatedAccountIds: ['2853561875'],
+                  targetedAccountId: '2853561875',
+                  targetedWalletId: '172454304',
+                },
+                {
+                  resourceType: 'CAMPAIGN',
+                  resourceId: '1762401',
+                  instanceId: '1762401-1',
+                  success: null,
+                  type: 'redeem',
+                  value: 0,
+                  balances: null,
+                  relatedAccountIds: ['2853561876'],
+                  targetedAccountId: '2853561876',
+                  targetedWalletId: '172454304',
+                },
+                {
+                  resourceType: 'CAMPAIGN',
+                  resourceId: '1762402',
+                  instanceId: '1762402-1',
+                  success: null,
+                  type: 'redeem',
+                  value: 0,
+                  balances: null,
+                  relatedAccountIds: ['2853561877'],
+                  targetedAccountId: '2853561877',
+                  targetedWalletId: '172454304',
+                },
+                {
+                  resourceType: 'CAMPAIGN',
+                  resourceId: '1762406',
+                  instanceId: '1762406-1',
+                  success: null,
+                  type: 'redeem',
+                  value: 2000,
+                  balances: null,
+                  relatedAccountIds: ['2853561874'],
+                  targetedAccountId: '2853561874',
+                  targetedWalletId: '172454304',
+                },
+                {
+                  resourceType: 'CAMPAIGN',
+                  resourceId: '1762406',
+                  instanceId: '1762406-1',
+                  success: null,
+                  type: 'credit',
+                  value: null,
+                  balances: {
+                    current: 2000,
+                  },
+                  relatedAccountIds: ['2853561874'],
+                  targetedAccountId: '2853561878',
+                  targetedWalletId: '172454304',
+                },
+              ],
+              qualifiesResults: [
+                {
+                  instanceId: '1762406-1',
+                  totalMatchingUnits: null,
+                  totalMatchingSpend: null,
+                },
+              ],
+            },
+            contents: [
+              {
+                itemUnitCost: 2817,
+                totalUnitCostAfterDiscount: 2817,
+                totalUnitCost: 2817,
+                description: 'eBike Hire',
+                itemUnitMetric: 'EACH',
+                itemUnitCount: 1,
+                salesKey: 'SALE',
+                upc: '245903',
+                contributionResults: [
+                  {
+                    instanceId: '1653843-1',
+                    value: 2817,
+                  },
+                  {
+                    instanceId: '1762406-1',
+                    value: 626,
+                  },
+                ],
+                qualifiesResults: [
+                  {
+                    instanceId: '1762402-1',
+                    totalMatchingUnits: 1,
+                    totalMatchingSpend: 1,
+                  },
+                ],
+              },
+              {
+                itemUnitCost: 2137,
+                totalUnitCostAfterDiscount: 2137,
+                totalUnitCost: 2137,
+                description: 'Standard Card Hire',
+                itemUnitMetric: 'EACH',
+                itemUnitCount: 1,
+                salesKey: 'SALE',
+                upc: '245882',
+                contributionResults: [
+                  {
+                    instanceId: '1653843-1',
+                    value: 2137,
+                  },
+                  {
+                    instanceId: '1762406-1',
+                    value: 475,
+                  },
+                ],
+                qualifiesResults: [
+                  {
+                    instanceId: '1762399-1',
+                    totalMatchingUnits: 1,
+                    totalMatchingSpend: 1,
+                  },
+                ],
+              },
+              {
+                itemUnitCost: 4039,
+                totalUnitCostAfterDiscount: 4039,
+                totalUnitCost: 4039,
+                description: 'eScooter Hire',
+                itemUnitMetric: 'EACH',
+                itemUnitCount: 1,
+                salesKey: 'SALE',
+                upc: '245902',
+                contributionResults: [
+                  {
+                    instanceId: '1653843-1',
+                    value: 4039,
+                  },
+                  {
+                    instanceId: '1762406-1',
+                    value: 899,
+                  },
+                ],
+                qualifiesResults: [
+                  {
+                    instanceId: '1762401-1',
+                    totalMatchingUnits: 1,
+                    totalMatchingSpend: 1,
+                  },
+                ],
+              },
+            ],
+            analysedDateTime: '2024-01-22T13:07:20+00:00',
+          },
+          cart: {
+            typeId: 'cart',
+            id: '8be07418-04a0-49ba-b56f-2aa35d1027a4',
+          },
+        },
+      });
+    const walletOpenNock = await nockWalletOpenWithQuestCampaignCompleting(
+      RECALCULATE_CART.resource.obj,
+      1,
+      200,
+      0,
+    );
+    app = await initAppModule();
+    await request(app.getHttpServer())
+      .post('/cart/service')
+      .send(RECALCULATE_CART)
+      .expect(201)
+      .expect(QUEST_LOYALTY_CAMPAIGN_COMPLETING_RESPONSE);
+
+    await sleep(100); //await for
+    expect(ctAuthNock.isDone()).toBeTruthy();
+    expect(nockCtGetShippingMethods.isDone()).toBeTruthy();
+    expect(getCircuitStateCustomObjectNock.isDone()).toBeTruthy();
+    expect(postEnrichedBasketCustomObjectNock.isDone()).toBeTruthy();
+    expect(walletOpenNock.isDone()).toBeTruthy();
+  });
+
+  it('should process request and return cart update actions when a quest campaign is in progress', async () => {
+    // ****** NOCK ******
+    // nock.recorder.rec();
+    // the following API calls are done onModuleInit and need to be mocked before the testing module is created
+    const ctAuthNock = nockCtAuth();
+    const nockCtGetShippingMethods = nockCtGetShippingMethodsWithIds(
+      [RECALCULATE_CART.resource.obj.shippingInfo.shippingMethod.id],
+      50,
+    );
+    const getCircuitStateCustomObjectNock = nockGetCustomObject(404, null);
+    const postEnrichedBasketCustomObjectNock =
+      nockPostEnrichedBasketCustomObject({
+        key: '8be07418-04a0-49ba-b56f-2aa35d1027a4',
+        container: 'eagleeye-cart',
+        value: {
+          enrichedBasket: {
+            type: 'ENRICHED',
+            summary: {
+              redemptionChannel: 'Online',
+              totalDiscountAmount: {
+                general: null,
+                staff: null,
+                promotions: 0,
+              },
+              totalItems: 2,
+              totalBasketValue: 4954,
+              results: {
+                points: {
+                  spend: 0,
+                  debit: 0,
+                  refund: 0,
+                  totalPointsTaken: 0,
+                  earn: 4954,
+                  credit: 0,
+                  totalPointsGiven: 4954,
+                  totalMonetaryValue: 0,
+                },
+              },
+              adjudicationResults: [
+                {
+                  resourceType: 'SCHEME',
+                  resourceId: '1653843',
+                  instanceId: '1653843-1',
+                  success: null,
+                  type: 'earn',
+                  value: null,
+                  balances: {
+                    current: 4954,
+                  },
+                  isRefundable: true,
+                  isUnredeemable: false,
+                  relatedAccountIds: [],
+                  targetedAccountId: '2853881869',
+                  targetedWalletId: '172471269',
+                  totalMatchingUnits: null,
+                  playOrderPosition: 1,
+                },
+                {
+                  resourceType: 'CAMPAIGN',
+                  resourceId: '1762399',
+                  instanceId: '1762399-1',
+                  success: null,
+                  type: 'redeem',
+                  value: 0,
+                  balances: null,
+                  isRefundable: true,
+                  isUnredeemable: false,
+                  relatedAccountIds: ['2853881866'],
+                  targetedAccountId: '2853881866',
+                  targetedWalletId: '172471269',
+                  totalMatchingUnits: null,
+                  playOrderPosition: 2,
+                  totalRewardUnits: 0,
+                },
+                {
+                  resourceType: 'CAMPAIGN',
+                  resourceId: '1762402',
+                  instanceId: '1762402-1',
+                  success: null,
+                  type: 'redeem',
+                  value: 0,
+                  balances: null,
+                  isRefundable: true,
+                  isUnredeemable: false,
+                  relatedAccountIds: ['2853881868'],
+                  targetedAccountId: '2853881868',
+                  targetedWalletId: '172471269',
+                  totalMatchingUnits: null,
+                  playOrderPosition: 3,
+                  totalRewardUnits: 0,
+                },
+              ],
+            },
+            contents: [
+              {
+                itemUnitCost: 2817,
+                totalUnitCostAfterDiscount: 2817,
+                totalUnitCost: 2817,
+                description: 'eBike Hire',
+                itemUnitMetric: 'EACH',
+                itemUnitCount: 1,
+                salesKey: 'SALE',
+                upc: '245903',
+                contributionResults: [
+                  {
+                    instanceId: '1653843-1',
+                    value: 2817,
+                  },
+                ],
+                qualifiesResults: [
+                  {
+                    instanceId: '1762402-1',
+                    totalMatchingUnits: 1,
+                    totalMatchingSpend: 1,
+                  },
+                ],
+              },
+              {
+                itemUnitCost: 2137,
+                totalUnitCostAfterDiscount: 2137,
+                totalUnitCost: 2137,
+                description: 'Standard Card Hire',
+                itemUnitMetric: 'EACH',
+                itemUnitCount: 1,
+                salesKey: 'SALE',
+                upc: '245882',
+                contributionResults: [
+                  {
+                    instanceId: '1653843-1',
+                    value: 2137,
+                  },
+                ],
+                qualifiesResults: [
+                  {
+                    instanceId: '1762399-1',
+                    totalMatchingUnits: 1,
+                    totalMatchingSpend: 1,
+                  },
+                ],
+              },
+            ],
+            analysedDateTime: '2024-01-22T13:52:58+00:00',
+          },
+          cart: {
+            typeId: 'cart',
+            id: '8be07418-04a0-49ba-b56f-2aa35d1027a4',
+          },
+        },
+      });
+    const walletOpenNock = await nockWalletOpenWithQuestCampaignInProgress(
+      RECALCULATE_CART.resource.obj,
+      1,
+      200,
+      0,
+    );
+    app = await initAppModule();
+    await request(app.getHttpServer())
+      .post('/cart/service')
+      .send(RECALCULATE_CART)
+      .expect(201)
+      .expect(QUEST_LOYALTY_CAMPAIGN_INPROGRESS_RESPONSE);
 
     await sleep(100); //await for
     expect(ctAuthNock.isDone()).toBeTruthy();
