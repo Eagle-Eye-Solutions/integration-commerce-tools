@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "8d65a10d-bc6f-46ae-8aad-f2dbf179825f",
+		"_postman_id": "7dddd960-4f1f-4eee-a464-5ebea62f094f",
 		"name": "EagleEye CT Plugin - E2E Tests",
 		"description": "Descriptions are included folder levels.\n\nFor further plugin documentation refer to: [https://github.com/Eagle-Eye-Solutions/integration-commerce-tools/tree/master/integration/docs](https://github.com/Eagle-Eye-Solutions/integration-commerce-tools/tree/master/integration/docs)",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "10594136"
+		"_exporter_id": "17495524"
 	},
 	"item": [
 		{
@@ -8040,350 +8040,6 @@
 			"description": "Promotion descriptions are added to the cart custom field `eagleeye-appliedDiscounts`"
 		},
 		{
-			"name": "Settle API",
-			"item": [
-				{
-					"name": "Obtain access token",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"tests[\"Status code is 200\"] = responseCode.code === 200;",
-									"var data = JSON.parse(responseBody);",
-									"if(data.access_token){",
-									"    pm.environment.set(\"ctp_access_token\", data.access_token);",
-									"}",
-									"if (data.scope) {",
-									"    parts = data.scope.split(\" \");",
-									"    parts = parts.filter(scope => scope.includes(\":\")).map(scope => scope.split(\":\"))",
-									"    if (parts.length > 0) {",
-									"        scopeParts = parts[0];",
-									"        pm.environment.set(\"project-key\", scopeParts[1]);",
-									"        parts = parts.filter(scope => scope.length >= 3)",
-									"        if (parts.length > 0) {",
-									"            scopeParts = parts[0];",
-									"            pm.environment.set(\"store-key\", scopeParts[2]);",
-									"        }",
-									"    }",
-									"}"
-								]
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "basic",
-							"basic": [
-								{
-									"key": "username",
-									"value": "{{client_id}}",
-									"type": "string"
-								},
-								{
-									"key": "password",
-									"value": "{{client_secret}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"url": {
-							"raw": "{{auth_url}}/oauth/token?grant_type=client_credentials",
-							"host": [
-								"{{auth_url}}"
-							],
-							"path": [
-								"oauth",
-								"token"
-							],
-							"query": [
-								{
-									"key": "grant_type",
-									"value": "client_credentials"
-								}
-							]
-						},
-						"description": "Use this request to obtain an access token for your commercetools platform project via Client Credentials Flow. As a prerequisite you must have filled out environment variables in Postman for projectKey, client_id and client_secret to use this."
-					},
-					"response": []
-				},
-				{
-					"name": "Create Cart: Discounts applied",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"var data = pm.response.json();",
-									"",
-									"pm.test('Check status code', () => {",
-									"    pm.expect(pm.response.code).to.be.oneOf([",
-									"        200,",
-									"        201",
-									"    ]);",
-									"})",
-									"",
-									"pm.test(\"Discount is registered under 'appliedDiscounts'\", function () {",
-									"    pm.expect(data.custom.fields['eagleeye-appliedDiscounts'].some(discount => discount.includes('Discount'))).to.be.true;",
-									"});",
-									"",
-									"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
-									"    pm.environment.set(\"cart-id\", data.results[0].id); ",
-									"    pm.environment.set(\"cart-version\", data.results[0].version);",
-									"}",
-									"if(data.results && data.results[0] && data.results[0].key){",
-									"    pm.environment.set(\"cart-key\", data.results[0].key); ",
-									"}",
-									"if(data.version){",
-									"    pm.environment.set(\"cart-version\", data.version);",
-									"}",
-									"if(data.id){",
-									"    pm.environment.set(\"cart-id\", data.id); ",
-									"}",
-									"if(data.key){",
-									"    pm.environment.set(\"cart-key\", data.key);",
-									"}",
-									"",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "oauth2",
-							"oauth2": [
-								{
-									"key": "accessToken",
-									"value": "{{ctp_access_token}}",
-									"type": "string"
-								},
-								{
-									"key": "addTokenTo",
-									"value": "header",
-									"type": "string"
-								},
-								{
-									"key": "tokenType",
-									"value": "Bearer",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"currency\": \"GBP\",\n  \"lineItems\": [\n    {\n      \"sku\": \"245872\",\n      \"quantity\": 1\n    }\n  ],\n  \"custom\": {\n      \"type\": {\n          \"typeId\": \"type\",\n          \"key\": \"custom-cart-type\"\n      },\n      \"fields\": {}\n  },\n  \"shippingAddress\": {\n      \"country\": \"GB\",\n      \"firstName\": \"dude\",\n      \"lastName\": \"Guyson\",\n      \"streetNumber\": \"69\",\n      \"streetName\": \"Test\"\n  },\n  \"billingAddress\": {\n      \"country\": \"GB\",\n      \"firstName\": \"dude\",\n      \"lastName\": \"Guyson\",\n      \"state\": \"England\",\n      \"city\": \"Oxford\",\n      \"streetNumber\": \"69\",\n      \"streetName\": \"Test\"\n  },\n  \"shippingMethod\": {\n      \"typeId\": \"shipping-method\",\n      \"key\": \"standard-key\"\n  }\n}"
-						},
-						"url": {
-							"raw": "{{host}}/{{project-key}}/carts",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"{{project-key}}",
-								"carts"
-							],
-							"query": [
-								{
-									"key": "expand",
-									"value": "",
-									"disabled": true
-								}
-							]
-						},
-						"description": "Creating a Cart fails with an [InvalidOperation](ctp:api:type:InvalidOperationError) error if the\n[ShippingMethod](ctp:api:type:ShippingMethod) referenced in the CartDraft\nhas a `predicate` that does not match the Cart.\n"
-					},
-					"response": []
-				},
-				{
-					"name": "Create Order: Payment State: Paid",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"var data = pm.response.json();",
-									"",
-									"pm.test('Check status code', () => {",
-									"    pm.expect(pm.response.code).to.be.oneOf([",
-									"        200,",
-									"        201",
-									"    ]);",
-									"})",
-									"",
-									"setTimeout(() => {}, 5000)",
-									"",
-									"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
-									"    pm.environment.set(\"order-id\", data.results[0].id); ",
-									"    pm.environment.set(\"order-version\", data.results[0].version);",
-									"}",
-									"if(data.results && data.results[0] && data.results[0].key){",
-									"    pm.environment.set(\"order-key\", data.results[0].key); ",
-									"}",
-									"if(data.version){",
-									"    pm.environment.set(\"order-version\", data.version);",
-									"}",
-									"if(data.id){",
-									"    pm.environment.set(\"order-id\", data.id); ",
-									"}",
-									"if(data.key){",
-									"    pm.environment.set(\"order-key\", data.key);",
-									"}"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "oauth2",
-							"oauth2": [
-								{
-									"key": "accessToken",
-									"value": "{{ctp_access_token}}",
-									"type": "string"
-								},
-								{
-									"key": "addTokenTo",
-									"value": "header",
-									"type": "string"
-								},
-								{
-									"key": "tokenType",
-									"value": "Bearer",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"version\": {{cart-version}},\n    \"cart\": {\n        \"typeId\": \"cart\",\n        \"id\": \"{{cart-id}}\"\n    },\n    \"paymentState\": \"Paid\"\n}"
-						},
-						"url": {
-							"raw": "{{host}}/{{project-key}}/orders",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"{{project-key}}",
-								"orders"
-							],
-							"query": [
-								{
-									"key": "expand",
-									"value": "",
-									"disabled": true
-								}
-							]
-						},
-						"description": "Creating a Cart fails with an [InvalidOperation](ctp:api:type:InvalidOperationError) error if the\n[ShippingMethod](ctp:api:type:ShippingMethod) referenced in the CartDraft\nhas a `predicate` that does not match the Cart.\n"
-					},
-					"response": []
-				},
-				{
-					"name": "Get Order: Check 'Settled' Status",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"var data = pm.response.json();",
-									"",
-									"pm.test('Check status code', () => {",
-									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
-									"});",
-									"",
-									"pm.test(\"Settled status is set to 'SETTLED'\", function () {",
-									"    pm.expect(data.custom.fields['eagleeye-settledStatus']).to.equal('SETTLED');",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"auth": {
-							"type": "oauth2",
-							"oauth2": [
-								{
-									"key": "accessToken",
-									"value": "{{ctp_access_token}}",
-									"type": "string"
-								},
-								{
-									"key": "addTokenTo",
-									"value": "header",
-									"type": "string"
-								},
-								{
-									"key": "tokenType",
-									"value": "Bearer",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"url": {
-							"raw": "{{host}}/{{project-key}}/orders/{{order-id}}",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"{{project-key}}",
-								"orders",
-								"{{order-id}}"
-							],
-							"query": [
-								{
-									"key": "expand",
-									"value": "",
-									"disabled": true
-								}
-							]
-						},
-						"description": "null"
-					},
-					"response": []
-				}
-			],
-			"description": "When a transaction is completed and the customer places the order, triggering a call to the settle API `/connect/wallet/settle` is necessary in order to trigger the redemption of coupons and awarding of points."
-		},
-		{
 			"name": "Loyalty",
 			"item": [
 				{
@@ -11847,7 +11503,8 @@
 													"",
 													"var jsonData = JSON.parse(responseBody);",
 													"pm.environment.set('walletId', jsonData.walletId);",
-													"pm.environment.set('identityValue', jsonData.identities[0].value);"
+													"pm.environment.set('identityValue', jsonData.identities[0].value);",
+													"pm.environment.set('accountId', jsonData.accounts.scheme.successful.results[0].accountId);"
 												],
 												"type": "text/javascript"
 											}
@@ -12007,8 +11664,8 @@
 													"    ]);",
 													"})",
 													"",
-													"pm.test(\"'Travel Quest' Label Not  'eagleeye-loyaltyCredits' property\", function () {",
-													"    pm.expect(data.lineItems[0].custom.fields['eagleeye-loyaltyCredits']).not.to.include('Travel Quest');",
+													"pm.test(\"'IN PROGRESS' Quest label visible under 'eagleeye-loyaltyEarnAndCredits' property\", function () {",
+													"    pm.expect(data.custom.fields['eagleeye-loyaltyEarnAndCredits']).to.include('IN_PROGRESS\\\",\\\"name\\\":\\\"Travel Quest');",
 													"});",
 													"",
 													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
@@ -12105,8 +11762,8 @@
 													"",
 													"setTimeout(() => {}, 5000)",
 													"",
-													"pm.test(\"'Travel Quest' Label Not  'eagleeye-loyaltyCredits' property\", function () {",
-													"    pm.expect(data.lineItems[0].custom.fields['eagleeye-loyaltyCredits']).not.to.include('Travel Quest');",
+													"pm.test(\"'IN PROGRESS' Quest label visible under 'eagleeye-loyaltyEarnAndCredits' property\", function () {",
+													"    pm.expect(data.custom.fields['eagleeye-loyaltyEarnAndCredits']).to.include('IN_PROGRESS\\\",\\\"name\\\":\\\"Travel Quest');",
 													"});",
 													"",
 													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
@@ -12200,8 +11857,8 @@
 													"    pm.expect(data.custom.fields['eagleeye-settledStatus']).to.equal('SETTLED');",
 													"});",
 													"",
-													"pm.test(\"'Travel Quest' Label Not  'eagleeye-loyaltyCredits' property\", function () {",
-													"    pm.expect(data.lineItems[0].custom.fields['eagleeye-loyaltyCredits']).not.to.include('Travel Quest');",
+													"pm.test(\"'IN PROGRESS' Quest label visible under 'eagleeye-loyaltyEarnAndCredits' property\", function () {",
+													"    pm.expect(data.custom.fields['eagleeye-loyaltyEarnAndCredits']).to.include('IN_PROGRESS\\\",\\\"name\\\":\\\"Travel Quest');",
 													"});"
 												],
 												"type": "text/javascript"
@@ -12281,8 +11938,8 @@
 													"    ]);",
 													"})",
 													"",
-													"pm.test(\"'Travel Quest' Label Not  'eagleeye-loyaltyCredits' property\", function () {",
-													"    pm.expect(data.lineItems[0].custom.fields['eagleeye-loyaltyCredits']).not.to.include('Travel Quest');",
+													"pm.test(\"'IN PROGRESS' Quest label visible under 'eagleeye-loyaltyEarnAndCredits' property\", function () {",
+													"    pm.expect(data.custom.fields['eagleeye-loyaltyEarnAndCredits']).to.include('IN_PROGRESS\\\",\\\"name\\\":\\\"Travel Quest');",
 													"});",
 													"",
 													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
@@ -12379,8 +12036,8 @@
 													"",
 													"setTimeout(() => {}, 5000)",
 													"",
-													"pm.test(\"'Travel Quest' Label Not  'eagleeye-loyaltyCredits' property\", function () {",
-													"    pm.expect(data.lineItems[0].custom.fields['eagleeye-loyaltyCredits']).not.to.include('Travel Quest');",
+													"pm.test(\"'IN PROGRESS' Quest label visible under 'eagleeye-loyaltyEarnAndCredits' property\", function () {",
+													"    pm.expect(data.custom.fields['eagleeye-loyaltyEarnAndCredits']).to.include('IN_PROGRESS\\\",\\\"name\\\":\\\"Travel Quest');",
 													"});",
 													"",
 													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
@@ -12474,8 +12131,8 @@
 													"    pm.expect(data.custom.fields['eagleeye-settledStatus']).to.equal('SETTLED');",
 													"});",
 													"",
-													"pm.test(\"'Travel Quest' Label Not  'eagleeye-loyaltyCredits' property\", function () {",
-													"    pm.expect(data.lineItems[0].custom.fields['eagleeye-loyaltyCredits']).not.to.include('Travel Quest');",
+													"pm.test(\"'IN PROGRESS' Quest label visible under 'eagleeye-loyaltyEarnAndCredits' property\", function () {",
+													"    pm.expect(data.custom.fields['eagleeye-loyaltyEarnAndCredits']).to.include('IN_PROGRESS\\\",\\\"name\\\":\\\"Travel Quest');",
 													"});"
 												],
 												"type": "text/javascript"
@@ -12556,7 +12213,7 @@
 													"})",
 													"",
 													"pm.test(\"Total Points And Offer Are Registered Under Line Item's 'eagleeye-loyaltyEarnAndCredits' property\", function () {",
-													"    pm.expect(data.custom.fields['eagleeye-loyaltyEarnAndCredits']).to.include('total\\\":2000,\\\"offers\\\":[{\\\"name\\\":\\\"Travel Quest');",
+													"    pm.expect(data.custom.fields['eagleeye-loyaltyEarnAndCredits']).to.include('COMPLETING\\\",\\\"name\\\":\\\"Travel Quest\\\",\\\"amount\\\":2000');",
 													"});",
 													"",
 													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
@@ -12654,7 +12311,7 @@
 													"setTimeout(() => {}, 5000)",
 													"",
 													"pm.test(\"Total Points And Offer Are Registered Under Line Item's 'eagleeye-loyaltyEarnAndCredits' property\", function () {",
-													"    pm.expect(data.custom.fields['eagleeye-loyaltyEarnAndCredits']).to.include('total\\\":2000,\\\"offers\\\":[{\\\"name\\\":\\\"Travel Quest');",
+													"    pm.expect(data.custom.fields['eagleeye-loyaltyEarnAndCredits']).to.include('COMPLETING\\\",\\\"name\\\":\\\"Travel Quest\\\",\\\"amount\\\":2000');",
 													"});",
 													"",
 													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
@@ -12749,7 +12406,7 @@
 													"});",
 													"",
 													"pm.test(\"Total Points And Offer Are Registered Under Line Item's 'eagleeye-loyaltyEarnAndCredits' property\", function () {",
-													"    pm.expect(data.custom.fields['eagleeye-loyaltyEarnAndCredits']).to.include('total\\\":2000,\\\"offers\\\":[{\\\"name\\\":\\\"Travel Quest');",
+													"    pm.expect(data.custom.fields['eagleeye-loyaltyEarnAndCredits']).to.include('COMPLETING\\\",\\\"name\\\":\\\"Travel Quest\\\",\\\"amount\\\":2000');",
 													"});"
 												],
 												"type": "text/javascript"
@@ -13007,7 +12664,7 @@
 													"})",
 													"",
 													"pm.test(\"Total Points And Offer Are Registered Under Line Item's 'eagleeye-loyaltyEarnAndCredits' property\", function () {",
-													"    pm.expect(data.custom.fields['eagleeye-loyaltyEarnAndCredits']).to.include('total\\\":2000,\\\"offers\\\":[{\\\"name\\\":\\\"Travel Quest');",
+													"    pm.expect(data.custom.fields['eagleeye-loyaltyEarnAndCredits']).to.include('COMPLETING\\\",\\\"name\\\":\\\"Travel Quest\\\",\\\"amount\\\":2000');",
 													"});",
 													"",
 													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
@@ -13105,7 +12762,7 @@
 													"setTimeout(() => {}, 5000)",
 													"",
 													"pm.test(\"Total Points And Offer Are Registered Under Line Item's 'eagleeye-loyaltyEarnAndCredits' property\", function () {",
-													"    pm.expect(data.custom.fields['eagleeye-loyaltyEarnAndCredits']).to.include('total\\\":2000,\\\"offers\\\":[{\\\"name\\\":\\\"Travel Quest');",
+													"    pm.expect(data.custom.fields['eagleeye-loyaltyEarnAndCredits']).to.include('COMPLETING\\\",\\\"name\\\":\\\"Travel Quest\\\",\\\"amount\\\":2000');",
 													"});",
 													"",
 													"if(data.results && data.results[0] && data.results[0].id && data.results[0].version){",
@@ -13200,7 +12857,7 @@
 													"});",
 													"",
 													"pm.test(\"Total Points And Offer Are Registered Under Line Item's 'eagleeye-loyaltyEarnAndCredits' property\", function () {",
-													"    pm.expect(data.custom.fields['eagleeye-loyaltyEarnAndCredits']).to.include('total\\\":2000,\\\"offers\\\":[{\\\"name\\\":\\\"Travel Quest');",
+													"    pm.expect(data.custom.fields['eagleeye-loyaltyEarnAndCredits']).to.include('COMPLETING\\\",\\\"name\\\":\\\"Travel Quest\\\",\\\"amount\\\":2000');",
 													"});"
 												],
 												"type": "text/javascript"
