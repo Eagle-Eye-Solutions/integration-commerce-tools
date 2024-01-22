@@ -15,6 +15,7 @@ import { LoyaltyService } from './services/loyalty/loyalty.service';
 import { AdjudicationController } from './controllers/adjudication.controller';
 import { AdjudicationMapper } from './mappers/adjudication.mapper';
 import { LoyaltyMapper } from './mappers/loyalty.mapper';
+import { QuestCampaignHandler } from './mappers/handlers/quest.campaign.handler';
 import { BasketCleanupService } from './services/basket-cleanup-service/basket-cleanup.service';
 import { CampaignNameService } from './services/promotion/campaign-name.service';
 
@@ -29,6 +30,7 @@ const providers = [
   LoyaltyMapper,
   BasketCleanupService,
   CampaignNameService,
+  QuestCampaignHandler,
 ];
 
 @Module({

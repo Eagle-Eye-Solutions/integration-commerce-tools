@@ -343,7 +343,7 @@ export const MIN_SPEND_ON_ITEM_CONTINUITY_LOYALTY_CAMPAIGN_INPROGRESS_RESPONSE =
         lineItemId: '4d02b4ab-8063-4f36-8bbf-790656d2e564',
         name: 'eagleeye-loyaltyCredits',
         value:
-          '{"total":0,"offers":[{"name":"500 points for spending £10 on bears (UPC: 245896)","amount":0,"sku":"245896","totalSpend":400,"totalTransactionSpend":1000,"type":"IN_PROGRESS","timesRedeemed":1}]}',
+          '{"total":0,"offers":[{"name":"500 points for spending £10 on bears (UPC: 245896)","amount":0,"sku":"245896","category":"CONTINUITY","totalSpend":400,"totalTransactionSpend":1000,"type":"IN_PROGRESS","timesRedeemed":1}]}',
       },
       {
         action: 'setLineItemCustomField',
@@ -412,7 +412,7 @@ export const MIN_SPEND_ON_ITEM_CONTINUITY_LOYALTY_CAMPAIGN_COMPLETING_RESPONSE =
         lineItemId: '4d02b4ab-8063-4f36-8bbf-790656d2e564',
         name: 'eagleeye-loyaltyCredits',
         value:
-          '{"total":500,"offers":[{"name":"500 points for spending £10 on bears (UPC: 245896)","amount":500,"sku":"245896","totalSpend":3374,"totalTransactionSpend":1000,"type":"COMPLETING","timesRedeemed":1}]}',
+          '{"total":500,"offers":[{"name":"500 points for spending £10 on bears (UPC: 245896)","amount":500,"sku":"245896","category":"CONTINUITY","totalSpend":3374,"totalTransactionSpend":1000,"type":"COMPLETING","timesRedeemed":1}]}',
       },
       {
         action: 'setLineItemCustomField',
@@ -473,7 +473,7 @@ export const MIN_SPEND_CONTINUITY_LOYALTY_CAMPAIGN_COMPLETING_RESPONSE = {
       action: 'setCustomField',
       name: 'eagleeye-loyaltyEarnAndCredits',
       value:
-        '{"earn":{"basket":{"total":6000,"offers":[]}},"credit":{"basket":{"total":500,"offers":[{"name":"500 points for spending £50 or more across one or more transactions","amount":500,"totalSpend":6000,"totalTransactionSpend":5000,"type":"COMPLETING","timesRedeemed":1}]}}}',
+        '{"earn":{"basket":{"total":6000,"offers":[]}},"credit":{"basket":{"total":500,"offers":[{"name":"500 points for spending £50 or more across one or more transactions","amount":500,"category":"CONTINUITY","totalSpend":6000,"totalTransactionSpend":5000,"type":"COMPLETING","timesRedeemed":1}]}}}',
     },
     {
       action: 'setLineItemCustomType',
@@ -552,7 +552,165 @@ export const MIN_SPEND_CONTINUITY_LOYALTY_CAMPAIGN_IN_PROGRESS_RESPONSE = {
       action: 'setCustomField',
       name: 'eagleeye-loyaltyEarnAndCredits',
       value:
-        '{"earn":{"basket":{"total":4000,"offers":[]}},"credit":{"basket":{"total":0,"offers":[{"name":"500 points for spending £50 or more across one or more transactions","amount":0,"totalSpend":4000,"totalTransactionSpend":5000,"type":"IN_PROGRESS","timesRedeemed":1}]}}}',
+        '{"earn":{"basket":{"total":4000,"offers":[]}},"credit":{"basket":{"total":0,"offers":[{"name":"500 points for spending £50 or more across one or more transactions","amount":0,"category":"CONTINUITY","totalSpend":4000,"totalTransactionSpend":5000,"type":"IN_PROGRESS","timesRedeemed":1}]}}}',
+    },
+    {
+      action: 'setLineItemCustomType',
+      lineItemId: '3fce711d-e891-4005-be7f-bf3c999ccc7d',
+      type: {
+        typeId: 'type',
+        key: 'custom-line-item-type',
+      },
+      fields: {
+        'eagleeye-loyaltyCredits': '',
+        'eagleeye-appliedDiscounts': [],
+      },
+    },
+    {
+      action: 'setLineItemCustomType',
+      lineItemId: '2d313f50-e3ec-4c17-ac14-9fb6f4d75665',
+      type: {
+        typeId: 'type',
+        key: 'custom-line-item-type',
+      },
+      fields: {
+        'eagleeye-loyaltyCredits': '',
+        'eagleeye-appliedDiscounts': [],
+      },
+    },
+    {
+      action: 'setDirectDiscounts',
+      discounts: [],
+    },
+  ],
+};
+
+export const QUEST_LOYALTY_CAMPAIGN_COMPLETING_RESPONSE = {
+  actions: [
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-errors',
+      value: [],
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-appliedDiscounts',
+      value: [],
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-basketStore',
+      value: 'CUSTOM_TYPE',
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-basketUri',
+      value: 'custom-objects/eagleeye-cart/{cart-id}',
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-voucherCodes',
+      value: [],
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-potentialVoucherCodes',
+      value: [],
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-action',
+      value: '',
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-settledStatus',
+      value: '',
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-loyaltyEarnAndCredits',
+      value:
+        '{"earn":{"basket":{"total":8993,"offers":[]}},"credit":{"basket":{"total":2000,"offers":[{"type":"COMPLETING","name":"Travel Quest","amount":2000,"category":"QUEST","totalObjectives":[{"campaignId":"1762399","campaignName":"Quest: Car Hire (UPC: 245882)"},{"campaignId":"1762401","campaignName":"Quest: Buy eScooter (UPC: 245902)"},{"campaignId":"1762402","campaignName":"Quest: Buy eBike (UPC: 245903)"}],"objectivesMet":[{"campaignId":"1762399","campaignName":"Quest: Car Hire (UPC: 245882)"},{"campaignId":"1762401","campaignName":"Quest: Buy eScooter (UPC: 245902)"},{"campaignId":"1762402","campaignName":"Quest: Buy eBike (UPC: 245903)"}],"timesRedeemed":1}]}}}',
+    },
+    {
+      action: 'setLineItemCustomType',
+      lineItemId: '3fce711d-e891-4005-be7f-bf3c999ccc7d',
+      type: {
+        typeId: 'type',
+        key: 'custom-line-item-type',
+      },
+      fields: {
+        'eagleeye-loyaltyCredits': '',
+        'eagleeye-appliedDiscounts': [],
+      },
+    },
+    {
+      action: 'setLineItemCustomType',
+      lineItemId: '2d313f50-e3ec-4c17-ac14-9fb6f4d75665',
+      type: {
+        typeId: 'type',
+        key: 'custom-line-item-type',
+      },
+      fields: {
+        'eagleeye-loyaltyCredits': '',
+        'eagleeye-appliedDiscounts': [],
+      },
+    },
+    {
+      action: 'setDirectDiscounts',
+      discounts: [],
+    },
+  ],
+};
+
+export const QUEST_LOYALTY_CAMPAIGN_INPROGRESS_RESPONSE = {
+  actions: [
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-errors',
+      value: [],
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-appliedDiscounts',
+      value: [],
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-basketStore',
+      value: 'CUSTOM_TYPE',
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-basketUri',
+      value: 'custom-objects/eagleeye-cart/{cart-id}',
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-voucherCodes',
+      value: [],
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-potentialVoucherCodes',
+      value: [],
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-action',
+      value: '',
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-settledStatus',
+      value: '',
+    },
+    {
+      action: 'setCustomField',
+      name: 'eagleeye-loyaltyEarnAndCredits',
+      value:
+        '{"earn":{"basket":{"total":4954,"offers":[]}},"credit":{"basket":{"total":0,"offers":[[{"type":"IN_PROGRESS","name":"Travel Quest","amount":0,"category":"QUEST","totalObjectives":[{"campaignId":"1762399","campaignName":"Quest: Car Hire (UPC: 245882)"},{"campaignId":"1762401","campaignName":"Quest: Buy eScooter (UPC: 245902)"},{"campaignId":"1762402","campaignName":"Quest: Buy eBike (UPC: 245903)"}],"objectivesMet":[{"campaignId":"1762399","campaignName":"Quest: Car Hire (UPC: 245882)"},{"campaignId":"1762402","campaignName":"Quest: Buy eBike (UPC: 245903)"}]}]]}}}',
     },
     {
       action: 'setLineItemCustomType',
