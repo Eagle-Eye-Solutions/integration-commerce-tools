@@ -39,7 +39,7 @@ All the applied promotion descriptions are added to the cart and line items cust
 can be used on the frontend to show the customer the name of the promotion/s applied.
 
 The Eagle Eye AIR account should be preloaded with the product SKUs/UPCs that have to match the commercetools
-product `key` to enable line item promotions.
+product variant `sku` to enable line item promotions.
 
 ### Vouchers
 
