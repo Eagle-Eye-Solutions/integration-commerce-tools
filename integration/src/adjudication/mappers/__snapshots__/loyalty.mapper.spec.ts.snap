@@ -40,36 +40,25 @@ exports[`LoyaltyMapper mapAdjustedBasketToBasketCredits should process the quest
     {
       "amount": 2000,
       "category": "QUEST",
+      "currentObjectives": [
+        {
+          "campaignId": "1762402",
+          "campaignName": "Quest: Buy eBike (UPC: 245903)",
+        },
+        {
+          "campaignId": "1762401",
+          "campaignName": "Quest: Buy eScooter (UPC: 245902)",
+        },
+        {
+          "campaignId": "1762399",
+          "campaignName": "Quest: Car Hire (UPC: 245882)",
+        },
+      ],
       "name": "Travel Quest",
-      "objectivesMet": [
-        {
-          "campaignId": "1762399",
-          "campaignName": "Quest: Car Hire (UPC: 245882)",
-        },
-        {
-          "campaignId": "1762401",
-          "campaignName": "Quest: Buy eScooter (UPC: 245902)",
-        },
-        {
-          "campaignId": "1762402",
-          "campaignName": "Quest: Buy eBike (UPC: 245903)",
-        },
-      ],
+      "objectivesToMeet": [],
       "timesRedeemed": 1,
-      "totalObjectives": [
-        {
-          "campaignId": "1762399",
-          "campaignName": "Quest: Car Hire (UPC: 245882)",
-        },
-        {
-          "campaignId": "1762401",
-          "campaignName": "Quest: Buy eScooter (UPC: 245902)",
-        },
-        {
-          "campaignId": "1762402",
-          "campaignName": "Quest: Buy eBike (UPC: 245903)",
-        },
-      ],
+      "totalObjectives": 3,
+      "totalObjectivesMet": 3,
       "type": "COMPLETING",
     },
   ],
@@ -84,32 +73,26 @@ exports[`LoyaltyMapper mapAdjustedBasketToBasketCredits should process the quest
       {
         "amount": 0,
         "category": "QUEST",
-        "name": "Travel Quest",
-        "objectivesMet": [
-          {
-            "campaignId": "1762399",
-            "campaignName": "Quest: Car Hire (UPC: 245882)",
-          },
+        "currentObjectives": [
           {
             "campaignId": "1762401",
             "campaignName": "Quest: Buy eScooter (UPC: 245902)",
+          },
+          {
+            "campaignId": "1762399",
+            "campaignName": "Quest: Car Hire (UPC: 245882)",
           },
         ],
-        "timesRedeemed": 1,
-        "totalObjectives": [
-          {
-            "campaignId": "1762399",
-            "campaignName": "Quest: Car Hire (UPC: 245882)",
-          },
-          {
-            "campaignId": "1762401",
-            "campaignName": "Quest: Buy eScooter (UPC: 245902)",
-          },
+        "name": "Travel Quest",
+        "objectivesToMeet": [
           {
             "campaignId": "1762402",
             "campaignName": "Quest: Buy eBike (UPC: 245903)",
           },
         ],
+        "timesRedeemed": 1,
+        "totalObjectives": 3,
+        "totalObjectivesMet": 2,
         "type": "IN_PROGRESS",
       },
     ],

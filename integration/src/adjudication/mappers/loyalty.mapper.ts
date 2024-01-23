@@ -93,6 +93,12 @@ export class LoyaltyMapper {
   }
 
   private getCreditOffers(creditResults, accounts): ProcessedCreditOffers {
+    // when a continuity account is adjudicated, AIR returns two credit results
+    // one with the points awarded (result.balances.current)
+    // and the other with contributing purchase (totalTransactionUnits | totalTransactionUnits | transactionCount)
+    // And both the credit offers would have the same instance_id
+    // So storing the offer to process both the points awarded and the contributing purchase information against the offer
+    // createOffer() would create the offer the store in this map and updateOffer() would take care of the contributing purchase information
     const offerMap: Record<string, LoyaltyOfferBreakdown> = {};
     let questOffer: boolean = false;
 

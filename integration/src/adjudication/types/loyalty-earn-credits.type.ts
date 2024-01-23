@@ -21,8 +21,10 @@ export type LoyaltyOfferBreakdown = {
   totalTransactionSpend?: number;
   totalUnits?: number;
   totalTransactionUnits?: number;
-  totalObjectives?: QuestCampaign[];
-  objectivesMet?: QuestCampaign[];
+  totalObjectives?: number;
+  totalObjectivesMet?: number;
+  currentObjectives?: QuestCampaign[];
+  objectivesToMeet?: QuestCampaign[];
 };
 
 export type LoyaltyTotalObject = {
@@ -52,3 +54,19 @@ export type QuestCampaign = {
   campaignId: string;
   campaignName: string;
 };
+
+export type LookupMaps = {
+  accountMap: Record<string, any>;
+  campaignToAccountMap: Record<string, string>;
+  campaignNameMap: Record<string, string>;
+};
+
+export interface QuestCreditOffer {
+  questAccount: any;
+  result: any;
+  creditOfferType: LOYALTY_CREDIT_TYPE;
+  totalObjectives: number;
+  currentObjectives: QuestCampaign[];
+  totalObjectivesMet: number;
+  objectivesToMeet: QuestCampaign[];
+}
