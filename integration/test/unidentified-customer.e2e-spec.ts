@@ -32,7 +32,7 @@ describe('Exclude unidentified customers (e2e)', () => {
     await app.close();
   });
 
-  it('should return and empty action array when EE_EXCLUDE_UNIDENTIFIED_CUSTOMERS is set to true', async () => {
+  it('should return an action array when EE_EXCLUDE_UNIDENTIFIED_CUSTOMERS is set to true', async () => {
     const mockConfigService = {
       get: (key: string) =>
         key === 'eagleEye.excludeUnidentifiedCustomers' ? 'true' : null,
@@ -47,7 +47,81 @@ describe('Exclude unidentified customers (e2e)', () => {
       .send(recalculateCart)
       .expect(200)
       .expect({
-        actions: [],
+        actions: [
+          {
+            action: 'setCustomField',
+            name: 'eagleeye-errors',
+            value: [],
+          },
+          {
+            action: 'setCustomField',
+            name: 'eagleeye-appliedDiscounts',
+            value: [],
+          },
+          {
+            action: 'setCustomField',
+            name: 'eagleeye-basketStore',
+            value: '',
+          },
+          {
+            action: 'setCustomField',
+            name: 'eagleeye-basketUri',
+            value: '',
+          },
+          {
+            action: 'setCustomField',
+            name: 'eagleeye-voucherCodes',
+            value: [],
+          },
+          {
+            action: 'setCustomField',
+            name: 'eagleeye-potentialVoucherCodes',
+            value: [],
+          },
+          {
+            action: 'setCustomField',
+            name: 'eagleeye-action',
+            value: '',
+          },
+          {
+            action: 'setCustomField',
+            name: 'eagleeye-settledStatus',
+            value: '',
+          },
+          {
+            action: 'setCustomField',
+            name: 'eagleeye-loyaltyEarnAndCredits',
+            value: '',
+          },
+          {
+            action: 'setLineItemCustomType',
+            lineItemId: '3fce711d-e891-4005-be7f-bf3c999ccc7d',
+            type: {
+              typeId: 'type',
+              key: 'custom-line-item-type',
+            },
+            fields: {
+              'eagleeye-loyaltyCredits': '',
+              'eagleeye-appliedDiscounts': [],
+            },
+          },
+          {
+            action: 'setLineItemCustomType',
+            lineItemId: '2d313f50-e3ec-4c17-ac14-9fb6f4d75665',
+            type: {
+              typeId: 'type',
+              key: 'custom-line-item-type',
+            },
+            fields: {
+              'eagleeye-loyaltyCredits': '',
+              'eagleeye-appliedDiscounts': [],
+            },
+          },
+          {
+            action: 'setDirectDiscounts',
+            discounts: [],
+          },
+        ],
       });
   });
 });

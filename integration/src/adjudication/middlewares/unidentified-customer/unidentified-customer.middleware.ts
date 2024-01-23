@@ -1,14 +1,17 @@
 import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
-import { CTActionsBuilder } from '../../providers/commercetools/actions/ActionsBuilder';
 import { ConfigService } from '@nestjs/config';
+import { CartErrorService } from '../../services/cart-error/cart-error.service';
 
 @Injectable()
 export class UnidentifiedCustomerMiddleware implements NestMiddleware {
   private readonly logger = new Logger(UnidentifiedCustomerMiddleware.name);
 
-  constructor(private configService: ConfigService) {}
+  constructor(
+    private configService: ConfigService,
+    private cartErrorService: CartErrorService,
+  ) {}
 
-  use(req: any, res: any, next: () => void) {
+  async use(req: any, res: any, next: () => void) {
     const identityValue =
       req.body?.resource?.obj?.custom?.fields?.['eagleeye-identityValue'];
     const voucherCodes =
@@ -27,7 +30,12 @@ export class UnidentifiedCustomerMiddleware implements NestMiddleware {
       !potentialVoucherCodes?.length
     ) {
       this.logger.debug(`Ignoring request for unidentified customers`);
-      return res.status(200).json(new CTActionsBuilder().build());
+      const extensionActions = await this.cartErrorService.handleError(
+        undefined,
+        req.body,
+        req.body?.resource?.obj,
+      );
+      return res.status(200).json(extensionActions);
     }
     next();
   }

@@ -30,7 +30,9 @@ export class CtBasketStoreService implements BasketStoreService {
     return (
       reference.typeId === 'cart' &&
       (this.storeBasketCustomObject ||
-        reference.obj.custom.fields[FIELD_EAGLEEYE_ACTION] === 'SAVE_BASKET')
+        (reference.obj.custom?.fields &&
+          reference.obj.custom?.fields[FIELD_EAGLEEYE_ACTION] ===
+            'SAVE_BASKET'))
     );
   }
 
