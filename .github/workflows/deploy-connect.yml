@@ -9,6 +9,11 @@ on:
         options:
           - dev
           - staging
+      dev_to_staging:
+        type: boolean
+        description: Deploy dev connector to staging
+        required: false
+        default: false
       connector_key:
         type: string
         description: ConnectorStaged key (override)
@@ -55,6 +60,23 @@ jobs:
           ct_api_client_id: ${{ secrets.CT_CLIENT_ID }}
           ct_api_client_secret: ${{ secrets.CT_CLIENT_SECRET }}
           ct_region: ${{ vars.CT_REGION }}
+  ct-authorize-dev-to-staging:
+    name: 'Authenticate with commercetools (dev to staging)'
+    runs-on: ubuntu-latest
+    environment: staging
+    #if: ${{ github.event.inputs.environment == 'dev' && github.event.inputs.dev_to_staging == 'true' }} 
+    outputs:
+      access_token: ${{ fromJSON(steps.authenticate.outputs.output).data.access_token }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Authenticate
+        id: authenticate
+        uses: ./.github/actions/connect/authenticate
+        with:
+          ct_api_client_id: ${{ secrets.CT_CLIENT_ID }}
+          ct_api_client_secret: ${{ secrets.CT_CLIENT_SECRET }}
+          ct_region: ${{ vars.CT_REGION }}
   ct-update-tag:
     name: 'Update Connector Tag'
     runs-on: ubuntu-latest
@@ -73,29 +95,31 @@ jobs:
           access_token: ${{ needs.ct-authorize.outputs.access_token }}
           ct_region: ${{ vars.CT_REGION }}
           connector_key: ${{ needs.setup.outputs.connector_key }}
-  ct-request-previewable:
-    name: 'Request Previewable Access'
+  ct-publish:
+    name: 'Publish Connector (Previewable/Private)'
     runs-on: ubuntu-latest
     needs: [ 'ct-authorize', 'ct-update-tag', 'setup' ]
     environment: ${{ github.event.inputs.environment }}
     outputs:
-      connector: ${{ steps.request-previewable.outputs.response }}
+      connector: ${{ steps.publish.outputs.response }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Request Previewable Access
-        id: request-previewable
-        uses: ./.github/actions/connect/request-previewable
+      - name: Publish
+        id: publish
+        uses: ./.github/actions/connect/publish
         with:
           version: ${{ fromJSON(needs.ct-update-tag.outputs.connector).data.version }}
           access_token: ${{ needs.ct-authorize.outputs.access_token }}
           ct_region: ${{ vars.CT_REGION }}
           connector_key: ${{ needs.setup.outputs.connector_key }}
+          github_env: ${{ github.event.inputs.environment }}
+          dev_to_staging: ${{ github.event.inputs.dev_to_staging }}
   ct-undeploy:
     name: 'Check and Undeploy Connector'
     runs-on: ubuntu-latest
-    needs: [ 'ct-authorize', 'ct-request-previewable', 'setup' ]
-    environment: ${{ github.event.inputs.environment }}
+    needs: [ 'ct-authorize', 'ct-publish', 'setup', 'ct-authorize-dev-to-staging' ]
+    environment: ${{ github.event.inputs.dev_to_staging == 'true' && 'staging' || github.event.inputs.environment }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -103,16 +127,16 @@ jobs:
         id: undeploy
         uses: ./.github/actions/connect/undeploy
         with:
-          access_token: ${{ needs.ct-authorize.outputs.access_token }}
+          access_token: ${{ github.event.inputs.dev_to_staging == 'true' && needs.ct-authorize-dev-to-staging.outputs.access_token || needs.ct-authorize.outputs.access_token }}
           ct_project_key: ${{ vars.CT_PROJECT_KEY }}
           ct_region: ${{ vars.CT_REGION }}
-          connect_env: ${{ github.event.inputs.environment }}
+          connect_env: ${{ github.event.inputs.dev_to_staging == 'true' && 'staging' || github.event.inputs.environment }}
           connector_key: ${{ needs.setup.outputs.connector_key }}
   ct-deploy:
     name: 'Deploy Connector'
     runs-on: ubuntu-latest
-    needs: [ 'ct-authorize', 'ct-request-previewable', 'ct-undeploy', 'setup' ]
-    environment: ${{ github.event.inputs.environment }}
+    needs: [ 'ct-authorize', 'ct-publish', 'ct-undeploy', 'setup', 'ct-authorize-dev-to-staging' ]
+    environment: ${{ github.event.inputs.dev_to_staging == 'true' && 'staging' || github.event.inputs.environment }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -120,10 +144,10 @@ jobs:
         id: deploy
         uses: ./.github/actions/connect/deploy
         with:
-          version: ${{ fromJSON(needs.ct-request-previewable.outputs.connector).version }}
-          access_token: ${{ needs.ct-authorize.outputs.access_token }}
-          is_previewable: ${{ fromJSON(needs.ct-request-previewable.outputs.connector).isPreviewable }}
-          connect_env: ${{ github.event.inputs.environment }}
+          version: ${{ fromJSON(needs.ct-publish.outputs.connector).version }}
+          access_token: ${{ github.event.inputs.dev_to_staging == 'true' && needs.ct-authorize-dev-to-staging.outputs.access_token || needs.ct-authorize.outputs.access_token }}
+          is_previewable: ${{ github.event.inputs.dev_to_staging == 'false' }}
+          connect_env: ${{ github.event.inputs.dev_to_staging == 'true' && 'staging' || github.event.inputs.environment }}
           connector_key: ${{ needs.setup.outputs.connector_key }}
           ct_api_client_id: ${{ secrets.CT_CLIENT_ID }}
           ct_api_client_secret: ${{ secrets.CT_CLIENT_SECRET }}
@@ -152,7 +176,7 @@ jobs:
           basket_cleanup_older_than_unit: ${{ vars.BASKET_CLEANUP_OLDER_THAN_UNIT }}
   e2e-tests:
     name: 'Running E2E tests'
-    if: ${{ github.event.inputs.environment != 'staging' }}
+    if: ${{ github.event.inputs.environment != 'staging' && github.event.inputs.dev_to_staging == 'false' }}
     runs-on: ubuntu-latest
     needs: [ 'ct-deploy' ]
     environment: ${{ github.event.inputs.environment }}
