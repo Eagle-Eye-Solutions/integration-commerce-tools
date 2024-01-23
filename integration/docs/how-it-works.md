@@ -8,7 +8,10 @@ The synchronous Extension module is triggered on cart updates, sends the cart st
 applicable promotions and loyalty points. Promotions are applied to the cart using
 commercetools [Direct Discounts](https://docs.commercetools.com/api/projects/carts#directdiscountdraft).
 Additional promotion information and loyalty points are added to the commercetools
-cart [custom fields](https://docs.commercetools.com/api/projects/custom-fields).
+cart and line items [custom fields](https://docs.commercetools.com/api/projects/custom-fields). The cart and line item
+custom types are created as part of the post-deployment scripts. The definition of the custom types can be find in the
+source code: [cart](../src/common/providers/commercetools/custom-type/cart-type-definition.ts),
+[line item](../src/common/providers/commercetools/custom-type/line-item-type-definition.ts)
 
 The asynchronous Subscription module is triggered when an order is marked as *Paid* this would Settle the transaction
 in EagleEye, see the [Settle](#subscription-module) section for more info.
@@ -32,11 +35,11 @@ points. The response is mapped to commercetools Direct Discounts which can apply
 By using commercetools direct discounts the cart prices are automatically updated and very few customisations should
 be required in the frontend.
 
-All the applied promotion descriptions are added to the cart custom field `eagleeye-appliedDiscounts` and can be used on
-the frontend to show the customer the name of the promotion/s applied.
+All the applied promotion descriptions are added to the cart and line items custom field `eagleeye-appliedDiscounts` and
+can be used on the frontend to show the customer the name of the promotion/s applied.
 
 The Eagle Eye AIR account should be preloaded with the product SKUs/UPCs that have to match the commercetools
-product `key` to enable line item promotions.
+product variant `sku` to enable line item promotions.
 
 ### Vouchers
 
@@ -100,10 +103,10 @@ JSON with the following format:
       "offers": [
         {
           "name": "Example Offer",
-          "amount": 100,
+          "amount": 100
         }
       ]
-    },
+    }
   }
 }
 ```
@@ -118,6 +121,7 @@ E.g.: `"Example Offer (x2)`, with amount `200` if it were to apply twice.
 #### Continuity
 
 Continuity campaign can be setup in three different variations in eagle eye based on:
+
 1. Minimum transactions
 2. Minimum spend
 3. Minimum number of units purchased
@@ -126,10 +130,13 @@ In each of these scenarios, the `credit` offer is included with relevant and app
 
 ##### __Minimum transactions__
 
-Below is an example of credit offer when the continuity campaign on minimum number of transactions is in progress. As one can notice, below are the attributes that provide the relevant information about the status of the campaign for the account:
-- `type`: Indicates the state of the campaign for the account. Possible values are 
-  - `COMPLETING`: when the campaign qualification has been met
-  - `IN_PROGRESS`: when the campaign is in progress and the qualification has not been met
+Below is an example of credit offer when the continuity campaign on minimum number of transactions is in progress. As
+one can notice, below are the attributes that provide the relevant information about the status of the campaign for the
+account:
+
+- `type`: Indicates the state of the campaign for the account. Possible values are
+    - `COMPLETING`: when the campaign qualification has been met
+    - `IN_PROGRESS`: when the campaign is in progress and the qualification has not been met
 - `totalTransactions`: Number of transactions performed by the account towards this campaign
 - `totalTransactionCount`: The target number of transactions to be performed to qualify for the points credit
 
@@ -147,11 +154,14 @@ Below is an example of credit offer when the continuity campaign on minimum numb
           "totalTransactionCount": 3
         }
       ]
-    },
+    }
   }
 }
 ```
-An example of credit offer for the final transaction to meet the campaign target would be as below. Please notice that the value for `totalTransactions` and `totalTransactionCount` match in this case.
+
+An example of credit offer for the final transaction to meet the campaign target would be as below. Please notice that
+the value for `totalTransactions` and `totalTransactionCount` match in this case.
+
 ```json
 {
   "credit": {
@@ -166,14 +176,16 @@ An example of credit offer for the final transaction to meet the campaign target
           "totalTransactionCount": 3
         }
       ]
-    },
+    }
   }
 }
 ```
 
 ##### __Minimum spend__
 
-Below is an example of credit offer when the continuity campaign on minimum spend is in progress. As one can notice, below are the attributes that provide the relevant information about the status of the campaign for the account:
+Below is an example of credit offer when the continuity campaign on minimum spend is in progress. As one can notice,
+below are the attributes that provide the relevant information about the status of the campaign for the account:
+
 - `totalSpend`: Amount spent in the current transaction by the account towards this campaign
 - `totalTransactionSpend`: The target amount to be spent by the account to qualify for the points credit
 
@@ -191,12 +203,14 @@ Below is an example of credit offer when the continuity campaign on minimum spen
           "totalTransactionSpend": 3000
         }
       ]
-    },
+    }
   }
 }
 ```
 
-An example of credit offer for the qualifying transaction to meet the campaign target would be as below. Please notice that the value for `totalSpend` is greater than `totalTransactionSpend` in this case.
+An example of credit offer for the qualifying transaction to meet the campaign target would be as below. Please notice
+that the value for `totalSpend` is greater than `totalTransactionSpend` in this case.
+
 ```json
 {
   "credit": {
@@ -211,13 +225,17 @@ An example of credit offer for the qualifying transaction to meet the campaign t
           "totalTransactionSpend": 3000
         }
       ]
-    },
+    }
   }
 }
 ```
+
 ##### __Minimum number of units purchased__
 
-Below is an example of credit offer when the continuity campaign on minimum number of units purchased is in progress. As one can notice, below are the attributes that provide the relevant information about the status of the campaign for the account:
+Below is an example of credit offer when the continuity campaign on minimum number of units purchased is in progress. As
+one can notice, below are the attributes that provide the relevant information about the status of the campaign for the
+account:
+
 - `totalUnits`: Number of units purchased in the current transaction by the account towards this campaign
 - `totalTransactionUnits`: The target number of units to be purchased by the account to qualify for the points credit
 
@@ -235,12 +253,14 @@ Below is an example of credit offer when the continuity campaign on minimum numb
           "totalTransactionUnits": 3
         }
       ]
-    },
+    }
   }
 }
 ```
 
-An example of credit offer for the qualifying transaction to meet the campaign target would be as below. Please notice that the value for `totalUnits` is greater than `totalTransactionUnits` in this case.
+An example of credit offer for the qualifying transaction to meet the campaign target would be as below. Please notice
+that the value for `totalUnits` is greater than `totalTransactionUnits` in this case.
+
 ```json
 {
   "credit": {
@@ -255,7 +275,7 @@ An example of credit offer for the qualifying transaction to meet the campaign t
           "totalTransactionUnits": 3
         }
       ]
-    },
+    }
   }
 }
 ```
@@ -352,11 +372,14 @@ be stored manually. Ideally, the enriched basket should be stored before the ord
 The cart custom fields `eagleeye-basketStore` and `eagleeye-basketUri` are also populated so that can be used when
 settling the transaction to know where the enriched basked is saved. The `basketStore` field is an enumeration with the
 name of the data store used (only CUSTOM_TYPE is currently supported). The `basketUri` field is used to identify the
-enriched basked in the store, when using custom objects as store it holds the path to the custom object - `custom-objects/eagleeye-cart/{cart-id}`. The `cart-id` can be fetched from the commercetools order.
+enriched basked in the store, when using custom objects as store it holds the path to the custom
+object - `custom-objects/eagleeye-cart/{cart-id}`. The `cart-id` can be fetched from the commercetools order.
 
 Currently, the only way to save baskets is using commercetools' Custom Objects, but the code allows to easily change the
 store by creating a custom `BasketStoreService` implementing the same interface but storing data in a place of your
-choosing. If for example, the user decides to store the enriched basket in a MySQL database, in such a case, the `basketStore` field could be `_MYSQL_` and the `basketUri` field could be the "table name" in which the basket is stored. The settle service checks the basketStore string and knows which logic to use to get the enriched basket. 
+choosing. If for example, the user decides to store the enriched basket in a MySQL database, in such a case,
+the `basketStore` field could be `_MYSQL_` and the `basketUri` field could be the "table name" in which the basket is
+stored. The settle service checks the basketStore string and knows which logic to use to get the enriched basket.
 
 ### Data mapping
 
@@ -375,8 +398,10 @@ to `ERROR`.
 
 ## Stored baskets cleanup
 
-As previously mentioned, when performing cart creation/updates (like changing line item quantities, or adding voucher codes)
-a transaction is created/updated in AIR, tied to said cart by using its `id` as a reference. At the same time a copy of the
+As previously mentioned, when performing cart creation/updates (like changing line item quantities, or adding voucher
+codes)
+a transaction is created/updated in AIR, tied to said cart by using its `id` as a reference. At the same time a copy of
+the
 enriched basket generated by AIR are stored in commercetools inside Custom Objects.
 
 Over time, some of the carts that originally triggered the creation of these objects might have been abandoned (as in,
@@ -387,8 +412,10 @@ capable of doing this is provided.
 This job will query all custom objects in commercetools by container (using the preset container for storing baskets)
 Only those with a `lastModifedAt` date older than the configured threshold will be considered. This query is repeated
 as many times as it's needed by using pagination (with a configurable page size) and then the job will attempt to
-remove them one by one per each page. At the end of the process, an object with the following structure will be both logged and
+remove them one by one per each page. At the end of the process, an object with the following structure will be both
+logged and
 returned to the client:
+
 ```json
 {
   "result": {
@@ -396,13 +423,14 @@ returned to the client:
       {
         "key": "<cart-id>",
         "lastModifiedAt": "ISO-8601 date"
-      },
+      }
       // ...
     ],
     "failed": []
   }
 }
 ```
+
 Logs will also be printed along the way to show progress and errors (if there are any).
 
 If running this integration under Connect, the `connect.yaml` file specifies a default schedule (cron expression)

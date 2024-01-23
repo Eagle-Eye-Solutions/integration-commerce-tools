@@ -1,0 +1,81 @@
+name: 'Publish Connector (Previewable/Private)'
+description: 'Request to allow deploying connector privately'
+
+inputs:
+  version:
+    description: 'ConnectorStaged version to reference'
+    required: true
+  access_token:
+    description: 'commercetools access token'
+    required: true
+  ct_region:
+    description: 'commercetools region'
+    required: true
+  connector_key:
+    description: 'commercetools ConnectorStaged key (also used as deployment prefix)'
+    required: true
+  github_env:
+    description: 'GitHub environment used to run the workflow'
+    required: true
+  dev_to_staging:
+    description: 'If the purpose is to deploy the "dev" connector to the "staging" environment'
+    required: true
+outputs:
+  response:
+    description: 'Connector after being published in previewable or private mode'
+    value: ${{ steps.ct_publish_outcome.outputs.response }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Request ConnectorStaged Previewable access
+      id: ct_update_connector_previewable
+      uses: ./.github/actions/webrequest-action
+      if: ${{ inputs.dev_to_staging == 'false' }} 
+      with:
+        url: https://connect.${{ inputs.ct_region }}.commercetools.com/connectors/drafts/key=${{ inputs.connector_key }}
+        method: POST
+        headers: '{"Authorization": "Bearer ${{ inputs.access_token }}"}'
+        payload: '{"version":${{ inputs.version }},"actions":[{"action":"updatePreviewable"}]}'
+    - name: Check ConnectorStaged Previewable access state
+      id: ct_check_connector_previewable
+      if: ${{ inputs.dev_to_staging == 'false' }} 
+      uses: ./.github/actions/poll-endpoint
+      with:
+        url: https://connect.${{ inputs.ct_region }}.commercetools.com/connectors/drafts/key=${{ inputs.connector_key }}
+        method: GET
+        authorization: 'Bearer ${{ inputs.access_token }}'
+        expectStatus: 200
+        expectBodyRegex: \"isPreviewable\":\"true\"
+        timeout: 900000
+        interval: 15000
+    - name: Publish ConnectorStaged as Private
+      id: ct_update_connector_private
+      uses: ./.github/actions/webrequest-action
+      if: ${{ inputs.github_env == 'dev' && inputs.dev_to_staging == 'true' }} 
+      with:
+        url: https://connect.${{ inputs.ct_region }}.commercetools.com/connectors/drafts/key=${{ inputs.connector_key }}
+        method: POST
+        headers: '{"Authorization": "Bearer ${{ inputs.access_token }}"}'
+        payload: '{"version":${{ inputs.version }},"actions":[{"action":"publish","certification":false}]}'
+    - name: Check ConnectorStaged Private state
+      id: ct_check_connector_private
+      if: ${{ inputs.github_env == 'dev' && inputs.dev_to_staging == 'true' }} 
+      uses: ./.github/actions/poll-endpoint
+      with:
+        url: https://connect.${{ inputs.ct_region }}.commercetools.com/connectors/drafts/key=${{ inputs.connector_key }}
+        method: GET
+        authorization: 'Bearer ${{ inputs.access_token }}'
+        expectStatus: 200
+        expectBodyRegex: \"status\":\"Published\"
+        timeout: 900000
+        interval: 15000
+    - name: Set Connector Publish outcome
+      id: ct_publish_outcome
+      shell: bash
+      run: |
+        if [[ "${{ inputs.dev_to_staging }}" = 'true' ]]; then
+          echo 'response=${{ steps.ct_check_connector_private.outputs.response }}' >> $GITHUB_OUTPUT
+        else
+          echo 'response=${{ steps.ct_check_connector_previewable.outputs.response }}' >> $GITHUB_OUTPUT
+        fi
