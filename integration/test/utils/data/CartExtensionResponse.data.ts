@@ -631,7 +631,7 @@ export const QUEST_LOYALTY_CAMPAIGN_COMPLETING_RESPONSE = {
       action: 'setCustomField',
       name: 'eagleeye-loyaltyEarnAndCredits',
       value:
-        '{"earn":{"basket":{"total":8993,"offers":[]}},"credit":{"basket":{"total":2000,"offers":[{"type":"COMPLETING","name":"Travel Quest","amount":2000,"category":"QUEST","totalObjectives":[{"campaignId":"1762399","campaignName":"Quest: Car Hire (UPC: 245882)"},{"campaignId":"1762401","campaignName":"Quest: Buy eScooter (UPC: 245902)"},{"campaignId":"1762402","campaignName":"Quest: Buy eBike (UPC: 245903)"}],"objectivesMet":[{"campaignId":"1762399","campaignName":"Quest: Car Hire (UPC: 245882)"},{"campaignId":"1762401","campaignName":"Quest: Buy eScooter (UPC: 245902)"},{"campaignId":"1762402","campaignName":"Quest: Buy eBike (UPC: 245903)"}],"timesRedeemed":1}]}}}',
+        '{"earn":{"basket":{"total":8993,"offers":[]}},"credit":{"basket":{"total":2000,"offers":[{"type":"COMPLETING","name":"Travel Quest","amount":2000,"category":"QUEST","totalObjectives":3,"totalObjectivesMet":3,"currentObjectives":[{"campaignId":"1762399","campaignName":"Quest: Car Hire (UPC: 245882)"},{"campaignId":"1762401","campaignName":"Quest: Buy eScooter (UPC: 245902)"},{"campaignId":"1762402","campaignName":"Quest: Buy eBike (UPC: 245903)"}],"objectivesToMeet":[],"timesRedeemed":1}]}}}',
     },
     {
       action: 'setLineItemCustomType',
@@ -710,7 +710,7 @@ export const QUEST_LOYALTY_CAMPAIGN_INPROGRESS_RESPONSE = {
       action: 'setCustomField',
       name: 'eagleeye-loyaltyEarnAndCredits',
       value:
-        '{"earn":{"basket":{"total":4954,"offers":[]}},"credit":{"basket":{"total":0,"offers":[[{"type":"IN_PROGRESS","name":"Travel Quest","amount":0,"category":"QUEST","totalObjectives":[{"campaignId":"1762399","campaignName":"Quest: Car Hire (UPC: 245882)"},{"campaignId":"1762401","campaignName":"Quest: Buy eScooter (UPC: 245902)"},{"campaignId":"1762402","campaignName":"Quest: Buy eBike (UPC: 245903)"}],"objectivesMet":[{"campaignId":"1762399","campaignName":"Quest: Car Hire (UPC: 245882)"},{"campaignId":"1762402","campaignName":"Quest: Buy eBike (UPC: 245903)"}]}]]}}}',
+        '{"earn":{"basket":{"total":4954,"offers":[]}},"credit":{"basket":{"total":0,"offers":[[{"type":"IN_PROGRESS","name":"Travel Quest","amount":0,"category":"QUEST","totalObjectives":3,"totalObjectivesMet":2,"currentObjectives":[{"campaignId":"1762399","campaignName":"Quest: Car Hire (UPC: 245882)"},{"campaignId":"1762402","campaignName":"Quest: Buy eBike (UPC: 245903)"}],"objectivesToMeet":[{"campaignId":"1762401","campaignName":"Quest: Buy eScooter (UPC: 245902)"}]}]]}}}',
     },
     {
       action: 'setLineItemCustomType',

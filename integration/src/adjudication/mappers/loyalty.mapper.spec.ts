@@ -476,35 +476,23 @@ describe('LoyaltyMapper', () => {
           name: 'Travel Quest',
           amount: 2000,
           category: LOYALTY_CREDIT_CATEGORY.QUEST,
-          totalObjectives: [
+          totalObjectives: 3,
+          totalObjectivesMet: 3,
+          objectivesToMeet: [],
+          currentObjectives: [
             {
-              campaignId: '1762399',
-              campaignName: 'Quest: Car Hire (UPC: 245882)',
+              campaignId: '1762402',
+              campaignName: 'Quest: Buy eBike (UPC: 245903)',
             },
             {
               campaignId: '1762401',
               campaignName: 'Quest: Buy eScooter (UPC: 245902)',
             },
             {
-              campaignId: '1762402',
-              campaignName: 'Quest: Buy eBike (UPC: 245903)',
-            },
-          ],
-          objectivesMet: [
-            {
               campaignId: '1762399',
               campaignName: 'Quest: Car Hire (UPC: 245882)',
             },
-            {
-              campaignId: '1762401',
-              campaignName: 'Quest: Buy eScooter (UPC: 245902)',
-            },
-            {
-              campaignId: '1762402',
-              campaignName: 'Quest: Buy eBike (UPC: 245903)',
-            },
           ],
-          timesRedeemed: 1,
         });
       const basketContents = service.mapAdjustedBasketToBasketCredits(
         basket,
@@ -693,28 +681,22 @@ describe('LoyaltyMapper', () => {
             name: 'Travel Quest',
             amount: 0,
             category: LOYALTY_CREDIT_CATEGORY.QUEST,
-            totalObjectives: [
-              {
-                campaignId: '1762399',
-                campaignName: 'Quest: Car Hire (UPC: 245882)',
-              },
+            totalObjectives: 3,
+            totalObjectivesMet: 2,
+            currentObjectives: [
               {
                 campaignId: '1762401',
                 campaignName: 'Quest: Buy eScooter (UPC: 245902)',
               },
+              {
+                campaignId: '1762399',
+                campaignName: 'Quest: Car Hire (UPC: 245882)',
+              },
+            ],
+            objectivesToMeet: [
               {
                 campaignId: '1762402',
                 campaignName: 'Quest: Buy eBike (UPC: 245903)',
-              },
-            ],
-            objectivesMet: [
-              {
-                campaignId: '1762399',
-                campaignName: 'Quest: Car Hire (UPC: 245882)',
-              },
-              {
-                campaignId: '1762401',
-                campaignName: 'Quest: Buy eScooter (UPC: 245902)',
               },
             ],
             timesRedeemed: 1,

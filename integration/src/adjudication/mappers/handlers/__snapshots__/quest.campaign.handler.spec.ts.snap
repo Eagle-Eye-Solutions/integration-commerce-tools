@@ -1,0 +1,49 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`QuestCampaignHandler should calculate quest campaign progress correctly 1`] = `
+[
+  {
+    "amount": 0,
+    "category": "QUEST",
+    "currentObjectives": [
+      {
+        "campaignId": "1762399",
+        "campaignName": "Quest: Car Hire (UPC: 245882)",
+      },
+      {
+        "campaignId": "1762401",
+        "campaignName": "Quest: Buy eScooter (UPC: 245902)",
+      },
+    ],
+    "name": "Travel Quest",
+    "objectivesToMeet": [
+      {
+        "campaignId": "1762402",
+        "campaignName": "Quest: Buy eBike (UPC: 245903)",
+      },
+    ],
+    "totalObjectives": 3,
+    "totalObjectivesMet": 2,
+    "type": "IN_PROGRESS",
+  },
+]
+`;
+
+exports[`QuestCampaignHandler should create quest credit offer correctly 1`] = `
+{
+  "amount": 100,
+  "category": "QUEST",
+  "currentObjectives": [
+    {
+      "campaignId": "T1",
+      "campaignName": "Task 1",
+    },
+  ],
+  "name": "Quest 1",
+  "objectivesToMeet": [],
+  "sku": "test_sku",
+  "totalObjectives": 1,
+  "totalObjectivesMet": 1,
+  "type": "COMPLETING",
+}
+`;

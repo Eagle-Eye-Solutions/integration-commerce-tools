@@ -1,8 +1,4 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import {
-  LOYALTY_CREDIT_CATEGORY,
-  LOYALTY_CREDIT_TYPE,
-} from '../../../adjudication/types/loyalty-earn-credits.type';
 import { QuestCampaignHandler } from './quest.campaign.handler';
 
 describe('QuestCampaignHandler', () => {
@@ -15,30 +11,6 @@ describe('QuestCampaignHandler', () => {
 
     handler = module.get<QuestCampaignHandler>(QuestCampaignHandler);
     jest.resetAllMocks();
-  });
-
-  it('should generate quest campaign account names correctly', () => {
-    const campaignNameMap = { 200: 'My Campaign' };
-    const questCampaignAccount = {
-      campaign: {
-        relationships: {
-          OBJECTIVE: {
-            CAMPAIGN: [
-              {
-                campaignId: 200,
-              },
-            ],
-          },
-        },
-      },
-    };
-
-    const names = (handler as any).getQuestCampaignAccountNames(
-      questCampaignAccount,
-      campaignNameMap,
-    );
-
-    expect(names).toEqual([{ campaignId: 200, campaignName: 'My Campaign' }]);
   });
 
   it('should create quest credit offer correctly', () => {
@@ -87,16 +59,7 @@ describe('QuestCampaignHandler', () => {
       accounts,
       questAccount,
     );
-
-    expect(offer).toEqual({
-      amount: 100,
-      category: LOYALTY_CREDIT_CATEGORY.QUEST,
-      name: 'Quest 1',
-      objectivesMet: [{ campaignId: 'T1', campaignName: 'Task 1' }],
-      sku: 'test_sku',
-      totalObjectives: [{ campaignId: 'T1', campaignName: 'Task 1' }],
-      type: LOYALTY_CREDIT_TYPE.COMPLETING,
-    });
+    expect(offer).toMatchSnapshot();
   });
 
   it('should calculate quest campaign progress correctly', () => {
@@ -109,6 +72,16 @@ describe('QuestCampaignHandler', () => {
         balances: null,
         relatedAccountIds: ['2853561875'],
         targetedAccountId: '2853561875',
+        targetedWalletId: '172454304',
+      },
+      {
+        resourceType: 'CAMPAIGN',
+        resourceId: '1762401',
+        instanceId: '1762401-1',
+        type: 'redeem',
+        balances: null,
+        relatedAccountIds: ['2853561876'],
+        targetedAccountId: '2853561876',
         targetedWalletId: '172454304',
       },
     ];
@@ -206,34 +179,6 @@ describe('QuestCampaignHandler', () => {
       creditResults,
       accounts,
     );
-
-    expect(breakdown).toEqual([
-      {
-        amount: 0,
-        category: LOYALTY_CREDIT_CATEGORY.QUEST,
-        name: 'Travel Quest',
-        objectivesMet: [
-          {
-            campaignId: '1762399',
-            campaignName: 'Quest: Car Hire (UPC: 245882)',
-          },
-        ],
-        totalObjectives: [
-          {
-            campaignId: '1762399',
-            campaignName: 'Quest: Car Hire (UPC: 245882)',
-          },
-          {
-            campaignId: '1762401',
-            campaignName: 'Quest: Buy eScooter (UPC: 245902)',
-          },
-          {
-            campaignId: '1762402',
-            campaignName: 'Quest: Buy eBike (UPC: 245903)',
-          },
-        ],
-        type: LOYALTY_CREDIT_TYPE.IN_PROGRESS,
-      },
-    ]);
+    expect(breakdown).toMatchSnapshot();
   });
 });
