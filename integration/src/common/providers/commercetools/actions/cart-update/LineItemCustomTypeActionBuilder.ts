@@ -118,7 +118,6 @@ export class LineItemCustomTypeActionBuilder {
     lineItem: LineItem,
     actions: OrderUpdateAction[],
   ) {
-    console.log('promo fields', customFieldsObject.promotions);
     if (
       customFieldsObject.promotions?.appliedDiscounts?.has(lineItem.variant.sku)
     ) {

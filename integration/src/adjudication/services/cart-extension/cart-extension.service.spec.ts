@@ -21,6 +21,7 @@ import {
   FIELD_EAGLEEYE_LOYALTY_CREDITS,
   LineItemTypeDefinition,
 } from '../../../common/providers/commercetools/custom-type/line-item-type-definition';
+import { CartErrorService } from '../cart-error/cart-error.service';
 
 class CircuitBreakerError extends Error {
   constructor(public code: string) {
@@ -118,6 +119,7 @@ describe('CartExtensionService', () => {
           ],
           inject: [CartTypeDefinition, LineItemTypeDefinition],
         },
+        CartErrorService,
       ],
     }).compile();
 
