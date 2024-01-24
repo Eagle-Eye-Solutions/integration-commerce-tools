@@ -55,7 +55,7 @@ export class LoyaltyMapper {
         (result) => result.type === 'redeem',
       );
       basketCredits.offers.push(
-        this.questCampaignHandler.calculateQuestCampaignProgress(
+        ...this.questCampaignHandler.calculateQuestCampaignProgress(
           basketRedeemResults,
           accounts,
         ),

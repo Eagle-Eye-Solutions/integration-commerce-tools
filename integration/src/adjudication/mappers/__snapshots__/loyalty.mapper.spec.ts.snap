@@ -69,33 +69,31 @@ exports[`LoyaltyMapper mapAdjustedBasketToBasketCredits should process the quest
 exports[`LoyaltyMapper mapAdjustedBasketToBasketCredits should process the quest campaign in progress results and update the mapped basket credits 1`] = `
 {
   "offers": [
-    [
-      {
-        "amount": 0,
-        "category": "QUEST",
-        "currentObjectives": [
-          {
-            "campaignId": "1762401",
-            "campaignName": "Quest: Buy eScooter (UPC: 245902)",
-          },
-          {
-            "campaignId": "1762399",
-            "campaignName": "Quest: Car Hire (UPC: 245882)",
-          },
-        ],
-        "name": "Travel Quest",
-        "objectivesToMeet": [
-          {
-            "campaignId": "1762402",
-            "campaignName": "Quest: Buy eBike (UPC: 245903)",
-          },
-        ],
-        "timesRedeemed": 1,
-        "totalObjectives": 3,
-        "totalObjectivesMet": 2,
-        "type": "IN_PROGRESS",
-      },
-    ],
+    {
+      "amount": 0,
+      "category": "QUEST",
+      "currentObjectives": [
+        {
+          "campaignId": "1762401",
+          "campaignName": "Quest: Buy eScooter (UPC: 245902)",
+        },
+        {
+          "campaignId": "1762399",
+          "campaignName": "Quest: Car Hire (UPC: 245882)",
+        },
+      ],
+      "name": "Travel Quest",
+      "objectivesToMeet": [
+        {
+          "campaignId": "1762402",
+          "campaignName": "Quest: Buy eBike (UPC: 245903)",
+        },
+      ],
+      "timesRedeemed": 1,
+      "totalObjectives": 3,
+      "totalObjectivesMet": 2,
+      "type": "IN_PROGRESS",
+    },
   ],
   "total": 0,
 }
