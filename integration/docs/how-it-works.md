@@ -118,6 +118,98 @@ the offer and the sum of each redeemed instance of said offer).
 In cases where an offer applies more than once, it will show up with `(x<times>)` in its name.
 E.g.: `"Example Offer (x2)`, with amount `200` if it were to apply twice.
 
+Loyalty rewards can be awarded by following the below types of campaigns
+
+- Quest
+- Continuity
+
+#### Quest
+
+A Quest campaign can be fulfilled it either a single purchase or across multiple purchases. In either case, the credit offer for a quest campaign looks like below. As one can notice, below are the attributes that provide the relevant information about the status of the campaign for the account:
+
+- `type`: Indicates the state of the campaign for the account. Possible values are 
+  - `COMPLETING`: when all the objectives of the quest campaign have been fulfilled
+  - `IN_PROGRESS`: when the quest campaign is in progress and there are pending objectives in the campaign
+- `totalObjectives`: Number of objectives in the quest campaign
+- `totalObjectivesMet`: Number of objectives that have been fulfilled so far
+- `currentObjectives`: The list of objectives fulfilled in the current purchase
+- `objectivesToMeet`: The list of objectives that are pending in the quest campaign
+
+
+```json
+{
+  "credit": {
+    "basket": {
+      "total": 0,
+      "offers": [
+        {
+          "type": "IN_PROGRESS",
+          "name": "Travel Quest",
+          "amount": 0,
+          "category": "QUEST",
+          "totalObjectives": 3,
+          "totalObjectivesMet": 1,
+          "currentObjectives": [
+            {
+              "campaignId": "1762401",
+              "campaignName": "Quest: Buy eScooter (UPC: 245902)"
+            }
+          ],
+          "objectivesToMeet": [
+            {
+              "campaignId": "1762399",
+              "campaignName": "Quest: Car Hire (UPC: 245882)"
+            },
+            {
+              "campaignId": "1762402",
+              "campaignName": "Quest: Buy eBike (UPC: 245903)"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
+```
+_NOTE:_ The quest campaign in this example is still in progress. Hence, the values of `totalObjectives` and `totalObjectivesMet` do not match and `objectivesToMeet` is not empty and the `amount` is 0 as there is no qualifying campaign reward for the current identity. Below is an example of a credit offer that is `COMPLETING`.
+
+```json
+{
+  "credit": {
+    "basket": {
+      "total": 2000,
+      "offers": [
+        {
+          "type": "COMPLETING",
+          "name": "Travel Quest",
+          "amount": 2000,
+          "category": "QUEST",
+          "totalObjectives": 3,
+          "totalObjectivesMet": 3,
+          "currentObjectives": [
+            {
+              "campaignId": "1762399",
+              "campaignName": "Quest: Car Hire (UPC: 245882)"
+            },
+            {
+              "campaignId": "1762401",
+              "campaignName": "Quest: Buy eScooter (UPC: 245902)"
+            },
+            {
+              "campaignId": "1762402",
+              "campaignName": "Quest: Buy eBike (UPC: 245903)"
+            }
+          ],
+          "objectivesToMeet": [],
+          "timesRedeemed": 1
+        }
+      ]
+    }
+  }
+}
+```
+_NOTE:_ In this case, one can notice that the values of `totalObjectives` and `totalObjectivesMet` match and `objectivesToMeet` is empty and the `amount` is 2000 as the quest campaign has been fulfilled. And all the objectives are met in a single transaction and hence, all the objectives of the campaign are listed in `currentObjectives`.
+
 #### Continuity
 
 Continuity campaign can be setup in three different variations in eagle eye based on:
