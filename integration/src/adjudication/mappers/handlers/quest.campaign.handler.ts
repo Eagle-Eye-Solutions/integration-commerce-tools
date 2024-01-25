@@ -10,8 +10,6 @@ import {
 
 @Injectable()
 export class QuestCampaignHandler {
-  constructor() {}
-
   private createLookupMaps(accounts: any): LookupMaps {
     const accountMap: Record<string, any> = {};
     const campaignToAccountMap: Record<string, string> = {};

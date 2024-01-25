@@ -81,7 +81,7 @@ export class CartExtensionService {
     );
 
     let basketLocation = null;
-    if (this.basketStoreService.isEnabled(cartReference as CartReference)) {
+    if (this.basketStoreService.isEnabled(cartReference)) {
       basketLocation = await this.basketStoreService.save(
         basketDiscounts.enrichedBasket,
         cartReference.id,
@@ -194,27 +194,26 @@ export class CartExtensionService {
           context: error,
         };
         errors.push(unidentifiedCustomerError);
-        try {
-          this.logger.warn(
-            'Attempting to fetch open promotions without identity',
+        this.logger.warn(
+          'Attempting to fetch open promotions without identity',
+        );
+        eeWalletOpenRequest =
+          await this.adjudicationMapper.mapCartToWalletOpenPayload(
+            cartReference.obj,
+            false,
           );
-          eeWalletOpenRequest =
-            await this.adjudicationMapper.mapCartToWalletOpenPayload(
-              cartReference.obj,
-              false,
-            );
-          this.logger.debug({
-            message: 'Sending open request to EagleEye with body',
-            eeWalletOpenRequest,
-          });
-          walletOpenResponse = await this.walletInvoke(
-            'open',
-            eeWalletOpenRequest,
-          );
-        } catch (error) {
-          throw error;
-        }
+        this.logger.debug({
+          message: 'Sending open request to EagleEye with body',
+          eeWalletOpenRequest,
+        });
+        walletOpenResponse = await this.walletInvoke(
+          'open',
+          eeWalletOpenRequest,
+        );
       } else {
+        this.logger.error(
+          `Error while opening the wallet, error type: ${error.type}`,
+        );
         throw error;
       }
     }
