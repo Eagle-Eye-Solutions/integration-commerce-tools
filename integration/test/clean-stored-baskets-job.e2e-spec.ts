@@ -5,6 +5,7 @@ import { AppModule } from '../src/app.module';
 import { nockCtAuth } from './utils/nocks/CommercetoolsNock';
 import {
   nockDeleteCustomObject,
+  nockGetCustomObject,
   nockQueryCustomObjects,
 } from './utils/nocks/CustomObjectNock';
 import { MockLogger } from './utils/mocks/MockLogger';
@@ -43,12 +44,13 @@ describe('Clean Stored Enriched Baskets (e2e)', () => {
       lastModifiedAt: '2023-01-01T01:00:39Z',
     };
     const ctAuthNock = nockCtAuth();
+    const getCircuitStateCustomObjectNock = nockGetCustomObject(404, null);
     const queryCustomObjectsNock = nockQueryCustomObjects(
       200,
+      CUSTOM_OBJECT_CONTAINER_BASKET_STORE,
       {
         limit: 5,
         withTotal: 'false',
-        container: CUSTOM_OBJECT_CONTAINER_BASKET_STORE,
         offset: 0,
         where: /.+/i,
         sort: 'lastModifiedAt+asc',
@@ -61,10 +63,10 @@ describe('Clean Stored Enriched Baskets (e2e)', () => {
     );
     const queryCustomObjectsNock2 = nockQueryCustomObjects(
       200,
+      CUSTOM_OBJECT_CONTAINER_BASKET_STORE,
       {
         limit: 5,
         withTotal: 'false',
-        container: CUSTOM_OBJECT_CONTAINER_BASKET_STORE,
         offset: 5,
         where: /.+/i,
         sort: 'lastModifiedAt+asc',
@@ -103,6 +105,7 @@ describe('Clean Stored Enriched Baskets (e2e)', () => {
 
     await sleep(100); //await for
     expect(ctAuthNock.isDone()).toBeTruthy();
+    expect(getCircuitStateCustomObjectNock.isDone()).toBeTruthy();
     expect(queryCustomObjectsNock.isDone()).toBeTruthy();
     expect(queryCustomObjectsNock2.isDone()).toBeTruthy();
     expect(deleteCustomObjectNock.isDone()).toBeTruthy();

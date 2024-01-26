@@ -27,6 +27,7 @@ export const nockGetCustomObject = (
 
 export const nockQueryCustomObjects = (
   statusCode = 200,
+  container,
   query?: any,
   response?: any,
   times = 1,
@@ -34,7 +35,7 @@ export const nockQueryCustomObjects = (
   return nock('https://api.europe-west1.gcp.commercetools.com:443', {
     encodedQueryParams: true,
   })
-    .get(`/${process.env.CTP_PROJECT_KEY}/custom-objects`)
+    .get(`/${process.env.CTP_PROJECT_KEY}/custom-objects/${container}`)
     .query(query)
     .times(times)
     .reply(statusCode, response || {}, []);

@@ -11,6 +11,7 @@ describe('CustomObjectService', () => {
       getApiRoot: jest.fn().mockReturnThis(),
       customObjects: jest.fn().mockReturnThis(),
       withContainerAndKey: jest.fn().mockReturnThis(),
+      withContainer: jest.fn().mockReturnThis(),
       post: jest.fn().mockReturnThis(),
       get: jest.fn().mockReturnThis(),
       delete: jest.fn().mockReturnThis(),
@@ -88,10 +89,14 @@ describe('CustomObjectService', () => {
   });
 
   it('should query custom objects', async () => {
-    await service.queryCustomObjects();
+    await service.queryCustomObjects('container');
 
     expect(
-      commercetools.getApiRoot().customObjects().get().execute,
+      commercetools
+        .getApiRoot()
+        .customObjects()
+        .withContainer({ container: 'container' })
+        .get().execute,
     ).toHaveBeenCalled();
   });
 });
