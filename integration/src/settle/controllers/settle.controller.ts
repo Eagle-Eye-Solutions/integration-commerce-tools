@@ -7,6 +7,7 @@ export class SettleController {
   constructor(
     private readonly orderSubscriptionService: OrderSubscriptionService,
   ) {}
+
   @Post('events')
   async handleSubscriptionEvents(
     @Body() body,
@@ -21,6 +22,5 @@ export class SettleController {
         message,
       );
     res.status(subscriptionResult.statusCode);
-    return;
   }
 }
