@@ -25,13 +25,10 @@ describe('BasketCleanupService', () => {
               switch (Key) {
                 case 'storedBasketCleanup.objectQueryLimit':
                   return 10;
-                  break;
                 case 'storedBasketCleanup.olderThanValue':
                   return 7;
-                  break;
                 case 'storedBasketCleanup.olderThanUnit':
                   return 'days';
-                  break;
                 default:
                   return DefaultValue;
               }

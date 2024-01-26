@@ -7,12 +7,12 @@ FROM node:lts-alpine AS development
 
 WORKDIR /usr/src/app
 
-COPY --chown=node:node package*.json ./
-COPY --chown=node:node yarn.lock yarn.lock
+COPY --chown=node:node --chmod=644 package*.json ./
+COPY --chown=node:node --chmod=644 yarn.lock yarn.lock
 
 RUN yarn install --frozen-lockfile
 
-COPY --chown=node:node . .
+COPY --chown=node:node --chmod=644 . .
 
 USER node
 
@@ -41,8 +41,8 @@ RUN yarn install --production && yarn cache clean
 
 FROM node:lts-alpine AS production
 
-COPY --chown=node:node --from=build /usr/src/app/node_modules ./node_modules
-COPY --chown=node:node --from=build /usr/src/app/dist ./dist
+COPY --chown=node:node --chmod=644 --from=build /usr/src/app/node_modules ./node_modules
+COPY --chown=node:node --chmod=644 --from=build /usr/src/app/dist ./dist
 
 ENV NODE_ENV production
 

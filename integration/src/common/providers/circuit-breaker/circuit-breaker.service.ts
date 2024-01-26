@@ -46,15 +46,7 @@ export class CircuitBreakerService implements OnModuleInit {
 
     this.circuit = new CircuitBreaker(this.breakableApi.invoke, options);
     // Log circuit state
-    !this.circuit.enabled
-      ? this.logger.warn('Circuit breaker is DISABLED')
-      : this.circuit.opened
-        ? this.logger.error(
-            `Initialized circuit breaker. The circuit is OPEN! Requests are NOT sent to '${this.breakableApi.invoke.name}'`,
-          )
-        : this.logger.log(
-            `Initialized circuit breaker. The circuit is closed all requests are sent to '${this.breakableApi.invoke.name}'`,
-          );
+    this.logCircuitState();
 
     // Event listeners
     /* istanbul ignore next */
@@ -104,6 +96,22 @@ export class CircuitBreakerService implements OnModuleInit {
       );
       await this.circuitBreakerState.deleteState();
     });
+  }
+
+  private logCircuitState() {
+    if (!this.circuit.enabled) {
+      this.logger.warn('Circuit breaker is DISABLED');
+    } else {
+      if (this.circuit.opened) {
+        this.logger.error(
+          `Initialized circuit breaker. The circuit is OPEN! Requests are NOT sent to '${this.breakableApi.invoke.name}'`,
+        );
+      } else {
+        this.logger.log(
+          `Initialized circuit breaker. The circuit is closed all requests are sent to '${this.breakableApi.invoke.name}'`,
+        );
+      }
+    }
   }
 
   async saveState() {
