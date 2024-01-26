@@ -133,7 +133,7 @@ export class SubscriptionService {
         },
       });
 
-    subscriptions.forEach(async (sub) => {
+    for (const sub of subscriptions) {
       const existingSubscription = ctSubscriptions.find(
         (s) => s.key === sub.key,
       );
@@ -149,6 +149,6 @@ export class SubscriptionService {
           );
         }
       }
-    });
+    }
   }
 }
