@@ -68,16 +68,18 @@ describe('BasketCleanupService', () => {
 
     await service.clearOldBaskets();
 
-    expect(customObjectServiceMock.queryCustomObjects).toHaveBeenCalledWith({
-      queryArgs: {
-        withTotal: false,
-        limit: 10,
-        container: CUSTOM_OBJECT_CONTAINER_BASKET_STORE,
-        offset: 0,
-        where: expect.any(String),
-        sort: ['lastModifiedAt asc'],
+    expect(customObjectServiceMock.queryCustomObjects).toHaveBeenCalledWith(
+      CUSTOM_OBJECT_CONTAINER_BASKET_STORE,
+      {
+        queryArgs: {
+          withTotal: false,
+          limit: 10,
+          offset: 0,
+          where: expect.any(String),
+          sort: ['lastModifiedAt asc'],
+        },
       },
-    });
+    );
     expect(customObjectServiceMock.deleteCustomObject).toHaveBeenCalledTimes(5);
     expect(customObjectServiceMock.deleteCustomObject).toHaveBeenLastCalledWith(
       CUSTOM_OBJECT_CONTAINER_BASKET_STORE,

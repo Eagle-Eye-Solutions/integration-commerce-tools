@@ -38,11 +38,11 @@ export class BasketCleanupService {
     };
     do {
       const ctCustomObjects = await this.customObjectService.queryCustomObjects(
+        this.containerKey,
         {
           queryArgs: {
             withTotal: false,
             limit: this.limit,
-            container: this.containerKey,
             offset: oldCustomObjects.length,
             where: `lastModifiedAt < "${olderThanDate.toISOString()}"`,
             sort: ['lastModifiedAt asc'],

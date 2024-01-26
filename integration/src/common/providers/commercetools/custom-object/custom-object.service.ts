@@ -64,10 +64,11 @@ export class CustomObjectService {
       .execute();
   };
 
-  queryCustomObjects = async (methodArgs = {}) => {
+  queryCustomObjects = async (container: string, methodArgs = {}) => {
     return this.commercetools
       .getApiRoot()
       .customObjects()
+      .withContainer({ container })
       .get(methodArgs)
       .execute();
   };
