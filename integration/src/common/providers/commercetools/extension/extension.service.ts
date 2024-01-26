@@ -107,7 +107,7 @@ export class ExtensionService {
       },
     });
 
-    extensions.forEach(async (ext) => {
+    for (const ext of extensions) {
       const existingExtension = ctExtensions.find((e) => e.key === ext.key);
       if (existingExtension) {
         try {
@@ -121,6 +121,6 @@ export class ExtensionService {
           );
         }
       }
-    });
+    }
   }
 }
