@@ -88,6 +88,28 @@ export class CartExtensionService {
       );
     }
 
+    const lineItemActions = [
+      ...LineItemCustomTypeActionBuilder.setCustomFields(
+        {
+          loyaltyCredits: loyaltyEarnAndCredits.credit.items,
+          promotions: {
+            appliedDiscounts: basketDiscounts.lineItemsDiscountDescriptions,
+          },
+        },
+        resourceObj.lineItems.filter((lineItem) => lineItem.custom?.type),
+      ),
+      ...LineItemCustomTypeActionBuilder.addCustomType(
+        {
+          loyaltyCredits: loyaltyEarnAndCredits.credit.items,
+          promotions: {
+            appliedDiscounts: basketDiscounts.lineItemsDiscountDescriptions,
+          },
+        },
+        resourceObj.lineItems.filter((lineItem) => !lineItem.custom?.type),
+        this.lineItemTypeDefinition.getTypeKey(),
+      ),
+    ];
+
     if (CartCustomTypeActionBuilder.checkResourceCustomType(resourceObj)) {
       actionBuilder.addAll([
         ...CartCustomTypeActionBuilder.setCustomFields({
@@ -101,25 +123,7 @@ export class CartExtensionService {
             credit: { basket: loyaltyEarnAndCredits.credit.basket },
           },
         }),
-        ...LineItemCustomTypeActionBuilder.setCustomFields(
-          {
-            loyaltyCredits: loyaltyEarnAndCredits.credit.items,
-            promotions: {
-              appliedDiscounts: basketDiscounts.lineItemsDiscountDescriptions,
-            },
-          },
-          resourceObj.lineItems.filter((lineItem) => lineItem.custom?.type),
-        ),
-        ...LineItemCustomTypeActionBuilder.addCustomType(
-          {
-            loyaltyCredits: loyaltyEarnAndCredits.credit.items,
-            promotions: {
-              appliedDiscounts: basketDiscounts.lineItemsDiscountDescriptions,
-            },
-          },
-          resourceObj.lineItems.filter((lineItem) => !lineItem.custom?.type),
-          this.lineItemTypeDefinition.getTypeKey(),
-        ),
+        ...lineItemActions,
       ]);
     } else {
       actionBuilder.addAll([
@@ -139,25 +143,7 @@ export class CartExtensionService {
           },
           this.cartTypeDefinition.getTypeKey(),
         ),
-        ...LineItemCustomTypeActionBuilder.setCustomFields(
-          {
-            loyaltyCredits: loyaltyEarnAndCredits.credit.items,
-            promotions: {
-              appliedDiscounts: basketDiscounts.lineItemsDiscountDescriptions,
-            },
-          },
-          resourceObj.lineItems.filter((lineItem) => lineItem.custom?.type),
-        ),
-        ...LineItemCustomTypeActionBuilder.addCustomType(
-          {
-            loyaltyCredits: loyaltyEarnAndCredits.credit.items,
-            promotions: {
-              appliedDiscounts: basketDiscounts.lineItemsDiscountDescriptions,
-            },
-          },
-          resourceObj.lineItems.filter((lineItem) => !lineItem.custom?.type),
-          this.lineItemTypeDefinition.getTypeKey(),
-        ),
+        ...lineItemActions,
       ]);
     }
     actionBuilder.add(

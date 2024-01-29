@@ -8,10 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { Logger, Injectable } from '@nestjs/common';
 import { Commercetools } from '../../../../common/providers/commercetools/commercetools.provider';
 import { OrderSettleService } from '../../../../settle/services/order-settle/order-settle.service';
-import {
-  FIELD_EAGLEEYE_SETTLED_STATUS,
-  FIELD_EAGLEEYE_ACTION,
-} from '../../../../common/providers/commercetools/custom-type/cart-type-definition';
+import { FIELD_EAGLEEYE_ACTION } from '../../../../common/providers/commercetools/custom-type/cart-type-definition';
 
 @Injectable()
 export class OrderUpdatedWithSettleActionProcessor extends AbstractEventProcessor {
@@ -24,7 +21,7 @@ export class OrderUpdatedWithSettleActionProcessor extends AbstractEventProcesso
     private orderSettleService: OrderSettleService,
   ) {
     super(configService);
-    this.processorName = 'OrderUpdatedWithSettleActionProcessor';
+    this.processorName = 'OrderUpdatedWithSettleAction';
   }
 
   async isEventValid(): Promise<boolean> {
@@ -49,47 +46,23 @@ export class OrderUpdatedWithSettleActionProcessor extends AbstractEventProcesso
       message: 'Generating actions',
       context: OrderUpdatedWithSettleActionProcessor.name,
     });
-    const actions = [];
-    actions.push(async () => {
-      let updateActions = [];
-      let settleError;
-      try {
-        updateActions =
-          await this.orderSettleService.settleTransactionFromOrder(this.order);
-      } catch (err) {
-        updateActions = this.orderSettleService.getSettleErrorActions(
-          this.order,
-          err,
-        );
-        settleError = err;
-      }
-      await this.commercetools.updateOrderById(this.order.id, {
-        version: this.order.version,
-        actions: updateActions,
-      });
-      if (settleError !== undefined) {
-        throw settleError;
-      }
-    });
-    return actions;
+    return await this.orderSettleService.getGenericSettleActions(
+      this.order,
+      this.commercetools,
+    );
   }
 
   public async isValidState(
     orderMessage: OrderCustomFieldAddedMessage | OrderCustomFieldChangedMessage,
   ): Promise<boolean> {
-    let orderSettleAction;
-    let orderSettledStatus;
     if (
       orderMessage.name === FIELD_EAGLEEYE_ACTION &&
       orderMessage.value === 'SETTLE'
     ) {
-      orderSettleAction = orderMessage.value;
       try {
         this.order = await this.commercetools.getOrderById(
           this.message.resource.id,
         );
-        orderSettledStatus =
-          this.order.custom.fields[FIELD_EAGLEEYE_SETTLED_STATUS];
       } catch (err) {
         this.logger.warn(
           `Failed to get order ${this.message.resource.id} from CT to check settle action/status`,
@@ -98,10 +71,7 @@ export class OrderUpdatedWithSettleActionProcessor extends AbstractEventProcesso
         return false;
       }
     }
-    return (
-      Boolean(orderSettleAction === 'SETTLE') &&
-      Boolean(orderSettledStatus !== 'SETTLED')
-    );
+    return this.orderSettleService.canBeSettled(this.order, this.processorName);
   }
 
   public isValidMessageType(type: string): boolean {

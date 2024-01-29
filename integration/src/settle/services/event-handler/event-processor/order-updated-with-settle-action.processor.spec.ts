@@ -28,6 +28,8 @@ describe('OrderUpdatedWithSettleActionProcessor', () => {
     orderSettleService = {
       settleTransactionFromOrder: jest.fn(),
       getSettleErrorActions: jest.fn(),
+      canBeSettled: jest.fn(),
+      getGenericSettleActions: jest.fn(),
     } as unknown as OrderSettleService;
 
     processor = new OrderUpdatedWithSettleActionProcessor(
@@ -69,6 +71,10 @@ describe('OrderUpdatedWithSettleActionProcessor', () => {
             value: 'settled',
           },
         ]);
+      jest.spyOn(orderSettleService, 'canBeSettled').mockReturnValueOnce(true);
+      jest
+        .spyOn(orderSettleService, 'getGenericSettleActions')
+        .mockResolvedValueOnce([() => {}]);
       await processor.isValidState({
         name: FIELD_EAGLEEYE_ACTION,
         value: 'SETTLE',
@@ -131,7 +137,7 @@ describe('OrderUpdatedWithSettleActionProcessor', () => {
           },
         ]);
 
-      const updateOrderSpy = jest.spyOn(commercetools, 'updateOrderById');
+      jest.spyOn(orderSettleService, 'canBeSettled').mockReturnValueOnce(true);
 
       let error;
       try {
@@ -145,23 +151,6 @@ describe('OrderUpdatedWithSettleActionProcessor', () => {
         error = err;
       }
 
-      expect(updateOrderSpy).toHaveBeenCalledWith('order-id', {
-        actions: [
-          {
-            action: 'setCustomField',
-            name: 'eagleeye-settledStatus',
-            value: 'ERROR',
-          },
-          {
-            action: 'setCustomField',
-            name: 'eagleeye-errors',
-            value: [
-              '{"type":"EE_API_SETTLE_ERROR","message":"EagleEye transaction could not be settled.","context":"{\\"message\\":\\"Example error\\"}"}',
-            ],
-          },
-        ],
-        version: 1,
-      });
       expect(error).toBeDefined();
     });
   });
@@ -182,6 +171,8 @@ describe('OrderUpdatedWithSettleActionProcessor', () => {
       jest
         .spyOn(commercetools, 'getOrderById')
         .mockResolvedValue(ctOrder as any);
+      jest.spyOn(orderSettleService, 'canBeSettled').mockReturnValueOnce(true);
+
       const result = await processor.isValidState({
         resource: { id: 'some-id', typeId: 'order' },
         name: FIELD_EAGLEEYE_ACTION,
@@ -206,6 +197,7 @@ describe('OrderUpdatedWithSettleActionProcessor', () => {
       jest
         .spyOn(commercetools, 'getOrderById')
         .mockResolvedValue(ctOrder as any);
+      jest.spyOn(orderSettleService, 'canBeSettled').mockReturnValueOnce(false);
       const result = await processor.isValidState({
         resource: { id: 'some-id', typeId: 'order' },
         name: FIELD_EAGLEEYE_ACTION,

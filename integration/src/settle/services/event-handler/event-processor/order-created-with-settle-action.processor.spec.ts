@@ -27,6 +27,8 @@ describe('OrderCreatedWithSettleActionProcessor', () => {
     orderSettleService = {
       settleTransactionFromOrder: jest.fn(),
       getSettleErrorActions: jest.fn(),
+      canBeSettled: jest.fn(),
+      getGenericSettleActions: jest.fn(),
     } as unknown as OrderSettleService;
 
     processor = new OrderCreatedWithSettleActionProcessor(
@@ -70,6 +72,10 @@ describe('OrderCreatedWithSettleActionProcessor', () => {
             value: 'settled',
           },
         ]);
+      jest.spyOn(orderSettleService, 'canBeSettled').mockReturnValueOnce(true);
+      jest
+        .spyOn(orderSettleService, 'getGenericSettleActions')
+        .mockResolvedValueOnce([() => {}]);
       await processor.isValidState();
       const actions = await processor.generateActions();
       const result = await actions[0]();
@@ -134,7 +140,7 @@ describe('OrderCreatedWithSettleActionProcessor', () => {
             ],
           },
         ]);
-      const updateOrderSpy = jest.spyOn(commercetools, 'updateOrderById');
+      jest.spyOn(orderSettleService, 'canBeSettled').mockReturnValueOnce(true);
 
       let error;
       try {
@@ -145,23 +151,6 @@ describe('OrderCreatedWithSettleActionProcessor', () => {
         error = err;
       }
 
-      expect(updateOrderSpy).toHaveBeenCalledWith('order-id', {
-        actions: [
-          {
-            action: 'setCustomField',
-            name: 'eagleeye-settledStatus',
-            value: 'ERROR',
-          },
-          {
-            action: 'setCustomField',
-            name: 'eagleeye-errors',
-            value: [
-              '{"type":"EE_API_SETTLE_ERROR","message":"EagleEye transaction could not be settled.","context":"{\\"message\\":\\"Example error\\"}"}',
-            ],
-          },
-        ],
-        version: 1,
-      });
       expect(error).toBeDefined();
     });
   });
@@ -185,12 +174,15 @@ describe('OrderCreatedWithSettleActionProcessor', () => {
         .spyOn(commercetools, 'getOrderById')
         .mockResolvedValue(ctOrder as any);
 
+      jest.spyOn(orderSettleService, 'canBeSettled').mockReturnValueOnce(true);
+
       const result = await processor.isValidState();
 
       expect(result).toBe(true);
     });
 
     it('should return false if the order payment state does not fulfill the conditions', async () => {
+      jest.spyOn(orderSettleService, 'canBeSettled').mockReturnValueOnce(false);
       const result = await processor.isValidState();
 
       expect(result).toBe(false);
@@ -211,6 +203,7 @@ describe('OrderCreatedWithSettleActionProcessor', () => {
       jest
         .spyOn(commercetools, 'getOrderById')
         .mockResolvedValue(ctOrder as any);
+      jest.spyOn(orderSettleService, 'canBeSettled').mockReturnValueOnce(true);
       const result = await processor.isValidState();
 
       expect(result).toBe(true);

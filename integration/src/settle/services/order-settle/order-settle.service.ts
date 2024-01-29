@@ -12,6 +12,7 @@ import {
   FIELD_EAGLEEYE_ERRORS,
   FIELD_EAGLEEYE_SETTLED_STATUS,
 } from '../../../common/providers/commercetools/custom-type/cart-type-definition';
+import { Commercetools } from '../../../common/providers/commercetools/commercetools.provider';
 
 @Injectable()
 export class OrderSettleService {
@@ -116,6 +117,56 @@ export class OrderSettleService {
         ],
       },
     ];
+  }
+
+  canBeSettled(order: Order, processor: string): boolean {
+    let orderSettleAction;
+    let orderSettledStatus;
+    const orderPaymentState = order.paymentState;
+    if (order.custom?.fields) {
+      orderSettleAction = order.custom?.fields[FIELD_EAGLEEYE_ACTION];
+      orderSettledStatus = order.custom?.fields[FIELD_EAGLEEYE_SETTLED_STATUS];
+    }
+    switch (processor) {
+      case 'OrderCreatedWithPaidState':
+        return (
+          Boolean(orderPaymentState === 'Paid') &&
+          Boolean(orderSettledStatus !== 'SETTLED')
+        );
+      case 'OrderCreatedWithSettleAction':
+      case 'OrderUpdatedWithSettleAction':
+        return (
+          Boolean(orderSettleAction === 'SETTLE') &&
+          Boolean(orderSettledStatus !== 'SETTLED')
+        );
+      default:
+        return false;
+    }
+  }
+
+  async getGenericSettleActions(
+    order: Order,
+    commercetools: Commercetools,
+  ): Promise<(() => any)[]> {
+    const actions = [];
+    actions.push(async () => {
+      let updateActions = [];
+      let settleError;
+      try {
+        updateActions = await this.settleTransactionFromOrder(order);
+      } catch (err) {
+        updateActions = this.getSettleErrorActions(order, err);
+        settleError = err;
+      }
+      await commercetools.updateOrderById(order.id, {
+        version: order.version,
+        actions: updateActions,
+      });
+      if (settleError !== undefined) {
+        throw settleError;
+      }
+    });
+    return actions;
   }
 
   async walletSettleInvoke(method, args) {

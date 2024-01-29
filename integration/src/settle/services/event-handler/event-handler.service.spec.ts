@@ -17,6 +17,7 @@ describe('EventHandlerService', () => {
   let service: EventHandlerService;
   const walletOpenMock = jest.fn();
   let commercetools: Commercetools;
+  let orderSettleService: OrderSettleService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -54,12 +55,7 @@ describe('EventHandlerService', () => {
             isEnabled: jest.fn(),
           },
         },
-        {
-          provide: OrderSettleService,
-          useValue: {
-            settleTransactionFromOrder: jest.fn(),
-          },
-        },
+        OrderSettleService,
         OrderPaymentStateChangedProcessor,
         OrderCreatedWithPaidStateProcessor,
         OrderCreatedWithSettleActionProcessor,
@@ -89,6 +85,10 @@ describe('EventHandlerService', () => {
 
     service = module.get<EventHandlerService>(EventHandlerService);
     commercetools = module.get<Commercetools>(Commercetools);
+    orderSettleService = module.get<OrderSettleService>(OrderSettleService);
+    jest
+      .spyOn(orderSettleService, 'settleTransactionFromOrder')
+      .mockResolvedValue(null);
   });
 
   describe('processEvent', () => {
