@@ -5,10 +5,6 @@ import { ConfigService } from '@nestjs/config';
 import { Logger, Injectable } from '@nestjs/common';
 import { Commercetools } from '../../../../common/providers/commercetools/commercetools.provider';
 import { OrderSettleService } from '../../../../settle/services/order-settle/order-settle.service';
-import {
-  FIELD_EAGLEEYE_SETTLED_STATUS,
-  FIELD_EAGLEEYE_ACTION,
-} from '../../../../common/providers/commercetools/custom-type/cart-type-definition';
 
 @Injectable()
 export class OrderCreatedWithSettleActionProcessor extends AbstractEventProcessor {
@@ -44,43 +40,17 @@ export class OrderCreatedWithSettleActionProcessor extends AbstractEventProcesso
       message: `Generating actions for ${OrderCreatedWithSettleActionProcessor.name}`,
       context: OrderCreatedWithSettleActionProcessor.name,
     });
-    const actions = [];
-    actions.push(async () => {
-      let updateActions = [];
-      let settleError;
-      try {
-        updateActions =
-          await this.orderSettleService.settleTransactionFromOrder(this.order);
-      } catch (err) {
-        updateActions = this.orderSettleService.getSettleErrorActions(
-          this.order,
-          err,
-        );
-        settleError = err;
-      }
-      await this.commercetools.updateOrderById(this.order.id, {
-        version: this.order.version,
-        actions: updateActions,
-      });
-      if (settleError !== undefined) {
-        throw settleError;
-      }
-    });
-    return actions;
+    return await this.orderSettleService.getGenericSettleActions(
+      this.order,
+      this.commercetools,
+    );
   }
 
   public async isValidState(): Promise<boolean> {
-    let orderSettleAction;
-    let orderSettledStatus;
     try {
       this.order = await this.commercetools.getOrderById(
         this.message.resource.id,
       );
-      if (this.order.custom?.fields) {
-        orderSettleAction = this.order.custom?.fields[FIELD_EAGLEEYE_ACTION];
-        orderSettledStatus =
-          this.order.custom?.fields[FIELD_EAGLEEYE_SETTLED_STATUS];
-      }
     } catch (err) {
       this.logger.warn(
         `Failed to get order ${this.message.resource.id} from CT to check action/status`,
@@ -88,10 +58,7 @@ export class OrderCreatedWithSettleActionProcessor extends AbstractEventProcesso
       );
       return false;
     }
-    return (
-      Boolean(orderSettleAction === 'SETTLE') &&
-      Boolean(orderSettledStatus !== 'SETTLED')
-    );
+    return this.orderSettleService.canBeSettled(this.order, this.processorName);
   }
 
   public isValidMessageType(type: string): boolean {
