@@ -89,6 +89,15 @@ taxes, the latter should run after promotions are calculated. In this case, a di
 guarantee the ordering.
 See [commercetools documentation](https://docs.commercetools.com/api/projects/api-extensions#multiple-api-extensions-in-a-single-api-call). 
 
+## Uninstalling the plugin
+
+To remove the plugin from your commercetools project, all that's needed is to call the [Delete Deployment](https://docs.commercetools.com/connect/deployments#delete-deployment)
+endpoint with the required parameters. This will run a "PreUndeploy" script to delete all extensions/subscriptions
+created by this plugin and then take down the specified deployment.
+
+Always double check if these elements were properly deleted by the script. In case they weren't, you will need to
+delete [extensions](https://docs.commercetools.com/api/projects/api-extensions#delete-extension) and [subscriptions](https://docs.commercetools.com/api/projects/subscriptions#delete-subscription) manually.
+
 ## Next Steps
 
 To learn how the plugin works, please refer to the [how it works](how-it-works.md) page
