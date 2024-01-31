@@ -98,6 +98,12 @@ created by this plugin and then take down the specified deployment.
 Always double check if these elements were properly deleted by the script. In case they weren't, you will need to
 delete [extensions](https://docs.commercetools.com/api/projects/api-extensions#delete-extension) and [subscriptions](https://docs.commercetools.com/api/projects/subscriptions#delete-subscription) manually.
 
+This can also be done with this plugin by running the following commands in a local environment:
+```shell
+yarn run ct-extensions -d
+yarn run ct-subscriptions -d
+```
+
 ## Next Steps
 
 To learn how the plugin works, please refer to the [how it works](how-it-works.md) page
