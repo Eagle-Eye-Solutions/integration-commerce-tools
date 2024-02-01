@@ -131,3 +131,24 @@ Add the EagleEye variables to the Postman environment. The Postman environment s
 at `integration/src/test/e2e/postman/eagle-eye-e2e-tests.postman_collection.json`
 
 To run all tests select the collection in postman and click on the Run button.
+
+## Enforcing commit message format and branch naming schemes
+
+This source code implements `commitlint` to make sure commit messages conform to the
+[conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) guidelines. It also provides a script to check branch names,
+found at `<root>/enforce-branch-naming.js`.
+
+To tweak the behaviors of these scripts, take a look at `<root>/commitlint.config.js` or
+`<root>/enforce-branch-naming.js` respectively. If instead you want to disable any of them,
+head to `package.json` and look at the following lines:
+
+```
+"commitlint": "cd .. && commitlint -g integration/commitlint.config.js --edit",
+"branchlint": "node enforce-branch-naming.js",
+```
+
+Change any or both of them to:
+```
+"commitlint": "",
+"branchlint": "",
+```
