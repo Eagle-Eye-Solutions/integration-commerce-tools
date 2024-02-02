@@ -40,7 +40,7 @@ interface CustomFieldsObject {
 }
 
 export class CartCustomTypeActionBuilder {
-  static addCustomType = (
+  static readonly addCustomType = (
     customFieldsObject: CustomFieldsObject,
     cartTypeKey: string,
   ): OrderUpdateAction => {
@@ -79,7 +79,7 @@ export class CartCustomTypeActionBuilder {
     };
   };
 
-  static setCustomFields = (
+  static readonly setCustomFields = (
     customFieldsObject: CustomFieldsObject,
   ): OrderUpdateAction[] => {
     const actions: OrderUpdateAction[] = [
@@ -145,11 +145,11 @@ export class CartCustomTypeActionBuilder {
     return actions;
   };
 
-  static removeCustomType = (): OrderSetCustomTypeAction => ({
+  static readonly removeCustomType = (): OrderSetCustomTypeAction => ({
     action: 'setCustomType',
   });
 
-  static checkResourceCustomType = (
+  static readonly checkResourceCustomType = (
     resource: BaseResource,
   ): TypeReference | undefined => {
     return (resource as any).custom?.type;
