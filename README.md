@@ -10,17 +10,20 @@ provider.
 * Voucher codes
 * Loyalty points
 * Settling of the transaction
+* Enriched baskets cleanup
 
 ## Overview
 
-This repository provides a single Node JS application that can be deployed as an Extension module or a Subscription
-module.
+This repository provides a single Node JS application that contains three modules: the Extension module, the
+Subscription module and the Job module.
 
 ![alt text](integration/docs/images/ee-ct-integration-components.png "Integration components")
 
-* The Extension module is triggered on cart updates and adds to the cart promotions and loyalty points
+* The Extension module is triggered on cart updates and adds to the cart promotions and loyalty points.
 * The Subscription module is triggered when the order is updated and handles the settling of the transaction in Eagle
-  Eye
+  Eye.
+* The Job module is triggered by a cron job and handles the removal of old Eagle Eye enriched baskets from commercetools
+  custom objects.
 
 ## Plugin Installation
 
