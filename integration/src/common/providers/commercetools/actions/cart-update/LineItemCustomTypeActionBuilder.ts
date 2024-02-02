@@ -20,7 +20,7 @@ export interface CustomFieldsObject {
 }
 
 export class LineItemCustomTypeActionBuilder {
-  static addCustomType = (
+  static readonly addCustomType = (
     customFieldsObject: CustomFieldsObject,
     lineItems: LineItem[],
     lineItemTypeKey: string,
@@ -55,7 +55,7 @@ export class LineItemCustomTypeActionBuilder {
     return actions;
   };
 
-  static setCustomFields = (
+  static readonly setCustomFields = (
     customFieldsObject: CustomFieldsObject,
     lineItems: LineItem[],
   ): OrderUpdateAction[] => {
@@ -177,11 +177,11 @@ export class LineItemCustomTypeActionBuilder {
     }
   }
 
-  static removeCustomType = (): OrderSetCustomTypeAction => ({
+  static readonly removeCustomType = (): OrderSetCustomTypeAction => ({
     action: 'setCustomType',
   });
 
-  static checkResourceCustomType = (
+  static readonly checkResourceCustomType = (
     resource: BaseResource,
   ): TypeReference | undefined => {
     return (resource as any).custom?.type;
