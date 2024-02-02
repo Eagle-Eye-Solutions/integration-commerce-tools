@@ -107,14 +107,16 @@ export class OrderSettleService {
       {
         action: 'setCustomField',
         name: FIELD_EAGLEEYE_ERRORS,
-        value: [
-          ...currentErrors,
-          JSON.stringify({
-            type: 'EE_API_SETTLE_ERROR',
-            message: 'EagleEye transaction could not be settled.',
-            context: JSON.stringify(error, Object.getOwnPropertyNames(error)),
-          }),
-        ],
+        value: Array.from(
+          new Set([
+            ...currentErrors,
+            JSON.stringify({
+              type: 'EE_API_SETTLE_ERROR',
+              message: 'EagleEye transaction could not be settled.',
+              context: JSON.stringify(error, Object.getOwnPropertyNames(error)),
+            }),
+          ]),
+        ),
       },
     ];
   }
