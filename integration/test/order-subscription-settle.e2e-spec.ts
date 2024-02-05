@@ -318,4 +318,69 @@ describe('Settle EE transactions on Order messages (e2e)', () => {
     expect(deleteCustomObjectNock.isDone()).toBeTruthy();
     expect(updateOrderByIdNock.isDone()).toBeTruthy();
   });
+
+  // This test is intended for possible race conditions where 2 settles are attempeted at the same time.
+  // If this happens, we don't want to retry a message because the second one will never succeed.
+  it("should return OK if the basket has been removed but the settle status hasn't been saved", async () => {
+    const ctAuthNock = nockCtAuth();
+    const getCircuitStateCustomObjectNock = nockGetCustomObject(404, null);
+    const getEnrichedBasketCustomObjectNock =
+      nockGetEnrichedBasketCustomObject(404);
+    const getOrderByIdNock = nockCtGetOrderById(
+      {
+        ...ORDER_FOR_SETTLE.resource.obj,
+        paymentState: 'Paid',
+      },
+      6,
+      false,
+    );
+    const getOrderSettledByIdNock = nockCtGetOrderById(
+      {
+        ...ORDER_FOR_SETTLE.resource.obj,
+        paymentState: 'Paid',
+        custom: {
+          fields: {
+            'eagleeye-settledStatus': 'SETTLED',
+          },
+        },
+      },
+      2,
+      false,
+    );
+
+    const updateOrderByIdNock = nockCtUpdateOrderById(
+      ORDER_FOR_SETTLE.resource.obj,
+      {
+        version: ORDER_FOR_SETTLE.resource.obj.version,
+        actions: [],
+      },
+    );
+
+    const requestData = {
+      resource: {
+        typeId: 'order',
+        id: ORDER_FOR_SETTLE.resource.obj.id,
+      },
+      type: 'OrderCreated',
+      notificationType: 'Message',
+      order: {
+        ...ORDER_FOR_SETTLE.resource.obj,
+        paymentState: 'Paid',
+      },
+    };
+
+    app = await initAppModule();
+    await request(app.getHttpServer())
+      .post('/events')
+      .send({ message: { data: Buffer.from(JSON.stringify(requestData)) } })
+      .expect(204);
+
+    await sleep(100); //await for
+    expect(ctAuthNock.isDone()).toBeTruthy();
+    expect(getCircuitStateCustomObjectNock.isDone()).toBeTruthy();
+    expect(getEnrichedBasketCustomObjectNock.isDone()).toBeTruthy();
+    expect(getOrderByIdNock.isDone()).toBeTruthy();
+    expect(getOrderSettledByIdNock.isDone()).toBeTruthy();
+    expect(updateOrderByIdNock.isDone()).toBeTruthy();
+  });
 });

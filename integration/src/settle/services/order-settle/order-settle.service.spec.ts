@@ -13,6 +13,7 @@ import { ConfigService } from '@nestjs/config';
 describe('OrderSettleService', () => {
   let orderSettleService: OrderSettleService;
   let basketStoreService: BasketStoreService;
+  let commercetools: Commercetools;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -56,6 +57,7 @@ describe('OrderSettleService', () => {
 
     orderSettleService = module.get<OrderSettleService>(OrderSettleService);
     basketStoreService = module.get<BasketStoreService>(BASKET_STORE_SERVICE);
+    commercetools = module.get<Commercetools>(Commercetools);
   });
 
   describe('settleTransactionFromOrder', () => {
@@ -201,6 +203,84 @@ describe('OrderSettleService', () => {
       expect(result).toEqual([]);
     });
 
+    it("should return empty array when there's an error and the transaction is already settled", async () => {
+      const ctOrder: Order = {
+        id: 'order-id',
+        cart: {
+          id: 'cart-id',
+        },
+        custom: {
+          fields: {
+            'eagleeye-action': 'EXAMPLE',
+          },
+        },
+      } as any;
+      const hasSavedBasketSpy = jest
+        .spyOn(basketStoreService, 'hasSavedBasket')
+        .mockReturnValue(true);
+      const getBasketSpy = jest
+        .spyOn(basketStoreService, 'get')
+        .mockRejectedValue({});
+      const getOrderSpy = jest
+        .spyOn(commercetools, 'getOrderById')
+        .mockResolvedValue({
+          ...ctOrder,
+          custom: {
+            fields: {
+              'eagleeye-settledStatus': 'SETTLED',
+            },
+          },
+        } as any);
+
+      const result =
+        await orderSettleService.settleTransactionFromOrder(ctOrder);
+
+      expect(hasSavedBasketSpy).toHaveBeenCalledWith(ctOrder);
+      expect(getBasketSpy).toHaveBeenCalled();
+      expect(getOrderSpy).toHaveBeenCalled();
+      expect(result).toEqual([]);
+    });
+
+    it("should return error when there's an error and the transaction is not settled", async () => {
+      const ctOrder: Order = {
+        id: 'order-id',
+        cart: {
+          id: 'cart-id',
+        },
+        custom: {
+          fields: {
+            'eagleeye-action': 'EXAMPLE',
+          },
+        },
+      } as any;
+      const hasSavedBasketSpy = jest
+        .spyOn(basketStoreService, 'hasSavedBasket')
+        .mockReturnValue(true);
+      const getBasketSpy = jest
+        .spyOn(basketStoreService, 'get')
+        .mockRejectedValue(Error('message'));
+      const getOrderSpy = jest
+        .spyOn(commercetools, 'getOrderById')
+        .mockResolvedValue({
+          ...ctOrder,
+          custom: {
+            fields: {
+              'eagleeye-settledStatus': '',
+            },
+          },
+        } as any);
+      let error;
+      try {
+        await orderSettleService.settleTransactionFromOrder(ctOrder);
+      } catch (err) {
+        error = err;
+      }
+      expect(hasSavedBasketSpy).toHaveBeenCalledWith(ctOrder);
+      expect(getBasketSpy).toHaveBeenCalled();
+      expect(getOrderSpy).toHaveBeenCalled();
+      expect(error).toBeInstanceOf(Error);
+    });
+
     it('should handle error when deleting basket', async () => {
       const ctOrder: Order = {
         id: 'order-id',
@@ -254,6 +334,58 @@ describe('OrderSettleService', () => {
           value: 'SETTLED',
         },
       ]);
+    });
+  });
+
+  describe('getGenericSettleActions', () => {
+    it('should return update actions', async () => {
+      const ctOrder: Order = {
+        id: 'order-id',
+        cart: {
+          id: 'cart-id',
+        },
+        custom: {
+          fields: {},
+        },
+      } as any;
+
+      const result = await orderSettleService.getGenericSettleActions(
+        ctOrder,
+        commercetools,
+      );
+
+      for (const action of result) {
+        action();
+      }
+      expect(result).toEqual([expect.any(Function)]);
+    });
+
+    it('should throw error if settle fails', async () => {
+      const ctOrder: Order = {
+        id: 'order-id',
+        cart: {
+          id: 'cart-id',
+        },
+        custom: {
+          fields: {},
+        },
+      } as any;
+
+      const hasSavedBasketSpy = jest
+        .spyOn(basketStoreService, 'hasSavedBasket')
+        .mockImplementationOnce(() => {
+          throw new Error('message');
+        });
+
+      const result = await orderSettleService.getGenericSettleActions(
+        ctOrder,
+        commercetools,
+      );
+
+      const errorPromises = await Promise.allSettled(result.map((r) => r()));
+      expect(result).toEqual([expect.any(Function)]);
+      expect(errorPromises[0].status).toEqual('rejected');
+      expect(hasSavedBasketSpy).toHaveBeenCalled();
     });
   });
 

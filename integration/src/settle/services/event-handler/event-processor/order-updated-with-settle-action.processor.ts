@@ -70,8 +70,12 @@ export class OrderUpdatedWithSettleActionProcessor extends AbstractEventProcesso
         );
         return false;
       }
+      return this.orderSettleService.canBeSettled(
+        this.order,
+        this.processorName,
+      );
     }
-    return this.orderSettleService.canBeSettled(this.order, this.processorName);
+    return false;
   }
 
   public isValidMessageType(type: string): boolean {

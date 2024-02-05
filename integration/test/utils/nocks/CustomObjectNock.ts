@@ -231,7 +231,7 @@ export const nockPostEnrichedBasketCustomObject = (body?: any) => {
     );
 };
 
-export const nockGetEnrichedBasketCustomObject = () => {
+export const nockGetEnrichedBasketCustomObject = (status = 200) => {
   return nock('https://api.europe-west1.gcp.commercetools.com:443', {
     encodedQueryParams: true,
   })
@@ -240,7 +240,7 @@ export const nockGetEnrichedBasketCustomObject = () => {
       `/${process.env.CTP_PROJECT_KEY}/custom-objects/eagleeye-cart/45311522-50f6-4aa1-9aba-add802387c1c`,
     )
     .reply(
-      200,
+      status,
       {
         id: 'b54fee86-f295-48b9-ad94-e5fad3191ad7',
         version: 4,
