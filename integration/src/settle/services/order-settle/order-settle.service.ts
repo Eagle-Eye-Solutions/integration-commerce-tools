@@ -13,6 +13,7 @@ import {
   FIELD_EAGLEEYE_SETTLED_STATUS,
 } from '../../../common/providers/commercetools/custom-type/cart-type-definition';
 import { Commercetools } from '../../../common/providers/commercetools/commercetools.provider';
+import { sleep } from '../../../common/helper/timeout';
 
 @Injectable()
 export class OrderSettleService {
@@ -23,6 +24,7 @@ export class OrderSettleService {
     readonly eagleEyeClient: EagleEyeApiClient,
     @Inject(BASKET_STORE_SERVICE)
     private readonly basketStoreService: BasketStoreService,
+    private commercetools: Commercetools,
   ) {}
 
   async settleTransactionFromOrder(
@@ -33,9 +35,26 @@ export class OrderSettleService {
     );
     // Delete basket custom object after transaction is settled successfully
     if (this.basketStoreService.hasSavedBasket(ctOrder)) {
+      let settleRequest;
+      try {
+        settleRequest =
+          await this.settleMapper.mapOrderToWalletSettlePayload(ctOrder);
+      } catch (err) {
+        await sleep(1000);
+        const orderCheck: Order = await this.commercetools.getOrderById(
+          ctOrder.id,
+        );
+        if (
+          orderCheck.custom.fields[FIELD_EAGLEEYE_SETTLED_STATUS] === 'SETTLED'
+        ) {
+          return [];
+        } else {
+          throw err;
+        }
+      }
       const walletSettleResponse = await this.walletSettleInvoke(
         'settle',
-        await this.settleMapper.mapOrderToWalletSettlePayload(ctOrder),
+        settleRequest,
       );
       try {
         this.logger.log(

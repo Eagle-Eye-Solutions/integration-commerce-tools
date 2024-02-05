@@ -43,11 +43,14 @@ export const nockCtGetShippingMethodsWithIds = (ids: string[], times = 1) => {
     );
 };
 
-export const nockCtGetOrderById = (order, times = 1) => {
-  return nock('https://api.europe-west1.gcp.commercetools.com:443', {
+export const nockCtGetOrderById = (order, times = 1, persist = true) => {
+  let nockRequest = nock('https://api.europe-west1.gcp.commercetools.com:443', {
     encodedQueryParams: false,
-  })
-    .persist()
+  });
+  if (persist) {
+    nockRequest = nockRequest.persist();
+  }
+  return nockRequest
     .get(`/${process.env.CTP_PROJECT_KEY}/orders/${order.id}`)
     .times(times)
     .reply(200, order, []);
