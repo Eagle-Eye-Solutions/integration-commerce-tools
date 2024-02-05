@@ -241,7 +241,7 @@ describe('OrderSettleService', () => {
       expect(result).toEqual([]);
     });
 
-    it("should return empty array when there's an error and the transaction is not settled", async () => {
+    it("should return error when there's an error and the transaction is not settled", async () => {
       const ctOrder: Order = {
         id: 'order-id',
         cart: {

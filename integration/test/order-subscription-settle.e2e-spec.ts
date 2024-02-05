@@ -344,7 +344,7 @@ describe('Settle EE transactions on Order messages (e2e)', () => {
           },
         },
       },
-      1,
+      2,
       false,
     );
 

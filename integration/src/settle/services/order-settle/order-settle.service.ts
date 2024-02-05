@@ -48,9 +48,8 @@ export class OrderSettleService {
           orderCheck.custom.fields[FIELD_EAGLEEYE_SETTLED_STATUS] === 'SETTLED'
         ) {
           return [];
-        } else {
-          throw err;
         }
+        throw err;
       }
       const walletSettleResponse = await this.walletSettleInvoke(
         'settle',
