@@ -40,16 +40,7 @@ export class OrderSettleService {
         settleRequest =
           await this.settleMapper.mapOrderToWalletSettlePayload(ctOrder);
       } catch (err) {
-        await sleep(1000);
-        const orderCheck: Order = await this.commercetools.getOrderById(
-          ctOrder.id,
-        );
-        if (
-          orderCheck.custom.fields[FIELD_EAGLEEYE_SETTLED_STATUS] === 'SETTLED'
-        ) {
-          return [];
-        }
-        throw err;
+        return await this.handleSettlePayloadError(ctOrder, err);
       }
       const walletSettleResponse = await this.walletSettleInvoke(
         'settle',
@@ -112,6 +103,15 @@ export class OrderSettleService {
       `Transaction for order ${ctOrder.id} / cart ${ctOrder.cart.id} is already settled.`,
     );
     return [];
+  }
+
+  async handleSettlePayloadError(ctOrder: Order, error) {
+    await sleep(1000);
+    const orderCheck: Order = await this.commercetools.getOrderById(ctOrder.id);
+    if (orderCheck.custom.fields[FIELD_EAGLEEYE_SETTLED_STATUS] === 'SETTLED') {
+      return [];
+    }
+    throw error;
   }
 
   getSettleErrorActions(ctOrder: Order, error: any): OrderUpdateAction[] {
