@@ -59,7 +59,10 @@ describe('CustomTypeService', () => {
   });
 
   it('should create cart type when not found', async () => {
-    getWithKeyExecuteMock.mockRejectedValue({ statusCode: 201, body: {} });
+    getExecuteMock.mockResolvedValue({
+      statusCode: 201,
+      body: { results: [] },
+    });
     postExecuteMock.mockResolvedValue({
       statusCode: 201,
       body: {},
@@ -68,30 +71,37 @@ describe('CustomTypeService', () => {
     const result = await service.createUpdateAllTypes();
 
     expect(result).toEqual(undefined);
-    expect(getWithKeyExecuteMock).toHaveBeenCalled();
+    expect(getExecuteMock).toHaveBeenCalled();
     expect(postExecuteMock).toHaveBeenCalled();
   });
 
   it('should throw error when cart type is not found and fails to be created', async () => {
-    getWithKeyExecuteMock.mockRejectedValue({ statusCode: 201, body: {} });
+    getExecuteMock.mockResolvedValue({
+      statusCode: 201,
+      body: { results: [] },
+    });
     postExecuteMock.mockResolvedValue({
       statusCode: 400,
       body: {},
     });
 
     await expect(service.createUpdateAllTypes()).rejects.toThrow();
-    expect(getWithKeyExecuteMock).toHaveBeenCalled();
+    expect(getExecuteMock).toHaveBeenCalled();
     expect(postExecuteMock).toHaveBeenCalled();
   });
 
   it('should update all cart types when at least one already exists', async () => {
-    getWithKeyExecuteMock.mockResolvedValue({
+    getExecuteMock.mockResolvedValue({
       body: {
-        key: 'cartType',
-        version: 1,
-        fieldDefinitions: [
+        results: [
           {
-            name: 'eagleeye-fieldToBeRemoved',
+            key: 'cartType',
+            version: 1,
+            fieldDefinitions: [
+              {
+                name: 'eagleeye-fieldToBeRemoved',
+              },
+            ],
           },
         ],
       },
@@ -121,18 +131,22 @@ describe('CustomTypeService', () => {
     const result = await service.createUpdateAllTypes();
 
     expect(result).toEqual(undefined);
-    expect(getWithKeyExecuteMock).toHaveBeenCalled();
+    expect(getExecuteMock).toHaveBeenCalled();
     expect(postWithKeyExecuteMock).toHaveBeenCalled();
   });
 
   it('should throw error when cart type creation fails', async () => {
-    getWithKeyExecuteMock.mockResolvedValue({
+    getExecuteMock.mockResolvedValue({
       body: {
-        key: 'cartType',
-        version: 1,
-        fieldDefinitions: [
+        results: [
           {
-            name: 'eagleeye-fieldToBeRemoved',
+            key: 'cartType',
+            version: 1,
+            fieldDefinitions: [
+              {
+                name: 'eagleeye-fieldToBeRemoved',
+              },
+            ],
           },
         ],
       },
@@ -148,13 +162,17 @@ describe('CustomTypeService', () => {
   });
 
   it('should throw error when cart type update fails', async () => {
-    getWithKeyExecuteMock.mockResolvedValue({
+    getExecuteMock.mockResolvedValue({
       body: {
-        key: 'cartType',
-        version: 1,
-        fieldDefinitions: [
+        results: [
           {
-            name: 'eagleeye-fieldToBeRemoved',
+            key: 'cartType',
+            version: 1,
+            fieldDefinitions: [
+              {
+                name: 'eagleeye-fieldToBeRemoved',
+              },
+            ],
           },
         ],
       },
