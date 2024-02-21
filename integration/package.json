@@ -29,9 +29,9 @@
     "ct-subscriptions": "nest start --config nest-commander.json -- subscriptions-create",
     "ct-extensions": "nest start --config nest-commander.json -- extensions-create",
     "connector:post-deploy:service": "npm run ct-extensions; npm run ct-custom-types",
-    "connector:pre-undeploy:service": "npm run ct-extensions -d",
+    "connector:pre-undeploy:service": "npm run ct-extensions -- -d",
     "connector:post-deploy:events": "npm run ct-subscriptions",
-    "connector:pre-undeploy:events": "npm run ct-subscriptions -d"
+    "connector:pre-undeploy:events": "npm run ct-subscriptions -- -d"
   },
   "dependencies": {
     "@commercetools/platform-sdk": "^6.0.0",
