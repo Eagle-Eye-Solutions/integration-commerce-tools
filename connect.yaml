@@ -1,7 +1,7 @@
 deployAs:
   - name: integration
     applicationType: service
-    endpoint: /cart/service
+    endpoint: /cart-service
     scripts:
       postDeploy: npm install && npm run build && npm run connector:post-deploy:service
       preUndeploy: npm install && npm run build && npm run connector:pre-undeploy:service
@@ -151,7 +151,7 @@ deployAs:
           required: true
   - name: integration_jobs
     applicationType: job
-    endpoint: /jobs/stored-basket-cleanup
+    endpoint: /jobs-stored-basket-cleanup
     properties:
       schedule: "0 * * * 7"
     configuration:

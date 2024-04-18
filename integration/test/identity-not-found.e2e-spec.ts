@@ -72,7 +72,7 @@ describe('Identity Not Found (e2e)', () => {
 
     app = await initAppModule();
     await request(app.getHttpServer())
-      .post('/cart/service')
+      .post('/cart-service')
       .send(cartExtenstionInput)
       .expect(201)
       .expect((res) =>

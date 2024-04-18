@@ -18,7 +18,7 @@ describe('AdjudicationController', () => {
   });
 
   describe('Extension Request Handler', () => {
-    it('should process POST requests received at /cart/service', async () => {
+    it('should process POST requests received at /cart-service', async () => {
       cartExtensionService.handleCartExtensionRequest.mockReturnValueOnce({
         actions: [],
       } as any);
@@ -29,7 +29,7 @@ describe('AdjudicationController', () => {
   });
 
   describe('Stored Basket Cleanup', () => {
-    it('should process POST requests received at /jobs/stored-basket-cleanup', async () => {
+    it('should process POST requests received at /jobs-stored-basket-cleanup', async () => {
       basketCleanupService.clearOldBaskets.mockResolvedValueOnce({
         results: { successful: [], failed: [] },
       });

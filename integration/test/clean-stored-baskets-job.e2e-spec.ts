@@ -93,7 +93,7 @@ describe('Clean Stored Enriched Baskets (e2e)', () => {
 
     app = await initAppModule();
     await request(app.getHttpServer())
-      .post('/jobs/stored-basket-cleanup')
+      .post('/jobs-stored-basket-cleanup')
       .send()
       .expect(201)
       .expect({
