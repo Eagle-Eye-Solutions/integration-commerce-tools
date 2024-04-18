@@ -7086,7 +7086,7 @@
 													"});",
 													"",
 													"pm.test(\"'Not Valid' Error is seen under 'eagleeye-errors'\", function () {",
-													"    pm.expect(data.custom.fields['eagleeye-errors'].some(discount => discount.includes('Voucher invalid'))).to.be.true;",
+													"    pm.expect(data.custom.fields['eagleeye-errors'].some(discount => discount.includes('Voucher not found'))).to.be.true;",
 													"});",
 													"",
 													"// pm.collectionVariables.set('customItemDiscountTokenId', data.lineItems[0].id)",

@@ -168,7 +168,7 @@ describe('Cart Loyalty processing (e2e)', () => {
     );
     app = await initAppModule();
     await request(app.getHttpServer())
-      .post('/cart/service')
+      .post('/cart-service')
       .send(RECALCULATE_CART)
       .expect(201)
       .expect((res) => expect(res.body).toEqual(LOYALTY_SUCCESS_RESPONSE));
@@ -408,7 +408,7 @@ describe('Cart Loyalty processing (e2e)', () => {
       );
     app = await initAppModule();
     await request(app.getHttpServer())
-      .post('/cart/service')
+      .post('/cart-service')
       .send(itemLevelContinuityCampaignQualifyingCart)
       .expect(201)
       .expect((res) =>
@@ -618,7 +618,7 @@ describe('Cart Loyalty processing (e2e)', () => {
       );
     app = await initAppModule();
     await request(app.getHttpServer())
-      .post('/cart/service')
+      .post('/cart-service')
       .send(itemLevelContinuityCampaignQualifyingCart)
       .expect(201)
       .expect((res) =>
@@ -781,7 +781,7 @@ describe('Cart Loyalty processing (e2e)', () => {
       );
     app = await initAppModule();
     await request(app.getHttpServer())
-      .post('/cart/service')
+      .post('/cart-service')
       .send(RECALCULATE_CART)
       .expect(201)
       .expect((res) =>
@@ -910,7 +910,7 @@ describe('Cart Loyalty processing (e2e)', () => {
       );
     app = await initAppModule();
     await request(app.getHttpServer())
-      .post('/cart/service')
+      .post('/cart-service')
       .send(RECALCULATE_CART)
       .expect(201)
       .expect((res) =>
@@ -1150,7 +1150,7 @@ describe('Cart Loyalty processing (e2e)', () => {
     );
     app = await initAppModule();
     await request(app.getHttpServer())
-      .post('/cart/service')
+      .post('/cart-service')
       .send(RECALCULATE_CART)
       .expect(201)
       .expect(QUEST_LOYALTY_CAMPAIGN_COMPLETING_RESPONSE);
@@ -1320,7 +1320,7 @@ describe('Cart Loyalty processing (e2e)', () => {
     );
     app = await initAppModule();
     await request(app.getHttpServer())
-      .post('/cart/service')
+      .post('/cart-service')
       .send(RECALCULATE_CART)
       .expect(201)
       .expect(QUEST_LOYALTY_CAMPAIGN_INPROGRESS_RESPONSE);

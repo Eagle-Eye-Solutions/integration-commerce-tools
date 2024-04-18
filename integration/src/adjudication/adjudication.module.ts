@@ -45,6 +45,6 @@ export class AdjudicationModule implements NestModule {
   configure(consumer: MiddlewareConsumer): any {
     consumer
       .apply(ExtensionTypeMiddleware, UnidentifiedCustomerMiddleware)
-      .forRoutes({ path: '/cart/service', method: RequestMethod.POST });
+      .forRoutes({ path: '/cart-service', method: RequestMethod.POST });
   }
 }

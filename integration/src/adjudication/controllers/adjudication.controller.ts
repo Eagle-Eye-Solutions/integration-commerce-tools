@@ -10,13 +10,13 @@ export class AdjudicationController {
     private readonly basketCleanupService: BasketCleanupService,
   ) {}
 
-  @Post('/cart/service')
+  @Post('/cart-service')
   @UseFilters(UnhandledExceptionsFilter)
   async handleExtensionRequest(@Body() body): Promise<any> {
     return this.cartExtensionService.handleCartExtensionRequest(body);
   }
 
-  @Post('/jobs/stored-basket-cleanup')
+  @Post('/jobs-stored-basket-cleanup')
   async handleStoredBaskedCleanup(): Promise<any> {
     return this.basketCleanupService.clearOldBaskets();
   }

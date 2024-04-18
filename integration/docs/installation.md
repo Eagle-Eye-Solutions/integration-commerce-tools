@@ -44,9 +44,9 @@ and `connector:pre-undeploy:*` scripts.
 
 Extension, Subscription and cleanup job modules share the same source code. The same artifact must be deployed, only different
 endpoints will be used.
-The extension module is triggered via a POST request to `/cart/service`.
+The extension module is triggered via a POST request to `/cart-service`.
 The subscription module is triggered via a POST request to `/events`.
-The cleanup job is triggered via a POST request to `/jobs/stored-basket-cleanup`.
+The cleanup job is triggered via a POST request to `/jobs-stored-basket-cleanup`.
 
 ## Configuration
 
