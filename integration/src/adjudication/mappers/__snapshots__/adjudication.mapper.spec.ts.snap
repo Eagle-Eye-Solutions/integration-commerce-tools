@@ -386,6 +386,53 @@ exports[`AdjudicationMapper mapCartToWalletOpenPayload should return the payload
 }
 `;
 
+exports[`AdjudicationMapper mapCartToWalletOpenPayload should return the payload for /wallet/open when using location identifiers in cart 1`] = `
+{
+  "basket": {
+    "contents": [
+      {
+        "description": "Example Product",
+        "itemUnitCost": 300,
+        "itemUnitCount": 1,
+        "itemUnitMetric": "EACH",
+        "salesKey": "SALE",
+        "totalUnitCost": 300,
+        "totalUnitCostAfterDiscount": 300,
+        "upc": "SKU123",
+      },
+    ],
+    "summary": {
+      "redemptionChannel": "Online",
+      "totalBasketValue": 300,
+      "totalDiscountAmount": {
+        "general": null,
+        "promotions": 0,
+        "staff": null,
+      },
+      "totalItems": 1,
+    },
+    "type": "STANDARD",
+  },
+  "examine": undefined,
+  "location": {
+    "incomingIdentifier": "override-incoming-identifier",
+    "parentIncomingIdentifier": "override-parent-incoming-identifier",
+  },
+  "lock": true,
+  "options": {
+    "adjustBasket": {
+      "enabled": true,
+      "includeOpenOffers": true,
+    },
+    "analyseBasket": {
+      "enabled": true,
+      "includeOpenOffers": true,
+    },
+  },
+  "reference": undefined,
+}
+`;
+
 exports[`AdjudicationMapper mapCartToWalletOpenPayload should return the payload for /wallet/open, with sku instead of upc when 'useItemSku' is set to true 1`] = `
 {
   "basket": {

@@ -13,12 +13,20 @@ export class SettleMapper {
   ) {}
 
   async mapOrderToWalletSettlePayload(order: Order) {
-    const incomingIdentifier = this.configService.get(
+    const configIncomingIdentifier = this.configService.get(
       'eagleEye.incomingIdentifier',
     );
-    const parentIncomingIdentifier = this.configService.get(
+    const configParentIncomingIdentifier = this.configService.get(
       'eagleEye.parentIncomingIdentifier',
     );
+    const incomingIdentifier = order.custom?.fields
+      ? order.custom?.fields['eagleeye-incomingIdentifier'] ||
+        configIncomingIdentifier
+      : configIncomingIdentifier;
+    const parentIncomingIdentifier = order.custom?.fields
+      ? order.custom?.fields['eagleeye-parentIncomingIdentifier'] ||
+        configParentIncomingIdentifier
+      : configParentIncomingIdentifier;
 
     const identity = order.custom?.fields['eagleeye-identityValue'];
 

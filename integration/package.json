@@ -98,7 +98,8 @@
     "collectCoverage": true,
     "collectCoverageFrom": [
       "**/*.(t|j)s",
-      "!**/*.exception.ts"
+      "!**/*.exception.ts",
+      "!src/cli.ts"
     ],
     "coverageDirectory": "../coverage",
     "coverageThreshold": {

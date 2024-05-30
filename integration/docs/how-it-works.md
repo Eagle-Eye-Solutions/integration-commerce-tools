@@ -381,6 +381,12 @@ class
 and [LoyaltyMapper](https://github.com/Eagle-Eye-Solutions/integration-commerce-tools/blob/master/integration/src/adjudication/mappers/loyalty.mapper.ts)
 class
 
+#### Dynamic location identifiers
+
+Using the `eagleeye-incomingIdentifier` and `eagleeye-parentIncomingIdentifier` custom fields in a Cart, it is possible to override the `EE_INCOMING_IDENTIFIER` and `EE_PARENT_INCOMING_IDENTIFIER` dynamically per Cart without changing the variables/using configuration override and redeploying. Orders will use the same identifier as their carts to make sure transactions can be settled properly.
+
+This is not recommended as the main way of setting/changing these values and should only be used for specific use cases.
+
 ### Error handling
 
 The extension module has enabled by default a circuit breaker functionality, all calls to EagleEye wallet APIs are

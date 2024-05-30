@@ -11,6 +11,9 @@ export const FIELD_EAGLEEYE_SETTLED_STATUS = 'eagleeye-settledStatus';
 export const FIELD_EAGLEEYE_APPLIED_DISCOUNTS = 'eagleeye-appliedDiscounts';
 export const FIELD_EAGLEEYE_LOYALTY_EARN_CREDITS =
   'eagleeye-loyaltyEarnAndCredits';
+export const FIELD_EAGLEEYE_INCOMING_IDENTIFIER = 'eagleeye-incomingIdentifier';
+export const FIELD_EAGLEEYE_PARENT_INCOMING_IDENTIFIER =
+  'eagleeye-parentIncomingIdentifier';
 export const TYPE_CART = 'custom-cart-type';
 
 @Injectable()
@@ -141,6 +144,28 @@ export class CartTypeDefinition implements TypeDefinitionInterface {
           name: FIELD_EAGLEEYE_LOYALTY_EARN_CREDITS,
           label: {
             en: 'eagleeye-loyaltyEarnAndCredits',
+          },
+          required: false,
+          type: {
+            name: 'String',
+          },
+          inputHint: 'SingleLine',
+        },
+        {
+          name: FIELD_EAGLEEYE_INCOMING_IDENTIFIER,
+          label: {
+            en: 'eagleeye-incomingIdentifier',
+          },
+          required: false,
+          type: {
+            name: 'String',
+          },
+          inputHint: 'SingleLine',
+        },
+        {
+          name: FIELD_EAGLEEYE_PARENT_INCOMING_IDENTIFIER,
+          label: {
+            en: 'eagleeye-parentIncomingIdentifier',
           },
           required: false,
           type: {

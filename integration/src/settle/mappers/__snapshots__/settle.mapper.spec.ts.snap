@@ -30,3 +30,17 @@ exports[`CTCartToEEBasketMapper mapOrderToWalletSettlePayload should return the 
   "reference": "12345678",
 }
 `;
+
+exports[`CTCartToEEBasketMapper mapOrderToWalletSettlePayload should return the payload for /wallet/settle when location identifiers are found in order 1`] = `
+{
+  "basket": {
+    "contents": [],
+  },
+  "location": {
+    "incomingIdentifier": "override-incoming-identifier",
+    "parentIncomingIdentifier": "override-parent-incoming-identifier",
+  },
+  "mode": "ACTIVE",
+  "reference": "12345678",
+}
+`;

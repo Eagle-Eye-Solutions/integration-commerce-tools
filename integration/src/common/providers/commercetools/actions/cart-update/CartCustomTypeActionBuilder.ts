@@ -37,6 +37,8 @@ interface CustomFieldsObject {
   action?: string;
   settledStatus?: string;
   loyaltyEarnAndCredits?: LoyaltyEarnAndCredits;
+  incomingIdentifier?: string;
+  parentIncomingIdentifier?: string;
 }
 
 export class CartCustomTypeActionBuilder {

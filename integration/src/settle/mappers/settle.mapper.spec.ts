@@ -94,5 +94,35 @@ describe('CTCartToEEBasketMapper', () => {
 
       expect(payload).toMatchSnapshot();
     });
+
+    it('should return the payload for /wallet/settle when location identifiers are found in order', async () => {
+      jest
+        .spyOn(configService, 'get')
+        .mockReturnValueOnce('outlet1')
+        .mockReturnValueOnce('banner1');
+
+      jest.spyOn(basketStoreService, 'get').mockResolvedValueOnce({
+        enrichedBasket: {
+          contents: [],
+        },
+      });
+
+      const payload = await service.mapOrderToWalletSettlePayload({
+        id: '123456',
+        cart: {
+          typeId: 'cart',
+          id: '12345678',
+        },
+        custom: {
+          fields: {
+            'eagleeye-incomingIdentifier': 'override-incoming-identifier',
+            'eagleeye-parentIncomingIdentifier':
+              'override-parent-incoming-identifier',
+          },
+        },
+      } as any);
+
+      expect(payload).toMatchSnapshot();
+    });
   });
 });
