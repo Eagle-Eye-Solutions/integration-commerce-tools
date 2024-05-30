@@ -221,20 +221,9 @@ export class AdjudicationMapper {
     if (shippingDiscountItem.upc || shippingDiscountItem.sku) {
       basketContents.push(shippingDiscountItem);
     }
-    const configIncomingIdentifier = this.configService.get(
-      'eagleEye.incomingIdentifier',
-    );
-    const configParentIncomingIdentifier = this.configService.get(
-      'eagleEye.parentIncomingIdentifier',
-    );
-    const incomingIdentifier = cart.custom?.fields
-      ? cart.custom?.fields['eagleeye-incomingIdentifier'] ||
-        configIncomingIdentifier
-      : configIncomingIdentifier;
-    const parentIncomingIdentifier = cart.custom?.fields
-      ? cart.custom?.fields['eagleeye-parentIncomingIdentifier'] ||
-        configParentIncomingIdentifier
-      : configParentIncomingIdentifier;
+
+    const { incomingIdentifier, parentIncomingIdentifier } =
+      this.getLocationIdentifiers(cart);
 
     const voucherCodes: string[] = cart.custom?.fields
       ? cart.custom?.fields['eagleeye-voucherCodes'] || []
@@ -290,5 +279,24 @@ export class AdjudicationMapper {
         contents: basketContents,
       },
     };
+  }
+
+  getLocationIdentifiers(cart: Cart) {
+    const configIncomingIdentifier = this.configService.get(
+      'eagleEye.incomingIdentifier',
+    );
+    const configParentIncomingIdentifier = this.configService.get(
+      'eagleEye.parentIncomingIdentifier',
+    );
+    const incomingIdentifier = cart.custom?.fields
+      ? cart.custom?.fields['eagleeye-incomingIdentifier'] ||
+        configIncomingIdentifier
+      : configIncomingIdentifier;
+    const parentIncomingIdentifier = cart.custom?.fields
+      ? cart.custom?.fields['eagleeye-parentIncomingIdentifier'] ||
+        configParentIncomingIdentifier
+      : configParentIncomingIdentifier;
+
+    return { incomingIdentifier, parentIncomingIdentifier };
   }
 }

@@ -13,21 +13,8 @@ export class SettleMapper {
   ) {}
 
   async mapOrderToWalletSettlePayload(order: Order) {
-    const configIncomingIdentifier = this.configService.get(
-      'eagleEye.incomingIdentifier',
-    );
-    const configParentIncomingIdentifier = this.configService.get(
-      'eagleEye.parentIncomingIdentifier',
-    );
-    const incomingIdentifier = order.custom?.fields
-      ? order.custom?.fields['eagleeye-incomingIdentifier'] ||
-        configIncomingIdentifier
-      : configIncomingIdentifier;
-    const parentIncomingIdentifier = order.custom?.fields
-      ? order.custom?.fields['eagleeye-parentIncomingIdentifier'] ||
-        configParentIncomingIdentifier
-      : configParentIncomingIdentifier;
-
+    const { incomingIdentifier, parentIncomingIdentifier } =
+      this.getLocationIdentifiers(order);
     const identity = order.custom?.fields['eagleeye-identityValue'];
 
     const enrichedBasket = (await this.basketStoreService.get(order.cart.id))
@@ -43,5 +30,24 @@ export class SettleMapper {
       },
       basket: enrichedBasket,
     };
+  }
+
+  getLocationIdentifiers(order: Order) {
+    const configIncomingIdentifier = this.configService.get(
+      'eagleEye.incomingIdentifier',
+    );
+    const configParentIncomingIdentifier = this.configService.get(
+      'eagleEye.parentIncomingIdentifier',
+    );
+    const incomingIdentifier = order.custom?.fields
+      ? order.custom?.fields['eagleeye-incomingIdentifier'] ||
+        configIncomingIdentifier
+      : configIncomingIdentifier;
+    const parentIncomingIdentifier = order.custom?.fields
+      ? order.custom?.fields['eagleeye-parentIncomingIdentifier'] ||
+        configParentIncomingIdentifier
+      : configParentIncomingIdentifier;
+
+    return { incomingIdentifier, parentIncomingIdentifier };
   }
 }
