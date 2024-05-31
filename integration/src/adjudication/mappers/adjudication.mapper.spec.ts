@@ -518,5 +518,36 @@ describe('AdjudicationMapper', () => {
 
       expect(payload).toMatchSnapshot();
     });
+
+    it('should return the payload for /wallet/open when using location identifiers in cart', async () => {
+      jest
+        .spyOn(configService, 'get')
+        .mockReturnValueOnce(false)
+        .mockReturnValueOnce(shippingMethodMapMock)
+        .mockReturnValueOnce('outlet1')
+        .mockReturnValueOnce('banner1');
+
+      const cartWithCustomIdentifiers = {
+        ...cart,
+        custom: {
+          type: {
+            typeId: 'type',
+            id: '123456',
+          },
+          fields: {
+            'eagleeye-incomingIdentifier': 'override-incoming-identifier',
+            'eagleeye-parentIncomingIdentifier':
+              'override-parent-incoming-identifier',
+          },
+        },
+      };
+
+      const payload = await service.mapCartToWalletOpenPayload(
+        cartWithCustomIdentifiers,
+        false,
+      );
+
+      expect(payload).toMatchSnapshot();
+    });
   });
 });
