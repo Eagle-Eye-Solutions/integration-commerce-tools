@@ -383,7 +383,21 @@ class
 
 #### Dynamic location identifiers
 
-Using the `eagleeye-incomingIdentifier` and `eagleeye-parentIncomingIdentifier` custom fields in a Cart, it is possible to override the `EE_INCOMING_IDENTIFIER` and `EE_PARENT_INCOMING_IDENTIFIER` dynamically per Cart without changing the variables/using configuration override and redeploying. Orders will use the same identifier as their carts to make sure transactions can be settled properly.
+Using the `eagleeye-incomingIdentifier` and/or `eagleeye-parentIncomingIdentifier` custom fields in a Cart, it is possible to override the `EE_INCOMING_IDENTIFIER` and `EE_PARENT_INCOMING_IDENTIFIER` dynamically per Cart without changing the variables/using configuration override and redeploying. Orders will use the same identifier as their carts to make sure transactions can be settled properly.
+
+Here's an example of what a Cart might look like with these custom fields:
+```json
+{
+  // ...
+  "custom": {
+    // ...
+    "fields": {
+      "eagleeye-incomingIdentifier": "example-identifier",
+      "eagleeye-parentIncomingIdentifier": "example-parent-identifier"
+    }
+  }
+}
+```
 
 This is not recommended as the main way of setting/changing these values and should only be used for specific use cases.
 
