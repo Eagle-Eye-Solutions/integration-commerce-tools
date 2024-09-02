@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { EagleEyeApiException } from '../../exceptions/eagle-eye-api.exception';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom, retry } from 'rxjs';
+import { getEesCalledUniqueIdHeader } from '../../helper/axios-payload-utils';
 
 export type EagleEyeCredentials = {
   clientId: string;
@@ -86,17 +87,57 @@ export abstract class EagleEyeSdkObject implements BreakableApi {
       const value = await firstValueFrom(response);
       return value;
     } catch (err) {
-      this.logger.error('EagleEye API error: ', err, EagleEyeSdkObject.name);
-      if (err.response.status === 404) {
+      if (err.response) {
+        this.logger.error(
+          `EE API returned error with status: ${
+            err.response.status
+          } and Unique Call ID: ${getEesCalledUniqueIdHeader(err.response)}`,
+          {
+            body,
+            data: err.response.data,
+          },
+          EagleEyeSdkObject.name,
+        );
+        switch (err.response.status) {
+          case 404:
+            throw new EagleEyeApiException(
+              'EE_IDENTITY_NOT_FOUND',
+              "The customer identity doesn't exist in EE AIR Platform.",
+            );
+            break;
+          case 400:
+            throw new EagleEyeApiException(
+              'EE_BAD_REQUEST',
+              'The request could not be processed by the EE AIR Platform.',
+            );
+            break;
+          default:
+            throw new EagleEyeApiException(
+              'EE_UNEXPECTED_ERROR',
+              'The request failed to be processed by the EE AIR Platform due to an unexpected error.',
+            );
+        }
+      } else if (err.request) {
+        this.logger.error(
+          'EagleEye API error: ',
+          err.message,
+          EagleEyeSdkObject.name,
+        );
         throw new EagleEyeApiException(
-          'EE_IDENTITY_NOT_FOUND',
-          "The customer identity doesn't exist in EE AIR Platform",
+          'AXIOS_NO_RESPONSE_ERROR',
+          'The request to EE AIR Platform failed but Axios did not include a response.',
+        );
+      } else {
+        this.logger.error(
+          'EagleEye API unhandled error: ',
+          err,
+          EagleEyeSdkObject.name,
+        );
+        throw new EagleEyeApiException(
+          'EE_API_UNAVAILABLE',
+          'The EE API is unavailable, the cart promotions and loyalty points are NOT updated.',
         );
       }
-      throw new EagleEyeApiException(
-        'EE_API_UNAVAILABLE',
-        'The eagle eye API is unavailable, the cart promotions and loyalty points are NOT updated',
-      );
     }
   }
 }
