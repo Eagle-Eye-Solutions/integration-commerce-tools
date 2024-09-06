@@ -14,6 +14,8 @@ import {
 } from '../../../common/providers/commercetools/custom-type/cart-type-definition';
 import { Commercetools } from '../../../common/providers/commercetools/commercetools.provider';
 import { sleep } from '../../../common/helper/timeout';
+import { getEesCalledUniqueIdHeader } from '../../../common/helper/axios-payload-utils';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class OrderSettleService {
@@ -25,6 +27,7 @@ export class OrderSettleService {
     @Inject(BASKET_STORE_SERVICE)
     private readonly basketStoreService: BasketStoreService,
     private commercetools: Commercetools,
+    readonly configService: ConfigService,
   ) {}
 
   async settleTransactionFromOrder(
@@ -45,6 +48,11 @@ export class OrderSettleService {
       const walletSettleResponse = await this.walletSettleInvoke(
         'settle',
         settleRequest,
+      );
+      this.logger.log(
+        `Settle was called. EE Unique Call ID: ${getEesCalledUniqueIdHeader(
+          walletSettleResponse,
+        )}`,
       );
       try {
         this.logger.log(
@@ -151,17 +159,29 @@ export class OrderSettleService {
       case 'OrderCreatedWithPaidState':
         return (
           Boolean(orderPaymentState === 'Paid') &&
-          Boolean(orderSettledStatus !== 'SETTLED')
+          Boolean(orderSettledStatus !== 'SETTLED') &&
+          this.allowRetriesOnSettleError(orderSettledStatus)
         );
       case 'OrderCreatedWithSettleAction':
       case 'OrderUpdatedWithSettleAction':
         return (
           Boolean(orderSettleAction === 'SETTLE') &&
-          Boolean(orderSettledStatus !== 'SETTLED')
+          Boolean(orderSettledStatus !== 'SETTLED') &&
+          this.allowRetriesOnSettleError(orderSettledStatus)
         );
       default:
         return false;
     }
+  }
+
+  allowRetriesOnSettleError(orderSettledStatus: string): boolean {
+    const retryOnErrorAllowed = this.configService.get(
+      'eventHandler.allowRetriesOnSettleError',
+    );
+    if (orderSettledStatus === 'ERROR') {
+      return retryOnErrorAllowed;
+    }
+    return true;
   }
 
   async getGenericSettleActions(

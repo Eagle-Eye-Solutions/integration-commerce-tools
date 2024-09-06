@@ -42,6 +42,7 @@ const validationSchema = Joi.object({
   },
   eventHandler: {
     disabledEvents: Joi.array<string>(),
+    allowRetriesOnSettleError: Joi.boolean(),
   },
   storedBasketCleanup: {
     objectQueryLimit: Joi.number(),
@@ -110,6 +111,10 @@ export const defaultConfiguration = {
     disabledEvents: (process.env.CTP_DISABLED_EVENTS || '')
       .split(',')
       .map((item) => item.trim()),
+    allowRetriesOnSettleError: parseBool(
+      process.env.ALLOW_RETRY_ON_SETTLE_ERROR,
+      true,
+    ),
   },
   storedBasketCleanup: {
     objectQueryLimit:

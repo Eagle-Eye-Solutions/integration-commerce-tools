@@ -749,7 +749,7 @@ export const ERROR_RESPONSE = {
       action: 'setCustomField',
       name: 'eagleeye-errors',
       value: [
-        '{"type":"EE_API_UNAVAILABLE","message":"The eagle eye API is unavailable, the cart promotions and loyalty points are NOT updated"}',
+        '{"type":"EE_UNEXPECTED_ERROR","message":"The request failed to be processed by the EE AIR Platform due to an unexpected error."}',
       ],
     },
     { action: 'setCustomField', name: 'eagleeye-appliedDiscounts', value: [] },

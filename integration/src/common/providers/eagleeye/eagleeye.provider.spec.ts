@@ -72,8 +72,11 @@ describe('Wallet', () => {
     expect(result).toEqual(mockResponse);
   });
 
-  it('should throw EagleEyeApiException when the API request to EagleEye fails', async () => {
-    const error = { response: { status: 500 } };
+  it('should throw EagleEyeApiException (EE_API_UNAVAILABLE) for unhandled error codes', async () => {
+    const error = {
+      request: { headers: {}, body: {} },
+      response: { headers: {}, status: 500 },
+    };
     jest.spyOn(httpService, 'request').mockImplementationOnce(() => {
       throw error;
     });
@@ -81,7 +84,71 @@ describe('Wallet', () => {
     await expect(service.invoke('open', { test: 'test' })).rejects.toThrow(
       new EagleEyeApiException(
         'EE_API_UNAVAILABLE',
-        'The eagle eye API is unavailable, the cart promotions and loyalty points are NOT updated',
+        'The request failed to be processed by the EE AIR Platform due to an unexpected error.',
+      ),
+    );
+  });
+
+  it('should throw EagleEyeApiException (EE_IDENTITY_NOT_FOUND) for 404 errors', async () => {
+    const error = {
+      request: { headers: {}, body: {} },
+      response: { headers: {}, status: 404 },
+    };
+    jest.spyOn(httpService, 'request').mockImplementationOnce(() => {
+      throw error;
+    });
+
+    await expect(service.invoke('open', { test: 'test' })).rejects.toThrow(
+      new EagleEyeApiException(
+        'EE_IDENTITY_NOT_FOUND',
+        "The customer identity doesn't exist in EE AIR Platform.",
+      ),
+    );
+  });
+
+  it('should throw EagleEyeApiException (EE_BAD_REQUEST) for 400 errors', async () => {
+    const error = {
+      request: { headers: {}, body: {} },
+      response: { headers: {}, status: 400 },
+    };
+    jest.spyOn(httpService, 'request').mockImplementationOnce(() => {
+      throw error;
+    });
+
+    await expect(service.invoke('open', { test: 'test' })).rejects.toThrow(
+      new EagleEyeApiException(
+        'EE_BAD_REQUEST',
+        'The request could not be processed by the EE AIR Platform.',
+      ),
+    );
+  });
+
+  it('should throw EagleEyeApiException (AXIOS_NO_RESPONSE_ERROR) for errors with no response', async () => {
+    const error = {
+      request: { headers: {}, body: {} },
+    };
+    jest.spyOn(httpService, 'request').mockImplementationOnce(() => {
+      throw error;
+    });
+
+    await expect(service.invoke('open', { test: 'test' })).rejects.toThrow(
+      new EagleEyeApiException(
+        'AXIOS_NO_RESPONSE_ERROR',
+        'The request to EE AIR Platform failed but Axios did not include a response.',
+      ),
+    );
+  });
+
+  it('should throw EagleEyeApiException (EE_API_UNAVAILABLE) for other unknown errors', async () => {
+    const error = {};
+    jest.spyOn(httpService, 'request').mockImplementationOnce(() => {
+      throw error;
+    });
+
+    await expect(service.invoke('open', { test: 'test' })).rejects.toThrow(
+      new EagleEyeApiException(
+        'EE_API_UNAVAILABLE',
+        'The EE API is unavailable, the cart promotions and loyalty points are NOT updated.',
       ),
     );
   });

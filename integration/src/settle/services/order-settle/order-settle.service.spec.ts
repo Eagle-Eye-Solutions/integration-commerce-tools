@@ -14,8 +14,13 @@ describe('OrderSettleService', () => {
   let orderSettleService: OrderSettleService;
   let basketStoreService: BasketStoreService;
   let commercetools: Commercetools;
+  let mockConfigService: { get: jest.Mock };
 
   beforeEach(async () => {
+    mockConfigService = {
+      get: jest.fn(),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         OrderSettleService,
@@ -48,9 +53,7 @@ describe('OrderSettleService', () => {
         { provide: CircuitBreakerService, useValue: { fire: jest.fn() } },
         {
           provide: ConfigService,
-          useValue: {
-            get: jest.fn(),
-          },
+          useValue: mockConfigService,
         },
       ],
     }).compile();
@@ -419,6 +422,34 @@ describe('OrderSettleService', () => {
           ],
         },
       ]);
+    });
+  });
+
+  describe('allowRetriesOnSettleError', () => {
+    it('should allow retries on "ERROR" status when configured to allow', () => {
+      mockConfigService.get.mockReturnValue(true);
+
+      const result = orderSettleService.allowRetriesOnSettleError('ERROR');
+
+      expect(result).toBe(true);
+    });
+
+    it('should not allow retries on "ERROR" status when not configured to allow', () => {
+      mockConfigService.get.mockReturnValue(false);
+
+      const result = orderSettleService.allowRetriesOnSettleError('ERROR');
+
+      expect(result).toBe(false);
+    });
+
+    it('should always allow retries on statuses other than "ERROR"', () => {
+      const nonErrorStatuses = ['', 'SETTLED'];
+
+      nonErrorStatuses.forEach((status) => {
+        const result = orderSettleService.allowRetriesOnSettleError(status);
+
+        expect(result).toBe(true);
+      });
     });
   });
 });
