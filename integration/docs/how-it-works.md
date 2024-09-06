@@ -448,6 +448,10 @@ Any other errors in the plugin will also be added to the Cart custom field `eagl
 }
 ```
 
+For requests to the EE AIR API, logs include the EE API Unique Call ID (`x-ees-called-unique-id`), which helps troubleshoot issues or unexpected behaviors in AIR that may not be treated/returned as an error. This logged for successful requests and failed requests that reached AIR and provided a response.
+
+Depending on the error, the request payload and/or error response data may be logged as well. These logs can be checked using Connect's [deployment log search](https://docs.commercetools.com/connect/deployment-logs#query-deployment-logs).
+
 ## Subscription module
 
 When performing cart creation/updates (like changing line item quantities, or adding voucher codes) a transaction is
