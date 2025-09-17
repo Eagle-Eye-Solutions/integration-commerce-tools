@@ -13,3 +13,6 @@ qodana.yaml
 
 #SonarQube
 .scannerwork
+
+#Commercetools connect CLI
+.connect/

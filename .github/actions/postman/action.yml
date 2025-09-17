@@ -46,6 +46,10 @@ runs:
       run: |
         yarn global add newman newman-reporter-htmlextra
       shell: bash
+    - name: Set current date as env variable
+      run: echo "current_date=$(date +'%Y-%m-%dT%H_%M_%S')" >> $GITHUB_OUTPUT
+      shell: bash
+      id: date_output
     - name: Run e2e tests
       run: |
         newman run ${{ inputs.postman_collection_json }} \
@@ -64,8 +68,8 @@ runs:
       shell: bash
       working-directory: ./integration/test
     - name: Upload test results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: E2E-reports
+        name: E2E-reports-${{steps.date_output.outputs.current_date}}
         path: integration/test/newman
