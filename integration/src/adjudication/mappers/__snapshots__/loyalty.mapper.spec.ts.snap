@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`LoyaltyMapper mapAdjustedBasketToBasketCredits should process the continuity campaign fulfilled results and update the mapped basket credits 1`] = `
 {

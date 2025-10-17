@@ -1,15 +1,17 @@
 import { AdjudicationController } from './adjudication.controller';
-import { TestBed } from '@automock/jest';
+import { Mocked, TestBed } from '@suites/unit';
 import { CartExtensionService } from '../services/cart-extension/cart-extension.service';
 import { BasketCleanupService } from '../services/basket-cleanup-service/basket-cleanup.service';
 
 describe('AdjudicationController', () => {
   let adjudicationController: AdjudicationController;
-  let cartExtensionService: jest.Mocked<CartExtensionService>;
-  let basketCleanupService: jest.Mocked<BasketCleanupService>;
+  let cartExtensionService: Mocked<CartExtensionService>;
+  let basketCleanupService: Mocked<BasketCleanupService>;
 
   beforeEach(async () => {
-    const { unit, unitRef } = TestBed.create(AdjudicationController).compile();
+    const { unit, unitRef } = await TestBed.solitary(
+      AdjudicationController,
+    ).compile();
     adjudicationController = unit;
     cartExtensionService =
       unitRef.get<CartExtensionService>(CartExtensionService);

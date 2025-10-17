@@ -1,4 +1,4 @@
-import { TestBed } from '@automock/jest';
+import { Mocked, TestBed } from '@suites/unit';
 import { CommercetoolsCircuitBreakerStateService } from './commercetools-circuit-breaker-state.service';
 import { CustomObjectService } from '../commercetools/custom-object/custom-object.service';
 import {
@@ -8,10 +8,10 @@ import {
 
 describe('Commercetools Circuit Breaker State Service', () => {
   let service: CommercetoolsCircuitBreakerStateService;
-  let customObjectService: jest.Mocked<CustomObjectService>;
+  let customObjectService: Mocked<CustomObjectService>;
 
-  beforeAll(() => {
-    const { unit, unitRef } = TestBed.create(
+  beforeAll(async () => {
+    const { unit, unitRef } = await TestBed.solitary(
       CommercetoolsCircuitBreakerStateService,
     ).compile();
     service = unit;

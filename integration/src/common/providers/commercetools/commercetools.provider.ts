@@ -15,8 +15,8 @@ import {
   SubscriptionUpdateAction,
   Order,
   OrderUpdateAction,
+  ByProjectKeyRequestBuilder,
 } from '@commercetools/platform-sdk';
-import { ByProjectKeyRequestBuilder } from '@commercetools/platform-sdk/dist/declarations/src/generated/client/by-project-key-request-builder';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()

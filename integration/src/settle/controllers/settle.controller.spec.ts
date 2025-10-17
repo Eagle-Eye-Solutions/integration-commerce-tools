@@ -1,13 +1,14 @@
 import { SettleController } from './settle.controller';
-import { TestBed } from '@automock/jest';
+import { Mocked, TestBed } from '@suites/unit';
 import { OrderSubscriptionService } from '../services/order-subscription/order-subscription.service';
 
 describe('SettleController', () => {
   let appController: SettleController;
-  let orderSubscriptionService: jest.Mocked<OrderSubscriptionService>;
+  let orderSubscriptionService: Mocked<OrderSubscriptionService>;
 
   beforeEach(async () => {
-    const { unit, unitRef } = TestBed.create(SettleController).compile();
+    const { unit, unitRef } =
+      await TestBed.solitary(SettleController).compile();
     appController = unit;
     orderSubscriptionService = unitRef.get<OrderSubscriptionService>(
       OrderSubscriptionService,

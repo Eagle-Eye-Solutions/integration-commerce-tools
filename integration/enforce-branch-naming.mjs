@@ -1,5 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const { execSync } = require('child_process');
+import { execSync } from 'child_process';
 
 const branchName = execSync('git rev-parse --abbrev-ref HEAD') // NOSONAR
   .toString()
