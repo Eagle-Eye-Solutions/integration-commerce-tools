@@ -3711,52 +3711,50 @@ export const nockWalletOpenIdentityError = async (
     basketContents.push(shippingDiscountItem);
   }
 
-  return nock('https://pos.sandbox.uk.eagleeye.com:443', {
-    encodedQueryParams: true,
-  })
-    .persist()
-    .post('/connect/wallet/open', {
-      reference: cart.id,
-      identity: {
-        identityValue: '123456',
-      },
-      lock: true,
-      location: {
-        incomingIdentifier: 'outlet1',
-        parentIncomingIdentifier: 'banner1',
-      },
-      options: {
-        adjustBasket: {
-          includeOpenOffers: true,
-          enabled: true,
-        },
-        analyseBasket: {
-          includeOpenOffers: true,
-          enabled: true,
-        },
-      },
-      basket: {
-        type: 'STANDARD',
-        summary: {
-          redemptionChannel: 'Online',
-          totalDiscountAmount: {
-            general: null,
-            staff: null,
-            promotions: 0,
-          },
-          totalItems: getTotalItemCount(cart),
-          totalBasketValue: getTotalBasketValue(cart),
-        },
-        contents: basketContents,
-      },
+  return (
+    nock('https://pos.sandbox.uk.eagleeye.com:443', {
+      encodedQueryParams: true,
     })
-    .delayConnection(delayConnection)
-    .replyWithError({
-      response: {
-        code: 'ERR_BAD_REQUEST',
-        status: responseCode,
-      },
-    });
+      .persist()
+      .post('/connect/wallet/open', {
+        reference: cart.id,
+        identity: {
+          identityValue: '123456',
+        },
+        lock: true,
+        location: {
+          incomingIdentifier: 'outlet1',
+          parentIncomingIdentifier: 'banner1',
+        },
+        options: {
+          adjustBasket: {
+            includeOpenOffers: true,
+            enabled: true,
+          },
+          analyseBasket: {
+            includeOpenOffers: true,
+            enabled: true,
+          },
+        },
+        basket: {
+          type: 'STANDARD',
+          summary: {
+            redemptionChannel: 'Online',
+            totalDiscountAmount: {
+              general: null,
+              staff: null,
+              promotions: 0,
+            },
+            totalItems: getTotalItemCount(cart),
+            totalBasketValue: getTotalBasketValue(cart),
+          },
+          contents: basketContents,
+        },
+      })
+      .delayConnection(delayConnection)
+      // HTTP 4xx/5xx body so axios exposes err.response like production (not replyWithError).
+      .reply(responseCode, {})
+  );
 };
 
 function getTotalItemCount(cart: any): number {

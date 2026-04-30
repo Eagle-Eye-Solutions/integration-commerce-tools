@@ -6,6 +6,8 @@ import { EagleEyeApiException } from '../../exceptions/eagle-eye-api.exception';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom, retry } from 'rxjs';
 import { getEesCalledUniqueIdHeader } from '../../helper/axios-payload-utils';
+import { getAxiosHttpStatus } from '../../helper/axios-error-utils';
+import axios from 'axios';
 
 export type EagleEyeCredentials = {
   clientId: string;
@@ -86,19 +88,34 @@ export abstract class EagleEyeSdkObject implements BreakableApi {
         );
       const value = await firstValueFrom(response);
       return value;
-    } catch (err) {
-      if (err.response) {
+    } catch (err: unknown) {
+      const httpStatus = getAxiosHttpStatus(err);
+      if (httpStatus != null) {
+        const rawResponse = axios.isAxiosError(err)
+          ? err.response
+          : (
+              err as {
+                response?: {
+                  status?: number;
+                  data?: unknown;
+                  headers?: unknown;
+                };
+              }
+            ).response;
+        const logResponse = rawResponse ?? {
+          status: httpStatus,
+          data: undefined,
+          headers: {},
+        };
         this.logger.error(
-          `EE API returned error with status: ${
-            err.response.status
-          } and Unique Call ID: ${getEesCalledUniqueIdHeader(err.response)}`,
+          `EE API returned error with status: ${httpStatus} and Unique Call ID: ${getEesCalledUniqueIdHeader(logResponse)}`,
           {
             body,
-            data: err.response.data,
+            data: logResponse.data,
           },
           EagleEyeSdkObject.name,
         );
-        switch (err.response.status) {
+        switch (httpStatus) {
           case 404:
             throw new EagleEyeApiException(
               'EE_IDENTITY_NOT_FOUND',
@@ -115,10 +132,14 @@ export abstract class EagleEyeSdkObject implements BreakableApi {
               'The request failed to be processed by the EE AIR Platform due to an unexpected error.',
             );
         }
-      } else if (err.request) {
+      } else if (
+        axios.isAxiosError(err)
+          ? err.request
+          : (err as { request?: unknown }).request
+      ) {
         this.logger.error(
           'EagleEye API error: ',
-          err.message,
+          axios.isAxiosError(err) ? err.message : (err as Error).message,
           EagleEyeSdkObject.name,
         );
         throw new EagleEyeApiException(

@@ -33,7 +33,7 @@ jobs:
       connector_key: ${{ steps.set-connector-key.outputs.connector_key }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set connector_key based on environment
         id: set-connector-key
         run: |
@@ -52,7 +52,7 @@ jobs:
       access_token: ${{ fromJSON(steps.authenticate.outputs.output).data.access_token }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Authenticate
         id: authenticate
         uses: ./.github/actions/connect/authenticate
@@ -69,7 +69,7 @@ jobs:
       access_token: ${{ fromJSON(steps.authenticate.outputs.output).data.access_token }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Authenticate
         id: authenticate
         uses: ./.github/actions/connect/authenticate
@@ -86,7 +86,7 @@ jobs:
       connector: ${{ steps.update-tag.outputs.output }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Get and update Connector
         id: update-tag
         uses: ./.github/actions/connect/update-tag
@@ -104,7 +104,7 @@ jobs:
       connector: ${{ steps.publish.outputs.response }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Publish
         id: publish
         uses: ./.github/actions/connect/publish
@@ -122,7 +122,7 @@ jobs:
     environment: ${{ github.event.inputs.dev_to_staging == 'true' && 'staging' || github.event.inputs.environment }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Check and Undeploy Connector
         id: undeploy
         uses: ./.github/actions/connect/undeploy
@@ -139,7 +139,7 @@ jobs:
     environment: ${{ github.event.inputs.dev_to_staging == 'true' && 'staging' || github.event.inputs.environment }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Deploy Connector
         id: deploy
         uses: ./.github/actions/connect/deploy
@@ -182,7 +182,7 @@ jobs:
     environment: ${{ github.event.inputs.environment }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Run E2E e2e-tests
         uses: ./.github/actions/postman
         with:

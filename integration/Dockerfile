@@ -3,7 +3,7 @@
 # BUILD FOR LOCAL DEVELOPMENT
 ###################
 
-FROM node:lts-alpine AS development
+FROM node:20-alpine AS development
 
 WORKDIR /usr/src/app
 
@@ -20,7 +20,7 @@ USER node
 # BUILD FOR PRODUCTION
 ###################
 
-FROM node:lts-alpine AS build
+FROM node:20-alpine AS build
 
 WORKDIR /usr/src/app
 
@@ -39,7 +39,7 @@ RUN yarn install --production && yarn cache clean
 # PRODUCTION
 ###################
 
-FROM node:lts-alpine AS production
+FROM node:20-alpine AS production
 
 COPY --chown=node:node --chmod=644 --from=build /usr/src/app/node_modules ./node_modules
 COPY --chown=node:node --chmod=644 --from=build /usr/src/app/dist ./dist
