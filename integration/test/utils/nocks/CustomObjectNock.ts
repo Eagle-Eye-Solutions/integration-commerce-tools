@@ -47,15 +47,20 @@ export const nockDeleteCustomObject = (
   response: any,
   times = 1,
   statusCode = 200,
+  persist = false,
 ) => {
-  return nock('https://api.europe-west1.gcp.commercetools.com:443', {
+  const scope = nock('https://api.europe-west1.gcp.commercetools.com:443', {
     encodedQueryParams: true,
-  })
-    .delete(
-      `/${process.env.CTP_PROJECT_KEY}/custom-objects/${container}/${key}`,
-    )
-    .times(times)
-    .reply(statusCode, response, []);
+  });
+  if (persist) {
+    scope.persist();
+  }
+  const chain = scope.delete(
+    `/${process.env.CTP_PROJECT_KEY}/custom-objects/${container}/${key}`,
+  );
+  return persist
+    ? chain.reply(statusCode, response, [])
+    : chain.times(times).reply(statusCode, response, []);
 };
 
 export const nockPostEnrichedBasketCustomObject = (body?: any) => {

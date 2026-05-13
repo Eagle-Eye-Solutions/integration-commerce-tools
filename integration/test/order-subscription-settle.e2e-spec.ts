@@ -326,27 +326,36 @@ describe('Settle EE transactions on Order messages (e2e)', () => {
     const getCircuitStateCustomObjectNock = nockGetCustomObject(404, null);
     const getEnrichedBasketCustomObjectNock =
       nockGetEnrichedBasketCustomObject(404);
-    const getOrderByIdNock = nockCtGetOrderById(
-      {
-        ...ORDER_FOR_SETTLE.resource.obj,
-        paymentState: 'Paid',
-      },
-      6,
-      false,
-    );
-    const getOrderSettledByIdNock = nockCtGetOrderById(
-      {
-        ...ORDER_FOR_SETTLE.resource.obj,
-        paymentState: 'Paid',
-        custom: {
-          fields: {
-            'eagleeye-settledStatus': 'SETTLED',
-          },
+    const orderForValidation = {
+      ...ORDER_FOR_SETTLE.resource.obj,
+      paymentState: 'Paid' as const,
+    };
+    const orderAfterSettledPoll = {
+      ...ORDER_FOR_SETTLE.resource.obj,
+      paymentState: 'Paid' as const,
+      custom: {
+        ...ORDER_FOR_SETTLE.resource.obj.custom,
+        fields: {
+          ...ORDER_FOR_SETTLE.resource.obj.custom.fields,
+          'eagleeye-settledStatus': 'SETTLED',
         },
       },
-      2,
-      false,
-    );
+    };
+    let orderGetSeq = 0;
+    const getOrderSequentialNock = nock(
+      'https://api.europe-west1.gcp.commercetools.com:443',
+      { encodedQueryParams: false },
+    )
+      .get(
+        `/${process.env.CTP_PROJECT_KEY}/orders/${ORDER_FOR_SETTLE.resource.obj.id}`,
+      )
+      .times(4)
+      .reply(() => {
+        orderGetSeq++;
+        const body =
+          orderGetSeq <= 2 ? orderForValidation : orderAfterSettledPoll;
+        return [200, body];
+      });
 
     const updateOrderByIdNock = nockCtUpdateOrderById(
       ORDER_FOR_SETTLE.resource.obj,
@@ -379,8 +388,7 @@ describe('Settle EE transactions on Order messages (e2e)', () => {
     expect(ctAuthNock.isDone()).toBeTruthy();
     expect(getCircuitStateCustomObjectNock.isDone()).toBeTruthy();
     expect(getEnrichedBasketCustomObjectNock.isDone()).toBeTruthy();
-    expect(getOrderByIdNock.isDone()).toBeTruthy();
-    expect(getOrderSettledByIdNock.isDone()).toBeTruthy();
+    expect(getOrderSequentialNock.isDone()).toBeTruthy();
     expect(updateOrderByIdNock.isDone()).toBeTruthy();
   });
 });

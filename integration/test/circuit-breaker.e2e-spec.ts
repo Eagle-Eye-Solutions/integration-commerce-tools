@@ -67,7 +67,9 @@ describe('Circuit breaker (e2e)', () => {
       RECALCULATE_CART.resource.id,
       CUSTOM_OBJECT_CONTAINER_BASKET_STORE,
       {},
-      16,
+      1,
+      200,
+      true,
     );
     const walletOpenNock = await nockWalletOpen(
       RECALCULATE_CART.resource.obj,

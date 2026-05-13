@@ -77,18 +77,18 @@ describe('Clean Stored Enriched Baskets (e2e)', () => {
         results: Array(2).fill(sampleCustomObject),
       },
     );
-    const deleteCustomObjectNock = nockDeleteCustomObject(
-      'my-cart-id',
-      CUSTOM_OBJECT_CONTAINER_BASKET_STORE,
-      {},
-      16,
-    );
     const deleteCustomObjectNockFailed = nockDeleteCustomObject(
       'my-cart-id',
       CUSTOM_OBJECT_CONTAINER_BASKET_STORE,
       {},
       1,
       404,
+    );
+    const deleteCustomObjectNock = nockDeleteCustomObject(
+      'my-cart-id',
+      CUSTOM_OBJECT_CONTAINER_BASKET_STORE,
+      {},
+      6,
     );
 
     app = await initAppModule();

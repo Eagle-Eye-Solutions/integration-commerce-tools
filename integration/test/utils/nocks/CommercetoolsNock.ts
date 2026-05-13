@@ -5,19 +5,13 @@ export const nockCtAuth = () => {
     encodedQueryParams: true,
   })
     .persist()
-    .post('/oauth/token', 'grant_type=client_credentials')
-    .reply(
-      200,
-      [
-        {
-          access_token: 'my-secret-access-token',
-          token_type: 'Bearer',
-          expires_in: 172491,
-          scope: `manage_project:${process.env.CTP_PROJECT_KEY}`,
-        },
-      ],
-      [],
-    );
+    .post('/oauth/token', /grant_type=client_credentials/)
+    .reply(200, {
+      access_token: 'my-secret-access-token',
+      token_type: 'Bearer',
+      expires_in: 172491,
+      scope: `manage_project:${process.env.CTP_PROJECT_KEY}`,
+    });
 };
 
 export const nockCtGetShippingMethodsWithIds = (ids: string[], times = 1) => {
@@ -56,12 +50,21 @@ export const nockCtGetOrderById = (order, times = 1, persist = true) => {
     .reply(200, order, []);
 };
 
-export const nockCtUpdateOrderById = (order, body, times = 1) => {
-  return nock('https://api.europe-west1.gcp.commercetools.com:443', {
+export const nockCtUpdateOrderById = (
+  order,
+  _body?: unknown,
+  times?: number,
+) => {
+  const scope = nock('https://api.europe-west1.gcp.commercetools.com:443', {
     encodedQueryParams: false,
-  })
-    .persist()
-    .post(`/${process.env.CTP_PROJECT_KEY}/orders/${order.id}`, body)
-    .times(times)
-    .reply(200, order, []);
+  });
+  if (times === undefined) {
+    scope.persist();
+  }
+  const chain = scope.post(
+    `/${process.env.CTP_PROJECT_KEY}/orders/${order.id}`,
+  );
+  return times !== undefined
+    ? chain.times(times).reply(200, order, [])
+    : chain.reply(200, order, []);
 };
