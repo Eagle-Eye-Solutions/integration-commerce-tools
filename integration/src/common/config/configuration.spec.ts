@@ -6,60 +6,42 @@ import {
   defaultConfiguration,
   parseShippingMethodMap,
 } from './configuration';
-import * as configurationUtil from './configuration';
+
+const VALID_CONFIG_OVERRIDE = {
+  commercetools: {
+    projectKey: 'test-project',
+    region: 'eu',
+    clientId: 'test-client-id',
+    clientSecret: 'test-client-secret',
+  },
+  eagleEye: {
+    clientId: 'test-ee-client',
+    clientSecret: 'test-ee-secret',
+    incomingIdentifier: 'test-identifier',
+  },
+};
 
 describe('validateConfiguration', () => {
-  let configSpy;
-
-  beforeEach(() => {
-    configSpy = jest.spyOn(configurationUtil, 'configuration');
+  afterEach(() => {
+    delete process.env.CONFIG_OVERRIDE;
   });
 
   it('should throw an error if configuration is invalid', () => {
-    const invalidConfig = {
-      debug: {
-        extensionKey: 'some-key',
-        ngrokEnabled: false,
-      },
-      commercetools: {
-        projectKey: '', // Invalid type
-        region: 'us',
-        clientId: 'my-client-id',
-        clientSecret: 'my-client-secret',
-        scope: [],
-      },
-    };
-
-    configSpy.mockReturnValue(invalidConfig);
-
+    process.env.CONFIG_OVERRIDE = JSON.stringify({
+      commercetools: { projectKey: '' },
+    });
     expect(() => {
       validateConfiguration();
     }).toThrow();
-    configSpy.mockRestore();
   });
 
   it('should return the validation result if configuration is valid', () => {
-    const validConfig = {
-      debug: {
-        extensionKey: 'my-extension',
-        ngrokEnabled: true,
-      },
-      commercetools: {
-        projectKey: 'my-project',
-        region: 'us',
-        clientId: 'my-client-id',
-        clientSecret: 'my-client-secret',
-        scope: ['read', 'write'],
-      },
-    };
-
-    configSpy.mockReturnValue(validConfig);
+    process.env.CONFIG_OVERRIDE = JSON.stringify(VALID_CONFIG_OVERRIDE);
 
     const result = validateConfiguration();
 
     expect(result.error).toBeUndefined();
-    expect(result.value).toEqual(validConfig);
-    configSpy.mockRestore();
+    expect(result.value).toBeDefined();
   });
 });
 
@@ -92,17 +74,14 @@ describe('parseShippingMethodMap', () => {
 });
 
 describe('configuration', () => {
-  let configSpy;
-
-  beforeEach(() => {
-    configSpy = jest.spyOn(configurationUtil, 'configuration');
+  afterEach(() => {
+    delete process.env.CONFIG_OVERRIDE;
   });
 
   it('should return the default configuration if CONFIG_OVERRIDE is not set', () => {
     const result = configuration();
 
     expect(result).toEqual(defaultConfiguration);
-    configSpy.mockRestore();
   });
 
   it('should return the merged configuration if CONFIG_OVERRIDE is set', () => {
@@ -121,14 +100,12 @@ describe('configuration', () => {
     const result = configuration();
 
     expect(result).toEqual(expectedConfig);
-    configSpy.mockRestore();
   });
 
   test('should log error and return default configuration if config cannot be merged', () => {
     process.env.CONFIG_OVERRIDE = 'invalid-json';
 
     const result = configuration();
-    delete process.env.CONFIG_OVERRIDE;
     expect(result).toEqual(defaultConfiguration);
   });
 });
@@ -137,14 +114,19 @@ describe('ScriptConfigService', () => {
   let scriptConfigService: ScriptConfigService;
 
   beforeEach(() => {
+    process.env.CONFIG_OVERRIDE = JSON.stringify(VALID_CONFIG_OVERRIDE);
     scriptConfigService = new ScriptConfigService();
     jest.clearAllMocks();
+  });
+
+  afterEach(() => {
+    delete process.env.CONFIG_OVERRIDE;
   });
 
   describe('get', () => {
     it('should return the value of a property', () => {
       const propertyPath = 'commercetools.projectKey';
-      const expectedValue = process.env.CTP_PROJECT_KEY;
+      const expectedValue = VALID_CONFIG_OVERRIDE.commercetools.projectKey;
 
       const result = scriptConfigService.get(propertyPath);
 
@@ -153,11 +135,10 @@ describe('ScriptConfigService', () => {
 
     it('should return the default value if property is not found', () => {
       const propertyPath = 'debug.nonExistentProperty';
-      const expectedValue = undefined;
 
       const result = scriptConfigService.get(propertyPath);
 
-      expect(result).toEqual(expectedValue);
+      expect(result).toEqual(undefined);
     });
   });
 });

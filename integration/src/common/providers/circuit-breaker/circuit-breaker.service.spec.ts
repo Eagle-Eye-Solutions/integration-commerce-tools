@@ -75,7 +75,7 @@ describe('CircuitBreakerService', () => {
 
   it('should initialize circuit breaker on module init', async () => {
     const initialState = mock<CircuitBreakerInfo>();
-    jest
+    const loadStateSpy = jest
       .spyOn(circuitBreakerState, 'loadState')
       .mockResolvedValue(initialState);
     await service.onModuleInit();
@@ -84,7 +84,7 @@ describe('CircuitBreakerService', () => {
       1700,
     );
 
-    expect(jest.spyOn(circuitBreakerState, 'loadState')).toBeCalledTimes(1);
+    expect(loadStateSpy).toHaveBeenCalledTimes(1);
     expect(CircuitBreaker).toHaveBeenCalledWith(
       breakableApi.invoke,
       expect.objectContaining(initialState),
@@ -97,7 +97,7 @@ describe('CircuitBreakerService', () => {
     enabledBreakerMock = false;
     await service.onModuleInit();
 
-    expect(jest.spyOn(circuitBreakerState, 'loadState')).toBeCalledTimes(0);
+    expect(circuitBreakerState.loadState).not.toHaveBeenCalled();
   });
 
   it('should log error if the circuit breaker is open', async () => {
@@ -106,7 +106,7 @@ describe('CircuitBreakerService', () => {
     openedBreakerMock = true;
     await service.onModuleInit();
 
-    expect(jest.spyOn(circuitBreakerState, 'loadState')).toBeCalledTimes(0);
+    expect(circuitBreakerState.loadState).not.toHaveBeenCalled();
   });
 
   it('should save state', async () => {

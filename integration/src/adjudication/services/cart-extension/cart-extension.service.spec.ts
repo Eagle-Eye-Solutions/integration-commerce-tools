@@ -317,8 +317,8 @@ describe('CartExtensionService', () => {
     });
     const response = await service.handleCartExtensionRequest(body);
     expect(response).toEqual(result);
-    expect(basketStoreService.save).toBeCalledTimes(1);
-    expect(basketStoreService.delete).toBeCalledTimes(0);
+    expect(basketStoreService.save).toHaveBeenCalledTimes(1);
+    expect(basketStoreService.delete).toHaveBeenCalledTimes(0);
   });
 
   it('should not store the enriched basket if that option is not enabled', async () => {
@@ -428,8 +428,8 @@ describe('CartExtensionService', () => {
     });
     const response = await service.handleCartExtensionRequest(body);
     expect(response).toEqual(result);
-    expect(basketStoreService.save).toBeCalledTimes(0);
-    expect(basketStoreService.delete).toBeCalledTimes(0);
+    expect(basketStoreService.save).toHaveBeenCalledTimes(0);
+    expect(basketStoreService.delete).toHaveBeenCalledTimes(0);
   });
 
   it('should return valid token and invalid token errors when provided by the EE API', async () => {
@@ -505,8 +505,8 @@ describe('CartExtensionService', () => {
     });
     const response = await service.handleCartExtensionRequest(body);
     expect(response).toEqual(result);
-    expect(basketStoreService.save).toBeCalledTimes(1);
-    expect(basketStoreService.delete).toBeCalledTimes(0);
+    expect(basketStoreService.save).toHaveBeenCalledTimes(1);
+    expect(basketStoreService.delete).toHaveBeenCalledTimes(0);
   });
 
   it('should return EE_API_UNAVAILABLE error in the cart custom type when the API request to EagleEye fails', async () => {
@@ -558,8 +558,8 @@ describe('CartExtensionService', () => {
     });
     expect(response.actions).toHaveLength(2);
 
-    expect(basketStoreService.save).toBeCalledTimes(0);
-    expect(basketStoreService.delete).toBeCalledTimes(1);
+    expect(basketStoreService.save).toHaveBeenCalledTimes(0);
+    expect(basketStoreService.delete).toHaveBeenCalledTimes(1);
   });
 
   it('should return EE_IDENTITY_NOT_FOUND error custom type when identityValue is not found in EE and retry without it', async () => {
@@ -754,8 +754,8 @@ describe('CartExtensionService', () => {
       ],
     });
     expect(response.actions).toHaveLength(2);
-    expect(basketStoreService.save).toBeCalledTimes(1);
-    expect(basketStoreService.delete).toBeCalledTimes(0);
+    expect(basketStoreService.save).toHaveBeenCalledTimes(1);
+    expect(basketStoreService.delete).toHaveBeenCalledTimes(0);
   });
 
   it('should throw error when the API request to EagleEye fails with any other error after retry', async () => {
@@ -811,8 +811,8 @@ describe('CartExtensionService', () => {
     });
     expect(response.actions).toHaveLength(2);
 
-    expect(basketStoreService.save).toBeCalledTimes(0);
-    expect(basketStoreService.delete).toBeCalledTimes(1);
+    expect(basketStoreService.save).toHaveBeenCalledTimes(0);
+    expect(basketStoreService.delete).toHaveBeenCalledTimes(1);
   });
 
   it('should not try to delete the enriched basket when the feature is not enabled and the EE API fails', async () => {
@@ -839,8 +839,8 @@ describe('CartExtensionService', () => {
     const response = await service.handleCartExtensionRequest(body);
     expect(response.actions).toHaveLength(2);
 
-    expect(basketStoreService.save).toBeCalledTimes(0);
-    expect(basketStoreService.delete).toBeCalledTimes(0);
+    expect(basketStoreService.save).toHaveBeenCalledTimes(0);
+    expect(basketStoreService.delete).toHaveBeenCalledTimes(0);
   });
 
   it('should return EE_API_CIRCUIT_OPEN error in the cart custom type when the circuit breaker is open', async () => {
@@ -889,8 +889,8 @@ describe('CartExtensionService', () => {
       ],
     });
 
-    expect(basketStoreService.save).toBeCalledTimes(0);
-    expect(basketStoreService.delete).toBeCalledTimes(1);
+    expect(basketStoreService.save).toHaveBeenCalledTimes(0);
+    expect(basketStoreService.delete).toHaveBeenCalledTimes(1);
   });
 
   it('should return EE_API_GENERIC_ERROR error in the cart custom type when any other error is thrown', async () => {
@@ -936,8 +936,8 @@ describe('CartExtensionService', () => {
       ],
     });
 
-    expect(basketStoreService.save).toBeCalledTimes(0);
-    expect(basketStoreService.delete).toBeCalledTimes(1);
+    expect(basketStoreService.save).toHaveBeenCalledTimes(0);
+    expect(basketStoreService.delete).toHaveBeenCalledTimes(1);
   });
 
   it('should add the BASKET_DELETE error message to the errors list if fails to delete the saved basked following another error', async () => {
@@ -991,7 +991,7 @@ describe('CartExtensionService', () => {
       ],
     });
 
-    expect(basketStoreService.save).toBeCalledTimes(0);
-    expect(basketStoreService.delete).toBeCalledTimes(1);
+    expect(basketStoreService.save).toHaveBeenCalledTimes(0);
+    expect(basketStoreService.delete).toHaveBeenCalledTimes(1);
   });
 });

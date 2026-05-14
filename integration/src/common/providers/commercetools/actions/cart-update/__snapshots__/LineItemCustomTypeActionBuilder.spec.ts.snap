@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`LineItemCustomTypeActionBuilder > loyaltyCredits should build an addCustomType action when total is available in an offer 1`] = `
 [

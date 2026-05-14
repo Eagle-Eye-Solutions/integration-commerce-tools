@@ -348,7 +348,7 @@ describe('EventHandlerService', () => {
           message as any,
           true,
         );
-      }).toThrowError(`Failed to process request for message: ${message.id}`);
+      }).toThrow(`Failed to process request for message: ${message.id}`);
     });
   });
 });
