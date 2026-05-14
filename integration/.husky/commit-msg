@@ -1,4 +1,10 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
+export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+if [ -f ".nvmrc" ] && command -v nvm > /dev/null 2>&1; then
+  nvm use
+fi
+
 cd integration && yarn run commitlint ${1}

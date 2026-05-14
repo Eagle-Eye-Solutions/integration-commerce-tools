@@ -6,7 +6,7 @@
   "private": true,
   "license": "MIT",
   "engines": {
-    "node": ">=20 <21"
+    "node": ">=24 <25"
   },
   "scripts": {
     "prebuild": "rimraf dist",
@@ -67,7 +67,7 @@
     "@swc/jest": "^0.2.0",
     "@types/jest": "^30.0.0",
     "@types/lodash": "^4.14.200",
-    "@types/node": "^20.19.0",
+    "@types/node": "^24.0.0",
     "@types/supertest": "^2.0.12",
     "eslint": "^9.0.0",
     "eslint-config-prettier": "^9.0.0",
