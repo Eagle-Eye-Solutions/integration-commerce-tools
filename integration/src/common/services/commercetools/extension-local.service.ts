@@ -12,7 +12,7 @@ import { DEFAULT_PORT } from '../../constants/constants';
 
 let ngrok;
 if (process.env.NODE_ENV === 'dev' || process.env.NODE_ENV === 'test') {
-  ngrok = require('ngrok');
+  ngrok = require('ngrok'); // eslint-disable-line @typescript-eslint/no-require-imports
 }
 
 /**

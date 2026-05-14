@@ -112,7 +112,7 @@ export class LoyaltyMapper {
         if (account.type === 'QUEST') {
           questOffer = true;
         }
-        if (offerMap.hasOwnProperty(result.instanceId)) {
+        if (Object.prototype.hasOwnProperty.call(offerMap, result.instanceId)) {
           offerMap[result.instanceId] = this.updateOffer(
             offerMap[result.instanceId],
             result,
