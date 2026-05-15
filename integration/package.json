@@ -1,6 +1,6 @@
 {
   "name": "eagleeye-commercetools-integration",
-  "version": "1.0.0",
+  "version": "2.2.0",
   "description": "",
   "author": "",
   "private": true,
@@ -96,14 +96,27 @@
     "rootDir": "src",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
-      "^.+\\.(t|j)s$": ["@swc/jest", {
-        "jsc": {
-          "parser": { "syntax": "typescript", "tsx": false, "decorators": true },
-          "transform": { "legacyDecorator": true, "decoratorMetadata": true },
-          "target": "es2017"
-        },
-        "module": { "type": "commonjs", "noInterop": true }
-      }]
+      "^.+\\.(t|j)s$": [
+        "@swc/jest",
+        {
+          "jsc": {
+            "parser": {
+              "syntax": "typescript",
+              "tsx": false,
+              "decorators": true
+            },
+            "transform": {
+              "legacyDecorator": true,
+              "decoratorMetadata": true
+            },
+            "target": "es2017"
+          },
+          "module": {
+            "type": "commonjs",
+            "noInterop": true
+          }
+        }
+      ]
     },
     "collectCoverage": true,
     "collectCoverageFrom": [
