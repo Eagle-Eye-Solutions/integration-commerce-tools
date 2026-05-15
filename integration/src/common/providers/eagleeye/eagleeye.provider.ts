@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { createHash } from 'crypto';
+import { createHash } from 'node:crypto';
 import { BreakableApi } from '../circuit-breaker/interfaces/breakable-api.interface';
 import { ConfigService } from '@nestjs/config';
 import { EagleEyeApiException } from '../../exceptions/eagle-eye-api.exception';
@@ -89,74 +89,81 @@ export abstract class EagleEyeSdkObject implements BreakableApi {
       const value = await firstValueFrom(response);
       return value;
     } catch (err: unknown) {
-      const httpStatus = getAxiosHttpStatus(err);
-      if (httpStatus != null) {
-        const rawResponse = axios.isAxiosError(err)
-          ? err.response
-          : (
-              err as {
-                response?: {
-                  status?: number;
-                  data?: unknown;
-                  headers?: unknown;
-                };
-              }
-            ).response;
-        const logResponse = rawResponse ?? {
-          status: httpStatus,
-          data: undefined,
-          headers: {},
-        };
-        this.logger.error(
-          `EE API returned error with status: ${httpStatus} and Unique Call ID: ${getEesCalledUniqueIdHeader(logResponse)}`,
-          {
-            body,
-            data: logResponse.data,
-          },
-          EagleEyeSdkObject.name,
-        );
-        switch (httpStatus) {
-          case 404:
-            throw new EagleEyeApiException(
-              'EE_IDENTITY_NOT_FOUND',
-              "The customer identity doesn't exist in EE AIR Platform.",
-            );
-          case 400:
-            throw new EagleEyeApiException(
-              'EE_BAD_REQUEST',
-              'The request could not be processed by the EE AIR Platform.',
-            );
-          default:
-            throw new EagleEyeApiException(
-              'EE_UNEXPECTED_ERROR',
-              'The request failed to be processed by the EE AIR Platform due to an unexpected error.',
-            );
-        }
-      } else if (
-        axios.isAxiosError(err)
-          ? err.request
-          : (err as { request?: unknown }).request
-      ) {
-        this.logger.error(
-          'EagleEye API error: ',
-          axios.isAxiosError(err) ? err.message : (err as Error).message,
-          EagleEyeSdkObject.name,
-        );
-        throw new EagleEyeApiException(
-          'AXIOS_NO_RESPONSE_ERROR',
-          'The request to EE AIR Platform failed but Axios did not include a response.',
-        );
-      } else {
-        this.logger.error(
-          'EagleEye API unhandled error: ',
-          err,
-          EagleEyeSdkObject.name,
-        );
-        throw new EagleEyeApiException(
-          'EE_API_UNAVAILABLE',
-          'The EE API is unavailable, the cart promotions and loyalty points are NOT updated.',
-        );
+      this.handleApiRequestError(err, body);
+    }
+  }
+
+  private handleApiRequestError(
+    err: unknown,
+    body: Record<string, any>,
+  ): never {
+    const httpStatus = getAxiosHttpStatus(err);
+    if (httpStatus != null) {
+      const rawResponse = axios.isAxiosError(err)
+        ? err.response
+        : (
+            err as {
+              response?: {
+                status?: number;
+                data?: unknown;
+                headers?: unknown;
+              };
+            }
+          ).response;
+      const logResponse = rawResponse ?? {
+        status: httpStatus,
+        data: undefined,
+        headers: {},
+      };
+      this.logger.error(
+        `EE API returned error with status: ${httpStatus} and Unique Call ID: ${getEesCalledUniqueIdHeader(logResponse)}`,
+        {
+          body,
+          data: logResponse.data,
+        },
+        EagleEyeSdkObject.name,
+      );
+      switch (httpStatus) {
+        case 404:
+          throw new EagleEyeApiException(
+            'EE_IDENTITY_NOT_FOUND',
+            "The customer identity doesn't exist in EE AIR Platform.",
+          );
+        case 400:
+          throw new EagleEyeApiException(
+            'EE_BAD_REQUEST',
+            'The request could not be processed by the EE AIR Platform.',
+          );
+        default:
+          throw new EagleEyeApiException(
+            'EE_UNEXPECTED_ERROR',
+            'The request failed to be processed by the EE AIR Platform due to an unexpected error.',
+          );
       }
+    } else if (
+      axios.isAxiosError(err)
+        ? err.request
+        : (err as { request?: unknown }).request
+    ) {
+      this.logger.error(
+        'EagleEye API error: ',
+        axios.isAxiosError(err) ? err.message : (err as Error).message,
+        EagleEyeSdkObject.name,
+      );
+      throw new EagleEyeApiException(
+        'AXIOS_NO_RESPONSE_ERROR',
+        'The request to EE AIR Platform failed but Axios did not include a response.',
+      );
+    } else {
+      this.logger.error(
+        'EagleEye API unhandled error: ',
+        err,
+        EagleEyeSdkObject.name,
+      );
+      throw new EagleEyeApiException(
+        'EE_API_UNAVAILABLE',
+        'The EE API is unavailable, the cart promotions and loyalty points are NOT updated.',
+      );
     }
   }
 }

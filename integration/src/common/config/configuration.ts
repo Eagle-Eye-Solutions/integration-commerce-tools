@@ -3,7 +3,7 @@ import 'dotenv/config';
 import * as _ from 'lodash';
 import { parseBool } from '../../common/helper/booleanParser';
 import { Injectable, Logger } from '@nestjs/common';
-import * as process from 'process';
+import * as process from 'node:process';
 
 const logger = new Logger('ConfigService');
 
@@ -99,12 +99,15 @@ export const defaultConfiguration = {
     ),
   },
   circuitBreaker: {
-    timeout: parseInt(process.env.CIRCUIT_BREAKER_TIMEOUT, 10) || 1700,
+    timeout: Number.parseInt(process.env.CIRCUIT_BREAKER_TIMEOUT, 10) || 1700,
     resetTimeout:
-      parseInt(process.env.CIRCUIT_BREAKER_RESET_TIMEOUT, 10) || undefined,
-    errorThresholdPercentage:
-      parseInt(process.env.CIRCUIT_BREAKER_ERROR_THRESHOLD_PERCENTAGE, 10) ||
+      Number.parseInt(process.env.CIRCUIT_BREAKER_RESET_TIMEOUT, 10) ||
       undefined,
+    errorThresholdPercentage:
+      Number.parseInt(
+        process.env.CIRCUIT_BREAKER_ERROR_THRESHOLD_PERCENTAGE,
+        10,
+      ) || undefined,
     enabled: parseBool(process.env.CIRCUIT_BREAKER_ENABLED, true),
   },
   eventHandler: {
@@ -118,9 +121,9 @@ export const defaultConfiguration = {
   },
   storedBasketCleanup: {
     objectQueryLimit:
-      parseInt(process.env.BASKET_CLEANUP_QUERY_LIMIT, 10) || 100,
+      Number.parseInt(process.env.BASKET_CLEANUP_QUERY_LIMIT, 10) || 100,
     olderThanValue:
-      parseInt(process.env.BASKET_CLEANUP_OLDER_THAN_VALUE, 10) || 1,
+      Number.parseInt(process.env.BASKET_CLEANUP_OLDER_THAN_VALUE, 10) || 1,
     olderThanUnit: process.env.BASKET_CLEANUP_OLDER_THAN_UNIT || 'days',
   },
 };

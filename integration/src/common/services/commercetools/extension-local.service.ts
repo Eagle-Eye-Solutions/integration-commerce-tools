@@ -38,7 +38,7 @@ export class ExtensionLocalService implements OnModuleInit, OnModuleDestroy {
       this.configService.get('debug.ngrokEnabled')
     ) {
       const ngrokUrl = await ngrok.connect(
-        parseInt(process.env.PORT, 10) || DEFAULT_PORT,
+        Number.parseInt(process.env.PORT, 10) || DEFAULT_PORT,
       );
       this.logger.log(`Initialized ngrok at ${ngrokUrl}.`);
       this.logger.log('Creating debug commercetools extension...');
