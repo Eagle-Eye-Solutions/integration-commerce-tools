@@ -12,7 +12,7 @@ import { DEFAULT_PORT } from '../../constants/constants';
 
 let ngrok;
 if (process.env.NODE_ENV === 'dev' || process.env.NODE_ENV === 'test') {
-  ngrok = require('ngrok');
+  ngrok = require('ngrok'); // eslint-disable-line @typescript-eslint/no-require-imports
 }
 
 /**
@@ -38,7 +38,7 @@ export class ExtensionLocalService implements OnModuleInit, OnModuleDestroy {
       this.configService.get('debug.ngrokEnabled')
     ) {
       const ngrokUrl = await ngrok.connect(
-        parseInt(process.env.PORT, 10) || DEFAULT_PORT,
+        Number.parseInt(process.env.PORT, 10) || DEFAULT_PORT,
       );
       this.logger.log(`Initialized ngrok at ${ngrokUrl}.`);
       this.logger.log('Creating debug commercetools extension...');
@@ -54,16 +54,14 @@ export class ExtensionLocalService implements OnModuleInit, OnModuleDestroy {
           actions: [
             {
               action: 'changeTriggers',
-              triggers: extensions
-                .map((ext) =>
-                  ext.triggers.map((trigger) => {
-                    return {
-                      ...trigger,
-                      condition: this.extensionTriggerCondition,
-                    };
-                  }),
-                )
-                .flat(),
+              triggers: extensions.flatMap((ext) =>
+                ext.triggers.map((trigger) => {
+                  return {
+                    ...trigger,
+                    condition: this.extensionTriggerCondition,
+                  };
+                }),
+              ),
             },
             {
               action: 'changeDestination',
@@ -78,16 +76,14 @@ export class ExtensionLocalService implements OnModuleInit, OnModuleDestroy {
         await this.commercetoolsService.createExtension({
           key: this.extensionKey,
           destination: { type: 'HTTP', url: `${ngrokUrl}/cart-service` },
-          triggers: extensions
-            .map((ext) =>
-              ext.triggers.map((trigger) => {
-                return {
-                  ...trigger,
-                  condition: this.extensionTriggerCondition,
-                };
-              }),
-            )
-            .flat(),
+          triggers: extensions.flatMap((ext) =>
+            ext.triggers.map((trigger) => {
+              return {
+                ...trigger,
+                condition: this.extensionTriggerCondition,
+              };
+            }),
+          ),
         });
         this.logger.log('Debug commercetools extension created.');
       }

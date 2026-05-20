@@ -10,9 +10,7 @@ import {
 import { CustomObjectService } from '../commercetools/custom-object/custom-object.service';
 
 @Injectable()
-export class CommercetoolsCircuitBreakerStateService
-  implements CircuitBreakerState
-{
+export class CommercetoolsCircuitBreakerStateService implements CircuitBreakerState {
   private readonly logger = new Logger(
     CommercetoolsCircuitBreakerStateService.name,
   );

@@ -37,9 +37,9 @@ runs:
   using: "composite"
   steps:
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
-        node-version: 18.x
+        node-version: 24.x
         cache: yarn
         cache-dependency-path: ./integration/yarn.lock
     - name: Install newman
@@ -51,20 +51,30 @@ runs:
       shell: bash
       id: date_output
     - name: Run e2e tests
+      env:
+        POSTMAN_COLLECTION: ${{ inputs.postman_collection_json }}
+        CT_CLIENT_ID: ${{ inputs.ct_client_id }}
+        CT_SECRET: ${{ inputs.ct_secret }}
+        CT_REGION: ${{ inputs.ct_region }}
+        CT_PROJECT_ID: ${{ inputs.ct_project_id }}
+        EE_POS_URL: ${{ inputs.ee_pos_url }}
+        EE_WALLET_URL: ${{ inputs.ee_wallet_url }}
+        EE_CLIENT_ID: ${{ inputs.ee_client_id }}
+        EE_CLIENT_SECRET: ${{ inputs.ee_client_secret }}
       run: |
-        newman run ${{ inputs.postman_collection_json }} \
+        newman run "$POSTMAN_COLLECTION" \
           -r htmlextra \
-          --reporter-htmlextra-export newman/htmlreport-${{ inputs.ct_project_id }}.html \
-          --env-var "client_id=${{ inputs.ct_client_id }}" \
-          --env-var "client_secret=${{ inputs.ct_secret }}" \
-          --env-var "auth_url=https://auth.${{ inputs.ct_region }}.commercetools.com" \
-          --env-var "host=https://api.${{ inputs.ct_region }}.commercetools.com" \
-          --env-var "project-key=${{ inputs.ct_project_id }}" \
-          --env-var "pos_url=${{ inputs.ee_pos_url }}" \
-          --env-var "wallet_url=${{ inputs.ee_wallet_url }}" \
+          --reporter-htmlextra-export "newman/htmlreport-${CT_PROJECT_ID}.html" \
+          --env-var "client_id=${CT_CLIENT_ID}" \
+          --env-var "client_secret=${CT_SECRET}" \
+          --env-var "auth_url=https://auth.${CT_REGION}.commercetools.com" \
+          --env-var "host=https://api.${CT_REGION}.commercetools.com" \
+          --env-var "project-key=${CT_PROJECT_ID}" \
+          --env-var "pos_url=${EE_POS_URL}" \
+          --env-var "wallet_url=${EE_WALLET_URL}" \
           --env-var "schemeId=1653843" \
-          --env-var "ee_client_id=${{ inputs.ee_client_id }}" \
-          --env-var "ee_client_secret=${{ inputs.ee_client_secret }}"
+          --env-var "ee_client_id=${EE_CLIENT_ID}" \
+          --env-var "ee_client_secret=${EE_CLIENT_SECRET}"
       shell: bash
       working-directory: ./integration/test
     - name: Upload test results

@@ -1,9 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
+import axios from 'axios';
 import {
   type AuthMiddlewareOptions,
   ClientBuilder,
   type HttpMiddlewareOptions,
-} from '@commercetools/sdk-client-v2';
+} from '@commercetools/ts-client';
 import {
   createApiBuilderFromCtpClient,
   Extension,
@@ -40,6 +41,7 @@ export class Commercetools {
         clientSecret: configService.get('commercetools.clientSecret'),
       },
       scopes: configService.get<string[]>('commercetools.scopes'),
+      httpClient: axios,
     };
   }
 
@@ -50,6 +52,7 @@ export class Commercetools {
       host: `https://api.${configService.get(
         'commercetools.region',
       )}.commercetools.com`,
+      httpClient: axios,
     };
   }
 

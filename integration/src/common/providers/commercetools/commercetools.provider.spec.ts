@@ -67,6 +67,16 @@ describe('Commercetools', () => {
 
     commercetools = module.get<Commercetools>(Commercetools);
     configService = module.get<ConfigService>(ConfigService);
+    jest.spyOn(configService, 'get').mockImplementation((key: string) => {
+      const defaults: Record<string, unknown> = {
+        'commercetools.projectKey': 'test-project-key',
+        'commercetools.region': 'europe-west1.gcp',
+        'commercetools.clientId': 'test-client-id',
+        'commercetools.clientSecret': 'test-client-secret',
+        'commercetools.scopes': ['manage_project:test-project-key'],
+      };
+      return defaults[key];
+    });
   });
 
   it('should be defined', () => {

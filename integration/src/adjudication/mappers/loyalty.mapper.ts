@@ -69,13 +69,12 @@ export class LoyaltyMapper {
     const itemCredits = { total: 0, offers: [] };
     const itemCreditResults = basket.contents
       .filter((item) => item.adjudicationResults)
-      .map((item) =>
+      .flatMap((item) =>
         item.adjudicationResults.map((result) => ({
           ...result,
           sku: item.upc || item.sku,
         })),
       )
-      .flat()
       .filter((result) => result.type === 'credit');
     if (itemCreditResults.length) {
       itemCredits.total = itemCreditResults.reduce(
@@ -112,7 +111,7 @@ export class LoyaltyMapper {
         if (account.type === 'QUEST') {
           questOffer = true;
         }
-        if (offerMap.hasOwnProperty(result.instanceId)) {
+        if (Object.hasOwn(offerMap, result.instanceId)) {
           offerMap[result.instanceId] = this.updateOffer(
             offerMap[result.instanceId],
             result,
