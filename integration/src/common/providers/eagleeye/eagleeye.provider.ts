@@ -48,7 +48,7 @@ export abstract class EagleEyeSdkObject implements BreakableApi {
     } else {
       const errorString = `Method '${methodName}' does not exist or is not callable.`;
       this.logger.error(errorString);
-      throw Error(errorString);
+      throw new Error(errorString);
     }
   }
 

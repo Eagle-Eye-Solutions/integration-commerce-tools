@@ -113,12 +113,7 @@ export class QuestCampaignHandler {
           campaignName: campaignNameMap[result.resourceId],
         };
 
-        if (
-          Object.prototype.hasOwnProperty.call(
-            questCampaignToOfferMap,
-            questCampaignAccountId,
-          )
-        ) {
+        if (Object.hasOwn(questCampaignToOfferMap, questCampaignAccountId)) {
           const campaignOffer = questCampaignToOfferMap[questCampaignAccountId];
           campaignOffer.currentObjectives.push(currentObjective);
           campaignOffer.objectivesToMeet = objectivesToMeet;

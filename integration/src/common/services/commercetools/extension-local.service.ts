@@ -54,16 +54,14 @@ export class ExtensionLocalService implements OnModuleInit, OnModuleDestroy {
           actions: [
             {
               action: 'changeTriggers',
-              triggers: extensions
-                .map((ext) =>
-                  ext.triggers.map((trigger) => {
-                    return {
-                      ...trigger,
-                      condition: this.extensionTriggerCondition,
-                    };
-                  }),
-                )
-                .flat(),
+              triggers: extensions.flatMap((ext) =>
+                ext.triggers.map((trigger) => {
+                  return {
+                    ...trigger,
+                    condition: this.extensionTriggerCondition,
+                  };
+                }),
+              ),
             },
             {
               action: 'changeDestination',
@@ -78,16 +76,14 @@ export class ExtensionLocalService implements OnModuleInit, OnModuleDestroy {
         await this.commercetoolsService.createExtension({
           key: this.extensionKey,
           destination: { type: 'HTTP', url: `${ngrokUrl}/cart-service` },
-          triggers: extensions
-            .map((ext) =>
-              ext.triggers.map((trigger) => {
-                return {
-                  ...trigger,
-                  condition: this.extensionTriggerCondition,
-                };
-              }),
-            )
-            .flat(),
+          triggers: extensions.flatMap((ext) =>
+            ext.triggers.map((trigger) => {
+              return {
+                ...trigger,
+                condition: this.extensionTriggerCondition,
+              };
+            }),
+          ),
         });
         this.logger.log('Debug commercetools extension created.');
       }
