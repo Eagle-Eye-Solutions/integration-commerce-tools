@@ -3,8 +3,8 @@ deployAs:
     applicationType: service
     endpoint: /cart-service
     scripts:
-      postDeploy: npm install && npm run build && npm run connector:post-deploy:service
-      preUndeploy: npm install && npm run build && npm run connector:pre-undeploy:service
+      postDeploy: yarn install && yarn run build && yarn run connector:post-deploy:service
+      preUndeploy: yarn install && yarn run build && yarn run connector:pre-undeploy:service
     configuration:
       standardConfiguration:
         - key: CTP_PROJECT_KEY
@@ -78,8 +78,8 @@ deployAs:
     applicationType: event
     endpoint: /events
     scripts:
-      postDeploy: npm install && npm run build && npm run connector:post-deploy:events
-      preUndeploy: npm install && npm run build && npm run connector:pre-undeploy:events
+      postDeploy: yarn install && yarn run build && yarn run connector:post-deploy:events
+      preUndeploy: yarn install && yarn run build && yarn run connector:pre-undeploy:events
     configuration:
       standardConfiguration:
         - key: CTP_PROJECT_KEY
@@ -178,7 +178,7 @@ deployAs:
           description: "Number for time reference to use when querying old custom objects. E.g.: 5, for older than 5 days"
           required: false
         - key: BASKET_CLEANUP_OLDER_THAN_UNIT
-          description: "Time unit for reference to use when querying old custom objects (follows moment.js spec). E.g.: \"days\" for older than 5 days"
+          description: 'Time unit for reference to use when querying old custom objects (follows moment.js spec). E.g.: "days" for older than 5 days'
           required: false
       securedConfiguration:
         - key: CTP_CLIENT_ID
